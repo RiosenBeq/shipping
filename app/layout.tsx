@@ -1,7 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { JsonLd } from "./components/JsonLd";
+import { ThemeProvider } from "./components/ThemeProvider";
+import { CookieConsent } from "./components/CookieConsent";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
@@ -124,13 +128,19 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${sourceSerif.variable} ${manrope.variable} ${ibmPlexMono.variable}`}
+      suppressHydrationWarning
     >
       <body>
         <a href="#content" className="skip-link">
           Skip to content
         </a>
         <JsonLd data={[organizationLd(), websiteLd()]} />
-        <div id="content">{children}</div>
+        <ThemeProvider>
+          <div id="content">{children}</div>
+          <CookieConsent />
+        </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

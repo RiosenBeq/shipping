@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavKey = "home" | "tankers" | "brokers" | "research" | "tools" | "offices";
 
@@ -66,22 +67,26 @@ export function Nav({ active }: { active?: NavKey }) {
           </ul>
         </nav>
 
-        <div className="nav-right hidden lg:flex">
+        <div className="nav-right hidden lg:flex items-center gap-2">
+          <ThemeToggle />
           <a className="btn-login" href="#">
             Client login
             <ArrowRight className="h-3 w-3" />
           </a>
         </div>
 
-        <button
-          type="button"
-          className="lg:hidden text-foreground p-2 -mr-2"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="text-foreground p-2 -mr-2"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
