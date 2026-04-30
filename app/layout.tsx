@@ -99,6 +99,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/icon", type: "image/png" }],
     apple: [{ url: "/apple-icon", type: "image/png" }],
+    other: [{ rel: "author", url: "/humans.txt" }],
   },
   manifest: "/manifest.webmanifest",
 };
