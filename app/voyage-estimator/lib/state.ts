@@ -57,26 +57,20 @@ export function encodeState(state: EstimatorState): string {
  * ignored; invalid values fall back to the provided defaults so the page
  * always renders.
  */
-export function decodeState(
-  qs: string,
-  defaults: EstimatorState
-): EstimatorState {
+export function decodeState(qs: string, defaults: EstimatorState): EstimatorState {
   const params = new URLSearchParams(qs);
 
   const vesselClassRaw = params.get("v") as VesselClass | null;
-  const vesselClass: VesselClass = vesselClassRaw && VESSEL_VALUES.includes(vesselClassRaw)
-    ? vesselClassRaw
-    : defaults.inputs.vesselClass;
+  const vesselClass: VesselClass =
+    vesselClassRaw && VESSEL_VALUES.includes(vesselClassRaw)
+      ? vesselClassRaw
+      : defaults.inputs.vesselClass;
 
   const routeRaw = params.get("r") as RouteKey | null;
-  const route: RouteKey = routeRaw && ROUTE_VALUES.includes(routeRaw)
-    ? routeRaw
-    : defaults.route;
+  const route: RouteKey = routeRaw && ROUTE_VALUES.includes(routeRaw) ? routeRaw : defaults.route;
 
   const charterRaw = params.get("c") as EstimatorState["charter"] | null;
-  const charter = charterRaw && CHARTER_VALUES.includes(charterRaw)
-    ? charterRaw
-    : defaults.charter;
+  const charter = charterRaw && CHARTER_VALUES.includes(charterRaw) ? charterRaw : defaults.charter;
 
   const inputs: Inputs = { ...defaults.inputs, vesselClass };
   for (const key of NUMBER_KEYS) {

@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Phone, Mail, Linkedin, MessageCircle, Anchor, Globe2, FileText, Compass, Award, Building2, ShipWheel } from "lucide-react";
+import {
+  ArrowRight,
+  Phone,
+  Mail,
+  Linkedin,
+  MessageCircle,
+  Anchor,
+  Globe2,
+  FileText,
+  Compass,
+  Award,
+  Building2,
+  ShipWheel,
+} from "lucide-react";
 import { Nav } from "./components/Nav";
 import { Footer } from "./components/Footer";
 import { JsonLd } from "./components/JsonLd";
@@ -61,12 +74,7 @@ const TANKER_TILES = [
   },
 ];
 
-const BULK_CLASSES = [
-  "Capesize",
-  "Panamax / Kamsarmax",
-  "Supramax / Ultramax",
-  "Handysize",
-];
+const BULK_CLASSES = ["Capesize", "Panamax / Kamsarmax", "Supramax / Ultramax", "Handysize"];
 
 const TRUST_BADGES = [
   { Icon: Globe2, org: "Baltic Exchange", status: "Application in progress" },
@@ -129,7 +137,7 @@ export default function HomePage() {
 
         {/* Counters */}
         <section className="counters">
-          <div className="container counters-grid">
+          <div className="counters-grid container">
             {COUNTERS.map((c) => (
               <div className="counter" key={c.lbl}>
                 <div className="lbl">{c.lbl}</div>
@@ -169,7 +177,9 @@ export default function HomePage() {
                   </svg>
                   <span className="svc-title">Tankers</span>
                 </div>
-                <p className="svc-line">Crude, clean, chemicals — and the routes that connect them.</p>
+                <p className="svc-line">
+                  Crude, clean, chemicals — and the routes that connect them.
+                </p>
                 <div className="tanker-tiles">
                   {TANKER_TILES.map((t) => (
                     <Link key={t.lbl} href="/tankers" className="tanker-tile">
@@ -196,7 +206,12 @@ export default function HomePage() {
                 <h3 className="svc-line">Iron ore to grains, port-to-port.</h3>
                 {BULK_CLASSES.map((name) => (
                   <Link href="/dry-bulk" key={name} className="bulk-row">
-                    <svg className="vsl-icon" viewBox="0 0 50 16" fill="currentColor" aria-hidden="true">
+                    <svg
+                      className="vsl-icon"
+                      viewBox="0 0 50 16"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
                       <path d="M2 11 L8 7 L42 7 L48 11 L42 14 L8 14 Z" />
                       <rect x="36" y="3" width="6" height="4" />
                     </svg>
@@ -343,8 +358,8 @@ export default function HomePage() {
           <span className="eyebrow">Ready to move?</span>
           <h2 className="display h2">Ready to charter?</h2>
           <p>
-            Send us your CP terms or just describe what you&apos;re moving. A broker replies within 60
-            minutes during business hours.
+            Send us your CP terms or just describe what you&apos;re moving. A broker replies within
+            60 minutes during business hours.
           </p>
           <div className="cta-row">
             <Button asChild>

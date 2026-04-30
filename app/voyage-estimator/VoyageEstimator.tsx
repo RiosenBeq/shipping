@@ -12,13 +12,7 @@ import { DistancesView } from "./components/DistancesView";
 import { TariffsView } from "./components/TariffsView";
 import { BunkersView } from "./components/BunkersView";
 import { Inputs, buildSensitivity, computeResults } from "./lib/calc";
-import {
-  ROUTE_DATA,
-  RouteKey,
-  VESSEL_DEFAULTS,
-  VESSEL_LABELS,
-  VesselClass,
-} from "./lib/data";
+import { ROUTE_DATA, RouteKey, VESSEL_DEFAULTS, VESSEL_LABELS, VesselClass } from "./lib/data";
 import {
   EstimatorState,
   decodeState,
@@ -230,7 +224,7 @@ export function VoyageEstimator() {
       </nav>
 
       {/* ESTIMATOR VIEW */}
-      <div className={`view${view === "estimator" ? " active" : ""}`}>
+      <div className={`view${view === "estimator" ? "active" : ""}`}>
         <section className="estimator">
           <InputPanel
             inputs={inputs}
@@ -262,17 +256,17 @@ export function VoyageEstimator() {
       </div>
 
       {/* DISTANCES */}
-      <div className={`view${view === "distances" ? " active" : ""}`}>
+      <div className={`view${view === "distances" ? "active" : ""}`}>
         <DistancesView activeNm={inputs.distance} onPick={onPickDistance} />
       </div>
 
       {/* TARIFFS */}
-      <div className={`view${view === "tariffs" ? " active" : ""}`}>
+      <div className={`view${view === "tariffs" ? "active" : ""}`}>
         <TariffsView />
       </div>
 
       {/* BUNKERS */}
-      <div className={`view${view === "bunkers" ? " active" : ""}`}>
+      <div className={`view${view === "bunkers" ? "active" : ""}`}>
         <BunkersView />
       </div>
 
@@ -281,13 +275,20 @@ export function VoyageEstimator() {
         <div>
           <h3>Want a specific scenario modelled?</h3>
           <p>
-            Send your CP terms and we&apos;ll return a full estimator pack with sensitivity tables and
-            bunker hedging options inside 60 minutes.
+            Send your CP terms and we&apos;ll return a full estimator pack with sensitivity tables
+            and bunker hedging options inside 60 minutes.
           </p>
         </div>
         <a href="#contact" className="btn btn-primary">
           Send to a broker
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M5 12h14M13 5l7 7-7 7" />
           </svg>
         </a>

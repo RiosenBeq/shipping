@@ -90,9 +90,16 @@ export default function SalePurchasePage() {
             <div className="class-grid">
               {SERVICES.map(({ Icon, title, desc }) => (
                 <article key={title} className="class-cell">
-                  <Icon className="vsl mb-5 text-accent-brass h-8 w-8" />
+                  <Icon className="vsl mb-5 h-8 w-8 text-accent-brass" />
                   <h3 className="nm">{title}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.55, margin: "0 0 18px" }}>
+                  <p
+                    style={{
+                      color: "var(--muted)",
+                      fontSize: 14,
+                      lineHeight: 1.55,
+                      margin: "0 0 18px",
+                    }}
+                  >
                     {desc}
                   </p>
                   <Link href="/contact" className="cta">
@@ -109,10 +116,10 @@ export default function SalePurchasePage() {
           <h1>Detailed S&amp;P page coming soon.</h1>
           <p>
             Live deal tracker, modern-tonnage valuation models, and the S&amp;P broker roster are
-            being rolled into a dedicated workspace. For now, the desk is open — send us a brief
-            and we&apos;ll come back with a structured response.
+            being rolled into a dedicated workspace. For now, the desk is open — send us a brief and
+            we&apos;ll come back with a structured response.
           </p>
-          <div className="flex gap-3 flex-wrap justify-center">
+          <div className="flex flex-wrap justify-center gap-3">
             <Button asChild>
               <Link href="/contact">
                 Send an S&amp;P brief <ArrowRight className="h-4 w-4" />

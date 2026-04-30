@@ -93,7 +93,11 @@ export function InputPanel({
         <div className="calc-row full">
           <div className="field">
             <label htmlFor="route">Lane</label>
-            <select id="route" value={route} onChange={(e) => onRouteChange(e.target.value as RouteKey)}>
+            <select
+              id="route"
+              value={route}
+              onChange={(e) => onRouteChange(e.target.value as RouteKey)}
+            >
               {(Object.keys(ROUTE_DATA) as RouteKey[]).map((k) => (
                 <option key={k} value={k}>
                   {ROUTE_DATA[k].label}
@@ -126,7 +130,13 @@ export function InputPanel({
         <div className="calc-row">
           <div className="field">
             <label htmlFor="cargo">Cargo (mt)</label>
-            <input type="number" id="cargo" value={inputs.cargo} step="1000" onChange={num("cargo")} />
+            <input
+              type="number"
+              id="cargo"
+              value={inputs.cargo}
+              step="1000"
+              onChange={num("cargo")}
+            />
           </div>
           <div className="field">
             <label htmlFor="ws">Freight (Worldscale)</label>
@@ -241,10 +251,17 @@ export function InputPanel({
           {shareNotice === "copied"
             ? "Link copied ✓"
             : shareNotice === "error"
-            ? "Copy failed"
-            : "Share"}
+              ? "Copy failed"
+              : "Share"}
           {shareNotice === "idle" && (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <circle cx="18" cy="5" r="3" />
               <circle cx="6" cy="12" r="3" />
               <circle cx="18" cy="19" r="3" />
@@ -255,7 +272,14 @@ export function InputPanel({
         </button>
         <button type="button" className="calc-btn calc-btn-primary" onClick={onExport}>
           Export PDF
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M5 12h14M13 5l7 7-7 7" />
           </svg>
         </button>

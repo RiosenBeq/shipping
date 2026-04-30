@@ -46,11 +46,21 @@ export function HomeHero() {
           fontSize="9"
           letterSpacing="0.08em"
         >
-          <text x="14" y="126">41°10′N</text>
-          <text x="14" y="246">41°00′N</text>
-          <text x="14" y="366">40°50′N</text>
-          <text x="200" y="14">28°50′E</text>
-          <text x="600" y="14">29°10′E</text>
+          <text x="14" y="126">
+            41°10′N
+          </text>
+          <text x="14" y="246">
+            41°00′N
+          </text>
+          <text x="14" y="366">
+            40°50′N
+          </text>
+          <text x="200" y="14">
+            28°50′E
+          </text>
+          <text x="600" y="14">
+            29°10′E
+          </text>
         </g>
 
         {/* twinkling stars */}
@@ -115,10 +125,7 @@ export function HomeHero() {
 
         {/* tanker reflection */}
         <g transform="translate(680 600)" opacity="0.3">
-          <path
-            d="M 0 0 Q 6 6 24 6 L 220 6 Q 244 6 252 0 L 244 -6 L 8 -6 Z"
-            fill="#0A1F33"
-          />
+          <path d="M 0 0 Q 6 6 24 6 L 220 6 Q 244 6 252 0 L 244 -6 L 8 -6 Z" fill="#0A1F33" />
         </g>
 
         {/* expanding ripples around tanker */}
@@ -128,8 +135,22 @@ export function HomeHero() {
             <animate attributeName="opacity" from="0.4" to="0" dur="6s" repeatCount="indefinite" />
           </ellipse>
           <ellipse cx="800" cy="600" rx="60" ry="6">
-            <animate attributeName="rx" from="60" to="200" dur="6s" begin="2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" from="0.4" to="0" dur="6s" begin="2s" repeatCount="indefinite" />
+            <animate
+              attributeName="rx"
+              from="60"
+              to="200"
+              dur="6s"
+              begin="2s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              from="0.4"
+              to="0"
+              dur="6s"
+              begin="2s"
+              repeatCount="indefinite"
+            />
           </ellipse>
         </g>
 
@@ -148,19 +169,33 @@ export function HomeHero() {
           <span className="hero-eyebrow">Bosphorus · 41°N 29°E</span>
           <h1>Premium tanker brokerage. From the Bosphorus to the world.</h1>
           <p className="lead">
-            Crude, clean, chemicals, and dry bulk — chartered at the strait that 3% of the world&apos;s
-            oil flow passes through. Direct broker access, no forms forwarded.
+            Crude, clean, chemicals, and dry bulk — chartered at the strait that 3% of the
+            world&apos;s oil flow passes through. Direct broker access, no forms forwarded.
           </p>
           <div className="hero-ctas">
             <a className="btn btn-primary" href="/contact">
               Charter inquiry
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M5 12h14M13 5l7 7-7 7" />
               </svg>
             </a>
             <a className="btn btn-bone" href="/voyage-estimator">
               Voyage estimator
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M5 12h14M13 5l7 7-7 7" />
               </svg>
             </a>

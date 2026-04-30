@@ -76,8 +76,8 @@ export default function OfficesPage() {
             </span>
             <h2 className="display h2">Where we cover, who we cover with.</h2>
             <p>
-              Direct counterparty access in every major loading region for crude and clean. No layered
-              sub-broking.
+              Direct counterparty access in every major loading region for crude and clean. No
+              layered sub-broking.
             </p>
             <div className="cov-stats">
               <div className="cov-stat">

@@ -5,7 +5,11 @@ export function BosphorusSection() {
   return (
     <section className="bos">
       <div className="bos-map">
-        <svg viewBox="0 0 700 720" preserveAspectRatio="xMidYMid slice" aria-label="Stylised map of the Bosphorus">
+        <svg
+          viewBox="0 0 700 720"
+          preserveAspectRatio="xMidYMid slice"
+          aria-label="Stylised map of the Bosphorus"
+        >
           <defs>
             <pattern id="dotsBos" width="14" height="14" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.5" fill="#0A1F33" opacity="0.18" />
@@ -13,10 +17,21 @@ export function BosphorusSection() {
           </defs>
           <rect width="700" height="720" fill="#F4EEDD" />
 
-          <g fontFamily="var(--font-mono),monospace" fontSize="10" fill="#4A5E6E" letterSpacing="0.1em">
-            <text x="30" y="46">41°10′N</text>
-            <text x="30" y="690">41°00′N</text>
-            <text x="600" y="46">29°05′E</text>
+          <g
+            fontFamily="var(--font-mono),monospace"
+            fontSize="10"
+            fill="#4A5E6E"
+            letterSpacing="0.1em"
+          >
+            <text x="30" y="46">
+              41°10′N
+            </text>
+            <text x="30" y="690">
+              41°00′N
+            </text>
+            <text x="600" y="46">
+              29°05′E
+            </text>
           </g>
 
           <g stroke="#4A5E6E" strokeWidth="0.5" opacity="0.4">
@@ -95,7 +110,11 @@ export function BosphorusSection() {
           </g>
 
           <g transform="translate(285 360) rotate(95)">
-            <path d="M -38 0 Q -34 -5 -28 -5 L 28 -5 Q 36 -5 40 0 L 36 5 L -34 5 Z" fill="#0A1F33" opacity="0.6" />
+            <path
+              d="M -38 0 Q -34 -5 -28 -5 L 28 -5 Q 36 -5 40 0 L 36 5 L -34 5 Z"
+              fill="#0A1F33"
+              opacity="0.6"
+            />
             <rect x="22" y="-9" width="8" height="4" fill="#0A1F33" opacity="0.6" />
           </g>
 
@@ -103,7 +122,13 @@ export function BosphorusSection() {
             <circle r="6" fill="#B8893A" />
             <circle r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5">
               <animate attributeName="r" from="6" to="22" dur="2.5s" repeatCount="indefinite" />
-              <animate attributeName="opacity" from="0.6" to="0" dur="2.5s" repeatCount="indefinite" />
+              <animate
+                attributeName="opacity"
+                from="0.6"
+                to="0"
+                dur="2.5s"
+                repeatCount="indefinite"
+              />
             </circle>
             <text
               x="16"
@@ -165,10 +190,10 @@ export function BosphorusSection() {
         <span className="eyebrow">The Bosphorus Advantage</span>
         <h2 className="display h2">Where 48,000 ships meet 3% of the world&apos;s oil flow.</h2>
         <p>
-          Our headquarters sit on the world&apos;s most strategic tanker waterway. Every barrel of CPC
-          Blend, every Russian Urals cargo heading west, every Suezmax bound for Augusta or Trieste —
-          they all pass within sight of our desk. We charter where the trade actually moves: Black
-          Sea, Eastern Mediterranean, and the long-haul lanes that connect them.
+          Our headquarters sit on the world&apos;s most strategic tanker waterway. Every barrel of
+          CPC Blend, every Russian Urals cargo heading west, every Suezmax bound for Augusta or
+          Trieste — they all pass within sight of our desk. We charter where the trade actually
+          moves: Black Sea, Eastern Mediterranean, and the long-haul lanes that connect them.
         </p>
         <Link href="/offices" className="bos-link">
           See our Bosphorus &amp; Black Sea desk <ArrowRight className="h-4 w-4" />

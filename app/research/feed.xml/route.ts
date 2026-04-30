@@ -20,8 +20,7 @@ export function GET() {
   const items = [...REPORTS]
     .sort(
       (a, b) =>
-        new Date(reportDateIso(b.date)).getTime() -
-        new Date(reportDateIso(a.date)).getTime()
+        new Date(reportDateIso(b.date)).getTime() - new Date(reportDateIso(a.date)).getTime()
     )
     .map((r) => {
       const slug = reportSlug(r);

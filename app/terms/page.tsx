@@ -56,8 +56,8 @@ export default function TermsPage() {
                 </h2>
                 <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>
                   All freight rates, TCE figures, bunker prices, port tariffs, canal dues, and
-                  research published on this site are <strong>indicative</strong> and provided
-                  in good faith. They are not an offer to broker, charter, or hedge. Always confirm
+                  research published on this site are <strong>indicative</strong> and provided in
+                  good faith. They are not an offer to broker, charter, or hedge. Always confirm
                   current numbers with the broker desk before fixing.
                 </p>
               </div>
@@ -89,8 +89,8 @@ export default function TermsPage() {
                 </h2>
                 <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>
                   We screen every counterparty and vessel against OFAC, UK OFSI, EU consolidated
-                  sanctions, and the G7 oil price cap regime. We will not act on inquiries that
-                  fail compliance review.
+                  sanctions, and the G7 oil price cap regime. We will not act on inquiries that fail
+                  compliance review.
                 </p>
               </div>
               <div>

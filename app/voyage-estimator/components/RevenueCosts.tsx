@@ -93,8 +93,8 @@ export function RevenueCosts({ inputs, results }: Props) {
         </div>
       </div>
       <div className="note">
-        Bunker prices reflect today&apos;s average across origin/transit ports. EU ETS allowances apply
-        to legs touching EU ports — toggle the field to model.
+        Bunker prices reflect today&apos;s average across origin/transit ports. EU ETS allowances
+        apply to legs touching EU ports — toggle the field to model.
       </div>
     </div>
   );

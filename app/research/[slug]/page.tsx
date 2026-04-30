@@ -84,9 +84,7 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
             <span className="eyebrow">
               {r.catLabel} · {r.date} · {r.read} min read
               {r.gated && (
-                <span style={{ color: "var(--accent-amber)", marginLeft: 12 }}>
-                  · LEVANTER Pro
-                </span>
+                <span style={{ color: "var(--accent-amber)", marginLeft: 12 }}>· LEVANTER Pro</span>
               )}
             </span>
             <h1 className="display h1">{r.title}</h1>
@@ -111,17 +109,20 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                   strokeWidth={1.4}
                   style={{ color: "var(--accent-amber)", margin: "0 auto 16px" }}
                 />
-                <h2
-                  className="display h2"
-                  style={{ color: "var(--ink-bone)", margin: "0 0 12px" }}
-                >
+                <h2 className="display h2" style={{ color: "var(--ink-bone)", margin: "0 0 12px" }}>
                   This is a LEVANTER Pro report.
                 </h2>
-                <p style={{ color: "rgba(241,236,220,.78)", margin: "0 auto 28px", maxWidth: 48 + "ch" }}>
-                  Pro reports are gated to desk clients. If you have a LEVANTER login,
-                  sign in. Otherwise, request access — desk clients are added automatically.
+                <p
+                  style={{
+                    color: "rgba(241,236,220,.78)",
+                    margin: "0 auto 28px",
+                    maxWidth: 48 + "ch",
+                  }}
+                >
+                  Pro reports are gated to desk clients. If you have a LEVANTER login, sign in.
+                  Otherwise, request access — desk clients are added automatically.
                 </p>
-                <div className="flex gap-3 flex-wrap justify-center">
+                <div className="flex flex-wrap justify-center gap-3">
                   <Button asChild>
                     <Link href="/contact">
                       Request Pro access <ArrowRight className="h-4 w-4" />
@@ -135,24 +136,21 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
             ) : (
               <article style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 <p style={{ fontSize: 17, lineHeight: 1.7 }}>
-                  This brief is the full text of the report as published in {r.iss}.
-                  Numbers cited are indicative at time of writing — confirm current
-                  rates with the desk before fixing.
+                  This brief is the full text of the report as published in {r.iss}. Numbers cited
+                  are indicative at time of writing — confirm current rates with the desk before
+                  fixing.
                 </p>
                 <h2 className="display h2" style={{ marginTop: 12 }}>
                   Headline
                 </h2>
-                <p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--muted)" }}>
-                  {r.desc}
-                </p>
+                <p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--muted)" }}>{r.desc}</p>
                 <h2 className="display h2" style={{ marginTop: 12 }}>
                   What it means
                 </h2>
                 <p style={{ fontSize: 17, lineHeight: 1.7, color: "var(--muted)" }}>
-                  Full editorial content for &ldquo;{r.title}&rdquo; will appear here once the
-                  desk publishes the long-form version. The summary above captures the
-                  core takeaway — the desk will walk you through the underlying numbers
-                  on request.
+                  Full editorial content for &ldquo;{r.title}&rdquo; will appear here once the desk
+                  publishes the long-form version. The summary above captures the core takeaway —
+                  the desk will walk you through the underlying numbers on request.
                 </p>
                 <div
                   style={{

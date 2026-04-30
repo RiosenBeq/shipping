@@ -169,8 +169,8 @@ export function InquiryWizard() {
         <span className="eyebrow">In four steps</span>
         <h3>The desk needs four things to quote sharp.</h3>
         <p>
-          Cargo and class, the lift window, terms, and how to reach you. Skip anything you don&apos;t
-          have yet — we&apos;ll fill the gaps on the call.
+          Cargo and class, the lift window, terms, and how to reach you. Skip anything you
+          don&apos;t have yet — we&apos;ll fill the gaps on the call.
         </p>
         <div className="steps">
           {STEPS.map((s) => (
@@ -187,7 +187,14 @@ export function InquiryWizard() {
         </div>
       </aside>
 
-      <form className="inquiry-form" onSubmit={(e) => { e.preventDefault(); goNext(); }} noValidate>
+      <form
+        className="inquiry-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          goNext();
+        }}
+        noValidate
+      >
         {submitted ? (
           <div className="inquiry-success">
             <div className="check">
@@ -271,10 +278,7 @@ export function InquiryWizard() {
                   </div>
                   <div className="field">
                     <label htmlFor="vesselClass">Preferred class</label>
-                    <Select
-                      value={form.vesselClass}
-                      onValueChange={(v) => set("vesselClass", v)}
-                    >
+                    <Select value={form.vesselClass} onValueChange={(v) => set("vesselClass", v)}>
                       <SelectTrigger id="vesselClass">
                         <SelectValue />
                       </SelectTrigger>
@@ -338,9 +342,7 @@ export function InquiryWizard() {
             {step === 4 && (
               <div>
                 <h4>How should we reach you?</h4>
-                <p className="step-sub">
-                  Direct broker — no forms forwarded, no robo-replies.
-                </p>
+                <p className="step-sub">Direct broker — no forms forwarded, no robo-replies.</p>
                 <div className="field-grid">
                   <div className="field">
                     <label htmlFor="name">Name</label>
@@ -401,10 +403,7 @@ export function InquiryWizard() {
                 <ArrowLeft className="h-4 w-4" /> Back
               </Button>
               <div className="inquiry-progress">
-                <div
-                  className="inquiry-progress-fill"
-                  style={{ width: `${(step / 4) * 100}%` }}
-                />
+                <div className="inquiry-progress-fill" style={{ width: `${(step / 4) * 100}%` }} />
               </div>
               <Button type="submit">
                 {step === 4 ? "Send to desk" : "Next"}

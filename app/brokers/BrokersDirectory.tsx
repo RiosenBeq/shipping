@@ -2,7 +2,16 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Phone, Mail, Linkedin, MessageCircle, Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Linkedin,
+  MessageCircle,
+  Search,
+  X,
+  SlidersHorizontal,
+  ArrowRight,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,13 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { BROKERS, CLASS_LABEL, SECTOR_LABEL, brokerSlug } from "@/lib/data/brokers";
-import {
-  BrokerFilter,
-  BrokerFilterSchema,
-  Desk,
-  Sector,
-  VesselClassFilter,
-} from "@/lib/schemas";
+import { BrokerFilter, BrokerFilterSchema, Desk, Sector, VesselClassFilter } from "@/lib/schemas";
 
 const SECTORS: Sector[] = ["crude", "clean", "chem", "bulk", "sp"];
 const CLASSES: VesselClassFilter[] = ["VLCC", "Suezmax", "Aframax", "MR", "Cape", "Pmx"];
@@ -38,7 +41,10 @@ export function BrokersDirectory() {
   const [filter, setFilter] = useState<BrokerFilter>(INITIAL_FILTER);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const toggle = <K extends "sectors" | "classes" | "desks">(key: K, value: BrokerFilter[K][number]) => {
+  const toggle = <K extends "sectors" | "classes" | "desks">(
+    key: K,
+    value: BrokerFilter[K][number]
+  ) => {
     setFilter((prev) => {
       const set = new Set(prev[key] as string[]);
       if (set.has(value as string)) set.delete(value as string);
@@ -49,7 +55,10 @@ export function BrokersDirectory() {
 
   const clearAll = () => setFilter(INITIAL_FILTER);
   const hasFilters =
-    filter.sectors.length > 0 || filter.classes.length > 0 || filter.desks.length > 0 || filter.q !== "";
+    filter.sectors.length > 0 ||
+    filter.classes.length > 0 ||
+    filter.desks.length > 0 ||
+    filter.q !== "";
 
   const filtered = useMemo(() => {
     const q = filter.q.toLowerCase();
@@ -73,7 +82,7 @@ export function BrokersDirectory() {
     <>
       <div className="filter-group">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-fog pointer-events-none" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-fog" />
           <Input
             value={filter.q}
             onChange={(e) => setFilter((p) => ({ ...p, q: e.target.value }))}
@@ -128,7 +137,7 @@ export function BrokersDirectory() {
     <section className="directory">
       <div className="container">
         {/* Mobile filter toggle */}
-        <div className="lg:hidden mb-4">
+        <div className="mb-4 lg:hidden">
           <Button
             variant="outline"
             size="sm"
@@ -141,7 +150,9 @@ export function BrokersDirectory() {
         </div>
 
         <div className="directory-grid">
-          <aside className={`filters ${showMobileFilters ? "block" : "hidden"} lg:block`}>{FilterPanel}</aside>
+          <aside className={`filters ${showMobileFilters ? "block" : "hidden"} lg:block`}>
+            {FilterPanel}
+          </aside>
 
           <main>
             <div className="results-bar">
@@ -193,7 +204,10 @@ export function BrokersDirectory() {
                 {filter.q && (
                   <span className="chip">
                     &quot;{filter.q}&quot;{" "}
-                    <button onClick={() => setFilter((p) => ({ ...p, q: "" }))} aria-label="Clear search">
+                    <button
+                      onClick={() => setFilter((p) => ({ ...p, q: "" }))}
+                      aria-label="Clear search"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </span>

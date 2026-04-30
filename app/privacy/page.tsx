@@ -41,8 +41,8 @@ export default function PrivacyPage() {
             <span className="eyebrow">Legal</span>
             <h1 className="display h1">Privacy policy.</h1>
             <p>
-              How {siteConfig.legalEntity} collects, uses, and protects personal data on this website
-              and through the broking workflow. Last updated 30 April 2026.
+              How {siteConfig.legalEntity} collects, uses, and protects personal data on this
+              website and through the broking workflow. Last updated 30 April 2026.
             </p>
           </div>
         </section>
@@ -55,9 +55,10 @@ export default function PrivacyPage() {
                   Who we are
                 </h2>
                 <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>
-                  {siteConfig.legalEntity} is a maritime brokerage headquartered in Istanbul, Türkiye,
-                  with desks in London, Singapore, and Houston. We act as the data controller for any
-                  personal data submitted via this website or shared during the broking workflow.
+                  {siteConfig.legalEntity} is a maritime brokerage headquartered in Istanbul,
+                  Türkiye, with desks in London, Singapore, and Houston. We act as the data
+                  controller for any personal data submitted via this website or shared during the
+                  broking workflow.
                 </p>
               </div>
               <div>
@@ -66,8 +67,8 @@ export default function PrivacyPage() {
                 </h2>
                 <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>
                   Through the charter inquiry form: name, firm, email, phone, and the cargo, route,
-                  and laycan details you provide. Through analytics: anonymised usage data
-                  (page views, referrer, viewport size). We do not place advertising cookies.
+                  and laycan details you provide. Through analytics: anonymised usage data (page
+                  views, referrer, viewport size). We do not place advertising cookies.
                 </p>
               </div>
               <div>

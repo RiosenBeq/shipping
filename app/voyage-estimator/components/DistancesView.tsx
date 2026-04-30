@@ -11,10 +11,7 @@ export function DistancesView({ activeNm, onPick }: Props) {
   return (
     <section style={{ padding: "48px 0" }}>
       <div className="container">
-        <h2
-          className="results-h"
-          style={{ marginBottom: 8, borderBottom: 0, paddingBottom: 0 }}
-        >
+        <h2 className="results-h" style={{ marginBottom: 8, borderBottom: 0, paddingBottom: 0 }}>
           Major lane distances
           <span className="meta">nm · great-circle · canal-routed where applicable</span>
         </h2>
@@ -36,7 +33,7 @@ export function DistancesView({ activeNm, onPick }: Props) {
             {DISTANCE_ROWS.map((r) => (
               <tr
                 key={`${r.load}-${r.disch}`}
-                className={`clickable${r.nm === activeNm ? " is-active" : ""}`}
+                className={`clickable${r.nm === activeNm ? "is-active" : ""}`}
                 onClick={() => onPick(r)}
               >
                 <td className="route">

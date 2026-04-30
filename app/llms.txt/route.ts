@@ -46,15 +46,15 @@ ${tools.join("\n")}
 
 ## Brokers
 ${BROKERS.map(
-    (b) =>
-      `- [${b.name}](${url(`/brokers/${brokerSlug(b)}`)}): ${b.title} · ${b.desk} · ${b.tags.join(", ")}`
-  ).join("\n")}
+  (b) =>
+    `- [${b.name}](${url(`/brokers/${brokerSlug(b)}`)}): ${b.title} · ${b.desk} · ${b.tags.join(", ")}`
+).join("\n")}
 
 ## Research reports
 ${REPORTS.map(
-    (r) =>
-      `- [${r.title}](${url(`/research/${reportSlug(r)}`)}): ${r.catLabel}, ${r.date}, ${r.read} min${r.gated ? " (Pro)" : ""}`
-  ).join("\n")}
+  (r) =>
+    `- [${r.title}](${url(`/research/${reportSlug(r)}`)}): ${r.catLabel}, ${r.date}, ${r.read} min${r.gated ? " (Pro)" : ""}`
+).join("\n")}
 
 ## Optional
 ${legal.join("\n")}

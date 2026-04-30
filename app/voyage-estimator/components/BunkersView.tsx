@@ -1,6 +1,7 @@
 import { BUNKER_HUBS, SPREAD_ROWS } from "../lib/data";
 
-const sign = (n: number) => (n >= 0 ? `+${n.toFixed(n % 1 === 0 ? 0 : 2)}` : n.toFixed(n % 1 === 0 ? 0 : 2));
+const sign = (n: number) =>
+  n >= 0 ? `+${n.toFixed(n % 1 === 0 ? 0 : 2)}` : n.toFixed(n % 1 === 0 ? 0 : 2);
 const heatClass = (n: number | null) => {
   if (n === null) return "";
   if (n > 0) return "heat-high";
@@ -37,8 +38,10 @@ export function BunkersView() {
                     <span>{label}</span>
                     <span>
                       <strong>${grade.px}</strong>{" "}
-                      <span className={`delta${grade.delta < 0 ? " dn" : ""}`}>
-                        {grade.delta >= 0 ? `+${grade.delta.toFixed(2)}` : `−${Math.abs(grade.delta).toFixed(2)}`}
+                      <span className={`delta${grade.delta < 0 ? "dn" : ""}`}>
+                        {grade.delta >= 0
+                          ? `+${grade.delta.toFixed(2)}`
+                          : `−${Math.abs(grade.delta).toFixed(2)}`}
                       </span>
                     </span>
                   </div>

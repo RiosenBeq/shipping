@@ -20,7 +20,12 @@ const TABS: { value: ResearchCategory; label: string }[] = [
 
 function Cover({ r }: { r: Report }) {
   return (
-    <svg className="cv" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <svg
+      className="cv"
+      viewBox="0 0 400 300"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
       <rect width="400" height="300" fill={r.coverColor} />
       <g stroke="rgba(241,236,220,0.06)" strokeWidth="0.4">
         <line x1="0" y1="60" x2="400" y2="60" />
@@ -99,11 +104,11 @@ export function ResearchPortal() {
             </div>
           </div>
           <Tabs value={cat} onValueChange={(v) => setCat(v as ResearchCategory)} className="mt-8">
-            <TabsList className="!justify-start w-full">
+            <TabsList className="w-full !justify-start">
               {TABS.map((t) => (
                 <TabsTrigger key={t.value} value={t.value}>
                   {t.label}{" "}
-                  <span className="ml-1.5 text-[11px] font-mono text-ink-fog data-[active=true]:text-accent-brass">
+                  <span className="ml-1.5 font-mono text-[11px] text-ink-fog data-[active=true]:text-accent-brass">
                     {counts[t.value]}
                   </span>
                 </TabsTrigger>
@@ -190,7 +195,7 @@ export function ResearchPortal() {
                 {subStatus === "ok" ? "Subscribed ✓" : "Subscribe"}
               </Button>
               {subStatus === "error" && (
-                <p id="sub-err" className="text-xs text-state-negative w-full mt-1">
+                <p id="sub-err" className="mt-1 w-full text-xs text-state-negative">
                   {subError}
                 </p>
               )}

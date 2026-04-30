@@ -5,12 +5,7 @@ import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import {
-  buildPageMetadata,
-  breadcrumbsLd,
-  professionalServiceLd,
-  webPageLd,
-} from "@/lib/seo";
+import { buildPageMetadata, breadcrumbsLd, professionalServiceLd, webPageLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Crude Tankers — VLCC · Suezmax · Aframax",
@@ -42,7 +37,14 @@ const VESSEL_CLASSES = [
     routes: ["TD3C MEG-CHN", "TD15 WAF-EAST", "TD22 USG-CHN"],
     cta: "Get a VLCC quote",
     svg: (
-      <svg className="vsl mb-5 text-accent-brass" width="80" height="22" viewBox="0 0 100 22" fill="currentColor" aria-hidden="true">
+      <svg
+        className="vsl mb-5 text-accent-brass"
+        width="80"
+        height="22"
+        viewBox="0 0 100 22"
+        fill="currentColor"
+        aria-hidden="true"
+      >
         <path d="M2 14 Q 6 8 16 8 L 86 8 Q 94 8 98 14 L 92 18 L 8 18 Z" />
         <rect x="78" y="3" width="14" height="5" />
         <rect x="82" y="-1" width="6" height="4" />
@@ -61,7 +63,14 @@ const VESSEL_CLASSES = [
     routes: ["TD20 WAF-UKC", "TD6 BLK-MED", "TD23 MEG-MED"],
     cta: "Get a Suezmax quote",
     svg: (
-      <svg className="vsl mb-5 text-accent-brass" width="80" height="22" viewBox="0 0 100 22" fill="currentColor" aria-hidden="true">
+      <svg
+        className="vsl mb-5 text-accent-brass"
+        width="80"
+        height="22"
+        viewBox="0 0 100 22"
+        fill="currentColor"
+        aria-hidden="true"
+      >
         <path d="M4 14 Q 8 9 18 9 L 80 9 Q 88 9 92 14 L 86 18 L 10 18 Z" />
         <rect x="74" y="4" width="12" height="5" />
       </svg>
@@ -79,7 +88,14 @@ const VESSEL_CLASSES = [
     routes: ["TD7 NSEA-CONT", "TD8 KUW-SPORE", "TD19 CMED-MED"],
     cta: "Get an Afra quote",
     svg: (
-      <svg className="vsl mb-5 text-accent-brass" width="80" height="22" viewBox="0 0 100 22" fill="currentColor" aria-hidden="true">
+      <svg
+        className="vsl mb-5 text-accent-brass"
+        width="80"
+        height="22"
+        viewBox="0 0 100 22"
+        fill="currentColor"
+        aria-hidden="true"
+      >
         <path d="M6 14 Q 10 10 20 10 L 76 10 Q 84 10 88 14 L 82 18 L 12 18 Z" />
         <rect x="70" y="5" width="10" height="5" />
       </svg>
@@ -156,7 +172,12 @@ export default function TankersPage() {
       <main>
         {/* Hero band */}
         <section className="hero-band">
-          <svg className="hero-band-bg" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <svg
+            className="hero-band-bg"
+            viewBox="0 0 1600 400"
+            preserveAspectRatio="xMidYMid slice"
+            aria-hidden="true"
+          >
             <defs>
               <radialGradient id="cg" cx="0.85" cy="0.5" r="0.5">
                 <stop offset="0%" stopColor="#B8893A" stopOpacity="0.5" />
@@ -164,7 +185,15 @@ export default function TankersPage() {
               </radialGradient>
             </defs>
             <rect width="1600" height="400" fill="url(#cg)" />
-            <line x1="0" y1="240" x2="1600" y2="240" stroke="#F1ECDC" strokeWidth="0.5" opacity="0.2" />
+            <line
+              x1="0"
+              y1="240"
+              x2="1600"
+              y2="240"
+              stroke="#F1ECDC"
+              strokeWidth="0.5"
+              opacity="0.2"
+            />
             <g fill="#020B14">
               <path d="M 220 260 Q 240 252 320 252 L 1100 252 Q 1170 252 1190 260 L 1170 280 L 240 280 Z" />
               <rect x="1040" y="232" width="70" height="20" />
@@ -185,12 +214,14 @@ export default function TankersPage() {
               Crude
             </div>
             <span className="eyebrow">Crude Tankers</span>
-            <h1 className="display h1">VLCC, Suezmax, Aframax — every long-haul lane that matters.</h1>
+            <h1 className="display h1">
+              VLCC, Suezmax, Aframax — every long-haul lane that matters.
+            </h1>
             <p className="lead">
-              Spot voyages, COAs, and time charters across MEG, WAF, Black Sea, CPC, and BTC. The desk
-              that books where the trade actually moves.
+              Spot voyages, COAs, and time charters across MEG, WAF, Black Sea, CPC, and BTC. The
+              desk that books where the trade actually moves.
             </p>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex flex-wrap gap-3">
               <Button asChild>
                 <a href="#inquiry">
                   Charter inquiry <ArrowRight className="h-4 w-4" />
@@ -235,7 +266,9 @@ export default function TankersPage() {
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Classes covered</span>
-              <h2 className="display h2">Three sizes. One philosophy: charter where the trade is.</h2>
+              <h2 className="display h2">
+                Three sizes. One philosophy: charter where the trade is.
+              </h2>
               <p>
                 Indicative ranges only — real fixtures depend on age, ice class, vetting, charterer
                 requirements.
@@ -299,7 +332,11 @@ export default function TankersPage() {
                         <td className="ws">{r.ws}</td>
                         <td className="tce">{r.tce}</td>
                         <td className={`delta ${r.up ? "up" : "down"} flex items-center gap-1`}>
-                          {r.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                          {r.up ? (
+                            <ArrowUpRight className="h-3 w-3" />
+                          ) : (
+                            <ArrowDownRight className="h-3 w-3" />
+                          )}
                           {r.delta.replace(/[▲▼]\s*/, "")}
                         </td>
                       </tr>

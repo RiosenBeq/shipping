@@ -34,9 +34,7 @@ export default function GlobalError({
           textAlign: "center",
         }}
       >
-        <h1 style={{ fontSize: 48, margin: "0 0 16px", fontWeight: 500 }}>
-          The site hit a snag.
-        </h1>
+        <h1 style={{ fontSize: 48, margin: "0 0 16px", fontWeight: 500 }}>The site hit a snag.</h1>
         <p style={{ fontSize: 18, color: "#4A5E6E", maxWidth: 520, margin: "0 0 28px" }}>
           A fatal error stopped the application from rendering. Reload the page or try again
           shortly.

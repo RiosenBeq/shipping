@@ -116,9 +116,7 @@ export default async function OpengraphImage() {
           <div style={{ display: "flex", gap: 24 }}>
             <span>Crude · Clean · Chemicals · Dry Bulk</span>
           </div>
-          <div style={{ display: "flex", color: "#D9B071", fontWeight: 600 }}>
-            levanter.example
-          </div>
+          <div style={{ display: "flex", color: "#D9B071", fontWeight: 600 }}>levanter.example</div>
         </div>
       </div>
     ),

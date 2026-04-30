@@ -67,7 +67,7 @@ export function Nav({ active }: { active?: NavKey }) {
           </ul>
         </nav>
 
-        <div className="nav-right hidden lg:flex items-center gap-2">
+        <div className="nav-right hidden items-center gap-2 lg:flex">
           <ThemeToggle />
           <a className="btn-login" href="#">
             Client login
@@ -75,11 +75,11 @@ export function Nav({ active }: { active?: NavKey }) {
           </a>
         </div>
 
-        <div className="lg:hidden flex items-center gap-2">
+        <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
           <button
             type="button"
-            className="text-foreground p-2 -mr-2"
+            className="-mr-2 p-2 text-foreground"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -92,8 +92,8 @@ export function Nav({ active }: { active?: NavKey }) {
       {/* Mobile drawer */}
       <div
         className={cn(
-          "lg:hidden fixed inset-x-0 top-[65px] bottom-0 z-40 bg-background border-t border-hairline transition-all duration-200",
-          open ? "opacity-100 visible" : "opacity-0 invisible"
+          "fixed inset-x-0 bottom-0 top-[65px] z-40 border-t border-hairline bg-background transition-all duration-200 lg:hidden",
+          open ? "visible opacity-100" : "invisible opacity-0"
         )}
         aria-hidden={!open}
       >
@@ -103,8 +103,10 @@ export function Nav({ active }: { active?: NavKey }) {
               <li key={l.key}>
                 <Link
                   className={cn(
-                    "block py-3 px-3 text-lg font-medium rounded-sm border-b border-hairline transition-colors",
-                    active === l.key ? "text-accent-brass" : "text-foreground hover:text-accent-brass"
+                    "block rounded-sm border-b border-hairline px-3 py-3 text-lg font-medium transition-colors",
+                    active === l.key
+                      ? "text-accent-brass"
+                      : "text-foreground hover:text-accent-brass"
                   )}
                   href={l.href}
                   onClick={() => setOpen(false)}

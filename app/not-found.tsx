@@ -22,7 +22,7 @@ export default function NotFound() {
           The page you&apos;re looking for has either been retired or never existed. Let&apos;s get
           you back to where the desk is fixing.
         </p>
-        <div className="flex gap-3 flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-3">
           <Button asChild>
             <Link href="/">
               Back to home <ArrowRight className="h-4 w-4" />

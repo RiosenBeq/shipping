@@ -6,7 +6,13 @@ import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
 import { Button } from "@/components/ui/button";
-import { BROKERS, brokerSlug, getBrokerBySlug, SECTOR_LABEL, CLASS_LABEL } from "@/lib/data/brokers";
+import {
+  BROKERS,
+  brokerSlug,
+  getBrokerBySlug,
+  SECTOR_LABEL,
+  CLASS_LABEL,
+} from "@/lib/data/brokers";
 import { OFFICES } from "@/lib/data/offices";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
@@ -107,7 +113,13 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
             >
               <div
                 className="b-avatar"
-                style={{ background: b.color, width: 88, height: 88, fontSize: 28, marginBottom: 0 }}
+                style={{
+                  background: b.color,
+                  width: 88,
+                  height: 88,
+                  fontSize: 28,
+                  marginBottom: 0,
+                }}
                 aria-hidden="true"
               >
                 {b.initials}
@@ -215,7 +227,12 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                     <li>
                       <a
                         href={`tel:${office?.phone.replace(/\s+/g, "")}`}
-                        style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--accent-brass)" }}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "var(--accent-brass)",
+                        }}
                       >
                         <Phone className="h-4 w-4" />
                         {office?.phone}
@@ -223,9 +240,16 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                     </li>
                     <li>
                       <a
-                        href={`mailto:${b.name.toLowerCase().replace(/[^a-z]+/g, ".")}@${siteConfig.url
-                          .replace(/^https?:\/\//, "")}`}
-                        style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--accent-brass)" }}
+                        href={`mailto:${b.name.toLowerCase().replace(/[^a-z]+/g, ".")}@${siteConfig.url.replace(
+                          /^https?:\/\//,
+                          ""
+                        )}`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "var(--accent-brass)",
+                        }}
                       >
                         <Mail className="h-4 w-4" />
                         Direct email
@@ -234,7 +258,12 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                     <li>
                       <a
                         href="#"
-                        style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--accent-brass)" }}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "var(--accent-brass)",
+                        }}
                       >
                         <MessageCircle className="h-4 w-4" />
                         WhatsApp
@@ -243,7 +272,12 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                     <li>
                       <a
                         href="#"
-                        style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--accent-brass)" }}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "var(--accent-brass)",
+                        }}
                       >
                         <Linkedin className="h-4 w-4" />
                         LinkedIn
@@ -259,7 +293,14 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                   <p style={{ margin: 0, fontSize: 13, color: "var(--muted)", lineHeight: 1.55 }}>
                     {office?.addr}
                   </p>
-                  <p style={{ margin: "8px 0 0", fontSize: 12, fontFamily: "var(--font-mono),monospace", color: "var(--muted)" }}>
+                  <p
+                    style={{
+                      margin: "8px 0 0",
+                      fontSize: 12,
+                      fontFamily: "var(--font-mono),monospace",
+                      color: "var(--muted)",
+                    }}
+                  >
                     {office?.hours}
                   </p>
                   <Link

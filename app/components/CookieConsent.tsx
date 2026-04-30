@@ -46,16 +46,11 @@ export function CookieConsent() {
   };
 
   return (
-    <div
-      className="cookie-banner"
-      role="dialog"
-      aria-modal="false"
-      aria-label="Cookie consent"
-    >
+    <div className="cookie-banner" role="dialog" aria-modal="false" aria-label="Cookie consent">
       <div className="cookie-inner">
         <p className="cookie-text">
-          We use only strictly-necessary cookies (session and CSRF). No advertising or
-          third-party trackers.{" "}
+          We use only strictly-necessary cookies (session and CSRF). No advertising or third-party
+          trackers.{" "}
           <Link href="/privacy" className="cookie-link">
             Privacy policy
           </Link>

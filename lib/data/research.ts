@@ -26,7 +26,20 @@ export function getReportBySlug(slug: string): Report | undefined {
 /** Parse "28 APR 2026" → ISO 8601 string */
 export function reportDateIso(date: string): string {
   const [day, monStr, year] = date.split(" ");
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
   const m = months.indexOf(monStr.toUpperCase());
   if (m < 0) return new Date().toISOString();
   return new Date(Date.UTC(Number(year), m, Number(day))).toISOString();

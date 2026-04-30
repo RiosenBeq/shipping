@@ -30,11 +30,14 @@ export default function ErrorBoundary({
           {error.digest && (
             <>
               {" "}
-              Reference: <span className="mono" style={{ color: "var(--accent-brass)" }}>{error.digest}</span>
+              Reference:{" "}
+              <span className="mono" style={{ color: "var(--accent-brass)" }}>
+                {error.digest}
+              </span>
             </>
           )}
         </p>
-        <div className="flex gap-3 flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-3">
           <Button onClick={() => reset()}>
             Try again <RotateCcw className="h-4 w-4" />
           </Button>

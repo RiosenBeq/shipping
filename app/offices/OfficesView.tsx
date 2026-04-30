@@ -21,7 +21,10 @@ function useClocks() {
       second: "2-digit",
     }).format(now);
   const fmtZone = (tz: string) => {
-    const parts = new Intl.DateTimeFormat("en-GB", { timeZone: tz, timeZoneName: "short" }).formatToParts(now);
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz,
+      timeZoneName: "short",
+    }).formatToParts(now);
     return parts.find((p) => p.type === "timeZoneName")?.value ?? tz;
   };
   return { fmtTime, fmtZone };
@@ -41,7 +44,12 @@ export function OfficesView() {
               <svg className="world" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
                 <defs>
                   <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(241,236,220,0.06)" strokeWidth="0.5" />
+                    <path
+                      d="M 40 0 L 0 0 0 40"
+                      fill="none"
+                      stroke="rgba(241,236,220,0.06)"
+                      strokeWidth="0.5"
+                    />
                   </pattern>
                 </defs>
                 <rect width="1000" height="600" fill="url(#grid)" />
@@ -74,7 +82,15 @@ export function OfficesView() {
                       role="button"
                       aria-label={`Select ${o.city}`}
                     >
-                      <circle className="ring" cx="0" cy="0" r={o.pin.size} fill="none" stroke={stroke} strokeWidth="1.5" />
+                      <circle
+                        className="ring"
+                        cx="0"
+                        cy="0"
+                        r={o.pin.size}
+                        fill="none"
+                        stroke={stroke}
+                        strokeWidth="1.5"
+                      />
                       <circle className="dot" cx="0" cy="0" r={o.pin.size} fill={stroke} />
                       <text
                         x={c === "lon" ? -12 : 10}
@@ -128,10 +144,10 @@ export function OfficesView() {
                       {c === "ist"
                         ? "Headquarters · TR"
                         : c === "lon"
-                        ? "Atlantic Basin · UK"
-                        : c === "sg"
-                        ? "Asia Desk · SG"
-                        : "US Gulf · TX"}
+                          ? "Atlantic Basin · UK"
+                          : c === "sg"
+                            ? "Asia Desk · SG"
+                            : "US Gulf · TX"}
                     </div>
                     <div className="meta" suppressHydrationWarning>
                       {fmtZone(o.tz)}

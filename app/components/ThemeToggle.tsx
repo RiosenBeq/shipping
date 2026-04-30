@@ -13,11 +13,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   // Avoid hydration mismatch by rendering a placeholder before mount.
   if (!mounted) {
     return (
-      <button
-        type="button"
-        aria-label="Toggle theme"
-        className={`theme-toggle ${className ?? ""}`}
-      >
+      <button type="button" aria-label="Toggle theme" className={`theme-toggle ${className ?? ""}`}>
         <Sun className="h-4 w-4 opacity-0" />
       </button>
     );

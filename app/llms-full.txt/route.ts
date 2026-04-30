@@ -16,10 +16,7 @@ export function GET() {
   const url = (path: string) => new URL(path, siteConfig.url).toString();
 
   const pageBlocks = PAGES.map(
-    (p) =>
-      `### [${p.title}](${url(p.path)})\n${p.summary}${
-        p.detail ? `\n\n${p.detail}` : ""
-      }`
+    (p) => `### [${p.title}](${url(p.path)})\n${p.summary}${p.detail ? `\n\n${p.detail}` : ""}`
   ).join("\n\n");
 
   const brokerLines = BROKERS.map(

@@ -76,8 +76,8 @@ export default function ResearchPage() {
             <span className="eyebrow">Research</span>
             <h1 className="display h1">Views from the desk. Not the press release.</h1>
             <p>
-              Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public. Pro reports
-              are gated.
+              Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public. Pro
+              reports are gated.
             </p>
           </div>
         </section>
@@ -135,9 +135,9 @@ export default function ResearchPage() {
                 </div>
                 <h2>Why Suezmax tightness is the story to watch through Q2.</h2>
                 <p>
-                  CPC programme rebound, Atlantic ballast economics, and what it means if you&apos;re
-                  holding a Q3 charter window. Including our base, bear, and bull TCE scenarios for
-                  TD20.
+                  CPC programme rebound, Atlantic ballast economics, and what it means if
+                  you&apos;re holding a Q3 charter window. Including our base, bear, and bull TCE
+                  scenarios for TD20.
                 </p>
                 <div className="ctas">
                   <Button asChild>

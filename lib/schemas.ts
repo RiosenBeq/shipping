@@ -59,14 +59,7 @@ export const DischAreaSchema = z.enum([
   "spore-eafr",
 ]);
 
-export const PreferredClassSchema = z.enum([
-  "VLCC",
-  "Suezmax",
-  "Aframax",
-  "MR",
-  "Handy",
-  "Open",
-]);
+export const PreferredClassSchema = z.enum(["VLCC", "Suezmax", "Aframax", "MR", "Handy", "Open"]);
 
 export const InquiryStep1Schema = z.object({
   cargo: InquiryCargoSchema,
@@ -85,13 +78,10 @@ export const InquiryStep3Schema = z
     laycanTo: z.string().min(1, "Laycan bitiş tarihi gerekli"),
     term: InquiryTermSchema,
   })
-  .refine(
-    (v) => !v.laycanFrom || !v.laycanTo || new Date(v.laycanFrom) <= new Date(v.laycanTo),
-    {
-      message: "Laycan bitişi başlangıçtan sonra olmalı",
-      path: ["laycanTo"],
-    }
-  );
+  .refine((v) => !v.laycanFrom || !v.laycanTo || new Date(v.laycanFrom) <= new Date(v.laycanTo), {
+    message: "Laycan bitişi başlangıçtan sonra olmalı",
+    path: ["laycanTo"],
+  });
 
 export const InquiryStep4Schema = z.object({
   name: z.string().trim().min(2, "Ad gerekli"),

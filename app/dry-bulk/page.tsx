@@ -24,10 +24,26 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const CLASSES = [
-  { name: "Capesize", spec: "180,000 dwt+ · iron ore, coal", routes: ["C5 W. Australia → Qingdao", "C3 Tubarão → Qingdao"] },
-  { name: "Panamax / Kamsarmax", spec: "75–85,000 dwt · grains, coal", routes: ["P3A NoPac → Japan", "P6 USEC → ARA"] },
-  { name: "Supramax / Ultramax", spec: "55–65,000 dwt · grains, minerals", routes: ["S1B Indo → ECI", "S4A USG → Cont"] },
-  { name: "Handysize", spec: "30–40,000 dwt · niche cargo", routes: ["HS BSea → ARA", "HS USG → SAm"] },
+  {
+    name: "Capesize",
+    spec: "180,000 dwt+ · iron ore, coal",
+    routes: ["C5 W. Australia → Qingdao", "C3 Tubarão → Qingdao"],
+  },
+  {
+    name: "Panamax / Kamsarmax",
+    spec: "75–85,000 dwt · grains, coal",
+    routes: ["P3A NoPac → Japan", "P6 USEC → ARA"],
+  },
+  {
+    name: "Supramax / Ultramax",
+    spec: "55–65,000 dwt · grains, minerals",
+    routes: ["S1B Indo → ECI", "S4A USG → Cont"],
+  },
+  {
+    name: "Handysize",
+    spec: "30–40,000 dwt · niche cargo",
+    routes: ["HS BSea → ARA", "HS USG → SAm"],
+  },
 ];
 
 export default function DryBulkPage() {
@@ -64,8 +80,8 @@ export default function DryBulkPage() {
             <span className="eyebrow">Dry Bulk</span>
             <h1 className="display h1">Iron ore to grains, port-to-port.</h1>
             <p>
-              From Capesize iron ore programmes to Handy parcels — we charter where the trade
-              moves. Direct desk access from Istanbul, London, and Singapore.
+              From Capesize iron ore programmes to Handy parcels — we charter where the trade moves.
+              Direct desk access from Istanbul, London, and Singapore.
             </p>
           </div>
         </section>
@@ -106,7 +122,7 @@ export default function DryBulkPage() {
             broker roster. In the meantime — the desk is open. Send us your fixture brief and
             we&apos;ll come back inside the hour.
           </p>
-          <div className="flex gap-3 flex-wrap justify-center">
+          <div className="flex flex-wrap justify-center gap-3">
             <Button asChild>
               <Link href="/contact">
                 Send a bulk inquiry <ArrowRight className="h-4 w-4" />

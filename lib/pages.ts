@@ -35,8 +35,7 @@ export const PAGES: PageEntry[] = [
   {
     path: "/tankers",
     title: "Crude Tankers",
-    summary:
-      "VLCC · Suezmax · Aframax — long-haul crude lanes (MEG, WAF, Black Sea, CPC).",
+    summary: "VLCC · Suezmax · Aframax — long-haul crude lanes (MEG, WAF, Black Sea, CPC).",
     detail:
       "Crude tanker desk page. Shows three vessel-class tiles (VLCC 270-320k dwt / Suezmax 130-160k dwt / Aframax 80-115k dwt) with cargo, length, draft, speed, and indicative routes (TD3C, TD20, TD6, etc.). Live route board with WS, TCE/day, and 5-day delta for 7 routes. Bosphorus angle callout (CPC programme tightness) and sanctions-discipline callout. Crude desk team (4 brokers).",
     group: "primary",
