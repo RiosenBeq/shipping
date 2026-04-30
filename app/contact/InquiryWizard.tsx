@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +19,7 @@ import {
   type InquiryCargo,
   type InquiryTerm,
 } from "@/lib/schemas";
+import { siteConfig } from "@/lib/site";
 
 type Form = {
   cargo: InquiryCargo;
@@ -158,10 +159,48 @@ export function InquiryWizard() {
     if (step > 1) setStep(step - 1);
   };
 
-  const reference = `LVT-${new Date().toISOString().slice(0, 10)}-${Math.random()
-    .toString(36)
-    .substring(2, 4)
-    .toUpperCase()}`;
+  // Stable reference for the lifetime of this component instance.
+  const [reference] = useState(
+    () =>
+      `LVT-${new Date().toISOString().slice(0, 10)}-${Math.random()
+        .toString(36)
+        .substring(2, 4)
+        .toUpperCase()}`
+  );
+
+  // Build a mailto: URL pre-filled with the form payload so the user's mail
+  // client opens with the structured inquiry ready to send. No backend needed.
+  const buildMailto = () => {
+    const lines = [
+      `Reference: ${reference}`,
+      "",
+      `Cargo: ${form.cargo}`,
+      `Load area: ${form.loadArea}`,
+      `Discharge area: ${form.dischArea}`,
+      `Stem: ${form.stem || "—"}`,
+      `Vessel class: ${form.vesselClass}`,
+      "",
+      `Laycan: ${form.laycanFrom || "—"} → ${form.laycanTo || "—"}`,
+      `Term: ${form.term}`,
+      "",
+      `Name: ${form.name}`,
+      `Firm: ${form.firm}`,
+      `Email: ${form.email}`,
+      `Phone: ${form.phone || "—"}`,
+    ];
+    const subject = `Charter inquiry — ${form.cargo} — ${reference}`;
+    const body = lines.join("\n");
+    return `mailto:${siteConfig.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+  };
+
+  // On submission, open the user's mail client with the inquiry pre-composed.
+  useEffect(() => {
+    if (!submitted || typeof window === "undefined") return;
+    window.location.href = buildMailto();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitted]);
 
   return (
     <div className="inquiry-grid">
@@ -200,13 +239,33 @@ export function InquiryWizard() {
             <div className="check">
               <Check className="h-7 w-7" strokeWidth={2.4} />
             </div>
-            <h4>Inquiry on the desk.</h4>
+            <h4>Inquiry composed.</h4>
             <p>
-              A broker will reply within 60 minutes during business hours. Reference{" "}
+              Your mail client should have opened with the inquiry pre-filled. Send it from your own
+              email so the desk has your address on the thread. Reference{" "}
               <span className="mono" style={{ color: "var(--accent-brass)" }}>
                 {reference}
               </span>
+              .
             </p>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                justifyContent: "center",
+                marginTop: 24,
+                flexWrap: "wrap",
+              }}
+            >
+              <Button asChild>
+                <a href={buildMailto()}>
+                  <Mail className="h-4 w-4" /> Open mail client again
+                </a>
+              </Button>
+              <Button variant="outline" onClick={() => setSubmitted(false)}>
+                Edit inquiry
+              </Button>
+            </div>
           </div>
         ) : (
           <>

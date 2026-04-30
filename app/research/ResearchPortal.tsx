@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { REPORTS, Report, reportSlug } from "@/lib/data/research";
 import { ResearchCategory, SubscribeSchema } from "@/lib/schemas";
+import { siteConfig } from "@/lib/site";
 
 const TABS: { value: ResearchCategory; label: string }[] = [
   { value: "all", label: "All" },
@@ -76,6 +77,8 @@ export function ResearchPortal() {
     });
   }, [cat, q]);
 
+  // No backend ESP — validate the email and open the user's mail client with
+  // a pre-filled subscribe request. The desk replies and adds them to the list.
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     const result = SubscribeSchema.safeParse({ email });
@@ -86,6 +89,13 @@ export function ResearchPortal() {
     }
     setSubStatus("ok");
     setSubError("");
+    if (typeof window !== "undefined") {
+      const subject = "Subscribe — Bosphorus Brief";
+      const body = `Please add this email to the Bosphorus Brief mailing list:\n\n${email}`;
+      window.location.href = `mailto:${siteConfig.email}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+    }
   };
 
   return (
@@ -192,7 +202,7 @@ export function ResearchPortal() {
                 disabled={subStatus === "ok"}
               />
               <Button type="submit" disabled={subStatus === "ok"}>
-                {subStatus === "ok" ? "Subscribed ✓" : "Subscribe"}
+                {subStatus === "ok" ? "Mail draft opened ✓" : "Subscribe"}
               </Button>
               {subStatus === "error" && (
                 <p id="sub-err" className="mt-1 w-full text-xs text-state-negative">

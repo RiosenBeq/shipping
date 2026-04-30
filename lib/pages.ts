@@ -27,9 +27,9 @@ export const PAGES: PageEntry[] = [
     path: "/voyage-estimator",
     title: "Voyage Estimator",
     summary:
-      "Live TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes.",
+      "Indicative TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes.",
     detail:
-      "A four-tab tool: (1) Calculator — sticky dark input panel (vessel class, speed, route, cargo, Worldscale, bunkers, port costs, canal/SECA fees, EU ETS allowance, charter type) with live KPI strip, voyage-profile timeline, animated 1600x700 SVG world map (re-routes per lane), revenue/cost breakdown, and 5x5 TCE sensitivity grid (WS x bunker delta). (2) Distance Tables — 10 lane distances, click to load into calculator. (3) Port Tariffs — DA estimates for 10 major ports + canal/strait dues. (4) Bunker Prices — live spot prices across Singapore, Rotterdam, Fujairah, Houston + Hi-5 spread table.",
+      "A four-tab tool: (1) Calculator — sticky dark input panel (vessel class, speed, route, cargo, Worldscale, bunkers, port costs, canal/SECA fees, EU ETS allowance, charter type) with live KPI strip, voyage-profile timeline, animated 1600x700 SVG world map (re-routes per lane), revenue/cost breakdown, and 5x5 TCE sensitivity grid (WS x bunker delta). Share button copies a URL that encodes every input; localStorage persists. (2) Distance Tables — 10 lane distances, click to load into calculator. (3) Port Tariffs — DA estimates for 10 major ports + canal/strait dues. (4) Reference — chartering glossary, vessel-class quick reference, EU ETS phase-in schedule.",
     group: "tools",
   },
   {

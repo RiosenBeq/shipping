@@ -10,7 +10,7 @@ import { RevenueCosts } from "./components/RevenueCosts";
 import { SensitivityTable } from "./components/SensitivityTable";
 import { DistancesView } from "./components/DistancesView";
 import { TariffsView } from "./components/TariffsView";
-import { BunkersView } from "./components/BunkersView";
+import { ReferenceView } from "./components/ReferenceView";
 import { Inputs, buildSensitivity, computeResults } from "./lib/calc";
 import { ROUTE_DATA, RouteKey, VESSEL_DEFAULTS, VESSEL_LABELS, VesselClass } from "./lib/data";
 import {
@@ -21,7 +21,7 @@ import {
   saveStateToStorage,
 } from "./lib/state";
 
-type ViewName = "estimator" | "distances" | "tariffs" | "bunkers";
+type ViewName = "estimator" | "distances" | "tariffs" | "reference";
 
 const DEFAULT_INPUTS: Inputs = {
   vesselClass: "suezmax",
@@ -46,12 +46,12 @@ const DEFAULT_STATE: EstimatorState = {
   route: DEFAULT_ROUTE,
   charter: DEFAULT_CHARTER,
 };
-const VIEW_KEYS: ViewName[] = ["estimator", "distances", "tariffs", "bunkers"];
+const VIEW_KEYS: ViewName[] = ["estimator", "distances", "tariffs", "reference"];
 const VIEW_LABELS: Record<ViewName, string> = {
   estimator: "Calculator",
   distances: "Distance Tables",
   tariffs: "Port Tariffs",
-  bunkers: "Bunker Prices",
+  reference: "Reference",
 };
 
 export function VoyageEstimator() {
@@ -190,16 +190,12 @@ export function VoyageEstimator() {
             <a href="#">Tools</a>
             <span>/</span> Voyage Estimator
           </div>
-          <span className="eyebrow">
-            Voyage Estimator{" "}
-            <span className="live-pill">
-              <span className="dot"></span>Live bunker prices
-            </span>
-          </span>
+          <span className="eyebrow">Voyage Estimator</span>
           <h1 className="display h1">Run the numbers before you fix.</h1>
           <p>
-            Live TCE, freight, and P&amp;L modelling across all major tanker lanes — with current
-            bunker prices, port costs, canal dues, and weather-routed distances baked in.
+            Indicative TCE, freight, and P&amp;L modelling across all major tanker lanes. You set
+            the bunker, WS, and port costs; the calculator does the rest. Share or save your
+            scenario in one click.
           </p>
         </div>
       </section>
@@ -265,9 +261,9 @@ export function VoyageEstimator() {
         <TariffsView />
       </div>
 
-      {/* BUNKERS */}
-      <div className={`view${view === "bunkers" ? "active" : ""}`}>
-        <BunkersView />
+      {/* REFERENCE */}
+      <div className={`view${view === "reference" ? "active" : ""}`}>
+        <ReferenceView />
       </div>
 
       {/* CTA STRIP */}

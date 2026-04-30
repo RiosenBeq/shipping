@@ -8,7 +8,7 @@ import { buildPageMetadata, breadcrumbsLd, faqLd, webPageLd } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Voyage Estimator — TCE, Freight, Bunker Burn & P&L",
   description:
-    "Live TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes — with current bunker prices, port costs, canal dues, and weather-routed distances baked in.",
+    "Indicative TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes. You set the bunker, WS, and port costs; the calculator does the rest.",
   path: "/voyage-estimator",
   keywords: [
     "voyage estimator",
@@ -38,8 +38,12 @@ const faq = [
     a: "Yes — the EU ETS allowance cost field maps to the cost stack and recomputes TCE/day live. The 5×5 sensitivity grid keeps EU ETS fixed while sweeping WS × bunker delta.",
   },
   {
-    q: "Are bunker prices live?",
-    a: "The Bunker Prices tab shows indicative spot prices across Singapore, Rotterdam, Fujairah, Houston, Gibraltar, and Panama with deltas vs Singapore.",
+    q: "Are the bunker prices on this page live?",
+    a: "No — the bunker prices are user-editable inputs in the Calculator. Type in your own VLSFO / HSFO numbers from your bunker provider and the model recomputes in place.",
+  },
+  {
+    q: "Can I share or save a scenario?",
+    a: "Yes. The Share button copies a URL that encodes every input; the same state also persists to localStorage on this device. Reset clears both.",
   },
 ];
 
@@ -51,7 +55,7 @@ export default function VoyageEstimatorPage() {
           webPageLd({
             title: "LEVANTER Voyage Estimator",
             description:
-              "Live TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes.",
+              "Indicative TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes.",
             path: "/voyage-estimator",
           }),
           breadcrumbsLd([

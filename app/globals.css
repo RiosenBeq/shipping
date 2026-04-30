@@ -1137,7 +1137,40 @@ textarea {
   color: var(--state-positive);
 }
 
-/* ===== Bunker prices ticker ===== */
+/* ===== Reference tab (glossary + vessel specs + EU ETS) ===== */
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .ref-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.ref-card {
+  background: var(--surface-white);
+  border: 1px solid var(--hairline);
+  padding: 18px 22px;
+  border-left: 3px solid var(--accent-brass);
+}
+.ref-term {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-brass);
+  margin-bottom: 8px;
+}
+.ref-def {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fg);
+  margin: 0;
+}
+
+/* ===== Bunker prices ticker (kept; used by ResearchPortal etc.) ===== */
 .bunkers {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

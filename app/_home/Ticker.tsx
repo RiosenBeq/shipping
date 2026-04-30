@@ -11,10 +11,10 @@ const RATES = [
 
 export function Ticker() {
   return (
-    <div className="ticker" aria-label="Live freight rates">
+    <div className="ticker" aria-label="Indicative freight rates">
       <div className="ticker-pill" aria-hidden="true">
         <span className="dot"></span>
-        <span>Live</span>
+        <span>Indicative</span>
       </div>
       <div className="ticker-track">
         {[...RATES, ...RATES].map((r, i) => (

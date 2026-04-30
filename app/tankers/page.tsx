@@ -305,12 +305,16 @@ export default function TankersPage() {
           </div>
         </section>
 
-        {/* Live route board */}
+        {/* Indicative route board */}
         <section className="section">
           <div className="container">
             <div className="sec-head">
-              <span className="eyebrow">Live route board</span>
+              <span className="eyebrow">Indicative route board</span>
               <h2 className="display h2">Where the desk is fixing this week.</h2>
+              <p>
+                Snapshot from recent fixtures — confirm with the desk before pricing. Numbers move
+                fast.
+              </p>
             </div>
             <div className="routes-grid">
               <div className="routes-table overflow-x-auto">
