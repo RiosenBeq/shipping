@@ -26,6 +26,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 const VESSEL_CLASSES = [
   {
+    slug: "vlcc",
     name: "VLCC",
     desc: "VERY LARGE CRUDE CARRIER · 270–320,000 DWT",
     specs: [
@@ -35,7 +36,7 @@ const VESSEL_CLASSES = [
       ["Speed (laden)", "13.5 kt"],
     ],
     routes: ["TD3C MEG-CHN", "TD15 WAF-EAST", "TD22 USG-CHN"],
-    cta: "Get a VLCC quote",
+    cta: "Explore VLCC",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -52,6 +53,7 @@ const VESSEL_CLASSES = [
     ),
   },
   {
+    slug: "suezmax",
     name: "Suezmax",
     desc: "130–160,000 DWT · LIGHT-CRUDE WORKHORSE",
     specs: [
@@ -61,7 +63,7 @@ const VESSEL_CLASSES = [
       ["Speed (laden)", "14 kt"],
     ],
     routes: ["TD20 WAF-UKC", "TD6 BLK-MED", "TD23 MEG-MED"],
-    cta: "Get a Suezmax quote",
+    cta: "Explore Suezmax",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -77,6 +79,7 @@ const VESSEL_CLASSES = [
     ),
   },
   {
+    slug: "aframax",
     name: "Aframax / LR2",
     desc: "80–115,000 DWT · SHORT-HAUL · BLACK SEA & MED",
     specs: [
@@ -86,7 +89,7 @@ const VESSEL_CLASSES = [
       ["Speed (laden)", "14.5 kt"],
     ],
     routes: ["TD7 NSEA-CONT", "TD8 KUW-SPORE", "TD19 CMED-MED"],
-    cta: "Get an Afra quote",
+    cta: "Explore Aframax / LR2",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -100,6 +103,23 @@ const VESSEL_CLASSES = [
         <rect x="70" y="5" width="10" height="5" />
       </svg>
     ),
+  },
+];
+
+const CLEAN_CLASSES = [
+  {
+    slug: "lr1",
+    name: "LR1",
+    desc: "55–80,000 DWT · CLEAN PRODUCTS",
+    note: "Naphtha, gasoil, jet — MEG to East Africa, MEG to UKC.",
+    routes: ["TC5 MEG-JPN", "TC8 MEG-UKC"],
+  },
+  {
+    slug: "mr",
+    name: "MR",
+    desc: "40–55,000 DWT · CLEAN PRODUCTS",
+    note: "Atlantic and US Gulf workhorse — TC2, TC14, TC17.",
+    routes: ["TC2 CONT-USAC", "TC14 USG-UKC", "TC17 MEG-EAFR"],
   },
 ];
 
@@ -296,9 +316,48 @@ export default function TankersPage() {
                       </span>
                     ))}
                   </div>
-                  <a href="#inquiry" className="cta">
+                  <Link href={`/tankers/${v.slug}`} className="cta">
                     {v.cta} <ArrowRight className="h-3.5 w-3.5" />
-                  </a>
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            {/* Clean tanker classes */}
+            <div className="sec-head" style={{ marginTop: 48 }}>
+              <span className="eyebrow">Also covered</span>
+              <h3
+                className="display"
+                style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", margin: 0 }}
+              >
+                Clean products tonnage.
+              </h3>
+            </div>
+            <div className="class-grid" style={{ marginTop: 18 }}>
+              {CLEAN_CLASSES.map((c) => (
+                <article key={c.slug} className="class-cell">
+                  <h3 className="nm">{c.name}</h3>
+                  <div className="dwt">{c.desc}</div>
+                  <p
+                    style={{
+                      color: "var(--muted)",
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      margin: "8px 0 14px",
+                    }}
+                  >
+                    {c.note}
+                  </p>
+                  <div className="routes">
+                    {c.routes.map((r) => (
+                      <span key={r} className="route-tag">
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                  <Link href={`/tankers/${c.slug}`} className="cta">
+                    Explore {c.name} <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </article>
               ))}
             </div>

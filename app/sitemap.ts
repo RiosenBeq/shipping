@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
 import { BROKERS, brokerSlug } from "@/lib/data/brokers";
 import { REPORTS, reportSlug, reportDateIso } from "@/lib/data/research";
+import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 
 type StaticRoute = {
   path: string;
@@ -16,12 +17,15 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/brokers", changeFrequency: "weekly", priority: 0.85 },
   { path: "/tankers", changeFrequency: "monthly", priority: 0.85 },
   { path: "/offices", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/glossary", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/dry-bulk", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/sale-purchase", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/dry-bulk", changeFrequency: "monthly", priority: 0.75 },
+  { path: "/sale-purchase", changeFrequency: "monthly", priority: 0.75 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
 ];
+
+const OFFICE_CITIES = ["ist", "lon", "sg", "hou"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -31,6 +35,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
+  }));
+
+  const tankerClassEntries: MetadataRoute.Sitemap = TANKER_CLASSES.map((t) => ({
+    url: `${siteConfig.url}/tankers/${t.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.75,
+  }));
+
+  const officeEntries: MetadataRoute.Sitemap = OFFICE_CITIES.map((c) => ({
+    url: `${siteConfig.url}/offices/${c}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
   }));
 
   const brokerEntries: MetadataRoute.Sitemap = BROKERS.map((b) => ({
@@ -47,5 +65,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.65,
   }));
 
-  return [...staticEntries, ...brokerEntries, ...reportEntries];
+  return [
+    ...staticEntries,
+    ...tankerClassEntries,
+    ...officeEntries,
+    ...brokerEntries,
+    ...reportEntries,
+  ];
 }

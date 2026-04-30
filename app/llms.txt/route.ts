@@ -2,9 +2,13 @@ import { siteConfig } from "@/lib/site";
 import { PAGES } from "@/lib/pages";
 import { BROKERS, brokerSlug } from "@/lib/data/brokers";
 import { REPORTS, reportSlug } from "@/lib/data/research";
+import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
+import { OFFICES } from "@/lib/data/offices";
 
 export const dynamic = "force-static";
 export const revalidate = false;
+
+const OFFICE_CITIES = ["ist", "lon", "sg", "hou"] as const;
 
 /**
  * Serves /llms.txt per the convention at https://llmstxt.org/
@@ -43,6 +47,18 @@ ${primary.join("\n")}
 
 ## Tools
 ${tools.join("\n")}
+
+## Tanker classes
+${TANKER_CLASSES.map(
+  (t) =>
+    `- [${t.shortName}](${url(`/tankers/${t.slug}`)}): ${t.longName} · ${t.dwtRange} · ${t.routes.map((r) => r.code).join(", ")}`
+).join("\n")}
+
+## Offices
+${OFFICE_CITIES.map(
+  (c) =>
+    `- [${OFFICES[c].city}](${url(`/offices/${c}`)}): ${OFFICES[c].sectors} · ${OFFICES[c].hours}`
+).join("\n")}
 
 ## Brokers
 ${BROKERS.map(

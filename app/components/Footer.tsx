@@ -18,6 +18,7 @@ export function Footer() {
             <Link href="/brokers">Brokers</Link>
             <Link href="/offices">Offices</Link>
             <Link href="/voyage-estimator">Voyage Estimator</Link>
+            <Link href="/glossary">Glossary</Link>
             <Link href="/contact">Contact</Link>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>

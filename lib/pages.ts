@@ -91,6 +91,15 @@ export const PAGES: PageEntry[] = [
     group: "primary",
   },
   {
+    path: "/glossary",
+    title: "Chartering Glossary",
+    summary:
+      "35-term plain-English reference: Worldscale, TCE, COA, demurrage, vessel classes, EU ETS, G7 price cap.",
+    detail:
+      "Full glossary grouped into 5 sections (Freight & rates, Vessels & bunkers, Regulatory & compliance, Ports & chokepoints, Commercial & contracts). Quick-jump chips, anchored sections, DefinedTermSet JSON-LD.",
+    group: "primary",
+  },
+  {
     path: "/privacy",
     title: "Privacy Policy",
     summary: "GDPR/KVKK-aligned privacy policy.",

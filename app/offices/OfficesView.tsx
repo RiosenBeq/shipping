@@ -155,6 +155,21 @@ export function OfficesView() {
                   </div>
                   <div className="addr">{o.addr.split(",").slice(0, 2).join(", ")}</div>
                   <div className="role">{o.sectors}</div>
+                  <a
+                    href={`/offices/${c}`}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginTop: 12,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--accent-brass)",
+                    }}
+                  >
+                    Office detail →
+                  </a>
                 </article>
               );
             })}
