@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { OfficesView } from "./OfficesView";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { OFFICES } from "@/lib/data/offices";
@@ -99,6 +100,11 @@ export default function OfficesPage() {
             </div>
           </div>
         </section>
+        <ContactCta
+          headline="Pick a desk and call."
+          body="Each office runs its own desk: Istanbul for Black Sea/Med, London for Atlantic, Singapore for Asia, Houston for US Gulf. Pick the one closest to your trade."
+          context="multi-office routing"
+        />
       </main>
       <Footer />
     </>

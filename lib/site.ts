@@ -14,6 +14,8 @@ export const siteConfig = {
   founded: "2024",
   email: "desk@levanter.example",
   phone: "+90 212 000 0000",
+  whatsapp: "+905330000000", // E.164, no spaces — used to build wa.me links
+  whatsappDisplay: "+90 533 000 0000",
   address: {
     street: "Yıldız Caddesi 12, Beşiktaş",
     locality: "Istanbul",

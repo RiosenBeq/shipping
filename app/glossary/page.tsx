@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { Button } from "@/components/ui/button";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { GLOSSARY_TERMS, GROUP_LABELS, type GlossaryTerm } from "@/lib/data/glossary";
@@ -135,8 +136,8 @@ export default function GlossaryPage() {
           </section>
         ))}
 
-        {/* CTA */}
-        <section className="section" style={{ paddingTop: 80 }}>
+        {/* Run the numbers — kept as a soft tool nudge before the desk CTA */}
+        <section className="section" style={{ paddingTop: 80, paddingBottom: 0 }}>
           <div className="container" style={{ maxWidth: 720, textAlign: "center" }}>
             <span className="eyebrow">Run the numbers</span>
             <h2 className="display h2" style={{ margin: "12px 0 16px" }}>
@@ -152,12 +153,15 @@ export default function GlossaryPage() {
                   Open voyage estimator <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href="/contact">Talk to a broker</Link>
-              </Button>
             </div>
           </div>
         </section>
+
+        <ContactCta
+          headline="Stuck on a term? Ask the desk."
+          body="Glossary missing something you need? Or want a working example for your specific lane? The desk replies inside 60 minutes."
+          context="glossary follow-up"
+        />
       </main>
       <Footer />
     </>

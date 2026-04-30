@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { BrokersDirectory } from "./BrokersDirectory";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { BROKERS } from "@/lib/data/brokers";
@@ -76,6 +77,11 @@ export default function BrokersPage() {
           </div>
         </section>
         <BrokersDirectory />
+        <ContactCta
+          headline="Can't find the right broker?"
+          body="Tell us the cargo and the lift window — we'll route you to the desk that handles it. No forms forwarded, no phone tag."
+          context="broker introduction"
+        />
       </main>
       <Footer />
     </>

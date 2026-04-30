@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { ResearchPortal } from "./ResearchPortal";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -155,6 +156,11 @@ export default function ResearchPage() {
         </section>
 
         <ResearchPortal />
+        <ContactCta
+          headline="Want a custom angle?"
+          body="The desk publishes scenario notes, lane briefs, and bespoke research for clients on request. Tell us the question."
+          context="custom research request"
+        />
       </main>
       <Footer />
     </>

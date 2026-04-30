@@ -5,6 +5,7 @@ import { ArrowRight, Lock, ArrowLeft } from "lucide-react";
 import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
+import { ContactCta } from "../../components/ContactCta";
 import { Button } from "@/components/ui/button";
 import { REPORTS, getReportBySlug, reportSlug, reportDateIso } from "@/lib/data/research";
 import { REPORT_BODIES, type ReportBlock } from "@/lib/data/research-bodies";
@@ -286,6 +287,15 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
             </div>
           </div>
         </section>
+        <ContactCta
+          headline={r.gated ? "Want the full Pro report?" : "Take this view to the desk."}
+          body={
+            r.gated
+              ? "Pro reports are gated to desk clients. Request access — we'll set you up if you're already on the desk roster, or schedule a call if not."
+              : "Have a follow-up question on this view, or a fixture that's affected? The author is on the desk and replies inside 60 minutes."
+          }
+          context={`research: ${r.title}`}
+        />
       </main>
       <Footer />
     </>

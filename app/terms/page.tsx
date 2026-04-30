@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
@@ -116,6 +117,11 @@ export default function TermsPage() {
             </article>
           </div>
         </section>
+        <ContactCta
+          headline="Need clarification?"
+          body="Questions about how the indicative content applies to your fixture, or how we'd structure something — the desk is open."
+          context="terms / commercial clarification"
+        />
       </main>
       <Footer />
     </>

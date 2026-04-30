@@ -6,6 +6,7 @@ import "./globals.css";
 import { JsonLd } from "./components/JsonLd";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
+import { FloatingCta } from "./components/FloatingCta";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
@@ -133,6 +134,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={[organizationLd(), websiteLd()]} />
         <ThemeProvider>
           <div id="content">{children}</div>
+          <FloatingCta />
           <CookieConsent />
         </ThemeProvider>
         <Analytics />

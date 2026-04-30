@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { ContactCta } from "../components/ContactCta";
 import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
@@ -119,6 +120,11 @@ export default function PrivacyPage() {
             </article>
           </div>
         </section>
+        <ContactCta
+          headline="Privacy or data question?"
+          body="Send a verifiable identifier and we'll respond inside 30 days. The desk also takes general inquiries via the same channels."
+          context="privacy / data subject request"
+        />
       </main>
       <Footer />
     </>
