@@ -9,11 +9,14 @@ export function Footer() {
         </Link>
         <div className="links">
           <Link href="/">Home</Link>
+          <Link href="/tankers">Tankers</Link>
+          <Link href="/dry-bulk">Dry Bulk</Link>
+          <Link href="/sale-purchase">S&amp;P</Link>
+          <Link href="/research">Research</Link>
+          <Link href="/brokers">Brokers</Link>
+          <Link href="/offices">Offices</Link>
           <Link href="/voyage-estimator">Voyage Estimator</Link>
-          <a href="#tankers">Tankers</a>
-          <a href="#brokers">Brokers</a>
-          <a href="#research">Research</a>
-          <a href="#offices">Offices</a>
+          <Link href="/contact">Contact</Link>
         </div>
         <div style={{ fontFamily: "var(--font-mono),monospace", fontSize: 11, opacity: 0.5 }}>
           © 2026 LEVANTER A.Ş.
