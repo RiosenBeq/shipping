@@ -1075,3 +1075,64 @@ input,select,textarea{font:inherit}
 }
 .placeholder h1{font-family:var(--font-display),serif;font-size:clamp(36px,4vw,52px);font-weight:400;margin:18px 0 14px;letter-spacing:-0.02em;max-width:20ch}
 .placeholder p{color:var(--muted);font-size:18px;max-width:54ch;margin:0 0 28px;line-height:1.55}
+
+/* ============================================== */
+/* ===== Print stylesheet (voyage estimator) ===== */
+/* ============================================== */
+@media print{
+  /* Light theme for print regardless of dark mode */
+  html, html.dark{
+    --bg:#ffffff !important;
+    --fg:#0A1F33 !important;
+    --muted:#4A5E6E !important;
+    --card:#ffffff !important;
+    --surface-white:#ffffff !important;
+    --surface-cream:#FAF8F1 !important;
+    --hairline:#C9C0A8 !important;
+    color-scheme:light !important;
+  }
+
+  /* Hide chrome */
+  .nav,.foot-mini,.cta-strip,.subnav,.skip-link,
+  .calc-actions,.cookie-banner,.theme-toggle,
+  .map-svg,.map-legend{display:none !important}
+
+  /* Stop sticky behaviour and show every view */
+  .calc-panel{position:static !important;min-height:0 !important;border:1px solid var(--hairline) !important;background:#FAF8F1 !important;color:var(--fg) !important}
+  .calc-panel h2,.calc-panel .calc-group-title{color:var(--fg) !important}
+  .calc-panel .field input,.calc-panel .field select{background:#fff !important;color:var(--fg) !important;border-color:var(--hairline) !important}
+  .calc-panel .field label{color:var(--muted) !important}
+
+  /* Two-column → stack for print */
+  .estimator{display:block !important}
+  .results{padding:24px !important;background:#fff !important}
+
+  .map-panel{background:#FAF8F1 !important;color:var(--fg) !important;border:1px solid var(--hairline) !important}
+  .map-svg-wrap{display:none !important}
+  .map-stats{background:#FAF8F1 !important;color:var(--fg) !important}
+  .map-stat .lbl{color:var(--muted) !important}
+  .map-stat .val{color:var(--fg) !important}
+
+  .kpi.tce{background:#FAF8F1 !important;color:var(--fg) !important}
+  .kpi.tce .kpi-value{color:var(--fg) !important}
+  .kpi.tce .kpi-label,.kpi.tce .kpi-unit{color:var(--muted) !important}
+
+  /* Show only the calculator view in print */
+  .view{display:none !important}
+  .view:first-of-type,.view.active{display:block !important}
+
+  /* Page break hints */
+  .section-block{break-inside:avoid;page-break-inside:avoid}
+  .summary-strip,.timeline,.panel{break-inside:avoid}
+
+  /* Smaller margins, tighter type for print */
+  body{font-size:11pt;line-height:1.4}
+  .display.h1{font-size:24pt}
+  .results-h{font-size:14pt}
+  .kpi-value{font-size:18pt}
+
+  /* Force backgrounds to print (some browsers default to no-print BG) */
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+
+  @page{margin:14mm}
+}

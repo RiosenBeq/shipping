@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { InputPanel, CharterType } from "./components/InputPanel";
 import { SummaryStrip } from "./components/SummaryStrip";
 import { VoyageTimeline } from "./components/VoyageTimeline";
@@ -19,6 +19,13 @@ import {
   VESSEL_LABELS,
   VesselClass,
 } from "./lib/data";
+import {
+  EstimatorState,
+  decodeState,
+  encodeState,
+  loadStateFromStorage,
+  saveStateToStorage,
+} from "./lib/state";
 
 type ViewName = "estimator" | "distances" | "tariffs" | "bunkers";
 
@@ -39,6 +46,12 @@ const DEFAULT_INPUTS: Inputs = {
   etsCost: 0,
 };
 const DEFAULT_ROUTE: RouteKey = "ag-china";
+const DEFAULT_CHARTER: CharterType = "voyage";
+const DEFAULT_STATE: EstimatorState = {
+  inputs: DEFAULT_INPUTS,
+  route: DEFAULT_ROUTE,
+  charter: DEFAULT_CHARTER,
+};
 const VIEW_KEYS: ViewName[] = ["estimator", "distances", "tariffs", "bunkers"];
 const VIEW_LABELS: Record<ViewName, string> = {
   estimator: "Calculator",
@@ -50,20 +63,49 @@ const VIEW_LABELS: Record<ViewName, string> = {
 export function VoyageEstimator() {
   const [inputs, setInputs] = useState<Inputs>(DEFAULT_INPUTS);
   const [route, setRoute] = useState<RouteKey>(DEFAULT_ROUTE);
-  const [charter, setCharter] = useState<CharterType>("voyage");
+  const [charter, setCharter] = useState<CharterType>(DEFAULT_CHARTER);
   const [view, setView] = useState<ViewName>("estimator");
+  const [shareNotice, setShareNotice] = useState<"idle" | "copied" | "error">("idle");
+  // Skip the first save-to-storage so we don't overwrite a hydrated URL state.
+  const hydrated = useRef(false);
 
-  // Honor URL hash on mount
+  // On mount: restore state from URL (priority) or localStorage; honor view hash.
   useEffect(() => {
     const hash = window.location.hash.slice(1) as ViewName;
     if (VIEW_KEYS.includes(hash)) setView(hash);
+
+    const search = window.location.search.slice(1);
+    if (search) {
+      const parsed = decodeState(search, DEFAULT_STATE);
+      setInputs(parsed.inputs);
+      setRoute(parsed.route);
+      setCharter(parsed.charter);
+    } else {
+      const stored = loadStateFromStorage(DEFAULT_STATE);
+      if (stored) {
+        setInputs(stored.inputs);
+        setRoute(stored.route);
+        setCharter(stored.charter);
+      }
+    }
+    // Mark hydration complete on the next tick so subsequent state writes persist.
+    queueMicrotask(() => {
+      hydrated.current = true;
+    });
   }, []);
 
-  // Sync hash when view changes
+  // Persist state to localStorage whenever it changes (post-hydration only).
+  useEffect(() => {
+    if (!hydrated.current || typeof window === "undefined") return;
+    saveStateToStorage({ inputs, route, charter });
+  }, [inputs, route, charter]);
+
+  // Sync view to URL hash.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.history.replaceState) {
-      window.history.replaceState(null, "", `#${view}`);
+      const search = window.location.search;
+      window.history.replaceState(null, "", `${window.location.pathname}${search}#${view}`);
     }
   }, [view]);
 
@@ -89,15 +131,32 @@ export function VoyageEstimator() {
   const onReset = () => {
     setInputs(DEFAULT_INPUTS);
     setRoute(DEFAULT_ROUTE);
-    setCharter("voyage");
+    setCharter(DEFAULT_CHARTER);
+    if (typeof window !== "undefined" && window.history.replaceState) {
+      window.history.replaceState(null, "", `${window.location.pathname}#${view}`);
+    }
   };
 
+  // Browser-native print → user picks "Save as PDF" in the print dialog.
   const onExport = () => {
-    if (typeof window !== "undefined") {
-      window.alert(
-        "PDF export queued — your broker will receive a copy at the email on your account."
-      );
+    if (typeof window !== "undefined") window.print();
+  };
+
+  // Build a shareable URL from current state and copy it to the clipboard.
+  const onShare = async () => {
+    if (typeof window === "undefined") return;
+    const qs = encodeState({ inputs, route, charter });
+    const url = `${window.location.origin}${window.location.pathname}?${qs}#${view}`;
+    if (window.history.replaceState) {
+      window.history.replaceState(null, "", `?${qs}#${view}`);
     }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareNotice("copied");
+    } catch {
+      setShareNotice("error");
+    }
+    window.setTimeout(() => setShareNotice("idle"), 2400);
   };
 
   const switchView = (next: ViewName) => {
@@ -183,6 +242,8 @@ export function VoyageEstimator() {
             onCharterChange={setCharter}
             onReset={onReset}
             onExport={onExport}
+            onShare={onShare}
+            shareNotice={shareNotice}
           />
           <div className="results">
             <SummaryStrip results={results} />

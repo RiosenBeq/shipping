@@ -15,6 +15,8 @@ type Props = {
   onCharterChange: (c: CharterType) => void;
   onReset: () => void;
   onExport: () => void;
+  onShare: () => void;
+  shareNotice: "idle" | "copied" | "error";
 };
 
 export function InputPanel({
@@ -27,6 +29,8 @@ export function InputPanel({
   onCharterChange,
   onReset,
   onExport,
+  onShare,
+  shareNotice,
 }: Props) {
   const num = (key: keyof Inputs) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value === "" ? 0 : Number(e.target.value);
@@ -225,10 +229,31 @@ export function InputPanel({
       </div>
 
       <div className="calc-actions">
-        <button className="calc-btn calc-btn-ghost" onClick={onReset}>
+        <button type="button" className="calc-btn calc-btn-ghost" onClick={onReset}>
           Reset
         </button>
-        <button className="calc-btn calc-btn-primary" onClick={onExport}>
+        <button
+          type="button"
+          className="calc-btn calc-btn-ghost"
+          onClick={onShare}
+          aria-live="polite"
+        >
+          {shareNotice === "copied"
+            ? "Link copied ✓"
+            : shareNotice === "error"
+            ? "Copy failed"
+            : "Share"}
+          {shareNotice === "idle" && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          )}
+        </button>
+        <button type="button" className="calc-btn calc-btn-primary" onClick={onExport}>
           Export PDF
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M13 5l7 7-7 7" />
