@@ -1,4 +1,5 @@
 import type { ResearchCategory } from "@/lib/schemas";
+import { slugify } from "@/lib/slug";
 
 export type Report = {
   cat: Exclude<ResearchCategory, "all">;
@@ -13,6 +14,23 @@ export type Report = {
   coverColor: string;
   coverAccent: string;
 };
+
+export function reportSlug(r: Pick<Report, "title">): string {
+  return slugify(r.title);
+}
+
+export function getReportBySlug(slug: string): Report | undefined {
+  return REPORTS.find((r) => reportSlug(r) === slug);
+}
+
+/** Parse "28 APR 2026" → ISO 8601 string */
+export function reportDateIso(date: string): string {
+  const [day, monStr, year] = date.split(" ");
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const m = months.indexOf(monStr.toUpperCase());
+  if (m < 0) return new Date().toISOString();
+  return new Date(Date.UTC(Number(year), m, Number(day))).toISOString();
+}
 
 export const REPORTS: Report[] = [
   {

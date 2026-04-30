@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Search, Lock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { REPORTS, Report } from "@/lib/data/research";
+import { REPORTS, Report, reportSlug } from "@/lib/data/research";
 import { ResearchCategory, SubscribeSchema } from "@/lib/schemas";
 
 const TABS: { value: ResearchCategory; label: string }[] = [
@@ -117,7 +118,12 @@ export function ResearchPortal() {
           <div className="r-grid">
             {filtered.length ? (
               filtered.map((r) => (
-                <article key={r.title} className={`r-card ${r.gated ? "gated-card" : ""}`}>
+                <Link
+                  key={r.title}
+                  href={`/research/${reportSlug(r)}`}
+                  className={`r-card ${r.gated ? "gated-card" : ""}`}
+                  aria-label={r.title}
+                >
                   <div className="r-cover">
                     <Cover r={r} />
                     <span className="label">{r.label}</span>
@@ -148,7 +154,7 @@ export function ResearchPortal() {
                       </span>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))
             ) : (
               <div className="r-empty">

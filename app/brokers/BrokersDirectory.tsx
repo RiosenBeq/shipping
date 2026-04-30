@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Phone, Mail, Linkedin, MessageCircle, Search, X, SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
+import { Phone, Mail, Linkedin, MessageCircle, Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { BROKERS, CLASS_LABEL, SECTOR_LABEL } from "@/lib/data/brokers";
+import { BROKERS, CLASS_LABEL, SECTOR_LABEL, brokerSlug } from "@/lib/data/brokers";
 import {
   BrokerFilter,
   BrokerFilterSchema,
@@ -233,6 +234,13 @@ export function BrokersDirectory() {
                       <a href="#" aria-label={`LinkedIn ${b.name}`}>
                         <Linkedin className="h-4 w-4" />
                       </a>
+                      <Link
+                        href={`/brokers/${brokerSlug(b)}`}
+                        aria-label={`View ${b.name} profile`}
+                        style={{ marginLeft: "auto" }}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
                     </div>
                   </article>
                 ))

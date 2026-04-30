@@ -1,5 +1,7 @@
 import { siteConfig } from "@/lib/site";
 import { PAGES } from "@/lib/pages";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
+import { REPORTS, reportSlug } from "@/lib/data/research";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -42,18 +44,25 @@ ${primary.join("\n")}
 ## Tools
 ${tools.join("\n")}
 
+## Brokers
+${BROKERS.map(
+    (b) =>
+      `- [${b.name}](${url(`/brokers/${brokerSlug(b)}`)}): ${b.title} · ${b.desk} · ${b.tags.join(", ")}`
+  ).join("\n")}
+
+## Research reports
+${REPORTS.map(
+    (r) =>
+      `- [${r.title}](${url(`/research/${reportSlug(r)}`)}): ${r.catLabel}, ${r.date}, ${r.read} min${r.gated ? " (Pro)" : ""}`
+  ).join("\n")}
+
 ## Optional
 ${legal.join("\n")}
 - [Sitemap](${url("/sitemap.xml")}): Machine-readable list of every URL
-- [Brokers JSON-LD](${url(
-    "/brokers"
-  )}): \`ItemList\` of 14 brokers (Person schema)
-- [Research JSON-LD](${url(
-    "/research"
-  )}): \`ItemList\` of 9 reports (Article schema)
-- [Voyage Estimator FAQ](${url(
-    "/voyage-estimator"
-  )}): \`FAQPage\` schema with the 4 most-asked questions
+- [RSS feed](${url("/research/feed.xml")}): Latest research, RSS 2.0
+- [Brokers JSON-LD](${url("/brokers")}): \`ItemList\` of 14 brokers (Person schema)
+- [Research JSON-LD](${url("/research")}): \`ItemList\` of ${REPORTS.length} reports (Article schema)
+- [Voyage Estimator FAQ](${url("/voyage-estimator")}): \`FAQPage\` schema with the 4 most-asked questions
 `;
 
   return new Response(body, {

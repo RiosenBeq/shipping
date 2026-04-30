@@ -1076,6 +1076,10 @@ input,select,textarea{font:inherit}
 .placeholder h1{font-family:var(--font-display),serif;font-size:clamp(36px,4vw,52px);font-weight:400;margin:18px 0 14px;letter-spacing:-0.02em;max-width:20ch}
 .placeholder p{color:var(--muted);font-size:18px;max-width:54ch;margin:0 0 28px;line-height:1.55}
 
+@media (max-width:760px){
+  .broker-detail-grid{grid-template-columns:1fr !important}
+}
+
 /* ============================================== */
 /* ===== Print stylesheet (voyage estimator) ===== */
 /* ============================================== */

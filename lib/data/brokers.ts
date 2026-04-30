@@ -1,4 +1,5 @@
 import type { Sector, VesselClassFilter, Desk } from "@/lib/schemas";
+import { slugify } from "@/lib/slug";
 
 export type Broker = {
   name: string;
@@ -11,6 +12,14 @@ export type Broker = {
   initials: string;
   seniority: number; // higher = more senior
 };
+
+export function brokerSlug(b: Pick<Broker, "name">): string {
+  return slugify(b.name);
+}
+
+export function getBrokerBySlug(slug: string): Broker | undefined {
+  return BROKERS.find((b) => brokerSlug(b) === slug);
+}
 
 export const BROKERS: Broker[] = [
   { name: "Mehmet Aydın", title: "Senior Crude Broker", desk: "Istanbul", sectors: ["crude"], classes: ["VLCC", "Suezmax"], tags: ["VLCC TD3C", "Black Sea", "CPC"], color: "#B8893A", initials: "MA", seniority: 3 },
