@@ -1,13 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Phone, Mail, Linkedin, MessageCircle, Anchor, Globe2, FileText, Compass, Award, Building2, ShipWheel } from "lucide-react";
 import { Nav } from "./components/Nav";
 import { Footer } from "./components/Footer";
+import { JsonLd } from "./components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { HomeHero } from "./_home/HomeHero";
 import { Ticker } from "./_home/Ticker";
 import { BosphorusSection } from "./_home/BosphorusSection";
 import { BROKERS } from "@/lib/data/brokers";
 import { REPORTS } from "@/lib/data/research";
+import { buildPageMetadata, professionalServiceLd, webPageLd } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "LEVANTER — Premium Maritime Brokerage from the Bosphorus",
+  description:
+    "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through. Direct broker access, live TCE, and Bosphorus desk depth.",
+  path: "/",
+  keywords: [
+    "premium tanker brokerage",
+    "Bosphorus shipbroker",
+    "VLCC charter",
+    "Suezmax",
+    "Aframax",
+    "Black Sea tanker",
+    "Worldscale TCE",
+    "voyage estimator",
+    "EU ETS shipping",
+  ],
+  absoluteTitle: true,
+});
 
 const COUNTERS = [
   { lbl: "Years combined experience", val: "80+" },
@@ -83,6 +105,23 @@ function ReportCover({ color, accent }: { color: string; accent: string }) {
 export default function HomePage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "LEVANTER — Premium Maritime Brokerage",
+            description:
+              "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through.",
+            path: "/",
+          }),
+          professionalServiceLd({
+            name: "LEVANTER Tanker & Bulk Chartering",
+            description:
+              "Spot voyages, COAs, time charters, S&P, and research across crude, clean, chemicals, and dry bulk.",
+            serviceType: "Ship brokerage",
+            path: "/",
+          }),
+        ]}
+      />
       <Nav active="home" />
       <main>
         <HomeHero />

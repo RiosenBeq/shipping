@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { JsonLd } from "./components/JsonLd";
+import { organizationLd, websiteLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -24,9 +27,91 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LEVANTER — Premium Maritime Brokerage",
-  description:
-    "LEVANTER shipbroker tools: TCE, freight, bunker burn, and P&L modelling across major tanker lanes.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} — ${siteConfig.tagline}`,
+    template: `%s — ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
+  keywords: [
+    "shipbroker",
+    "tanker brokerage",
+    "voyage estimator",
+    "TCE calculator",
+    "VLCC",
+    "Suezmax",
+    "Aframax",
+    "MR tanker",
+    "freight ws",
+    "Bosphorus",
+    "Black Sea shipping",
+    "EU ETS",
+    "bunker prices",
+    "Worldscale",
+    "premium maritime brokerage",
+  ],
+  authors: [{ name: siteConfig.legalEntity, url: siteConfig.url }],
+  creator: siteConfig.legalEntity,
+  publisher: siteConfig.legalEntity,
+  category: "Maritime Shipping",
+  formatDetection: { telephone: true, email: true, address: true },
+  alternates: {
+    canonical: siteConfig.url,
+  },
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — Premium Maritime Brokerage`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: siteConfig.twitter,
+    creator: siteConfig.twitter,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: [{ url: "/icon", type: "image/png" }],
+    apple: [{ url: "/apple-icon", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: siteConfig.themeColor },
+    { media: "(prefers-color-scheme: dark)", color: siteConfig.themeColor },
+  ],
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -35,8 +120,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${sourceSerif.variable} ${manrope.variable} ${ibmPlexMono.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${sourceSerif.variable} ${manrope.variable} ${ibmPlexMono.variable}`}
+    >
+      <body>
+        <a href="#content" className="skip-link">
+          Skip to content
+        </a>
+        <JsonLd data={[organizationLd(), websiteLd()]} />
+        <div id="content">{children}</div>
+      </body>
     </html>
   );
 }

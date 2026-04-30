@@ -3,13 +3,25 @@ import Link from "next/link";
 import { ArrowRight, Anchor } from "lucide-react";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { JsonLd } from "../components/JsonLd";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata, breadcrumbsLd, professionalServiceLd, webPageLd } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Dry Bulk — LEVANTER",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Dry Bulk — Capesize · Panamax · Supramax · Handysize",
   description:
-    "Iron ore to grains, port-to-port. Capesize, Panamax, Supramax and Handysize chartering with the LEVANTER dry bulk desk.",
-};
+    "Iron ore to grains, port-to-port. Capesize, Panamax, Supramax, and Handysize chartering with the LEVANTER dry bulk desk in Istanbul, London, and Singapore.",
+  path: "/dry-bulk",
+  keywords: [
+    "Capesize broker",
+    "Panamax broker",
+    "Supramax broker",
+    "iron ore chartering",
+    "grain chartering",
+    "C5 W Australia Qingdao",
+    "BDI",
+  ],
+});
 
 const CLASSES = [
   { name: "Capesize", spec: "180,000 dwt+ · iron ore, coal", routes: ["C5 W. Australia → Qingdao", "C3 Tubarão → Qingdao"] },
@@ -21,6 +33,26 @@ const CLASSES = [
 export default function DryBulkPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "Dry Bulk Chartering — LEVANTER",
+            description: "Capesize, Panamax, Supramax, Handysize chartering.",
+            path: "/dry-bulk",
+          }),
+          breadcrumbsLd([
+            { name: "Home", path: "/" },
+            { name: "Dry Bulk", path: "/dry-bulk" },
+          ]),
+          professionalServiceLd({
+            name: "LEVANTER Dry Bulk Desk",
+            description:
+              "Capesize, Panamax, Supramax, and Handysize port-to-port chartering and COAs.",
+            serviceType: "Dry bulk brokerage",
+            path: "/dry-bulk",
+          }),
+        ]}
+      />
       <Nav />
       <main>
         <section className="ph">

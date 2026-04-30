@@ -2,17 +2,57 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { JsonLd } from "../components/JsonLd";
 import { OfficesView } from "./OfficesView";
+import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { OFFICES } from "@/lib/data/offices";
+import { siteConfig } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Offices — LEVANTER",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Offices — Istanbul, London, Singapore, Houston",
   description:
-    "Four desks. Headquartered on the Bosphorus. Coverage across UKC, Asia, and the US Gulf — 22-hour live coverage.",
-};
+    "Four desks across the Bosphorus, City of London, Marina Bay, and the US Gulf. 22-hour live coverage with direct broker access.",
+  path: "/offices",
+  keywords: [
+    "Istanbul shipbroker",
+    "London shipbroker",
+    "Singapore shipbroker",
+    "Houston shipbroker",
+    "Bosphorus tanker desk",
+  ],
+});
+
+const officeLocationsLd = Object.values(OFFICES).map((o) => ({
+  "@context": "https://schema.org",
+  "@type": "Place",
+  name: `${siteConfig.name} ${o.city}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: o.addr,
+    addressLocality: o.city,
+  },
+  telephone: o.phone,
+  containedInPlace: { "@id": `${siteConfig.url}#organization` },
+}));
 
 export default function OfficesPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "LEVANTER Offices — 22-hour coverage",
+            description: "Four desks. Headquartered on the Bosphorus.",
+            path: "/offices",
+            type: "AboutPage",
+          }),
+          breadcrumbsLd([
+            { name: "Home", path: "/" },
+            { name: "Offices", path: "/offices" },
+          ]),
+          ...officeLocationsLd,
+        ]}
+      />
       <Nav active="offices" />
       <main>
         <section className="ph">

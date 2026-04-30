@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "./components/Nav";
 import { Footer } from "./components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Compass } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "404 — Page not found",
+  description: "The page you're looking for doesn't exist on the LEVANTER site.",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (

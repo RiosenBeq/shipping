@@ -96,6 +96,16 @@ input,select,textarea{font:inherit}
 .reveal.no-anim{opacity:1;transform:none;transition:none}
 @media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none}}
 
+/* ===== Skip link (a11y) ===== */
+.skip-link{
+  position:fixed;top:-100px;left:8px;z-index:200;
+  background:var(--accent-brass);color:#fff;
+  padding:10px 16px;border-radius:2px;
+  font-weight:600;font-size:14px;
+  transition:top 150ms ease-out;
+}
+.skip-link:focus{top:8px;outline:2px solid var(--ink-bone);outline-offset:2px}
+
 /* ===== Voyage estimator — page header eyebrow ===== */
 .ph .eyebrow{display:inline-flex;align-items:center;gap:10px}
 .ph .eyebrow::before{content:"";width:32px;height:1px;background:var(--accent-brass)}

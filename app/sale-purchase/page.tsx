@@ -3,13 +3,25 @@ import Link from "next/link";
 import { ArrowRight, ShipWheel, Hammer, BadgeDollarSign } from "lucide-react";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { JsonLd } from "../components/JsonLd";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata, breadcrumbsLd, professionalServiceLd, webPageLd } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sale & Purchase — LEVANTER",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Sale & Purchase — Newbuilding · Second-hand · Demolition",
   description:
-    "Newbuilding, second-hand, and demolition advisory. Tanker and bulker S&P with valuations and disposal advisory from LEVANTER.",
-};
+    "Tanker and bulker S&P, valuations, and disposal advisory. Newbuilding slot pricing, modern-tonnage transactions, and HKC-aligned demolition with the LEVANTER S&P desk.",
+  path: "/sale-purchase",
+  keywords: [
+    "tanker S&P",
+    "bulker S&P",
+    "newbuilding broker",
+    "ship valuation",
+    "vessel demolition",
+    "Hong Kong Convention recycling",
+    "Korean shipyard slot",
+  ],
+});
 
 const SERVICES = [
   {
@@ -32,6 +44,26 @@ const SERVICES = [
 export default function SalePurchasePage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "Sale & Purchase — LEVANTER",
+            description: "Newbuilding, second-hand, and demolition advisory.",
+            path: "/sale-purchase",
+          }),
+          breadcrumbsLd([
+            { name: "Home", path: "/" },
+            { name: "Sale & Purchase", path: "/sale-purchase" },
+          ]),
+          professionalServiceLd({
+            name: "LEVANTER S&P Desk",
+            description:
+              "Newbuilding slot pricing, second-hand transactions, and HKC-aligned demolition.",
+            serviceType: "Sale & purchase brokerage",
+            path: "/sale-purchase",
+          }),
+        ]}
+      />
       <Nav />
       <main>
         <section className="ph">

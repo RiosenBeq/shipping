@@ -2,14 +2,32 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { JsonLd } from "../components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  buildPageMetadata,
+  breadcrumbsLd,
+  professionalServiceLd,
+  webPageLd,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Crude Tankers — LEVANTER",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Crude Tankers — VLCC · Suezmax · Aframax",
   description:
     "VLCC, Suezmax, Aframax — every long-haul lane that matters. Spot voyages, COAs, and time charters across MEG, WAF, Black Sea, CPC, and BTC.",
-};
+  path: "/tankers",
+  keywords: [
+    "VLCC chartering",
+    "Suezmax broker",
+    "Aframax tanker",
+    "TD3C MEG China",
+    "TD20 WAF UKC",
+    "TD6 Black Sea Med",
+    "CPC programme",
+    "crude tanker desk",
+  ],
+});
 
 const VESSEL_CLASSES = [
   {
@@ -113,6 +131,27 @@ const INSIGHTS = [
 export default function TankersPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "Crude Tankers — LEVANTER",
+            description:
+              "VLCC, Suezmax, Aframax chartering across the long-haul crude lanes — MEG, WAF, Black Sea, CPC.",
+            path: "/tankers",
+          }),
+          breadcrumbsLd([
+            { name: "Home", path: "/" },
+            { name: "Tankers", path: "/tankers" },
+          ]),
+          professionalServiceLd({
+            name: "LEVANTER Crude Tanker Desk",
+            description:
+              "Spot voyages, COAs, and time charters for VLCC, Suezmax, and Aframax tankers.",
+            serviceType: "Crude tanker brokerage",
+            path: "/tankers",
+          }),
+        ]}
+      />
       <Nav active="tankers" />
       <main>
         {/* Hero band */}

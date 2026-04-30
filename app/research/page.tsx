@@ -2,19 +2,69 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { JsonLd } from "../components/JsonLd";
 import { ResearchPortal } from "./ResearchPortal";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { REPORTS } from "@/lib/data/research";
+import { siteConfig } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Research — LEVANTER",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Research — Weekly Outlooks, Route Guides, Regulatory Deep-Dives",
   description:
-    "Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public. Pro reports are gated.",
+    "Weekly tanker outlooks, lane-by-lane route guides, EU ETS and regulatory deep-dives. Free briefs are public; LEVANTER Pro reports are gated.",
+  path: "/research",
+  keywords: [
+    "tanker research",
+    "Worldscale outlook",
+    "TD20 forecast",
+    "EU ETS shipping",
+    "VLCC TD3C",
+    "Suezmax outlook",
+    "shipping research portal",
+  ],
+});
+
+const reportListLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "LEVANTER research reports",
+  numberOfItems: REPORTS.length,
+  itemListElement: REPORTS.map((r, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Article",
+      headline: r.title,
+      description: r.desc,
+      datePublished: r.date,
+      author: { "@id": `${siteConfig.url}#organization` },
+      publisher: { "@id": `${siteConfig.url}#organization` },
+      isAccessibleForFree: !r.gated,
+    },
+  })),
 };
 
 export default function ResearchPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageLd({
+            title: "Research — LEVANTER",
+            description:
+              "Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public.",
+            path: "/research",
+            type: "CollectionPage",
+          }),
+          breadcrumbsLd([
+            { name: "Home", path: "/" },
+            { name: "Research", path: "/research" },
+          ]),
+          reportListLd,
+        ]}
+      />
       <Nav active="research" />
       <main>
         <section className="ph">
