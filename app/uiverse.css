@@ -1,0 +1,1139 @@
+/* ==========================================================================
+   LEVANTER — Uiverse.io adaptations (uv-*)
+   Curated from the Uiverse.io "galaxy" archive (MIT, Copyright (c) 2023
+   Uiverse.io) and re-tuned to the navy + brass palette. Plain CSS, no JS.
+   Credits per block below; full table in docs/UIVERSE-CREDITS.md.
+   Load after globals.css so these rules win over Tailwind preflight.
+   All motion lives in `prefers-reduced-motion: no-preference` blocks.
+   ========================================================================== */
+
+:root {
+  --uv-navy: #0a1f33;
+  --uv-navy-deep: #051624;
+  --uv-navy-soft: #13304a;
+  --uv-brass: #b8893a;
+  --uv-brass-ink: #8a6420;
+  --uv-brass-light: #d9b071;
+  --uv-sand: #f3efe4;
+  --uv-line: #e4ddcc;
+  --uv-slate: #4a5e6e;
+  --uv-fog: #a9b6bf;
+  --uv-bg: #fbfaf7;
+  --uv-danger: #a53a33; /* site's existing --state-negative, errors only */
+  --uv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --uv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+  --uv-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+
+/* ---------- 1. Primary CTA ------------------------------------------------ */
+/* Adapted from Uiverse.io by satyamchaudharydev — rude-wolverine-24 (MIT) */
+.uv-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 44px;
+  padding: 0.7rem 1.35rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--uv-brass);
+  color: var(--uv-navy);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 1px 2px rgba(5, 22, 36, 0.12);
+}
+.uv-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 60%;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.uv-btn svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+.uv-btn--lg {
+  min-height: 52px;
+  padding: 0.9rem 1.7rem;
+  font-size: 16px;
+}
+.uv-btn--sm {
+  min-height: 36px;
+  padding: 0.45rem 0.95rem;
+  font-size: 14px;
+  gap: 0.45em;
+}
+.uv-btn:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 8px 20px -8px rgba(138, 100, 32, 0.6);
+}
+.uv-btn:active {
+  transform: translateY(1px);
+}
+
+/* Focus ring for all buttons: light halo + navy ring, visible on light and navy. */
+:is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light, .uv-fab):focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--uv-bg);
+}
+:is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light, .uv-fab):is([disabled], [aria-disabled="true"]) {
+  opacity: 0.55;
+  pointer-events: none;
+}
+:is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light)[aria-busy="true"] {
+  pointer-events: none;
+  cursor: progress;
+}
+
+/* ---------- 2. Outline + ghost-light -------------------------------------- */
+/* Adapted from Uiverse.io by Wlidha09 — chilly-mole-32 (MIT) */
+.uv-btn-outline,
+.uv-btn-ghost-light {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 44px;
+  padding: 0.7rem 1.35rem;
+  border: 1px solid var(--uv-navy);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--uv-navy);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.uv-btn-outline::after,
+.uv-btn-ghost-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--uv-navy);
+  transform: scaleX(0);
+  transform-origin: right;
+}
+.uv-btn-outline:hover {
+  color: #fff;
+}
+.uv-btn-ghost-light {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.uv-btn-ghost-light::after {
+  background: #fff;
+}
+.uv-btn-ghost-light:hover {
+  color: var(--uv-navy);
+  border-color: #fff;
+}
+:is(.uv-btn-outline, .uv-btn-ghost-light):hover::after {
+  transform: scaleX(1);
+}
+:is(.uv-btn-outline, .uv-btn-ghost-light) svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+.uv-btn-ghost-light:focus-visible {
+  outline-color: var(--uv-brass-light);
+  box-shadow: none;
+}
+:is(.uv-btn-outline, .uv-btn-ghost-light).uv-btn--lg {
+  min-height: 52px;
+  padding: 0.9rem 1.7rem;
+  font-size: 16px;
+}
+:is(.uv-btn-outline, .uv-btn-ghost-light).uv-btn--sm {
+  min-height: 36px;
+  padding: 0.45rem 0.95rem;
+  font-size: 14px;
+}
+
+/* ---------- 3. Card ------------------------------------------------------- */
+/* Adapted from Uiverse.io by satyamchaudharydev — itchy-chipmunk-95 (MIT) */
+.uv-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 1.5rem 2.75rem;
+  border: 1px solid var(--uv-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--uv-slate);
+  text-decoration: none;
+  overflow: hidden;
+}
+.uv-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--uv-brass), var(--uv-brass-light));
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.uv-card__title {
+  margin: 0;
+  color: var(--uv-navy);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.uv-card__meta {
+  margin-top: auto;
+  font-size: 0.8125rem;
+  color: var(--uv-slate);
+}
+.uv-card__arrow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 2.5rem;
+  height: 2.25rem;
+  border-top-left-radius: 10px;
+  background: var(--uv-sand);
+  color: var(--uv-brass-ink);
+}
+.uv-card__arrow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  -webkit-mask: var(--uv-arrow) center / contain no-repeat;
+  mask: var(--uv-arrow) center / contain no-repeat;
+}
+.uv-card:is(a, button, .uv-card--hover):hover {
+  border-color: rgba(10, 31, 51, 0.22);
+  box-shadow: 0 14px 32px -18px rgba(10, 31, 51, 0.35);
+  transform: translateY(-2px);
+}
+.uv-card:is(a, button, .uv-card--hover):hover::before {
+  transform: scaleX(1);
+}
+.uv-card:is(a, button, .uv-card--hover):hover .uv-card__title {
+  text-decoration: underline;
+  text-decoration-color: var(--uv-brass);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.uv-card:is(a, button, .uv-card--hover):hover .uv-card__arrow {
+  background: var(--uv-navy);
+  color: var(--uv-brass-light);
+}
+.uv-card:is(a, button, .uv-card--hover):hover .uv-card__arrow::before {
+  transform: translateX(3px);
+}
+.uv-card:focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 3px;
+}
+.uv-card--dark {
+  background: var(--uv-navy-soft);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--uv-fog);
+}
+.uv-card--dark .uv-card__title {
+  color: #fff;
+}
+.uv-card--dark .uv-card__meta {
+  color: var(--uv-fog);
+}
+.uv-card--dark .uv-card__arrow {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--uv-brass-light);
+}
+.uv-card--dark:is(a, button, .uv-card--hover):hover {
+  border-color: rgba(217, 176, 113, 0.45);
+  box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.6);
+}
+.uv-card--dark:is(a, button, .uv-card--hover):hover .uv-card__arrow {
+  background: var(--uv-brass);
+  color: var(--uv-navy);
+}
+.uv-card--dark:focus-visible {
+  outline-color: var(--uv-brass-light);
+}
+
+/* ---------- 4. Floating-label field --------------------------------------- */
+/* Adapted from Uiverse.io by fbernack — honest-bat-69 (MIT)
+   + centre-out focus bar from Uiverse.io by AbanoubMagdy1 — afraid-yak-99 (MIT) */
+.uv-field {
+  position: relative;
+  display: block;
+}
+.uv-field :is(input, textarea, select) {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 1.55rem 0.875rem 0.55rem;
+  border: 0;
+  border-bottom: 1px solid var(--uv-slate);
+  border-radius: 6px 6px 0 0;
+  --uv-bar: var(--uv-brass); /* focus bar colour; switches to danger when invalid */
+  background:
+    linear-gradient(var(--uv-bar), var(--uv-bar)) 50% 100% / 0% 2px no-repeat,
+    #f8f5ef;
+  color: var(--uv-navy);
+  font: inherit;
+  font-size: 16px; /* avoids iOS zoom */
+  line-height: 1.4;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.uv-field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+.uv-field select {
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background:
+    linear-gradient(var(--uv-bar), var(--uv-bar)) 50% 100% / 0% 2px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A5E6E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+      right 0.875rem center / 1.1rem no-repeat,
+    #f8f5ef;
+}
+.uv-field :is(input, textarea)::placeholder {
+  color: transparent;
+}
+.uv-field :is(input, textarea):focus::placeholder {
+  color: var(--uv-slate);
+  opacity: 0.7;
+}
+.uv-field label {
+  position: absolute;
+  top: 1.05rem;
+  left: 0.875rem;
+  right: 0.875rem;
+  color: var(--uv-slate);
+  font-size: 16px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transform-origin: left top;
+}
+.uv-field :is(input, textarea, select):hover {
+  border-bottom-color: var(--uv-navy);
+  background-color: #f5f1e8;
+}
+.uv-field :is(input, textarea, select):focus {
+  background-size:
+    100% 2px,
+    1.1rem;
+  border-bottom-color: var(--uv-brass);
+}
+.uv-field :is(input, textarea):is(:focus, :not(:placeholder-shown), :autofill) ~ label,
+.uv-field select ~ label {
+  transform: translateY(-0.6rem) scale(0.78);
+}
+.uv-field :is(input, textarea, select):focus ~ label {
+  color: var(--uv-brass-ink);
+}
+.uv-field :is(input, textarea, select)[aria-invalid="true"] {
+  --uv-bar: var(--uv-danger);
+  border-bottom-color: var(--uv-danger);
+  background-size:
+    100% 2px,
+    1.1rem;
+}
+.uv-field :is(input, textarea, select)[aria-invalid="true"] ~ label {
+  color: var(--uv-danger);
+}
+.uv-field :disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.uv-field__msg {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--uv-slate);
+}
+.uv-field [aria-invalid="true"] ~ .uv-field__msg {
+  color: var(--uv-danger);
+}
+
+/* ---------- 5. Segmented control ------------------------------------------ */
+/* Adapted from Uiverse.io by Yaya12085 — rude-mouse-79 (MIT) */
+.uv-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--uv-line);
+  border-radius: 10px;
+  background: var(--uv-sand);
+}
+.uv-segmented label {
+  position: relative;
+  flex: 1 1 auto;
+  margin: 0;
+}
+.uv-segmented input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.uv-segmented span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  min-height: 38px;
+  padding: 0.45rem 1rem;
+  border-radius: 7px;
+  color: var(--uv-slate);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.uv-segmented span:hover {
+  color: var(--uv-navy);
+  background: rgba(255, 255, 255, 0.55);
+}
+.uv-segmented input:checked + span {
+  background: #fff;
+  color: var(--uv-navy);
+  font-weight: 600;
+  box-shadow:
+    0 0 0 1px var(--uv-line),
+    0 1px 3px rgba(10, 31, 51, 0.1);
+}
+.uv-segmented input:checked + span::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--uv-brass);
+}
+.uv-segmented input:focus-visible + span {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 1px;
+}
+.uv-segmented input:disabled + span {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- 6. Hero pattern (chart graticule) ------------------------------ */
+/* Adapted from Uiverse.io by csemszepp — serious-cobra-89 (MIT) */
+.uv-hero-pattern {
+  --uv-grid: 120px;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(from 90deg at 1px 1px, #0000 90deg, rgba(217, 176, 113, 0.13) 0),
+    conic-gradient(from 90deg at 1px 1px, #0000 90deg, rgba(169, 182, 191, 0.06) 0);
+  background-size:
+    var(--uv-grid) var(--uv-grid),
+    calc(var(--uv-grid) / 5) calc(var(--uv-grid) / 5);
+  -webkit-mask: radial-gradient(ellipse 75% 70% at 70% 35%, #000 10%, transparent 75%);
+  mask: radial-gradient(ellipse 75% 70% at 70% 35%, #000 10%, transparent 75%);
+}
+
+/* ---------- 7. Loader (porthole wave + sonar ping) ------------------------- */
+/* Adapted from Uiverse.io by mrhyddenn — angry-goat-2 (MIT)
+   + ping ring from Uiverse.io by Gautammsharma — polite-bat-25 (MIT) */
+.uv-loader {
+  --uv-loader-water: var(--uv-navy);
+  --uv-loader-air: var(--uv-bg);
+  --uv-loader-ring: var(--uv-brass);
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  vertical-align: middle;
+  background: linear-gradient(var(--uv-navy-soft), var(--uv-loader-water));
+  box-shadow:
+    0 0 0 1.5px var(--uv-loader-ring),
+    0 0 0 0 rgba(184, 137, 58, 0.4);
+}
+.uv-loader::before,
+.uv-loader::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 200%;
+  height: 200%;
+  background: var(--uv-loader-air);
+  transform: translate(-50%, -76%) rotate(0deg);
+}
+.uv-loader::before {
+  border-radius: 45%;
+}
+.uv-loader::after {
+  border-radius: 40%;
+  opacity: 0.5;
+}
+.uv-loader--sm {
+  width: 1.15em;
+  height: 1.15em;
+  box-shadow: 0 0 0 1.5px var(--uv-loader-ring);
+}
+.uv-loader--on-dark {
+  --uv-loader-water: var(--uv-brass);
+  --uv-loader-air: var(--uv-navy);
+  --uv-loader-ring: var(--uv-brass-light);
+  background: linear-gradient(var(--uv-brass-light), var(--uv-brass));
+}
+.uv-btn .uv-loader {
+  --uv-loader-air: var(--uv-brass);
+  --uv-loader-ring: var(--uv-navy);
+}
+
+/* ---------- 8. Toast / status --------------------------------------------- */
+/* Adapted from Uiverse.io by akshat-patel28 — quick-baboon-29 (MIT) */
+.uv-toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  max-width: 28rem;
+  padding: 0.95rem 1rem 0.95rem 1.6rem;
+  border: 1px solid var(--uv-line);
+  border-radius: 10px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 32'%3E%3Cpath d='M0 0h8q8 8 0 16t0 16H0z' fill='%23B8893A' fill-opacity='.22'/%3E%3C/svg%3E")
+      left top / 12px 24px repeat-y,
+    #fff;
+  color: var(--uv-slate);
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 12px 28px -16px rgba(10, 31, 51, 0.35);
+}
+.uv-toast__icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--uv-sand);
+  color: var(--uv-brass-ink);
+}
+.uv-toast__icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  -webkit-mask: var(--uv-check) center / contain no-repeat;
+  mask: var(--uv-check) center / contain no-repeat;
+}
+.uv-toast__title {
+  margin: 0.1rem 0 0.1rem;
+  color: var(--uv-navy);
+  font-size: 15px;
+  font-weight: 600;
+}
+.uv-toast__text {
+  margin: 0;
+}
+.uv-toast__close {
+  flex-shrink: 0;
+  margin: -0.25rem -0.25rem 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--uv-slate);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.uv-toast__close:hover {
+  background: var(--uv-sand);
+  color: var(--uv-navy);
+}
+.uv-toast__close:focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 1px;
+}
+
+/* ---------- 9. Chip ------------------------------------------------------- */
+/* Adapted from Uiverse.io by Javierrocadev — young-panda-66 (MIT) */
+.uv-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 32px;
+  padding: 0.3rem 0.9rem 0.3rem 0.75rem;
+  border: 1px solid var(--uv-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--uv-navy);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.uv-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--uv-brass);
+}
+.uv-chip:is(a, button):hover {
+  border-color: var(--uv-brass);
+  background: var(--uv-sand);
+}
+.uv-chip:is(a, button):hover::before {
+  transform: scale(1.35);
+  background: var(--uv-navy);
+}
+.uv-chip:focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 2px;
+}
+.uv-chip--dark {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+.uv-chip--dark::before {
+  background: var(--uv-brass-light);
+}
+.uv-chip--dark:is(a, button):hover {
+  border-color: var(--uv-brass-light);
+  background: rgba(217, 176, 113, 0.12);
+}
+.uv-chip--dark:is(a, button):hover::before {
+  background: var(--uv-brass-light);
+}
+.uv-chip--dark:focus-visible {
+  outline-color: var(--uv-brass-light);
+}
+
+/* ---------- 10. Skeleton -------------------------------------------------- */
+/* Adapted from Uiverse.io by elijahgummer — hot-fly-77 (MIT) */
+.uv-skeleton {
+  display: block;
+  min-height: 1rem;
+  border-radius: 6px;
+  background: var(--uv-line)
+    linear-gradient(100deg, transparent 30%, rgba(251, 250, 247, 0.75) 50%, transparent 70%) 150% 0 /
+    200% 100% no-repeat;
+}
+.uv-skeleton--text {
+  height: 0.75em;
+  min-height: 0;
+  margin: 0.55em 0;
+  border-radius: 4px;
+}
+.uv-skeleton--text:last-child {
+  width: 65%;
+}
+.uv-skeleton--circle {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+}
+
+/* ---------- 11. Tooltip --------------------------------------------------- */
+/* Adapted from Uiverse.io by TanimMahbub — white-fly-43 (MIT) */
+.uv-tooltip {
+  position: relative;
+}
+.uv-tooltip::before,
+.uv-tooltip::after {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  z-index: 50;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+}
+.uv-tooltip::after {
+  content: attr(data-tooltip);
+  margin-bottom: 9px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: var(--uv-navy);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 18px -8px rgba(5, 22, 36, 0.5);
+}
+.uv-tooltip::before {
+  content: "";
+  margin-bottom: 4px;
+  border: 5px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--uv-navy);
+}
+.uv-tooltip:is(:hover, :focus-visible, :focus-within, [data-tooltip-show="true"])::before,
+.uv-tooltip:is(:hover, :focus-visible, :focus-within, [data-tooltip-show="true"])::after {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.uv-tooltip--light::after {
+  background: #fff;
+  color: var(--uv-navy);
+}
+.uv-tooltip--light::before {
+  border-top-color: #fff;
+}
+
+/* ---------- 12. Text link + nav link -------------------------------------- */
+/* Adapted from Uiverse.io by ArturCodeCraft — horrible-mule-54 (MIT) */
+.uv-link {
+  color: inherit;
+  text-decoration: none;
+  background:
+    linear-gradient(var(--uv-brass), var(--uv-brass)) 0 100% / 0% 2px no-repeat,
+    linear-gradient(rgba(184, 137, 58, 0.45), rgba(184, 137, 58, 0.45)) 0 100% / 100% 1px no-repeat;
+  padding-bottom: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.uv-link:is(:hover, :focus-visible) {
+  background-size:
+    100% 2px,
+    100% 1px;
+}
+.uv-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.uv-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.125rem;
+  color: var(--uv-slate);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.uv-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--uv-brass);
+}
+.uv-nav-link:hover,
+.uv-nav-link[aria-current="page"] {
+  color: var(--uv-navy);
+}
+.uv-nav-link:hover::after,
+.uv-nav-link[aria-current="page"]::after {
+  left: 0;
+  right: 0;
+}
+.uv-nav-link:focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.uv-nav-link--light {
+  color: var(--uv-fog);
+}
+.uv-nav-link--light:hover,
+.uv-nav-link--light[aria-current="page"] {
+  color: #fff;
+}
+.uv-nav-link--light::after {
+  background: var(--uv-brass-light);
+}
+.uv-nav-link--light:focus-visible {
+  outline-color: var(--uv-brass-light);
+}
+
+/* ---------- 13. Accordion (native <details>) ------------------------------ */
+/* Icon morph adapted from Uiverse.io by AKAspidey01 — itchy-wombat-76 (MIT) */
+.uv-accordion {
+  border-bottom: 1px solid var(--uv-line);
+}
+.uv-accordion > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.15rem 0.75rem;
+  border-radius: 6px;
+  color: var(--uv-navy);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.4;
+  list-style: none;
+  cursor: pointer;
+}
+.uv-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+.uv-accordion > summary > :not(.uv-accordion__icon) {
+  margin: 0;
+  font: inherit;
+}
+.uv-accordion > summary:hover {
+  background: rgba(243, 239, 228, 0.7);
+}
+.uv-accordion > summary:focus-visible {
+  outline: 2px solid var(--uv-navy);
+  outline-offset: -2px;
+}
+.uv-accordion__icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--uv-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--uv-brass-ink);
+}
+.uv-accordion__icon::before,
+.uv-accordion__icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.7rem;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.uv-accordion__icon::after {
+  transform: rotate(90deg);
+}
+.uv-accordion[open] .uv-accordion__icon {
+  border-color: var(--uv-navy);
+  background: var(--uv-navy);
+  color: var(--uv-brass-light);
+}
+.uv-accordion[open] .uv-accordion__icon::after {
+  transform: rotate(180deg);
+}
+.uv-accordion__body {
+  padding: 0 0.75rem 1.25rem;
+  max-width: 48rem;
+  color: var(--uv-slate);
+  line-height: 1.7;
+}
+
+/* ---------- 14. Floating action button ------------------------------------ */
+/* Adapted from Uiverse.io by Carlos-vargs — pink-ladybug-22 (MIT) */
+.uv-fab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--uv-navy);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -10px rgba(5, 22, 36, 0.55);
+}
+.uv-fab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(184, 137, 58, 0.4);
+  pointer-events: none;
+}
+.uv-fab svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--uv-brass-light);
+  flex-shrink: 0;
+}
+.uv-fab:hover {
+  background: var(--uv-navy-soft);
+  transform: translateY(-2px);
+}
+
+/* ---------- Motion (only when the user has not asked for less) ------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .uv-btn,
+  .uv-btn-outline,
+  .uv-btn-ghost-light {
+    transition:
+      color 0.3s var(--uv-ease),
+      border-color 0.3s,
+      box-shadow 0.3s,
+      transform 0.15s;
+  }
+  .uv-btn svg:last-child,
+  .uv-btn-outline svg:last-child,
+  .uv-btn-ghost-light svg:last-child {
+    transition: transform 0.3s var(--uv-ease);
+  }
+  :is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light):hover svg:last-child {
+    transform: translateX(3px);
+  }
+  .uv-btn:hover::before {
+    transform: translateX(220%);
+    transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .uv-btn-outline::after,
+  .uv-btn-ghost-light::after {
+    transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .uv-card {
+    transition:
+      transform 0.3s var(--uv-ease),
+      box-shadow 0.3s,
+      border-color 0.3s;
+  }
+  .uv-card::before {
+    transition: transform 0.45s var(--uv-ease);
+  }
+  .uv-card__arrow,
+  .uv-card__arrow::before {
+    transition:
+      background-color 0.25s,
+      color 0.25s,
+      transform 0.25s var(--uv-ease);
+  }
+
+  .uv-field :is(input, textarea, select) {
+    transition:
+      background-size 0.3s var(--uv-ease),
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+  .uv-field label {
+    transition:
+      transform 0.2s var(--uv-ease),
+      color 0.2s;
+  }
+
+  .uv-segmented span {
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .uv-hero-pattern {
+    animation: uv-drift 60s linear infinite;
+  }
+
+  .uv-loader {
+    animation: uv-ping 2.4s ease-out infinite;
+  }
+  .uv-loader::before {
+    animation: uv-wave 5s linear infinite;
+  }
+  .uv-loader::after {
+    animation: uv-wave 9s linear infinite;
+  }
+  .uv-loader--sm {
+    animation: none;
+  }
+  .uv-loader--sm::before {
+    animation: uv-bob 1.6s ease-in-out infinite;
+  }
+  .uv-loader--sm::after {
+    animation: uv-bob 2.4s ease-in-out infinite reverse;
+  }
+
+  .uv-toast {
+    animation: uv-rise 0.45s var(--uv-ease) both;
+  }
+  .uv-toast__close {
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .uv-chip,
+  .uv-chip::before {
+    transition:
+      background-color 0.2s,
+      border-color 0.2s,
+      transform 0.2s var(--uv-ease);
+  }
+
+  .uv-skeleton {
+    animation: uv-shimmer 1.6s linear infinite;
+  }
+
+  .uv-tooltip::before,
+  .uv-tooltip::after {
+    transition:
+      opacity 0.18s,
+      transform 0.18s var(--uv-ease),
+      visibility 0.18s;
+  }
+
+  .uv-link {
+    transition: background-size 0.35s var(--uv-ease);
+  }
+  .uv-nav-link {
+    transition: color 0.2s;
+  }
+  .uv-nav-link::after {
+    transition:
+      left 0.3s var(--uv-ease),
+      right 0.3s var(--uv-ease);
+  }
+
+  .uv-accordion > summary {
+    transition: background-color 0.2s;
+  }
+  .uv-accordion__icon,
+  .uv-accordion__icon::after {
+    transition:
+      transform 0.3s var(--uv-ease),
+      background-color 0.25s,
+      border-color 0.25s,
+      color 0.25s;
+  }
+  .uv-accordion[open] .uv-accordion__body {
+    animation: uv-rise 0.35s var(--uv-ease) both;
+  }
+  @supports (interpolate-size: allow-keywords) {
+    .uv-accordion {
+      interpolate-size: allow-keywords;
+    }
+    .uv-accordion::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size 0.35s var(--uv-ease),
+        content-visibility 0.35s allow-discrete;
+    }
+    .uv-accordion[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+  .uv-fab {
+    transition:
+      background-color 0.2s,
+      transform 0.2s var(--uv-ease);
+  }
+  .uv-fab::before {
+    animation: uv-pulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.8s 3;
+  } /* 3 pulses then rest (WCAG 2.2.2) */
+}
+
+@keyframes uv-wave {
+  to {
+    transform: translate(-50%, -76%) rotate(360deg);
+  }
+}
+@keyframes uv-bob {
+  0%,
+  100% {
+    transform: translate(-50%, -70%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -84%) rotate(180deg);
+  }
+}
+@keyframes uv-ping {
+  0% {
+    box-shadow:
+      0 0 0 1.5px var(--uv-loader-ring),
+      0 0 0 0 rgba(184, 137, 58, 0.45);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 0 0 1.5px var(--uv-loader-ring),
+      0 0 0 18px rgba(184, 137, 58, 0);
+  }
+}
+@keyframes uv-pulse {
+  to {
+    box-shadow: 0 0 0 14px rgba(184, 137, 58, 0);
+  }
+}
+@keyframes uv-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+@keyframes uv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes uv-drift {
+  to {
+    background-position:
+      var(--uv-grid) var(--uv-grid),
+      var(--uv-grid) var(--uv-grid);
+  }
+}
