@@ -85,7 +85,7 @@ export default async function OpengraphImage() {
             }}
           >
             <div style={{ width: 36, height: 1, background: "#D9B071", display: "flex" }} />
-            Bosphorus · 41°N 29°E
+            Istanbul · Shipbrokers
           </div>
           <div
             style={{
@@ -98,7 +98,7 @@ export default async function OpengraphImage() {
               display: "flex",
             }}
           >
-            Premium tanker brokerage. From the Bosphorus to the world.
+            Tanker &amp; LPG chartering, brokered from the Bosphorus.
           </div>
         </div>
 
@@ -114,9 +114,11 @@ export default async function OpengraphImage() {
           }}
         >
           <div style={{ display: "flex", gap: 24 }}>
-            <span>Crude · Clean · Chemicals · Dry Bulk</span>
+            <span>Crude · Clean · LPG · Ammonia</span>
           </div>
-          <div style={{ display: "flex", color: "#D9B071", fontWeight: 600 }}>levanter.example</div>
+          <div style={{ display: "flex", color: "#D9B071", fontWeight: 600 }}>
+            {new URL(siteConfig.url).host}
+          </div>
         </div>
       </div>
     ),

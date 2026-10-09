@@ -4,22 +4,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary:
-          "bg-accent-brass text-white hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(184,137,58,.28)]",
-        outline:
-          "border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background",
-        ghost: "text-ink-slate hover:text-accent-brass",
-        bone: "bg-transparent text-ink-bone border border-ink-bone/40 hover:bg-ink-bone hover:text-ink-petrol",
+        /** Brass with navy text — the main call to action, on light or dark. */
+        primary: "bg-brass text-navy hover:bg-brass-light",
+        /** Solid navy — secondary action on light backgrounds. */
+        dark: "bg-navy text-white hover:bg-navy-soft",
+        outline: "border border-navy/25 bg-transparent text-navy hover:border-navy hover:bg-navy/5",
+        /** Outline for dark backgrounds. */
+        light:
+          "border border-white/30 bg-transparent text-white hover:border-white hover:bg-white/10",
+        ghost: "text-navy hover:text-brass-ink",
       },
       size: {
-        default: "px-6 py-3.5",
-        sm: "px-4 py-2.5 text-xs",
-        lg: "px-7 py-4 text-base",
-        icon: "h-9 w-9",
+        default: "h-11 px-5",
+        sm: "h-9 px-4 text-xs",
+        lg: "h-12 px-6 text-[15px]",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: { variant: "primary", size: "default" },

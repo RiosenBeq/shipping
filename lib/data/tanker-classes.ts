@@ -1,7 +1,5 @@
 /**
- * Per-class deep-dive data for /tankers/[class]. Independent of the
- * voyage-estimator's internal vessel data so we can keep marketing
- * detail separate from calculator inputs.
+ * Per-class deep-dive data for /tankers/[class].
  */
 
 export type TankerClassData = {
@@ -82,7 +80,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     charterShape:
       "Spot voyages dominate. Time charters of 6–24 months and multi-year COAs are common with state buyers and trading houses. Co-loading (two charterers splitting one cargo) is routine for Chinese state buyers.",
-    desk: "MEG, WAF, USG. Lead brokers in Singapore (Wei Zhang), Houston, and Istanbul.",
+    desk: "Singapore (Wei Zhang) for MEG and WAF–East, with Istanbul (Mehmet Aydın) covering Atlantic and Med-bound business.",
   },
   {
     slug: "suezmax",
@@ -138,7 +136,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     charterShape:
       "Spot voyages, COAs (especially CPC programmes), and 6–12 month time charters. Demurrage typical $35–45k/day.",
-    desk: "Istanbul (Mehmet Aydın, Elif Kaya, Ahmed El-Sayed), London (Søren Hansen, Marta Costa).",
+    desk: "Istanbul (Mehmet Aydın) for Black Sea and CPC, London (Søren Hansen) for WAF and the Atlantic basin.",
   },
   {
     slug: "aframax",
@@ -186,7 +184,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     charterShape:
       "Spot voyages dominate; time charters short (3–6 months) common. Coated Aframax sometimes traded clean on a 6-month CP for switching optionality.",
-    desk: "Istanbul (Elif Kaya), London (Søren Hansen).",
+    desk: "Istanbul (Mehmet Aydın) for Black Sea and cross-Med, London (Søren Hansen) for North Sea.",
   },
   {
     slug: "lr1",
@@ -220,7 +218,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     charterShape:
       "Spot voyages and 6–12 month time charters. Less common in COA programmes than VLCC or Suezmax.",
-    desk: "Singapore (Wei Zhang), London (Demetrios Pavlou).",
+    desk: "London (Demetrios Pavlou), with Singapore support East of Suez.",
   },
   {
     slug: "mr",
@@ -272,7 +270,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     charterShape:
       "Spot voyages and 1–3 year time charters. COA programmes common with major US refiners and Atlantic basin traders.",
-    desk: "Houston (Olivia Bennett), Singapore (Wei Zhang), London (Demetrios Pavlou).",
+    desk: "London (Demetrios Pavlou) for the Atlantic, Istanbul (Ahmed El-Sayed) for the Med and Black Sea.",
   },
 ];
 

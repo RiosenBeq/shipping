@@ -2,8 +2,8 @@
  * Long-form editorial bodies for each research report. Keyed by the report slug.
  * Plain markdown-ish blocks so the renderer stays simple.
  *
- * Gated reports keep the lock card on the detail page; their bodies here serve
- * as the "executive summary" that sits above the gate.
+ * Gated reports show only their `summary` on the site; the full report is sent
+ * on request by the research desk.
  */
 
 export type ReportBlock =
@@ -15,12 +15,107 @@ export type ReportBlock =
 export type ReportBody = {
   /** One-sentence dek under the title. */
   dek: string;
-  /** Optional summary used above the gate on Pro reports. */
+  /** Summary shown on the site for gated reports. */
   summary?: string;
   blocks: ReportBlock[];
 };
 
 export const REPORT_BODIES: Record<string, ReportBody> = {
+  "vlgc-routing-us-gulf-asia-panama-or-the-cape": {
+    dek: "How we compare canal cost, waiting time and extra sea days before quoting a BLPG3-type voyage.",
+    blocks: [
+      {
+        kind: "p",
+        text: "US Gulf to Japan is the longest regular VLGC trade, and the Baltic's BLPG3 (Houston–Chiba) is its benchmark. Every voyage on this lane starts with the same question: go through the Panama Canal, or take the long way round the Cape of Good Hope? The answer changes from month to month, so we never quote one without pricing both.",
+      },
+      { kind: "h2", text: "What goes into the comparison" },
+      {
+        kind: "ul",
+        items: [
+          "Sea days: the Panama route is much shorter, so it uses fewer days and less bunker fuel.",
+          "Canal cost: tolls, slot-auction premiums and agency fees for the transit.",
+          "Waiting time: queue days at the canal, which can wipe out the distance saving when congestion builds.",
+          "Repositioning: where the ship opens after discharge, and how long the ballast leg back to the US Gulf will take.",
+          "Fuel basis: dual-fuel LPG ships and conventional ships burn different fuels at different costs.",
+        ],
+      },
+      { kind: "h2", text: "How we present it" },
+      {
+        kind: "p",
+        text: "For each inquiry we show the round-trip time-charter equivalent (TCE) for both routings side by side, with the canal assumptions spelled out. Charterers see exactly which variable drives the decision, so a freight idea can be checked line by line rather than taken on trust.",
+      },
+      {
+        kind: "callout",
+        label: "Practical takeaway",
+        text: "If your laycan is flexible by a few days, ask us to price both routes. Small timing shifts can move a voyage from one side of the Panama/Cape break-even to the other.",
+      },
+    ],
+  },
+
+  "chartering-small-lpg-ships-in-the-med-and-black-sea": {
+    dek: "Pressurised and semi-refrigerated tonnage, terminal limits and Turkish Straits timing — a practical guide for importers.",
+    blocks: [
+      {
+        kind: "p",
+        text: "Most LPG fixtures in the Mediterranean and Black Sea are not VLGC deals. They are small pressurised and semi-refrigerated ships moving 1,500–7,000 mt parcels between refineries, import terminals and depots. Türkiye, one of the world's largest autogas markets, sits in the middle of this network, and the Turkish Straits link the Black Sea to everything else.",
+      },
+      { kind: "h2", text: "Pick the right containment" },
+      {
+        kind: "ul",
+        items: [
+          "Fully pressurised ships carry LPG at ambient temperature and suit short voyages into pressurised terminals.",
+          "Semi-refrigerated ships can load from both pressurised and refrigerated terminals, which widens your options.",
+          "Check the receiving terminal first: tank type, manifold size and temperature limits decide which ships can discharge.",
+        ],
+      },
+      { kind: "h2", text: "Price the port time, not just the freight" },
+      {
+        kind: "p",
+        text: "On a short voyage, two extra days at anchor can matter more than the freight rate. We quote with realistic port days for each terminal and flag berths with known congestion or draft limits before the ship is fixed.",
+      },
+      { kind: "h2", text: "Plan the Straits transit" },
+      {
+        kind: "p",
+        text: "Black Sea voyages pass the Bosphorus and the Dardanelles. Transit rules for vessels carrying dangerous cargo, daylight restrictions and weather all affect timing. Our Istanbul desk follows transit conditions daily and builds realistic waiting time into every estimate.",
+      },
+      {
+        kind: "callout",
+        label: "Before you fix",
+        text: "Send us the terminal names, parcel size and laycan. We will come back with suitable ships, realistic port days and a freight idea within 60 minutes during business hours.",
+      },
+    ],
+  },
+
+  "ammonia-on-mgcs-switching-grades-without-losing-a-voyage": {
+    dek: "What changes when a midsize gas carrier moves between LPG and ammonia — and how to price it.",
+    blocks: [
+      {
+        kind: "p",
+        text: "Midsize gas carriers (MGCs) earn their premium by being able to carry both LPG and ammonia. The switch is not free: cargo tanks need to be prepared, and some terminals have strict requirements on previous cargoes. Getting this right is the difference between a smooth voyage and a ship sitting idle while it is cleaned.",
+      },
+      { kind: "h2", text: "What a grade change involves" },
+      {
+        kind: "ul",
+        items: [
+          "Tank preparation: depending on the previous cargo, tanks may need warming, gas-freeing, purging or inerting before loading.",
+          "Time: preparation can add days to the voyage, which belongs in the TCE calculation from the start.",
+          "Terminal acceptance: some load ports set limits on the last cargoes or require specific inspection results.",
+          "Ship suitability: tank materials and certification must allow ammonia, so not every MGC is a candidate.",
+        ],
+      },
+      { kind: "h2", text: "How we price it" },
+      {
+        kind: "p",
+        text: "We treat cleaning time and cost as part of the voyage, not an afterthought. When an owner offers an MGC after an LPG cargo for an ammonia stem, we confirm the preparation plan, the time it needs and who pays for it before the freight idea goes to the charterer.",
+      },
+      {
+        kind: "callout",
+        label: "Desk note",
+        text: "Long-term ammonia demand is tied to fertiliser markets and to new low-carbon ammonia projects. We follow both because they decide period demand for MGCs.",
+      },
+    ],
+  },
+
   "suezmax-tightness-sustains-as-cpc-volumes-rebound": {
     dek: "Black Sea exports are tracking Q1 highs while Atlantic Basin tonnage thins. Where the squeeze holds — and where it breaks.",
     blocks: [
@@ -172,49 +267,11 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     ],
   },
 
-  "aframax-5yearold-market-14-deals-3-themes": {
-    dek: "Where prices held, where they slipped, and what the buy-side composition tells you about Q3 supply.",
-    blocks: [
-      {
-        kind: "p",
-        text: "Fourteen Aframax 5-year-old transactions closed in Q1 2026 — a respectable clip for a quarter that included Lunar New Year and a soft equity backdrop. The pricing range was wider than the headline number suggests, and the buy-side composition tells you something about who's positioning for Q3.",
-      },
-      { kind: "h2", text: "Three themes" },
-      {
-        kind: "ul",
-        items: [
-          "Greek and Norwegian buyers led the bid; Asian buyers (ex-Japan) were notably less active vs the H2 2025 pace.",
-          "Vetting-clean tonnage commanded a 5–8% premium over equivalent dwt that needed work — TMSA Tier-3 and Q88-clean status now matters more than build year alone.",
-          "Coated Aframax (LR2-capable) traded in line with regular Aframax — unusual; typically we'd see a 3–5% premium reflecting the optionality.",
-        ],
-      },
-      { kind: "h2", text: "What it implies for Q3" },
-      {
-        kind: "p",
-        text: "The European bid suggests positioning for Med / Black Sea programme growth, which is consistent with the CPC schedule we're seeing. The thinner Asian bid is partly funding-cost driven (Japanese rates moving up) and partly a wait-and-see on Chinese teapot crude appetite. Net effect: 5-year-old Aframax pricing should hold the current range if Atlantic activity sustains; downside risk is concentrated in the Asian bid coming back light again.",
-      },
-    ],
-  },
-
-  // Gated reports — these stay behind the lock card. The summary appears above the gate.
+  // Gated reports — summary only on the site; full report on request.
   "eu-ets-phase-2-cargo-allocation-who-actually-pays": {
     dek: "With 70% phasing in 2026, the contractual fight has begun. Standard clauses, charterer pushback, and what a fair split looks like.",
     summary:
-      "Pro report covering the post-phase-2 contractual landscape: BIMCO ETSA clause adoption, the three main allocation models (charterer-pays, owner-pays-with-pass-through, time-weighted split), real-world charterer pushback patterns, and our framework for what a defensible split actually looks like for spot, TC, and COA structures.",
-    blocks: [],
-  },
-
-  "the-crude-outlook-2026-annual-report": {
-    dek: "Full year forecast across 11 routes, fleet renewal, scrapping cycles, regulatory pressure points, geopolitics.",
-    summary:
-      "The annual: 64-page deep dive across 11 crude lanes, full fleet supply analysis (orderbook, scrapping curves, CII / EEXI impact on vintage tonnage), regulatory roadmap (EU ETS phase-3, IMO mid-term measures, G7 price cap calibration), and three integrated geopolitical scenarios with TCE implications by lane and class.",
-    blocks: [],
-  },
-
-  "vlcc-newbuild-slot-pricing-the-slow-squeeze": {
-    dek: "With Korean yards full to 2028, second-hand 5-year-old VLCC values are pushing toward replacement cost.",
-    summary:
-      "Pro report on the VLCC newbuild capacity squeeze: Korean / Chinese / Japanese slot-by-slot availability through 2028, current order pricing including spec deltas (scrubber, methanol-ready, dual-fuel), and the second-hand parity argument — why 5-year-old VLCC values may compress further toward replacement cost over the next 12–18 months.",
+      "Full report covering the post-phase-2 contractual landscape: BIMCO ETSA clause adoption, the three main allocation models (charterer-pays, owner-pays-with-pass-through, time-weighted split), real-world charterer pushback patterns, and our framework for what a defensible split actually looks like for spot, TC, and COA structures.",
     blocks: [],
   },
 };

@@ -1,103 +1,62 @@
 import { siteConfig } from "@/lib/site";
 import { PAGES } from "@/lib/pages";
-import { BROKERS } from "@/lib/data/brokers";
-import { REPORTS } from "@/lib/data/research";
-import { OFFICES } from "@/lib/data/offices";
+import { BROKERS, TEAM_LABEL } from "@/lib/data/brokers";
+import { REPORTS, reportSlug } from "@/lib/data/research";
+import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
+import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 
 export const dynamic = "force-static";
-export const revalidate = false;
 
-/**
- * Extended /llms-full.txt — the same llms.txt index plus the full
- * structured content of every page (broker roster, research catalogue,
- * office list). Lets an LLM ingest the site without crawling.
- */
+/** Long-form companion to /llms.txt with the structured content of the site. */
 export function GET() {
   const url = (path: string) => new URL(path, siteConfig.url).toString();
-
-  const pageBlocks = PAGES.map(
-    (p) => `### [${p.title}](${url(p.path)})\n${p.summary}${p.detail ? `\n\n${p.detail}` : ""}`
-  ).join("\n\n");
-
-  const brokerLines = BROKERS.map(
-    (b) =>
-      `- **${b.name}** — ${b.title} · Desk: ${b.desk} · Sectors: ${b.sectors.join(
-        ", "
-      )} · Tags: ${b.tags.join(", ")}`
-  ).join("\n");
-
-  const reportLines = REPORTS.map(
-    (r) =>
-      `- **${r.title}** (${r.catLabel}, ${r.date}, ${r.read} min read${
-        r.gated ? ", LEVANTER Pro" : ""
-      }) — ${r.desc}`
-  ).join("\n");
-
-  const officeLines = Object.values(OFFICES)
-    .map(
-      (o) =>
-        `- **${o.city}** (${o.tz}) — ${o.addr}\n  Sectors: ${o.sectors}\n  Hours: ${o.hours}\n  Languages: ${o.lang}\n  Memberships: ${o.member}\n  Head: ${o.head} (${o.headRole})`
-    )
-    .join("\n");
 
   const body = `# ${siteConfig.name} — full content for LLMs
 
 > ${siteConfig.tagline}. ${siteConfig.description}
 
-This is the long-form companion to /llms.txt. It includes the structured
-content of every public page (page index, broker roster, research catalogue,
-office list) so an LLM can ingest the site without crawling each route.
+## Company
 
-Last generated from production data as part of the Next.js build.
-
----
-
-## Site overview
-
-**Legal entity**: ${siteConfig.legalEntity}
-**Founded**: ${siteConfig.founded}
-**HQ address**: ${siteConfig.address.street}, ${siteConfig.address.locality} ${
-    siteConfig.address.postalCode
-  }, ${siteConfig.address.country}
-**Email**: ${siteConfig.email}
-**Phone**: ${siteConfig.phone}
+- Legal entity: ${siteConfig.legalEntity} (founded ${siteConfig.founded})
+- Headquarters: ${siteConfig.address.street}, ${siteConfig.address.postalCode} ${siteConfig.address.locality}, Türkiye
+- Offices: ${siteConfig.offices.map((o) => `${o.city} (${o.role})`).join("; ")}
+- Tanker desk: ${siteConfig.desks.tankers.email}
+- LPG & ammonia desk: ${siteConfig.desks.lpg.email}
+- Phone: ${siteConfig.phone} · WhatsApp: ${siteConfig.whatsappDisplay}
+- Hours: ${siteConfig.hours}
+- Service promise: a broker replies within 60 minutes during business hours.
 
 ## Pages
 
-${pageBlocks}
+${PAGES.map((p) => `### ${p.title}\n${url(p.path)}\n${p.summary}`).join("\n\n")}
 
----
+## LPG & ammonia carriers
 
-## Broker roster (${BROKERS.length})
+${LPG_CLASSES.map(
+  (c) =>
+    `### ${c.name} — ${c.longName}\n${url(`/lpg/${c.slug}`)}\n- Capacity: ${c.capacity}\n- Containment: ${c.containment}\n- Typical cargo: ${c.typicalCargo}\n- Cargoes: ${c.cargoes.join(", ")}\n- Routes: ${c.routes.map((r) => `${r.code} ${r.lane}`).join("; ")}\n- Charter shape: ${c.charterShape}`
+).join("\n\n")}
 
-${brokerLines}
+## Tankers
 
----
+${TANKER_CLASSES.map(
+  (t) =>
+    `### ${t.shortName} — ${t.longName}\n${url(`/tankers/${t.slug}`)}\n- Size: ${t.dwtRange}, ${t.cargoCapacity}\n- Routes: ${t.routes.map((r) => `${r.code} ${r.lane}`).join("; ")}\n- Charter shape: ${t.charterShape}`
+).join("\n\n")}
 
-## Research catalogue (${REPORTS.length})
+## Team (${BROKERS.length})
 
-${reportLines}
+${BROKERS.map((b) => `- ${b.name} — ${b.title} (${TEAM_LABEL[b.team]}, ${b.office}). Focus: ${b.focus.join(", ")}.`).join("\n")}
 
----
+## Research (${REPORTS.length})
 
-## Offices (${Object.keys(OFFICES).length})
+${REPORTS.map((r) => `- ${r.title} (${r.catLabel}, ${r.date}) — ${url(`/research/${reportSlug(r)}`)}\n  ${r.desc}`).join("\n")}
 
-${officeLines}
+## Notes
 
----
-
-## Crawler & licensing notes
-
-- All public pages are open to web crawlers and LLM ingestion (see /robots.txt).
-- Brand assets (LEVANTER name, logo) are trademarks of ${
-    siteConfig.legalEntity
-  }; reproduction requires written permission.
-- Numerical data (TCE, bunker prices, port tariffs, distances) is indicative
-  and may change between page loads. Cite the source URL and the date of access.
-- For machine-readable structured data, see Schema.org JSON-LD embedded in each
-  page (Organization, WebSite, BreadcrumbList, ItemList, Article, Person,
-  Place, ContactPoint, ProfessionalService, SoftwareApplication, FAQPage).
-- Security disclosures: /.well-known/security.txt
+- The site does not publish live freight rates; ask the desks for current numbers.
+- The LPG cbm ↔ tonnes converter is indicative only (standard densities).
+- Structured data: Schema.org JSON-LD on every page (Organization, ProfessionalService, Service, WebPage, BreadcrumbList, FAQPage, Article, ItemList, DefinedTermSet).
 `;
 
   return new Response(body, {

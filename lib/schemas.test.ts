@@ -1,101 +1,81 @@
 import { describe, expect, it } from "vitest";
-import {
-  BrokerFilterSchema,
-  InquiryStep1Schema,
-  InquiryStep2Schema,
-  InquiryStep3Schema,
-  InquiryStep4Schema,
-  SubscribeSchema,
-} from "./schemas";
+import { InquirySchema, ResearchCategorySchema } from "./schemas";
 
-describe("SubscribeSchema", () => {
-  it("accepts a valid email", () => {
-    expect(SubscribeSchema.safeParse({ email: "you@company.com" }).success).toBe(true);
+const valid = {
+  segment: "lpg",
+  vessel: "VLGC",
+  term: "voyage",
+  loadArea: "Houston",
+  dischargeArea: "Aliağa",
+  quantity: "44,000 mt",
+  laycanFrom: "2026-11-01",
+  laycanTo: "2026-11-05",
+  name: "Ayşe Demir",
+  company: "Example Energy",
+  email: "ayse@example.com",
+  phone: "",
+  notes: "",
+};
+
+describe("InquirySchema", () => {
+  it("accepts a complete LPG inquiry", () => {
+    expect(InquirySchema.safeParse(valid).success).toBe(true);
   });
 
-  it("rejects an invalid email", () => {
-    const r = SubscribeSchema.safeParse({ email: "not-an-email" });
+  it("accepts a tanker inquiry without optional fields", () => {
+    const { phone: _phone, notes: _notes, ...rest } = valid;
+    const r = InquirySchema.safeParse({ ...rest, segment: "crude", vessel: "Suezmax" });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects an unknown segment", () => {
+    expect(InquirySchema.safeParse({ ...valid, segment: "dry-bulk" }).success).toBe(false);
+  });
+
+  it("rejects an unknown vessel class", () => {
+    expect(InquirySchema.safeParse({ ...valid, vessel: "Capesize" }).success).toBe(false);
+  });
+
+  it("requires a valid email", () => {
+    const r = InquirySchema.safeParse({ ...valid, email: "not-an-email" });
     expect(r.success).toBe(false);
+  });
+
+  it("rejects a laycan that ends before it starts", () => {
+    const r = InquirySchema.safeParse({
+      ...valid,
+      laycanFrom: "2026-11-10",
+      laycanTo: "2026-11-01",
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path.join(".") === "laycanTo")).toBe(true);
+    }
+  });
+
+  it("accepts a single-day laycan", () => {
+    const r = InquirySchema.safeParse({
+      ...valid,
+      laycanFrom: "2026-11-01",
+      laycanTo: "2026-11-01",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("requires load and discharge areas", () => {
+    expect(InquirySchema.safeParse({ ...valid, loadArea: " " }).success).toBe(false);
+    expect(InquirySchema.safeParse({ ...valid, dischargeArea: "" }).success).toBe(false);
   });
 });
 
-describe("BrokerFilterSchema", () => {
-  it("parses an empty filter to defaults", () => {
-    const parsed = BrokerFilterSchema.parse({
-      sectors: [],
-      classes: [],
-      desks: [],
-      q: "",
-      sort: "name",
-    });
-    expect(parsed.sort).toBe("name");
+describe("ResearchCategorySchema", () => {
+  it("accepts the published categories", () => {
+    for (const c of ["all", "weekly", "route", "reg", "guide"]) {
+      expect(ResearchCategorySchema.safeParse(c).success).toBe(true);
+    }
   });
 
-  it("rejects an unknown sector", () => {
-    const r = BrokerFilterSchema.safeParse({
-      sectors: ["bogus"],
-      classes: [],
-      desks: [],
-      q: "",
-      sort: "name",
-    });
-    expect(r.success).toBe(false);
-  });
-});
-
-describe("Inquiry step schemas", () => {
-  it("Step 1 requires a known cargo enum", () => {
-    expect(InquiryStep1Schema.safeParse({ cargo: "crude" }).success).toBe(true);
-    expect(InquiryStep1Schema.safeParse({ cargo: "rocks" }).success).toBe(false);
-  });
-
-  it("Step 2 requires a non-empty stem", () => {
-    const base = {
-      loadArea: "blk-cpc",
-      dischArea: "ukc-med",
-      vesselClass: "Suezmax",
-    };
-    expect(InquiryStep2Schema.safeParse({ ...base, stem: "130000 mt" }).success).toBe(true);
-    expect(InquiryStep2Schema.safeParse({ ...base, stem: "" }).success).toBe(false);
-    expect(InquiryStep2Schema.safeParse({ ...base, stem: "   " }).success).toBe(false);
-  });
-
-  it("Step 3 enforces laycanFrom <= laycanTo", () => {
-    const ok = InquiryStep3Schema.safeParse({
-      laycanFrom: "2026-05-03",
-      laycanTo: "2026-05-08",
-      term: "voy",
-    });
-    expect(ok.success).toBe(true);
-
-    const bad = InquiryStep3Schema.safeParse({
-      laycanFrom: "2026-05-08",
-      laycanTo: "2026-05-03",
-      term: "voy",
-    });
-    expect(bad.success).toBe(false);
-  });
-
-  it("Step 4 requires name, firm, and a valid email", () => {
-    const ok = InquiryStep4Schema.safeParse({
-      name: "Mehmet",
-      firm: "ACME",
-      email: "m@example.com",
-    });
-    expect(ok.success).toBe(true);
-
-    const noEmail = InquiryStep4Schema.safeParse({
-      name: "Mehmet",
-      firm: "ACME",
-      email: "not-email",
-    });
-    expect(noEmail.success).toBe(false);
-
-    const noName = InquiryStep4Schema.safeParse({
-      name: "",
-      firm: "ACME",
-      email: "m@example.com",
-    });
-    expect(noName.success).toBe(false);
+  it("rejects retired categories", () => {
+    expect(ResearchCategorySchema.safeParse("sp").success).toBe(false);
   });
 });

@@ -19,12 +19,11 @@ ${siteConfig.offices.map((o) => `  ${o.city} — ${o.role}`).join("\n")}
 
 /* THANKS */
   Design system: Premium Maritime palette
-  Voyage estimator engine: in-house calc + Worldscale flat rates
   Open source: Next.js, React, Radix UI, Tailwind CSS, Zod, lucide-react
 
 /* SITE */
   Last update: ${new Date().toISOString().slice(0, 10)}
-  Language: English
+  Language: English, Turkish
   Doctype: HTML5
   Standards: WCAG 2.1 AA target, RFC 9116 security.txt, llmstxt.org
   Components: shadcn/ui-style primitives on Radix UI

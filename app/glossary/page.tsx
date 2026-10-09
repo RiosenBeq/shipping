@@ -1,169 +1,136 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Nav } from "../components/Nav";
-import { Footer } from "../components/Footer";
-import { JsonLd } from "../components/JsonLd";
-import { ContactCta } from "../components/ContactCta";
-import { Button } from "@/components/ui/button";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { CtaBand } from "@/components/site/CtaBand";
+import { JsonLd } from "@/components/site/JsonLd";
+import { PageHeader } from "@/components/site/PageHeader";
 import { GLOSSARY_TERMS, GROUP_LABELS, type GlossaryTerm } from "@/lib/data/glossary";
+import { buildPageMetadata, webPageLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
+import { slugify } from "@/lib/slug";
+
+const TITLE = "Tanker & LPG Chartering Glossary";
+const DESCRIPTION =
+  "Plain-English definitions of tanker and LPG chartering terms: VLGC, MGC, semi-refrigerated ships, cbm, Worldscale, TCE, demurrage, laytime, EU ETS and more.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Chartering Glossary — Worldscale, TCE, COA, EU ETS",
-  description:
-    "Plain-English definitions of every term used by the LEVANTER desk: Worldscale, TCE, COA, demurrage, vessel classes, bunker grades, EU ETS, G7 price cap, and more.",
+  title: TITLE,
+  description: DESCRIPTION,
   path: "/glossary",
   keywords: [
-    "shipping glossary",
-    "chartering glossary",
-    "Worldscale definition",
-    "TCE explained",
+    "tanker chartering glossary",
+    "LPG shipping glossary",
+    "VLGC meaning",
+    "MGC midsize gas carrier",
+    "semi-refrigerated LPG carrier",
+    "fully pressurised gas carrier",
+    "cbm gas carrier capacity",
+    "Worldscale explained",
+    "TCE time charter equivalent",
+    "demurrage definition",
+    "laytime and laycan",
     "COA contract of affreightment",
-    "Suezmax definition",
-    "EU ETS shipping",
-    "G7 price cap",
-    "HKC Hong Kong Convention",
   ],
 });
 
-const definedTermLd = {
+type Group = GlossaryTerm["group"];
+
+/** GROUP_LABELS order, with LPG & gas first — it is a core desk. */
+const GROUP_ORDER: Group[] = [
+  "gas",
+  ...(Object.keys(GROUP_LABELS) as Group[]).filter((g) => g !== "gas"),
+];
+
+const GROUPS = GROUP_ORDER.map((group) => ({
+  group,
+  label: GROUP_LABELS[group],
+  terms: GLOSSARY_TERMS.filter((t) => t.group === group),
+})).filter((g) => g.terms.length > 0);
+
+const PAGE_URL = new URL("/glossary", siteConfig.url).toString();
+const TERMSET_ID = `${PAGE_URL}#termset`;
+const termId = (term: string) => `term-${slugify(term)}`;
+
+const definedTermSetLd = {
   "@context": "https://schema.org",
   "@type": "DefinedTermSet",
-  "@id": "https://levanter.example/glossary#termset",
-  name: "LEVANTER chartering glossary",
+  "@id": TERMSET_ID,
+  name: "LEVANTER tanker & LPG chartering glossary",
+  url: PAGE_URL,
   hasDefinedTerm: GLOSSARY_TERMS.map((t) => ({
     "@type": "DefinedTerm",
+    "@id": `${PAGE_URL}#${termId(t.term)}`,
     name: t.term,
     description: t.def,
-    inDefinedTermSet: { "@id": "https://levanter.example/glossary#termset" },
+    inDefinedTermSet: { "@id": TERMSET_ID },
   })),
 };
-
-const groups = (Object.keys(GROUP_LABELS) as GlossaryTerm["group"][]).map((g) => ({
-  group: g,
-  label: GROUP_LABELS[g],
-  terms: GLOSSARY_TERMS.filter((t) => t.group === g),
-}));
 
 export default function GlossaryPage() {
   return (
     <>
       <JsonLd
         data={[
-          webPageLd({
-            title: "Chartering Glossary — LEVANTER",
-            description:
-              "Plain-English definitions of the terms used by the LEVANTER chartering desk.",
-            path: "/glossary",
-          }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Glossary", path: "/glossary" },
-          ]),
-          definedTermLd,
+          webPageLd({ title: TITLE, description: DESCRIPTION, path: "/glossary" }),
+          definedTermSetLd,
         ]}
       />
-      <Nav />
-      <main>
-        <section className="ph">
-          <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Glossary
-            </div>
-            <span className="eyebrow">Reference</span>
-            <h1 className="display h1">Chartering glossary.</h1>
-            <p>
-              Plain-English definitions of every term the desk uses on a fixture call. From
-              Worldscale and TCE to EU ETS phase-in and the G7 price cap — short, current, and
-              practical.
-            </p>
-          </div>
-        </section>
 
-        {/* Quick jump */}
-        <section className="section" style={{ paddingTop: 32, paddingBottom: 0 }}>
-          <div className="container">
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                flexWrap: "wrap",
-                paddingBottom: 24,
-                borderBottom: "1px solid var(--hairline)",
-              }}
-            >
-              {groups.map((g) => (
-                <a
-                  key={g.group}
-                  href={`#${g.group}`}
-                  className="route-tag"
-                  style={{ fontSize: 12, padding: "6px 12px" }}
-                >
-                  {g.label} ({g.terms.length})
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
+      <PageHeader
+        eyebrow="Reference"
+        title="Tanker & LPG chartering glossary"
+        lead="Short, plain-English definitions of the terms used on a fixture call. From VLGCs and semi-refrigerated ships to Worldscale, TCE and demurrage."
+        crumbs={[{ name: "Glossary", path: "/glossary" }]}
+      />
 
-        {/* Sections */}
-        {groups.map((g) => (
-          <section key={g.group} className="section" style={{ paddingTop: 56, paddingBottom: 0 }}>
-            <div className="container">
-              <h2
-                id={g.group}
-                className="display h2"
-                style={{
-                  scrollMarginTop: 80,
-                  marginBottom: 24,
-                  paddingBottom: 12,
-                  borderBottom: "1px solid var(--hairline)",
-                }}
+      <nav aria-label="Glossary sections" className="border-b border-line bg-white">
+        <ul className="container flex flex-wrap gap-2 py-5">
+          {GROUPS.map((g) => (
+            <li key={g.group}>
+              <a
+                href={`#${g.group}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm text-navy transition-colors hover:border-navy"
               >
                 {g.label}
-              </h2>
-              <div className="ref-grid">
-                {g.terms.map((t) => (
-                  <article key={t.term} className="ref-card">
-                    <div className="ref-term">{t.term}</div>
-                    <p className="ref-def">{t.def}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
+                <span className="text-xs text-slate">{g.terms.length}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="container py-4 md:py-8">
+        {GROUPS.map((g) => (
+          <section
+            key={g.group}
+            id={g.group}
+            aria-labelledby={`${g.group}-title`}
+            className="scroll-mt-20 border-b border-line py-12 last:border-b-0 md:py-16"
+          >
+            <h2
+              id={`${g.group}-title`}
+              className="font-display text-3xl leading-tight tracking-tight text-navy md:text-[40px]"
+            >
+              {g.label}
+            </h2>
+            <dl className="mt-8 grid gap-x-12 gap-y-8 md:mt-10 md:grid-cols-2">
+              {g.terms.map((t) => (
+                <div
+                  key={t.term}
+                  id={termId(t.term)}
+                  className="scroll-mt-20 border-t border-line pt-5"
+                >
+                  <dt className="text-lg font-semibold text-navy">{t.term}</dt>
+                  <dd className="mt-2 leading-relaxed text-slate">{t.def}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
         ))}
+      </div>
 
-        {/* Run the numbers — kept as a soft tool nudge before the desk CTA */}
-        <section className="section" style={{ paddingTop: 80, paddingBottom: 0 }}>
-          <div className="container" style={{ maxWidth: 720, textAlign: "center" }}>
-            <span className="eyebrow">Run the numbers</span>
-            <h2 className="display h2" style={{ margin: "12px 0 16px" }}>
-              Now put a real lane through the calculator.
-            </h2>
-            <p style={{ color: "var(--muted)", fontSize: 17, lineHeight: 1.6, margin: "0 0 24px" }}>
-              The voyage estimator wires every term on this page into a working TCE / freight /
-              P&amp;L model.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button asChild>
-                <Link href="/voyage-estimator">
-                  Open voyage estimator <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        <ContactCta
-          headline="Stuck on a term? Ask the desk."
-          body="Glossary missing something you need? Or want a working example for your specific lane? The desk replies inside 60 minutes."
-          context="glossary follow-up"
-        />
-      </main>
-      <Footer />
+      <CtaBand
+        title="Need a term explained on a live deal?"
+        text="Send the cargo, ports and laycan, or just the question. A broker replies within 60 minutes during business hours."
+      />
     </>
   );
 }

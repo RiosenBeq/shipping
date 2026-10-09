@@ -1,381 +1,349 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Phone,
-  Mail,
-  Linkedin,
-  MessageCircle,
-  Anchor,
-  Globe2,
-  FileText,
-  Compass,
-  Award,
-  Building2,
-  ShipWheel,
-} from "lucide-react";
-import { Nav } from "./components/Nav";
-import { Footer } from "./components/Footer";
-import { JsonLd } from "./components/JsonLd";
+import { ArrowRight, Clock, Compass, MessageCircle, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HomeHero } from "./_home/HomeHero";
-import { Ticker } from "./_home/Ticker";
-import { BosphorusSection } from "./_home/BosphorusSection";
+import { JsonLd } from "@/components/site/JsonLd";
+import { Section } from "@/components/site/Section";
+import { DeskCard } from "@/components/site/DeskCard";
+import { BrokerCard } from "@/components/site/BrokerCard";
+import { ReportCard } from "@/components/site/ReportCard";
+import { Faq } from "@/components/site/Faq";
+import { CtaBand } from "@/components/site/CtaBand";
+import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
+import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { BROKERS } from "@/lib/data/brokers";
 import { REPORTS } from "@/lib/data/research";
-import { buildPageMetadata, professionalServiceLd, webPageLd } from "@/lib/seo";
+import { buildPageMetadata, localBusinessLd, serviceLd, webPageLd } from "@/lib/seo";
+import { whatsappUrl } from "@/lib/site";
+import { homeLanguages } from "@/lib/i18n";
+
+const TITLE = "LEVANTER — Tanker & LPG Shipbrokers in Istanbul";
+const DESCRIPTION =
+  "Istanbul-based tanker and LPG chartering brokers. Crude, clean products, LPG and ammonia — spot, time charter and COA, with direct broker access and a 60-minute first reply.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "LEVANTER — Premium Maritime Brokerage from the Bosphorus",
-  description:
-    "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through. Direct broker access, live TCE, and Bosphorus desk depth.",
+  title: TITLE,
+  description: DESCRIPTION,
   path: "/",
-  keywords: [
-    "premium tanker brokerage",
-    "Bosphorus shipbroker",
-    "VLCC charter",
-    "Suezmax",
-    "Aframax",
-    "Black Sea tanker",
-    "Worldscale TCE",
-    "voyage estimator",
-    "EU ETS shipping",
-  ],
   absoluteTitle: true,
+  languages: homeLanguages(),
+  keywords: [
+    "tanker broker",
+    "LPG shipbroker",
+    "LPG broker Istanbul",
+    "tanker broker Istanbul",
+    "VLGC chartering",
+    "MGC charter",
+    "Aframax chartering Mediterranean",
+    "Black Sea tanker broker",
+    "ammonia carrier chartering",
+  ],
 });
 
-const COUNTERS = [
-  { lbl: "Years combined experience", val: "80+" },
-  { lbl: "Global offices", val: "4" },
-  { lbl: "Broker coverage", val: "24/7" },
-  { lbl: "First reply SLA", val: "60", unit: "min" },
-];
-
-const TANKER_TILES = [
+const PROOF = [
   {
-    lbl: "Crude",
-    name: "VLCC · Suezmax · Aframax",
-    desc: "Long-haul crude trades, AG–East, WAF–UKC, CPC, Black Sea.",
+    Icon: Clock,
+    title: "60-minute first reply",
+    text: "During business hours, from a broker — not a form.",
+  },
+  { Icon: Users, title: "Two specialist desks", text: "Tankers, and LPG & ammonia. Nothing else." },
+  {
+    Icon: Compass,
+    title: "Istanbul, London, Singapore",
+    text: "Coverage across the Med, Atlantic and East of Suez.",
   },
   {
-    lbl: "Clean",
-    name: "LR2 · LR1 · MR · Handy",
-    desc: "Refined products from Med, AG, USG and the Far East.",
-  },
-  {
-    lbl: "Chemicals & Specialised",
-    name: "IMO 2/3, coated, stainless",
-    desc: "Purpose-built parcels. Strict specs, deeper benches.",
-  },
-  {
-    lbl: "Projects & TC",
-    name: "Long-haul, time charters",
-    desc: "Multi-year programmes, COAs, dedicated tonnage.",
+    Icon: ShieldCheck,
+    title: "Screened fixtures",
+    text: "Sanctions and counterparty checks before every fix.",
   },
 ];
 
-const BULK_CLASSES = ["Capesize", "Panamax / Kamsarmax", "Supramax / Ultramax", "Handysize"];
-
-const TRUST_BADGES = [
-  { Icon: Globe2, org: "Baltic Exchange", status: "Application in progress" },
-  { Icon: ShipWheel, org: "ICS", status: "Member (FICS)" },
-  { Icon: Building2, org: "BIMCO", status: "Application in progress" },
-  { Icon: Anchor, org: "INTERTANKO", status: "Associate Member" },
-  { Icon: Compass, org: "Worldscale", status: "Subscriber" },
-  { Icon: Award, org: "FONASBA", status: "Application in progress" },
+const WHY = [
+  {
+    title: "On the Turkish Straits",
+    text: "Our Istanbul desk sits on the Bosphorus. Transit timing, waiting and Straits rules go into every Black Sea estimate we send.",
+  },
+  {
+    title: "Small LPG specialists",
+    text: "Pressurised and semi-refrigerated LPG in the Med, Black Sea and Türkiye — the trades the large houses tend to underserve.",
+  },
+  {
+    title: "Senior brokers on every deal",
+    text: "You talk to the broker who works your cargo or ship, from first idea to post-fixture.",
+  },
+  {
+    title: "Numbers you can check",
+    text: "We show the TCE, routing and port-time assumptions behind every freight idea, so you can check the numbers line by line.",
+  },
 ];
 
-const HOMEPAGE_BROKERS = BROKERS.slice(0, 5);
-const HOMEPAGE_REPORTS = REPORTS.slice(0, 3);
+const STEPS = [
+  { n: "01", title: "Brief", text: "Cargo, ports, laycan — or your open ship and position." },
+  { n: "02", title: "Market", text: "We shortlist ships or cargoes, with compliance checks done." },
+  {
+    n: "03",
+    title: "Fix",
+    text: "We negotiate main terms and the charter party to a clean fixture.",
+  },
+  { n: "04", title: "Post-fixture", text: "Voyage follow-up, laytime, demurrage and claims." },
+];
 
-function ReportCover({ color, accent }: { color: string; accent: string }) {
-  return (
-    <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <rect width="400" height="300" fill={color} />
-      <g stroke="rgba(241,236,220,0.06)" strokeWidth="0.4">
-        <line x1="0" y1="60" x2="400" y2="60" />
-        <line x1="0" y1="120" x2="400" y2="120" />
-        <line x1="0" y1="180" x2="400" y2="180" />
-        <line x1="0" y1="240" x2="400" y2="240" />
-      </g>
-      <path
-        d="M 30 220 L 75 200 L 120 210 L 165 175 L 210 165 L 255 185 L 300 145 L 345 125 L 380 100"
-        stroke={accent}
-        strokeWidth="1.5"
-        fill="none"
-        opacity="0.85"
-      />
-      <circle cx="380" cy="100" r="3" fill={accent} />
-    </svg>
-  );
-}
+const FAQ = [
+  {
+    q: "What does a tanker or LPG shipbroker do?",
+    a: "A shipbroker matches cargoes with ships. We find suitable tonnage (or cargo), negotiate freight and charter party terms for our client, and follow the voyage through to laytime, demurrage and claims settlement.",
+  },
+  {
+    q: "Which ships do you charter?",
+    a: "Crude tankers (VLCC, Suezmax, Aframax), product tankers (LR2, LR1, MR) and LPG/ammonia carriers from VLGCs and MGCs down to Handysize and small pressurised ships.",
+  },
+  {
+    q: "Do you broker ammonia and petrochemical gases?",
+    a: "Yes. Our LPG desk covers ammonia on MGCs and Handysize ships, and petrochemical gases such as propylene, butadiene and VCM on semi-refrigerated tonnage.",
+  },
+  {
+    q: "How quickly will I hear back?",
+    a: "A broker replies within 60 minutes during business hours (Istanbul, London and Singapore). For live fixtures we run an after-hours line.",
+  },
+  {
+    q: "Who pays the brokerage commission?",
+    a: "Brokerage is normally paid by the shipowner as a percentage of freight or hire, agreed in the charter party. There is no charge to send us an inquiry.",
+  },
+];
+
+const desks = [
+  {
+    href: "/tankers",
+    eyebrow: "Tanker desk",
+    cta: "Explore the tanker desk",
+    title: "Crude & product tankers",
+    text: "Black Sea and CPC Suezmaxes, cross-Med Aframaxes, VLCCs East and MRs across the Atlantic.",
+    classes: TANKER_CLASSES.map((t) => ({ name: t.name, href: `/tankers/${t.slug}` })),
+  },
+  {
+    href: "/lpg",
+    eyebrow: "LPG & ammonia desk",
+    cta: "Explore the LPG & ammonia desk",
+    title: "LPG, ammonia & petchem gases",
+    text: "VLGCs on the Baltic benchmarks, MGCs for ammonia, and small pressurised LPG into the Med and Türkiye.",
+    classes: LPG_CLASSES.map((c) => ({ name: c.name, href: `/lpg/${c.slug}` })),
+  },
+];
 
 export default function HomePage() {
+  const team = [
+    ...BROKERS.filter((b) => b.team === "lpg").slice(0, 2),
+    ...BROKERS.filter((b) => b.team !== "lpg").slice(0, 2),
+  ];
+
   return (
     <>
       <JsonLd
         data={[
-          webPageLd({
-            title: "LEVANTER — Premium Maritime Brokerage",
-            description:
-              "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through.",
+          webPageLd({ title: TITLE, description: DESCRIPTION, path: "/" }),
+          localBusinessLd(),
+          serviceLd({
+            name: "Tanker and LPG chartering brokerage",
+            description: DESCRIPTION,
+            serviceType: "Shipbroking",
             path: "/",
-          }),
-          professionalServiceLd({
-            name: "LEVANTER Tanker & Bulk Chartering",
-            description:
-              "Spot voyages, COAs, time charters, S&P, and research across crude, clean, chemicals, and dry bulk.",
-            serviceType: "Ship brokerage",
-            path: "/",
+            offers: [
+              { name: "Tanker chartering", path: "/tankers" },
+              { name: "LPG and ammonia chartering", path: "/lpg" },
+            ],
           }),
         ]}
       />
-      <Nav active="home" />
-      <main>
-        <HomeHero />
-        <Ticker />
 
-        {/* Counters */}
-        <section className="counters">
-          <div className="counters-grid container">
-            {COUNTERS.map((c) => (
-              <div className="counter" key={c.lbl}>
-                <div className="lbl">{c.lbl}</div>
-                <div className="val">
-                  {c.val}
-                  {c.unit && <span style={{ fontSize: "0.6em" }}> {c.unit}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Services */}
-        <section className="sec" id="services">
-          <div className="container">
-            <div className="sec-head">
-              <span className="eyebrow">Services</span>
-              <h2 className="display h2">
-                Built around tanker depth.
-                <br />
-                Backed by a full dry bulk desk.
-              </h2>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-navy text-white">
+        <HeroBackdrop />
+        <div className="container relative grid gap-12 py-16 md:py-24 lg:grid-cols-[1.15fr_1fr] lg:items-center">
+          <div>
+            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass-light">
+              Istanbul · Tanker &amp; LPG Shipbrokers
+            </p>
+            <h1 className="font-display text-[40px] leading-[1.05] tracking-tight sm:text-5xl lg:text-[64px]">
+              Tanker and LPG chartering, brokered from the Bosphorus.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-fog">
+              Crude, clean products, LPG and ammonia — spot, time charter and COA. Talk directly to
+              the broker who fixes your trade, with a first reply inside 60 minutes.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button asChild size="lg">
+                <Link href="/contact">
+                  Send an inquiry <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="light">
+                <a href={whatsappUrl()} target="_blank" rel="noopener">
+                  <MessageCircle className="h-4 w-4" /> WhatsApp the desk
+                </a>
+              </Button>
             </div>
-            <div className="services-grid">
-              <article className="svc-tankers">
-                <div className="svc-head">
-                  <svg
-                    width="26"
-                    height="14"
-                    viewBox="0 0 60 18"
-                    fill="currentColor"
-                    style={{ color: "var(--accent-amber)" }}
-                    aria-hidden="true"
-                  >
-                    <path d="M2 12 L8 8 L52 8 L58 12 L52 14 L8 14 Z" />
-                    <rect x="44" y="4" width="8" height="4" />
-                  </svg>
-                  <span className="svc-title">Tankers</span>
-                </div>
-                <p className="svc-line">
-                  Crude, clean, chemicals — and the routes that connect them.
-                </p>
-                <div className="tanker-tiles">
-                  {TANKER_TILES.map((t) => (
-                    <Link key={t.lbl} href="/tankers" className="tanker-tile">
-                      <svg
-                        className="vsl-icon"
-                        viewBox="0 0 60 18"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path d="M2 12 L8 8 L52 8 L58 12 L52 14 L8 14 Z" />
-                        <rect x="46" y="4" width="6" height="4" />
-                      </svg>
-                      <span className="lbl">{t.lbl}</span>
-                      <span className="name">{t.name}</span>
-                      <span className="desc">{t.desc}</span>
-                      <span className="explore">Explore →</span>
-                    </Link>
-                  ))}
-                </div>
-              </article>
+          </div>
+          <DeskCard />
+        </div>
+      </section>
 
-              <article className="svc-bulk">
-                <span className="svc-title">Dry Bulk</span>
-                <h3 className="svc-line">Iron ore to grains, port-to-port.</h3>
-                {BULK_CLASSES.map((name) => (
-                  <Link href="/dry-bulk" key={name} className="bulk-row">
-                    <svg
-                      className="vsl-icon"
-                      viewBox="0 0 50 16"
-                      fill="currentColor"
-                      aria-hidden="true"
+      {/* Proof strip */}
+      <section className="border-b border-line bg-white">
+        <ul className="container grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+          {PROOF.map(({ Icon, title, text }) => (
+            <li key={title} className="flex gap-4">
+              <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brass" aria-hidden="true" />
+              <div>
+                <p className="font-semibold text-navy">{title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-slate">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Desks */}
+      <Section
+        eyebrow="Two desks, one focus"
+        title="Liquid cargoes. Nothing else."
+        intro="We stay narrow on purpose: tankers and gas carriers are all we broker, so every desk knows its ships, terminals and charterers in depth."
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          {desks.map((d) => (
+            <article
+              key={d.href}
+              className="flex flex-col rounded-lg border border-line bg-white p-7 md:p-9"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
+                {d.eyebrow}
+              </p>
+              <h3 className="mt-3 font-display text-[28px] leading-tight text-navy">{d.title}</h3>
+              <p className="mt-3 leading-relaxed text-slate">{d.text}</p>
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {d.classes.map((c) => (
+                  <li key={c.href}>
+                    <Link
+                      href={c.href}
+                      className="inline-flex rounded-full border border-line px-3 py-1.5 text-sm text-navy transition-colors hover:border-navy"
                     >
-                      <path d="M2 11 L8 7 L42 7 L48 11 L42 14 L8 14 Z" />
-                      <rect x="36" y="3" width="6" height="4" />
-                    </svg>
-                    <span className="name">{name}</span>
-                    <span className="arr">→</span>
-                  </Link>
+                      {c.name}
+                    </Link>
+                  </li>
                 ))}
-              </article>
-
-              <div className="svc-stack">
-                <Link href="/sale-purchase" className="svc-card">
-                  <span className="svc-title">Sale &amp; Purchase</span>
-                  <h3 className="svc-line">Newbuilding · Second-hand · Demolition</h3>
-                  <p>Tanker and bulker S&amp;P, valuations, and disposal advisory.</p>
-                </Link>
-                <Link href="/research" className="svc-card">
-                  <span className="svc-title">Research</span>
-                  <h3 className="svc-line">Weekly · Quarterly · Custom</h3>
-                  <p>Desk-grade analysis. Numbers and views, not narratives.</p>
-                </Link>
-                <Link href="/voyage-estimator" className="svc-card">
-                  <span className="svc-title">Working tools</span>
-                  <h3 className="svc-line">TCE · Distance · ETS</h3>
-                  <p>Run the numbers before you fix. Live calculator with sensitivity tables.</p>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <BosphorusSection />
-
-        {/* Brokers preview */}
-        <section className="sec" id="brokers-preview">
-          <div className="container">
-            <div className="sec-head">
-              <span className="eyebrow">Our People</span>
-              <h2 className="display h2">Direct access. Real brokers.</h2>
-              <p>No forms, no gatekeepers. Speak to the desk that handles your cargo.</p>
-            </div>
-            <div className="brokers-row">
-              {HOMEPAGE_BROKERS.map((b) => (
-                <article className="broker-card" key={b.name}>
-                  <div className="broker-avatar" style={{ background: b.color }}>
-                    {b.initials}
-                  </div>
-                  <h3 className="broker-name">{b.name}</h3>
-                  <p className="broker-title">{b.title}</p>
-                  <div className="broker-tags">
-                    {b.tags.map((t) => (
-                      <span key={t} className="broker-tag">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="broker-icons">
-                    <a href="#" aria-label={`Phone ${b.name}`}>
-                      <Phone className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`WhatsApp ${b.name}`}>
-                      <MessageCircle className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`Email ${b.name}`}>
-                      <Mail className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`LinkedIn ${b.name}`}>
-                      <Linkedin className="h-4 w-4" />
-                    </a>
-                  </div>
-                  <Link href="/brokers" className="broker-profile">
-                    View profile <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </article>
-              ))}
-            </div>
-            <div className="brokers-cta">
-              <Button asChild variant="outline">
-                <Link href="/brokers">
-                  View all brokers <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Research preview */}
-        <section className="sec" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className="sec-head">
-              <span className="eyebrow">Research</span>
-              <h2 className="display h2">Sharp views. On the desk by Monday.</h2>
-            </div>
-            <div className="research-grid">
-              {HOMEPAGE_REPORTS.map((r) => (
-                <Link key={r.title} className="report-card" href="/research">
-                  <div className="report-cover">
-                    <ReportCover color={r.coverColor} accent={r.coverAccent} />
-                    <span className="lbl">{r.label}</span>
-                    <h4 className="heading">{r.title.split(":")[0]}</h4>
-                  </div>
-                  <div className="report-body">
-                    <div className="meta">
-                      <span className="cat">{r.catLabel}</span> · {r.date}
-                    </div>
-                    <h3>{r.title}</h3>
-                    <p>{r.desc}</p>
-                    <span className="read flex items-center gap-1">
-                      Read · {r.read} min <ArrowRight className="h-3 w-3" />
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="brokers-cta">
-              <Button asChild variant="outline">
-                <Link href="/research">
-                  All research <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Trust badges */}
-        <section className="sec" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className="trust-head">
-              <span className="eyebrow slate">Memberships &amp; Accreditations</span>
-            </div>
-            <div className="badges">
-              {TRUST_BADGES.map(({ Icon, org, status }) => (
-                <div className="badge" key={org}>
-                  <Icon className="mark" />
-                  <div className="org">{org}</div>
-                  <div className="status">{status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="final-cta">
-          <span className="eyebrow">Ready to move?</span>
-          <h2 className="display h2">Ready to charter?</h2>
-          <p>
-            Send us your CP terms or just describe what you&apos;re moving. A broker replies within
-            60 minutes during business hours.
-          </p>
-          <div className="cta-row">
-            <Button asChild>
-              <Link href="/contact">
-                Charter inquiry <ArrowRight className="h-4 w-4" />
+              </ul>
+              <Link
+                href={d.href}
+                className="mt-8 inline-flex items-center gap-2 font-semibold text-navy hover:text-brass-ink"
+              >
+                {d.cta} <ArrowRight className="h-4 w-4" />
               </Link>
-            </Button>
-            <Button asChild variant="bone" className="btn-bone">
-              <Link href="/voyage-estimator">
-                Open voyage estimator <FileText className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </section>
-      </main>
-      <Footer />
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      {/* Why */}
+      <Section tone="sand" eyebrow="Why LEVANTER" title="A boutique desk with local depth.">
+        <div className="grid gap-x-10 gap-y-8 md:grid-cols-2 lg:grid-cols-4">
+          {WHY.map((w) => (
+            <div key={w.title} className="border-t-2 border-brass pt-5">
+              <h3 className="text-lg font-semibold text-navy">{w.title}</h3>
+              <p className="mt-2 leading-relaxed text-slate">{w.text}</p>
+            </div>
+          ))}
+        </div>
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s) => (
+            <li key={s.n} className="bg-white p-6">
+              <p className="font-mono text-xs text-brass-ink">{s.n}</p>
+              <p className="mt-2 font-semibold text-navy">{s.title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      {/* Team */}
+      <Section
+        eyebrow="The team"
+        title="Speak to the broker, not a switchboard."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/brokers">
+              Meet the team <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        }
+      >
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {team.map((b) => (
+            <BrokerCard key={b.name} broker={b} />
+          ))}
+        </div>
+      </Section>
+
+      {/* Research */}
+      <Section
+        tone="sand"
+        eyebrow="Research"
+        title="Practical notes from the desk."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/research">
+              All research <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        }
+      >
+        <div className="grid gap-5 md:grid-cols-3">
+          {REPORTS.slice(0, 3).map((r) => (
+            <ReportCard key={r.slug} report={r} />
+          ))}
+        </div>
+      </Section>
+
+      {/* FAQ */}
+      <Section eyebrow="FAQ" title="Working with a tanker & LPG broker">
+        <Faq items={FAQ} />
+      </Section>
+
+      <CtaBand />
     </>
+  );
+}
+
+/** Quiet chart-grid backdrop with the Bosphorus channel line. */
+function HeroBackdrop() {
+  return (
+    <svg
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      viewBox="0 0 1600 800"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <defs>
+        <radialGradient id="heroGlow" cx="0.85" cy="0.9" r="0.6">
+          <stop offset="0%" stopColor="#B8893A" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#B8893A" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1600" height="800" fill="url(#heroGlow)" />
+      <g stroke="#F1ECDC" strokeWidth="0.5" opacity="0.06">
+        {[100, 200, 300, 400, 500, 600, 700].map((y) => (
+          <line key={y} x1="0" y1={y} x2="1600" y2={y} />
+        ))}
+        {[200, 400, 600, 800, 1000, 1200, 1400].map((x) => (
+          <line key={x} x1={x} y1="0" x2={x} y2="800" />
+        ))}
+      </g>
+      <path
+        d="M-20 560 Q 300 540 520 548 Q 760 556 860 470 Q 960 380 1180 372 Q 1400 364 1640 300"
+        stroke="#B8893A"
+        strokeWidth="1.5"
+        fill="none"
+        opacity="0.35"
+      />
+    </svg>
   );
 }

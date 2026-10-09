@@ -1,75 +1,53 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
-import { BROKERS, brokerSlug } from "@/lib/data/brokers";
+import { PAGES } from "@/lib/pages";
 import { REPORTS, reportSlug, reportDateIso } from "@/lib/data/research";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
+import { LPG_CLASSES } from "@/lib/data/lpg-classes";
+import { LOCALES, homeLanguages } from "@/lib/i18n";
 
-type StaticRoute = {
-  path: string;
-  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
-  priority: number;
-};
+/** Bump when page content changes materially; avoids a fake "now" on every build. */
+const CONTENT_UPDATED = new Date("2026-10-09");
 
-const STATIC_ROUTES: StaticRoute[] = [
-  { path: "", changeFrequency: "weekly", priority: 1.0 },
-  { path: "/voyage-estimator", changeFrequency: "weekly", priority: 0.95 },
-  { path: "/research", changeFrequency: "weekly", priority: 0.9 },
-  { path: "/brokers", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/tankers", changeFrequency: "monthly", priority: 0.85 },
-  { path: "/offices", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/glossary", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/contact", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/dry-bulk", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/sale-purchase", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
-  { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
-];
-
-const OFFICE_CITIES = ["ist", "lon", "sg", "hou"] as const;
+const url = (path: string) => new URL(path, siteConfig.url).toString();
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const homeAlternates = Object.fromEntries(
+    Object.entries(homeLanguages()).map(([lang, path]) => [lang, url(path)])
+  );
 
-  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
-    url: `${siteConfig.url}${r.path}`,
-    lastModified: now,
-    changeFrequency: r.changeFrequency,
-    priority: r.priority,
+  const pages: MetadataRoute.Sitemap = PAGES.map((p) => ({
+    url: url(p.path),
+    lastModified: CONTENT_UPDATED,
+    changeFrequency: p.changeFrequency,
+    priority: p.priority,
+    ...(p.path === "/" ? { alternates: { languages: homeAlternates } } : {}),
   }));
 
-  const tankerClassEntries: MetadataRoute.Sitemap = TANKER_CLASSES.map((t) => ({
-    url: `${siteConfig.url}/tankers/${t.slug}`,
-    lastModified: now,
+  const classes: MetadataRoute.Sitemap = [
+    ...LPG_CLASSES.map((c) => `/lpg/${c.slug}`),
+    ...TANKER_CLASSES.map((t) => `/tankers/${t.slug}`),
+  ].map((path) => ({
+    url: url(path),
+    lastModified: CONTENT_UPDATED,
     changeFrequency: "monthly" as const,
-    priority: 0.75,
+    priority: 0.8,
   }));
 
-  const officeEntries: MetadataRoute.Sitemap = OFFICE_CITIES.map((c) => ({
-    url: `${siteConfig.url}/offices/${c}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
-
-  const brokerEntries: MetadataRoute.Sitemap = BROKERS.map((b) => ({
-    url: `${siteConfig.url}/brokers/${brokerSlug(b)}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
+  const reports: MetadataRoute.Sitemap = REPORTS.map((r) => ({
+    url: url(`/research/${reportSlug(r)}`),
+    lastModified: new Date(reportDateIso(r.date)),
+    changeFrequency: "yearly" as const,
     priority: 0.6,
   }));
 
-  const reportEntries: MetadataRoute.Sitemap = REPORTS.map((r) => ({
-    url: `${siteConfig.url}/research/${reportSlug(r)}`,
-    lastModified: new Date(reportDateIso(r.date)),
+  const localized: MetadataRoute.Sitemap = LOCALES.map((l) => ({
+    url: url(`/${l.code}`),
+    lastModified: CONTENT_UPDATED,
     changeFrequency: "monthly" as const,
-    priority: 0.65,
+    priority: 0.7,
+    alternates: { languages: homeAlternates },
   }));
 
-  return [
-    ...staticEntries,
-    ...tankerClassEntries,
-    ...officeEntries,
-    ...brokerEntries,
-    ...reportEntries,
-  ];
+  return [...pages, ...localized, ...classes, ...reports];
 }

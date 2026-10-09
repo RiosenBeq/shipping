@@ -1,197 +1,123 @@
-import type { Sector, VesselClassFilter, Desk } from "@/lib/schemas";
-import { slugify } from "@/lib/slug";
+/**
+ * The broking team, grouped by desk. Shown on /brokers and previewed on the
+ * homepage and desk pages. Edit names, titles and contact lines here.
+ */
+
+export type Team = "crude" | "clean" | "lpg";
+export type Office = "Istanbul" | "London" | "Singapore";
 
 export type Broker = {
   name: string;
   title: string;
-  desk: Desk;
-  sectors: Sector[];
-  classes: VesselClassFilter[];
-  tags: string[];
-  color: string;
+  team: Team;
+  office: Office;
+  focus: string[];
+  languages: string[];
   initials: string;
-  seniority: number; // higher = more senior
+  color: string;
 };
 
-export function brokerSlug(b: Pick<Broker, "name">): string {
-  return slugify(b.name);
-}
+export const TEAM_LABEL: Record<Team, string> = {
+  crude: "Crude tankers",
+  clean: "Clean & products",
+  lpg: "LPG & ammonia",
+};
 
-export function getBrokerBySlug(slug: string): Broker | undefined {
-  return BROKERS.find((b) => brokerSlug(b) === slug);
-}
+export const TEAM_ORDER: Team[] = ["lpg", "crude", "clean"];
 
 export const BROKERS: Broker[] = [
   {
-    name: "Mehmet Aydın",
-    title: "Senior Crude Broker",
-    desk: "Istanbul",
-    sectors: ["crude"],
-    classes: ["VLCC", "Suezmax"],
-    tags: ["VLCC TD3C", "Black Sea", "CPC"],
-    color: "#B8893A",
-    initials: "MA",
-    seniority: 3,
-  },
-  {
-    name: "Demetrios Pavlou",
-    title: "Director, Clean Tankers",
-    desk: "London",
-    sectors: ["clean"],
-    classes: ["MR"],
-    tags: ["CPP MR", "Med", "UKC"],
-    color: "#0A1F33",
-    initials: "DP",
-    seniority: 4,
-  },
-  {
-    name: "Anna Kowalski",
-    title: "Head of Chemicals",
-    desk: "Istanbul",
-    sectors: ["chem"],
-    classes: [],
-    tags: ["IMO 2/3", "Stainless", "Coated"],
-    color: "#4A5E6E",
-    initials: "AK",
-    seniority: 4,
-  },
-  {
-    name: "Søren Hansen",
-    title: "Suezmax Broker",
-    desk: "London",
-    sectors: ["crude"],
-    classes: ["Suezmax"],
-    tags: ["Suezmax", "WAF", "TD20"],
-    color: "#D4A04A",
-    initials: "SH",
-    seniority: 3,
-  },
-  {
-    name: "Wei Zhang",
-    title: "Asia Tanker Desk",
-    desk: "Singapore",
-    sectors: ["crude", "clean"],
-    classes: ["VLCC", "MR"],
-    tags: ["Far East", "VLCC", "MEG"],
-    color: "#0A1F33",
-    initials: "WZ",
-    seniority: 3,
-  },
-  {
     name: "Elif Kaya",
-    title: "Aframax Broker",
-    desk: "Istanbul",
-    sectors: ["crude"],
-    classes: ["Aframax"],
-    tags: ["BLK-MED", "Aframax", "CPC"],
-    color: "#B8893A",
+    title: "Head of LPG & Ammonia",
+    team: "lpg",
+    office: "Istanbul",
+    focus: ["VLGC", "MGC", "East Med imports"],
+    languages: ["Turkish", "English"],
     initials: "EK",
-    seniority: 2,
+    color: "#B8893A",
   },
   {
-    name: "James Hutchins",
-    title: "Senior Dry Bulk Broker",
-    desk: "London",
-    sectors: ["bulk"],
-    classes: ["Cape", "Pmx"],
-    tags: ["Capesize", "Iron Ore", "C5"],
-    color: "#4A5E6E",
-    initials: "JH",
-    seniority: 3,
-  },
-  {
-    name: "Pranav Shah",
-    title: "Panamax Broker",
-    desk: "Singapore",
-    sectors: ["bulk"],
-    classes: ["Pmx"],
-    tags: ["Panamax", "Coal", "P3A"],
-    color: "#D4A04A",
-    initials: "PS",
-    seniority: 2,
-  },
-  {
-    name: "Marta Costa",
-    title: "S&P Broker — Tankers",
-    desk: "London",
-    sectors: ["sp", "crude"],
-    classes: ["Suezmax", "Aframax"],
-    tags: ["S&P", "Tanker NB", "Demolition"],
+    name: "Kerem Yılmaz",
+    title: "Broker — Handysize & Pressurised LPG",
+    team: "lpg",
+    office: "Istanbul",
+    focus: ["Pressurised", "Semi-ref", "Black Sea"],
+    languages: ["Turkish", "English", "Russian"],
+    initials: "KY",
     color: "#0A1F33",
-    initials: "MC",
-    seniority: 3,
-  },
-  {
-    name: "Tunç Demir",
-    title: "S&P Broker — Bulkers",
-    desk: "Istanbul",
-    sectors: ["sp", "bulk"],
-    classes: ["Cape", "Pmx", "Smx"],
-    tags: ["S&P", "2nd-hand", "Valuation"],
-    color: "#B8893A",
-    initials: "TD",
-    seniority: 3,
-  },
-  {
-    name: "Olivia Bennett",
-    title: "Clean Products — Atlantic",
-    desk: "Houston",
-    sectors: ["clean"],
-    classes: ["MR"],
-    tags: ["TC2", "TC14", "USG"],
-    color: "#4A5E6E",
-    initials: "OB",
-    seniority: 2,
-  },
-  {
-    name: "Hiroshi Tanaka",
-    title: "VLCC Broker — East",
-    desk: "Singapore",
-    sectors: ["crude"],
-    classes: ["VLCC"],
-    tags: ["TD3C", "TD22", "AG-East"],
-    color: "#B8893A",
-    initials: "HT",
-    seniority: 3,
   },
   {
     name: "Léa Martin",
-    title: "Specialised & Chemicals",
-    desk: "London",
-    sectors: ["chem"],
-    classes: [],
-    tags: ["IMO 2", "Veg oils", "Phenol"],
-    color: "#D4A04A",
+    title: "Broker — Petrochemical Gases",
+    team: "lpg",
+    office: "London",
+    focus: ["Propylene", "Butadiene", "NWE–Med"],
+    languages: ["French", "English"],
     initials: "LM",
-    seniority: 2,
+    color: "#1B4D5C",
+  },
+  {
+    name: "Hiroshi Tanaka",
+    title: "Broker — VLGC East",
+    team: "lpg",
+    office: "Singapore",
+    focus: ["BLPG1", "BLPG3", "Japan/Korea"],
+    languages: ["Japanese", "English"],
+    initials: "HT",
+    color: "#4A5E6E",
+  },
+  {
+    name: "Mehmet Aydın",
+    title: "Head of Crude",
+    team: "crude",
+    office: "Istanbul",
+    focus: ["Suezmax", "CPC", "Black Sea"],
+    languages: ["Turkish", "English"],
+    initials: "MA",
+    color: "#B8893A",
+  },
+  {
+    name: "Søren Hansen",
+    title: "Broker — Suezmax & Aframax",
+    team: "crude",
+    office: "London",
+    focus: ["TD20", "Cross-Med", "North Sea"],
+    languages: ["Danish", "English"],
+    initials: "SH",
+    color: "#0E3454",
+  },
+  {
+    name: "Wei Zhang",
+    title: "Broker — VLCC",
+    team: "crude",
+    office: "Singapore",
+    focus: ["TD3C", "TD15", "China"],
+    languages: ["Mandarin", "English"],
+    initials: "WZ",
+    color: "#0A1F33",
+  },
+  {
+    name: "Demetrios Pavlou",
+    title: "Head of Clean Tankers",
+    team: "clean",
+    office: "London",
+    focus: ["LR2", "LR1", "MR"],
+    languages: ["Greek", "English"],
+    initials: "DP",
+    color: "#1B4D5C",
   },
   {
     name: "Ahmed El-Sayed",
-    title: "Crude Broker — Med",
-    desk: "Istanbul",
-    sectors: ["crude"],
-    classes: ["Suezmax", "Aframax"],
-    tags: ["Med", "Egypt", "Libya"],
-    color: "#0A1F33",
+    title: "Broker — MR & Handy, Med",
+    team: "clean",
+    office: "Istanbul",
+    focus: ["Med", "Egypt", "Libya"],
+    languages: ["Arabic", "English", "Turkish"],
     initials: "AE",
-    seniority: 2,
+    color: "#4A5E6E",
   },
 ];
 
-export const SECTOR_LABEL: Record<Sector, string> = {
-  crude: "Crude",
-  clean: "Clean",
-  chem: "Chemicals",
-  bulk: "Dry Bulk",
-  sp: "S&P",
-};
-
-export const CLASS_LABEL: Record<VesselClassFilter, string> = {
-  VLCC: "VLCC",
-  Suezmax: "Suezmax",
-  Aframax: "Aframax / LR2",
-  MR: "MR",
-  Cape: "Capesize",
-  Pmx: "Panamax",
-  Smx: "Supramax",
-};
+export function brokersByTeam(team: Team): Broker[] {
+  return BROKERS.filter((b) => b.team === team);
+}

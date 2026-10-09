@@ -1,103 +1,65 @@
 import { z } from "zod";
 
-export const SectorSchema = z.enum(["crude", "clean", "chem", "bulk", "sp"]);
-export type Sector = z.infer<typeof SectorSchema>;
-
-export const VesselClassSchema = z.enum(["VLCC", "Suezmax", "Aframax", "MR", "Cape", "Pmx", "Smx"]);
-export type VesselClassFilter = z.infer<typeof VesselClassSchema>;
-
-export const DeskSchema = z.enum(["Istanbul", "London", "Singapore", "Houston"]);
-export type Desk = z.infer<typeof DeskSchema>;
-
-export const BrokerFilterSchema = z.object({
-  sectors: z.array(SectorSchema),
-  classes: z.array(VesselClassSchema),
-  desks: z.array(DeskSchema),
-  q: z.string(),
-  sort: z.enum(["name", "role", "desk"]),
-});
-export type BrokerFilter = z.infer<typeof BrokerFilterSchema>;
-
-export const ResearchCategorySchema = z.enum(["all", "weekly", "route", "reg", "sp", "annual"]);
+/* === Research === */
+export const ResearchCategorySchema = z.enum(["all", "weekly", "route", "reg", "guide"]);
 export type ResearchCategory = z.infer<typeof ResearchCategorySchema>;
 
-export const ResearchFilterSchema = z.object({
-  category: ResearchCategorySchema,
-  q: z.string(),
-});
-export type ResearchFilter = z.infer<typeof ResearchFilterSchema>;
+/* === Charter inquiry === */
+export const INQUIRY_SEGMENTS = {
+  crude: "Crude oil",
+  clean: "Clean / refined products",
+  lpg: "LPG (propane, butane)",
+  ammonia: "Ammonia",
+  petchem: "Petrochemical gases",
+} as const;
 
-export const SubscribeSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta giriniz"),
-});
-export type SubscribeForm = z.infer<typeof SubscribeSchema>;
+export const INQUIRY_TERMS = {
+  voyage: "Spot voyage",
+  tc: "Time charter",
+  coa: "COA / contract",
+} as const;
 
-export const OfficeCitySchema = z.enum(["ist", "lon", "sg", "hou"]);
-export type OfficeCity = z.infer<typeof OfficeCitySchema>;
+export const INQUIRY_VESSELS = [
+  "Not sure — advise me",
+  "VLCC",
+  "Suezmax",
+  "Aframax / LR2",
+  "LR1",
+  "MR / Handy tanker",
+  "VLGC",
+  "MGC",
+  "Handysize gas carrier",
+  "Pressurised / small LPG",
+] as const;
 
-/* === Contact / charter inquiry === */
-export const InquiryCargoSchema = z.enum(["crude", "clean", "chem", "bulk"]);
-export type InquiryCargo = z.infer<typeof InquiryCargoSchema>;
+const keys = <T extends Record<string, string>>(o: T) =>
+  Object.keys(o) as [keyof T & string, ...(keyof T & string)[]];
 
-export const InquiryTermSchema = z.enum(["voy", "tc", "coa", "contract"]);
+export const InquirySegmentSchema = z.enum(keys(INQUIRY_SEGMENTS));
+export type InquirySegment = z.infer<typeof InquirySegmentSchema>;
+
+export const InquiryTermSchema = z.enum(keys(INQUIRY_TERMS));
 export type InquiryTerm = z.infer<typeof InquiryTermSchema>;
 
-export const LoadAreaSchema = z.enum([
-  "blk-cpc",
-  "nsea-baltic",
-  "waf-med",
-  "ag-rs",
-  "usg-caribs",
-  "fareast",
-]);
-export const DischAreaSchema = z.enum([
-  "ukc-med",
-  "usg-usac",
-  "fareast-india",
-  "wcsa-ecsa",
-  "waf",
-  "spore-eafr",
-]);
-
-export const PreferredClassSchema = z.enum(["VLCC", "Suezmax", "Aframax", "MR", "Handy", "Open"]);
-
-export const InquiryStep1Schema = z.object({
-  cargo: InquiryCargoSchema,
-});
-
-export const InquiryStep2Schema = z.object({
-  loadArea: LoadAreaSchema,
-  dischArea: DischAreaSchema,
-  stem: z.string().trim().min(1, "Yük miktarı gerekli"),
-  vesselClass: PreferredClassSchema,
-});
-
-export const InquiryStep3Schema = z
+export const InquirySchema = z
   .object({
-    laycanFrom: z.string().min(1, "Laycan başlangıç tarihi gerekli"),
-    laycanTo: z.string().min(1, "Laycan bitiş tarihi gerekli"),
+    segment: InquirySegmentSchema,
+    vessel: z.enum(INQUIRY_VESSELS),
     term: InquiryTermSchema,
+    loadArea: z.string().trim().min(2, "Enter a load port or area"),
+    dischargeArea: z.string().trim().min(2, "Enter a discharge port or area"),
+    quantity: z.string().trim().min(1, "Enter a quantity, e.g. 44,000 mt"),
+    laycanFrom: z.string().min(1, "Choose a laycan start date"),
+    laycanTo: z.string().min(1, "Choose a laycan end date"),
+    name: z.string().trim().min(2, "Enter your name"),
+    company: z.string().trim().min(2, "Enter your company"),
+    email: z.string().trim().email("Enter a valid email address"),
+    phone: z.string().trim().optional(),
+    notes: z.string().trim().max(2000).optional(),
   })
-  .refine((v) => !v.laycanFrom || !v.laycanTo || new Date(v.laycanFrom) <= new Date(v.laycanTo), {
-    message: "Laycan bitişi başlangıçtan sonra olmalı",
+  .refine((v) => !v.laycanFrom || !v.laycanTo || v.laycanFrom <= v.laycanTo, {
+    message: "Laycan end must be on or after the start date",
     path: ["laycanTo"],
   });
 
-export const InquiryStep4Schema = z.object({
-  name: z.string().trim().min(2, "Ad gerekli"),
-  firm: z.string().trim().min(2, "Şirket gerekli"),
-  email: z.string().email("Geçerli bir e-posta giriniz"),
-  phone: z.string().trim().optional(),
-});
-
-export const InquiryFullSchema = z
-  .object({})
-  .merge(InquiryStep1Schema)
-  .merge(InquiryStep2Schema)
-  .merge(z.object({ laycanFrom: z.string(), laycanTo: z.string(), term: InquiryTermSchema }))
-  .merge(InquiryStep4Schema);
-
-export type InquiryStep1 = z.infer<typeof InquiryStep1Schema>;
-export type InquiryStep2 = z.infer<typeof InquiryStep2Schema>;
-export type InquiryStep4 = z.infer<typeof InquiryStep4Schema>;
-export type InquiryFull = z.infer<typeof InquiryFullSchema>;
+export type Inquiry = z.infer<typeof InquirySchema>;

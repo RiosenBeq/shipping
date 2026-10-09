@@ -6,7 +6,7 @@
 export type GlossaryTerm = {
   term: string;
   def: string;
-  group: "freight" | "vessels" | "regulatory" | "ports" | "commercial";
+  group: "freight" | "vessels" | "gas" | "regulatory" | "ports" | "commercial";
 };
 
 export const GLOSSARY_TERMS: GlossaryTerm[] = [
@@ -58,20 +58,77 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     term: "MR (Medium Range)",
     def: "Clean-products workhorse. 40–55,000 dwt. The dominant class on TC2 (CONT → USAC) and TC14 (USG → UKC).",
   },
+
+  // LPG & gas carriers
   {
-    group: "vessels",
-    term: "Capesize",
-    def: "180,000 dwt+ bulker, too large for the old Panama locks (hence 'Cape' route via the Cape of Good Hope). Carries iron ore and coal on long-haul.",
+    group: "gas",
+    term: "VLGC (Very Large Gas Carrier)",
+    def: "Fully refrigerated LPG carrier of 70,000 cbm and above; modern ships are mostly 78,000–93,000 cbm and lift about 44,000–46,000 mt. The long-haul LPG workhorse.",
   },
   {
-    group: "vessels",
-    term: "Panamax / Kamsarmax",
-    def: "75–85,000 dwt bulker. Panamax sized for old Panama locks (beam ≤ 32.31 m). Kamsarmax extends LOA to 229 m for Port Kamsar bauxite trade.",
+    group: "gas",
+    term: "LGC (Large Gas Carrier)",
+    def: "Fully refrigerated gas carrier of roughly 50,000–70,000 cbm, sitting between the MGC and VLGC bands.",
   },
   {
-    group: "vessels",
-    term: "Supramax / Ultramax",
-    def: "55–65,000 dwt geared bulkers. The flexible workhorse for grains, fertilisers, and minor bulks; 4 × 30 t cranes typical.",
+    group: "gas",
+    term: "MGC (Midsize Gas Carrier)",
+    def: "Fully refrigerated gas carrier of 25,000–50,000 cbm, with the core fleet around 35,000–40,000 cbm. The backbone of seaborne ammonia and flexible on LPG.",
+  },
+  {
+    group: "gas",
+    term: "Handysize gas carrier",
+    def: "15,000–25,000 cbm, usually semi-refrigerated or fully refrigerated. Carries LPG, ammonia and petrochemical gases such as propylene, butadiene and VCM.",
+  },
+  {
+    group: "gas",
+    term: "Fully pressurised",
+    def: "Containment that keeps LPG liquid by pressure alone, at ambient temperature, in cylindrical tanks. Used on small coastal ships; no reliquefaction plant needed.",
+  },
+  {
+    group: "gas",
+    term: "Semi-refrigerated",
+    def: "Containment that combines moderate pressure with partial cooling, so the ship can load from both pressurised and refrigerated terminals.",
+  },
+  {
+    group: "gas",
+    term: "Fully refrigerated",
+    def: "Containment that keeps cargo liquid by cooling it to its boiling point at near-atmospheric pressure (around −42 °C for propane, −33 °C for ammonia). Standard on VLGCs and MGCs.",
+  },
+  {
+    group: "gas",
+    term: "cbm",
+    def: "Cubic metres — the standard measure of gas carrier cargo capacity. Converting cbm to tonnes needs the cargo's liquid density (about 0.58 t/m³ for propane).",
+  },
+  {
+    group: "gas",
+    term: "Boil-off & reliquefaction",
+    def: "Heat leaking into the tanks makes some cargo evaporate (boil-off). On LPG carriers a reliquefaction plant turns the vapour back into liquid and returns it to the tanks.",
+  },
+  {
+    group: "gas",
+    term: "Gas-freeing & purging",
+    def: "Tank preparation between cargo grades or before dry-dock: removing cargo vapour, then replacing it with inert gas or air. Takes time that belongs in the voyage estimate.",
+  },
+  {
+    group: "gas",
+    term: "Petrochemical gases (PCG)",
+    def: "Gases such as propylene, butadiene and vinyl chloride monomer (VCM), traded mainly on Handysize semi-refrigerated ships. Specs on purity and inhibitors are strict.",
+  },
+  {
+    group: "gas",
+    term: "BLPG1 / BLPG2 / BLPG3",
+    def: "Baltic Exchange VLGC benchmarks: BLPG1 Ras Tanura–Chiba, BLPG2 Houston–Flushing, BLPG3 Houston–Chiba. Quoted in $/mt with a TCE equivalent.",
+  },
+  {
+    group: "gas",
+    term: "IGC Code",
+    def: "IMO's International Code for the Construction and Equipment of Ships Carrying Liquefied Gases in Bulk. Sets containment, certification and filling-limit rules for gas carriers.",
+  },
+  {
+    group: "gas",
+    term: "Filling limit",
+    def: "The maximum level a cargo tank may be filled to, leaving room for thermal expansion — typically 98% under the IGC Code. Used when converting tank capacity into cargo tonnes.",
   },
 
   // Bunkers
@@ -121,11 +178,6 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     group: "regulatory",
     term: "OFAC / OFSI",
     def: "Office of Foreign Assets Control (US) and Office of Financial Sanctions Implementation (UK). Counterparty and vessel screening against their sanctions lists is standard practice on every fixture.",
-  },
-  {
-    group: "regulatory",
-    term: "HKC (Hong Kong Convention)",
-    def: "International convention on safe and environmentally sound recycling of ships. Came into force June 2025; 'HKC-aligned' recyclers are preferred for green-recycling clauses.",
   },
 
   // Ports & chokepoints
@@ -193,13 +245,8 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   },
   {
     group: "commercial",
-    term: "MOA (Memorandum of Agreement)",
-    def: "Standard sale & purchase contract for ships. Norwegian Saleform 2012 is the dominant template; sets out price, deposit, inspection, delivery, and class transfer.",
-  },
-  {
-    group: "commercial",
     term: "BIMCO",
-    def: "Baltic and International Maritime Council. Publishes industry-standard charter party forms (e.g. SHELLVOY, ASBATANKVOY) and clauses (e.g. ETSA for EU ETS allocation).",
+    def: "Baltic and International Maritime Council. Publishes standard charter party forms and clauses — e.g. GASVOY for gas carriers and the ETS allowance clauses used to allocate EU ETS costs.",
   },
   {
     group: "commercial",
@@ -210,7 +257,8 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
 
 export const GROUP_LABELS: Record<GlossaryTerm["group"], string> = {
   freight: "Freight & rates",
-  vessels: "Vessels & bunkers",
+  vessels: "Tankers & bunkers",
+  gas: "LPG & gas carriers",
   regulatory: "Regulatory & compliance",
   ports: "Ports & chokepoints",
   commercial: "Commercial & contracts",

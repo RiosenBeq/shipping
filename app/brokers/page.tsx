@@ -1,89 +1,88 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Nav } from "../components/Nav";
-import { Footer } from "../components/Footer";
-import { JsonLd } from "../components/JsonLd";
-import { ContactCta } from "../components/ContactCta";
-import { BrokersDirectory } from "./BrokersDirectory";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { BROKERS } from "@/lib/data/brokers";
+import { JsonLd } from "@/components/site/JsonLd";
+import { PageHeader } from "@/components/site/PageHeader";
+import { Section } from "@/components/site/Section";
+import { BrokerCard } from "@/components/site/BrokerCard";
+import { CtaBand } from "@/components/site/CtaBand";
+import { BROKERS, TEAM_LABEL, TEAM_ORDER, brokersByTeam } from "@/lib/data/brokers";
+import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
+const TITLE = "Our Brokers — Tanker & LPG Chartering Team";
+const DESCRIPTION =
+  "Meet LEVANTER's tanker and LPG brokers in Istanbul, London and Singapore. Direct email and WhatsApp for crude, clean products, LPG and ammonia.";
+
 export const metadata: Metadata = buildPageMetadata({
-  title: "Find a Broker — Tanker, Bulk, Chemicals, S&P",
-  description:
-    "Direct access to the LEVANTER broker desk. Filter 14 brokers by sector, vessel class, or office. Real brokers, no forms forwarded.",
+  title: TITLE,
+  description: DESCRIPTION,
   path: "/brokers",
-  keywords: [
-    "shipping broker directory",
-    "tanker broker",
-    "dry bulk broker",
-    "chemicals broker",
-    "S&P broker",
-    "Istanbul shipbroker",
-    "London shipbroker",
-    "Singapore shipbroker",
-  ],
+  keywords: ["LPG broker", "tanker broker", "shipbroker Istanbul", "VLGC broker", "Suezmax broker"],
 });
 
-const brokerCollectionLd = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "LEVANTER broker desk",
-  numberOfItems: BROKERS.length,
-  itemListElement: BROKERS.map((b, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    item: {
-      "@type": "Person",
-      name: b.name,
-      jobTitle: b.title,
-      worksFor: { "@id": `${siteConfig.url}#organization` },
-      workLocation: { "@type": "Place", name: b.desk },
-    },
-  })),
+const TEAM_INTRO: Record<(typeof TEAM_ORDER)[number], string> = {
+  lpg: "VLGC to pressurised coasters, plus ammonia and petrochemical gases.",
+  crude: "VLCC, Suezmax and Aframax — Black Sea, CPC, Med and the long-haul lanes.",
+  clean: "LR2, LR1 and MR product tankers across the Med, Atlantic and East of Suez.",
 };
 
 export default function BrokersPage() {
+  const peopleLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "LEVANTER brokers",
+    itemListElement: BROKERS.map((b, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Person",
+        name: b.name,
+        jobTitle: b.title,
+        worksFor: { "@id": `${siteConfig.url}#organization` },
+        workLocation: { "@type": "Place", name: b.office },
+        knowsLanguage: b.languages,
+        knowsAbout: b.focus,
+      },
+    })),
+  };
+
   return (
     <>
       <JsonLd
         data={[
           webPageLd({
-            title: "LEVANTER Brokers — Direct desk access",
-            description:
-              "Filter 14 brokers across crude, clean, chemicals, dry bulk, and S&P by class or desk.",
+            title: TITLE,
+            description: DESCRIPTION,
             path: "/brokers",
-            type: "CollectionPage",
+            type: "AboutPage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Brokers", path: "/brokers" },
-          ]),
-          brokerCollectionLd,
+          peopleLd,
         ]}
       />
-      <Nav active="brokers" />
-      <main>
-        <section className="ph">
-          <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Brokers
-            </div>
-            <span className="eyebrow">Find a broker</span>
-            <h1 className="display h1">Direct access. Real brokers.</h1>
-            <p>Filter by sector, class, or desk. Call them. No forms forwarded.</p>
+      <PageHeader
+        eyebrow="The team"
+        title="Talk directly to the broker who works your trade."
+        lead="No switchboard and no account managers. Each desk is small, senior and reachable by email or WhatsApp — and a broker replies within 60 minutes during business hours."
+        crumbs={[{ name: "Team", path: "/brokers" }]}
+      />
+
+      {TEAM_ORDER.map((team, i) => (
+        <Section
+          key={team}
+          id={team}
+          tone={i % 2 === 1 ? "sand" : "plain"}
+          eyebrow={team === "lpg" ? "LPG & ammonia desk" : "Tanker desk"}
+          title={TEAM_LABEL[team]}
+          intro={TEAM_INTRO[team]}
+        >
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {brokersByTeam(team).map((b) => (
+              <BrokerCard key={b.name} broker={b} />
+            ))}
           </div>
-        </section>
-        <BrokersDirectory />
-        <ContactCta
-          headline="Can't find the right broker?"
-          body="Tell us the cargo and the lift window — we'll route you to the desk that handles it. No forms forwarded, no phone tag."
-          context="broker introduction"
-        />
-      </main>
-      <Footer />
+        </Section>
+      ))}
+
+      <CtaBand />
     </>
   );
 }
