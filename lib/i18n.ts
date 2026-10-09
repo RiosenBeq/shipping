@@ -35,6 +35,18 @@ export type Dictionary = {
   /** Shown when a broker speaks the language; `{name}` is replaced. */
   speaker: string;
   whatsappGreeting: string;
+  /** Hero desk card: eyebrow and reply-time footer. */
+  deskLinesTitle: string;
+  deskNote: string;
+  /** Process timeline heading. */
+  stepsEyebrow: string;
+  stepsTitle: string;
+  /** Screen-reader hint after links that open WhatsApp in a new tab. */
+  newTab: string;
+  /** Floating WhatsApp button label (its accessible name starts with this text). */
+  fab: string;
+  /** Under the hero buttons: the inquiry form itself is English-only. */
+  formNote: string;
 };
 
 export type Locale = {
@@ -123,6 +135,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "电子邮件",
       speaker: "可用中文与 {name} 沟通。",
       whatsappGreeting: "您好，LEVANTER，我想咨询一笔租船业务。",
+      deskLinesTitle: "业务部门直线联系",
+      deskNote: "工作时间内，经纪人60分钟内回复。",
+      stepsEyebrow: "工作方式",
+      stepsTitle: "四个步骤，同一位经纪人全程负责。",
+      newTab: "（在新标签页中打开）",
+      fab: "通过WhatsApp联系经纪人",
+      formNote: "询盘表格为英文。",
     },
   },
   {
@@ -213,6 +232,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "メール",
       speaker: "{name} とは日本語でご相談いただけます。",
       whatsappGreeting: "LEVANTER御中、傭船の件でご相談したいです。",
+      deskLinesTitle: "デスク直通窓口",
+      deskNote: "営業時間内は60分以内にブローカーが返信します。",
+      stepsEyebrow: "進め方",
+      stepsTitle: "4つのステップを、同じブローカーが一貫して担当。",
+      newTab: "（新しいタブで開きます）",
+      fab: "WhatsAppでブローカーに相談",
+      formNote: "引き合いフォームは英語です。",
     },
   },
   {
@@ -297,6 +323,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "이메일",
       speaker: "{name}와 한국어로 상담하실 수 있습니다.",
       whatsappGreeting: "안녕하세요 LEVANTER, 용선 건으로 문의드립니다.",
+      deskLinesTitle: "데스크 직통 연락처",
+      deskNote: "영업시간 중에는 60분 이내에 브로커가 회신합니다.",
+      stepsEyebrow: "진행 방식",
+      stepsTitle: "네 단계, 처음부터 끝까지 한 명의 브로커.",
+      newTab: "(새 탭에서 열림)",
+      fab: "WhatsApp으로 브로커와 상담",
+      formNote: "문의 양식은 영어로 되어 있습니다.",
     },
   },
   {
@@ -391,6 +424,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "Email",
       speaker: "Μιλήστε ελληνικά με τον {name}.",
       whatsappGreeting: "Καλημέρα LEVANTER, θα ήθελα να συζητήσουμε μια ναύλωση.",
+      deskLinesTitle: "Απευθείας γραμμές τμημάτων",
+      deskNote: "Ένας μεσίτης απαντά μέσα σε 60 λεπτά τις εργάσιμες ώρες.",
+      stepsEyebrow: "Πώς δουλεύουμε",
+      stepsTitle: "Τέσσερα βήματα, ένας μεσίτης από την αρχή ως το τέλος.",
+      newTab: "(ανοίγει σε νέα καρτέλα)",
+      fab: "Μιλήστε με μεσίτη στο WhatsApp",
+      formNote: "Η φόρμα ερωτήματος είναι στα αγγλικά.",
     },
   },
   {
@@ -485,6 +525,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "E-post",
       speaker: "Snakk skandinavisk med {name}.",
       whatsappGreeting: "Hei LEVANTER, jeg vil gjerne diskutere en befraktning.",
+      deskLinesTitle: "Direktelinjer til deskene",
+      deskNote: "En megler svarer innen 60 minutter i arbeidstiden.",
+      stepsEyebrow: "Slik jobber vi",
+      stepsTitle: "Fire steg, én megler hele veien.",
+      newTab: "(åpnes i ny fane)",
+      fab: "Kontakt en megler på WhatsApp",
+      formNote: "Forespørselsskjemaet er på engelsk.",
     },
   },
   {
@@ -570,6 +617,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "E-mail",
       speaker: "Tal dansk med {name}.",
       whatsappGreeting: "Hej LEVANTER, jeg vil gerne drøfte en befragtning.",
+      deskLinesTitle: "Direkte linjer til deskene",
+      deskNote: "En mægler svarer inden for 60 minutter i arbejdstiden.",
+      stepsEyebrow: "Sådan arbejder vi",
+      stepsTitle: "Fire trin, én mægler hele vejen.",
+      newTab: "(åbner i en ny fane)",
+      fab: "Skriv til en mægler på WhatsApp",
+      formNote: "Forespørgselsformularen er på engelsk.",
     },
   },
   {
@@ -666,6 +720,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "E-post",
       speaker: "Prata skandinaviska med {name}.",
       whatsappGreeting: "Hej LEVANTER, jag vill gärna diskutera en befraktning.",
+      deskLinesTitle: "Direktlinjer till deskarna",
+      deskNote: "En mäklare svarar inom 60 minuter under arbetstid.",
+      stepsEyebrow: "Så arbetar vi",
+      stepsTitle: "Fyra steg, en mäklare hela vägen.",
+      newTab: "(öppnas i en ny flik)",
+      fab: "Kontakta en mäklare på WhatsApp",
+      formNote: "Förfrågningsformuläret är på engelska.",
     },
   },
   {
@@ -764,6 +825,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "E-Mail",
       speaker: "Sprechen Sie mit {name}.",
       whatsappGreeting: "Hallo LEVANTER, ich möchte über eine Befrachtung sprechen.",
+      deskLinesTitle: "Direkte Leitungen zu den Desks",
+      deskNote: "Ein Makler antwortet innerhalb von 60 Minuten während der Geschäftszeiten.",
+      stepsEyebrow: "So arbeiten wir",
+      stepsTitle: "Vier Schritte, ein Makler von Anfang bis Ende.",
+      newTab: "(öffnet in einem neuen Tab)",
+      fab: "Makler per WhatsApp kontaktieren",
+      formNote: "Das Anfrageformular ist auf Englisch.",
     },
   },
   {
@@ -859,6 +927,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "Correo",
       speaker: "Hable con {name}.",
       whatsappGreeting: "Hola LEVANTER, me gustaría hablar de un fletamento.",
+      deskLinesTitle: "Líneas directas de las mesas",
+      deskNote: "Un corredor responde en 60 minutos en horario laboral.",
+      stepsEyebrow: "Cómo trabajamos",
+      stepsTitle: "Cuatro pasos, un mismo corredor de principio a fin.",
+      newTab: "(se abre en una pestaña nueva)",
+      fab: "Escriba a un corredor por WhatsApp",
+      formNote: "El formulario de consulta está en inglés.",
     },
   },
   {
@@ -948,6 +1023,13 @@ export const LOCALES: Locale[] = [
       ctaEmail: "البريد الإلكتروني",
       speaker: "تحدث بالعربية مع {name}.",
       whatsappGreeting: "مرحبًا LEVANTER، أود مناقشة عملية تأجير.",
+      deskLinesTitle: "خطوط مباشرة إلى الأقسام",
+      deskNote: "يرد وسيط خلال 60 دقيقة أثناء ساعات العمل.",
+      stepsEyebrow: "طريقة عملنا",
+      stepsTitle: "أربع خطوات، ووسيط واحد طوال الطريق.",
+      newTab: "(يفتح في علامة تبويب جديدة)",
+      fab: "راسل وسيطًا عبر واتساب",
+      formNote: "نموذج الطلب باللغة الإنجليزية.",
     },
   },
 ];

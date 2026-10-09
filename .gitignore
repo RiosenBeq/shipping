@@ -8,3 +8,6 @@ out
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# stray Python wheels from tooling
+*.whl

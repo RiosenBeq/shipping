@@ -43,14 +43,18 @@ export type InquiryTerm = z.infer<typeof InquiryTermSchema>;
 
 export const InquirySchema = z
   .object({
-    segment: InquirySegmentSchema,
+    // No default cargo in the form, so a tanker inquiry can't slip through to the LPG desk.
+    segment: z.enum(keys(INQUIRY_SEGMENTS), {
+      errorMap: () => ({ message: "Choose a cargo type" }),
+    }),
     vessel: z.enum(INQUIRY_VESSELS),
     term: InquiryTermSchema,
     loadArea: z.string().trim().min(2, "Enter a load port or area"),
     dischargeArea: z.string().trim().min(2, "Enter a discharge port or area"),
     quantity: z.string().trim().min(1, "Enter a quantity, e.g. 44,000 mt"),
     laycanFrom: z.string().min(1, "Choose a laycan start date"),
-    laycanTo: z.string().min(1, "Choose a laycan end date"),
+    // Optional: early-stage inquiries often have a start date but no firm window yet.
+    laycanTo: z.string().optional(),
     name: z.string().trim().min(2, "Enter your name"),
     company: z.string().trim().min(2, "Enter your company"),
     email: z.string().trim().email("Enter a valid email address"),

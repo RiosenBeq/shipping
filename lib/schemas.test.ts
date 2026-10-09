@@ -62,6 +62,21 @@ describe("InquirySchema", () => {
     expect(r.success).toBe(true);
   });
 
+  it("accepts an open laycan with only a start date", () => {
+    expect(InquirySchema.safeParse({ ...valid, laycanTo: "" }).success).toBe(true);
+    const { laycanTo: _to, ...rest } = valid;
+    expect(InquirySchema.safeParse(rest).success).toBe(true);
+  });
+
+  it("asks for a cargo type when none is chosen", () => {
+    const r = InquirySchema.safeParse({ ...valid, segment: "" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const issue = r.error.issues.find((i) => i.path[0] === "segment");
+      expect(issue?.message).toBe("Choose a cargo type");
+    }
+  });
+
   it("requires load and discharge areas", () => {
     expect(InquirySchema.safeParse({ ...valid, loadArea: " " }).success).toBe(false);
     expect(InquirySchema.safeParse({ ...valid, dischargeArea: "" }).success).toBe(false);

@@ -19,6 +19,8 @@ export type LpgClassData = {
   trades: string[];
   watchpoints: { title: string; body: string }[];
   charterShape: string;
+  /** Who on the LPG desk covers this size (shown next to charterShape). */
+  desk: string;
   faq: { q: string; a: string }[];
 };
 
@@ -72,6 +74,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     ],
     charterShape:
       "Spot voyages are quoted in $/mt. Period business runs from 6 months to multi-year time charters, usually priced in $/month. COAs are common with importers and trading houses.",
+    desk: "Istanbul (Elif Kaya) for the Med, Türkiye and Atlantic business, Singapore (Hiroshi Tanaka) for BLPG1 and BLPG3 lanes East.",
     faq: [
       {
         q: "How much LPG does a VLGC carry?",
@@ -132,6 +135,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     ],
     charterShape:
       "A mix of spot, 1–3 year time charters and long ammonia COAs. Period rates are usually quoted in $/month.",
+    desk: "Istanbul (Elif Kaya) for ammonia and LPG, with London (Léa Martin) on petrochemical parcels.",
     faq: [
       {
         q: "What is the difference between an MGC and an LGC?",
@@ -192,6 +196,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     ],
     charterShape:
       "Spot voyages, part-cargo combinations and 6–24 month time charters with petrochemical producers and traders.",
+    desk: "Istanbul (Kerem Yılmaz) for LPG and ammonia, London (Léa Martin) for propylene, butadiene and VCM.",
     faq: [
       {
         q: "What is a semi-refrigerated gas carrier?",
@@ -253,6 +258,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     ],
     charterShape:
       "Spot and relet voyages, contracts of affreightment for regular distribution, and period time charters with importers and distributors.",
+    desk: "Istanbul (Kerem Yılmaz) for the Med, Black Sea and Türkiye.",
     faq: [
       {
         q: "What is a fully pressurised LPG carrier?",

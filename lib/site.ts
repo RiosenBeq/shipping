@@ -35,7 +35,7 @@ export const siteConfig = {
     { city: "London", country: "United Kingdom", role: "Atlantic basin" },
     { city: "Singapore", country: "Singapore", role: "East of Suez" },
   ],
-  hours: "Mon–Fri 08:00–19:00 (GMT+3) · after-hours line for live fixtures",
+  hours: "Mon–Fri 08:00–19:00 (GMT+3) · outside these hours, WhatsApp the desk for live fixtures",
   socials: {
     linkedin: "https://www.linkedin.com/company/levanter",
     twitter: "https://twitter.com/levanter",

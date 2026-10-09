@@ -53,6 +53,11 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Keep anchor targets and keyboard focus clear of the sticky 64px header
+       (top) and the floating WhatsApp button (bottom) — WCAG 2.4.11. These add
+       to any per-element scroll-margin, so sections need none of their own. */
+    scroll-padding-top: 5rem;
+    scroll-padding-bottom: 5.5rem;
   }
   body {
     @apply bg-background font-body text-foreground antialiased;
@@ -88,8 +93,11 @@
   .lv-prose {
     @apply max-w-prose text-[17px] leading-[1.75] text-navy/90;
   }
+  .lv-prose > :first-child {
+    @apply mt-0;
+  }
   .lv-prose h2 {
-    @apply mb-3 mt-12 font-display text-[28px] leading-tight text-navy;
+    @apply mb-3 mt-12 font-display text-[28px] leading-tight tracking-tight text-navy;
   }
   .lv-prose h3 {
     @apply mb-2 mt-8 text-lg font-semibold text-navy;
@@ -103,10 +111,29 @@
     @apply list-disc space-y-2 pl-5 marker:text-brass;
   }
   .lv-prose ol {
-    @apply list-decimal space-y-2 pl-5;
+    @apply list-decimal space-y-2 pl-5 marker:text-brass-ink;
   }
+  /* Links: the kit's .uv-link look (uiverse.css) — hairline brass rule, solid
+     brass underline grows across on hover/focus. Restated here because prose
+     links come from content and can't carry the class. */
   .lv-prose a {
-    @apply text-brass-ink underline decoration-brass/40 underline-offset-4 hover:decoration-brass;
+    @apply font-medium text-navy no-underline;
+    padding-bottom: 2px;
+    background:
+      linear-gradient(var(--brass), var(--brass)) 0 100% / 0% 2px no-repeat,
+      linear-gradient(rgba(184, 137, 58, 0.45), rgba(184, 137, 58, 0.45)) 0 100% / 100% 1px
+        no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .lv-prose a:is(:hover, :focus-visible) {
+    background-size:
+      100% 2px,
+      100% 1px;
+  }
+  .lv-prose a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
   .lv-prose strong {
     @apply font-semibold text-navy;
@@ -120,19 +147,67 @@
 }
 
 /* ===== Localized landing pages =====
- * The serif display face has no CJK or Arabic glyphs; use the system sans
- * stack for headings in those scripts instead of a mismatched fallback. */
-:is([lang="zh-Hans"], [lang="ja"], [lang="ko"], [lang="ar"]) .font-display {
+ * The serif display face has no CJK or Arabic glyphs. CJK headings keep the
+ * editorial voice with a system CJK serif (Mincho / Song / Myeongjo) behind
+ * Source Serif, which still draws the Latin letters and digits; Arabic uses
+ * the system sans. Medium weight and open leading (this rule's 0,2,0
+ * specificity beats the Latin `font-normal` / `leading-[1.12]` utilities) so
+ * the headings stay as light as the English serif instead of poster-black.
+ * `:lang()` matches the element's own (nearest) language, so English chrome
+ * marked lang="en" inside a zh/ja/ko/ar document keeps the serif wordmark. */
+.font-display:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+.font-display:lang(zh) {
+  font-family: var(--font-display), "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC",
+    "Songti SC", STSong, SimSun, serif;
+}
+.font-display:lang(ja) {
+  font-family: var(--font-display), "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP",
+    "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+}
+.font-display:lang(ko) {
+  font-family: var(--font-display), "Noto Serif KR", "Noto Serif CJK KR", "Source Han Serif K",
+    AppleMyungjo, Batang, serif;
+}
+.font-display:lang(ar) {
   font-family:
     system-ui,
     -apple-system,
     "Segoe UI",
     sans-serif;
-  font-weight: 600;
-  letter-spacing: 0;
+  line-height: 1.35;
 }
-:is([lang="zh-Hans"], [lang="ja"], [lang="ko"], [lang="ar"]) .uppercase {
+
+/* CJK body copy: Manrope has U+2014/U+2026 with Latin metrics, so the
+ * Chinese/Japanese double dash "——" draws as two short, separated dashes.
+ * Route only those code points to a CJK system face on CJK pages; every
+ * other glyph still comes from Manrope. */
+@font-face {
+  font-family: "CJK Punct";
+  src: local("PingFang SC"), local("PingFangSC-Regular"), local("Hiragino Sans GB"),
+    local("HiraginoSansGB-W3"), local("Microsoft YaHei"), local("Noto Sans CJK SC"),
+    local("NotoSansCJKsc-Regular"), local("Hiragino Sans"), local("HiraginoSans-W3"),
+    local("Yu Gothic"), local("Noto Sans CJK JP"), local("NotoSansCJKjp-Regular");
+  unicode-range: U+2014, U+2026;
+}
+main:is(:lang(zh), :lang(ja)) {
+  font-family: "CJK Punct", var(--font-body), system-ui, sans-serif;
+}
+.uppercase:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
   letter-spacing: 0.04em;
+}
+/* Korean wraps between words, not inside them (유조선과 stays whole);
+   break-word (not anywhere) so min-content sizing is left alone. */
+:lang(ko) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+/* Japanese: break at phrase boundaries where supported (Chromium 119+). */
+:is(h1, h2, h3, p):lang(ja) {
+  word-break: auto-phrase;
 }
 
 /* ===== Skip link (a11y) ===== */
@@ -151,6 +226,44 @@
 }
 .skip-link:focus {
   top: 12px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lv-prose a {
+    transition: background-size 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+/* ===== Print =====
+ * Nav, footer and the floating contact button carry .site-chrome; CTA bands,
+ * breadcrumbs and article asides carry print:hidden, and kit buttons are
+ * dropped below. Research notes and legal pages print as plain documents, and
+ * navy heroes print as dark text on white (backgrounds are usually off). */
+@media print {
+  .site-chrome {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .bg-navy,
+  .bg-navy-deep {
+    background: #fff !important;
+    color: var(--navy) !important;
+  }
+  :is(.bg-navy, .bg-navy-deep) :is(.text-white, .text-fog) {
+    color: var(--slate) !important;
+  }
+  :is(.bg-navy, .bg-navy-deep) .text-brass-light {
+    color: var(--brass-ink) !important;
+  }
+  .uv-hero-pattern {
+    display: none;
+  }
+  /* Calls to action do nothing on paper (and ghost buttons would print white on white). */
+  :is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light, .uv-fab) {
+    display: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

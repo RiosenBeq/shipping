@@ -1,7 +1,26 @@
-/** LEVANTER mark: a circle with the Bosphorus channel line. */
-export function BrandMark({ className, light = false }: { className?: string; light?: boolean }) {
+/**
+ * LEVANTER mark: a circle with the Bosphorus channel line in brass.
+ * Geometry matches app/icon.tsx and app/apple-icon.tsx — keep them in sync.
+ * Decorative by default (the wordmark next to it carries the name); pass
+ * `title` when the mark stands alone.
+ */
+export function BrandMark({
+  className,
+  light = false,
+  title,
+}: {
+  className?: string;
+  /** Ivory ring for navy backgrounds. */
+  light?: boolean;
+  title?: string;
+}) {
   return (
-    <svg className={className} viewBox="0 0 32 32" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      {...(title ? { role: "img", "aria-label": title } : { "aria-hidden": true })}
+    >
+      {title && <title>{title}</title>}
       <circle
         cx="16"
         cy="16"

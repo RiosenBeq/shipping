@@ -1,10 +1,28 @@
 "use client";
 
 import { useEffect } from "react";
+import { ArrowRight, RotateCcw } from "lucide-react";
+import { siteConfig } from "@/lib/site";
+import "./globals.css";
+import "./uiverse.css";
+
+/*
+ * The root layout (and its next/font variables) is gone when this renders, so
+ * the font tokens the Tailwind font-* classes read are set to system fallbacks
+ * here — without them those declarations would be invalid and fall back to Times.
+ */
+const FONT_FALLBACKS = {
+  "--font-display": "Georgia, 'Times New Roman', serif",
+  "--font-body": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+  "--font-mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+} as React.CSSProperties;
+
+const EMAIL = siteConfig.email;
 
 /**
  * Last-resort error boundary that replaces the root layout, so it renders its
- * own <html>/<body> and uses inline styles (the site stylesheet may not load).
+ * own <html>/<body> and imports the site + kit stylesheets itself. Only plain
+ * config is imported (no site components), in case one of those is what failed.
  */
 export default function GlobalError({
   error,
@@ -18,81 +36,52 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
-      <body
-        style={{
-          margin: 0,
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#fbfaf7",
-          color: "#0a1f33",
-          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-          padding: "48px 20px",
-          boxSizing: "border-box",
-        }}
-      >
-        <main style={{ maxWidth: 520 }}>
-          <p
-            style={{
-              margin: "0 0 12px",
-              fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "#8a6420",
-            }}
-          >
-            LEVANTER
-          </p>
-          <h1
-            style={{
-              margin: "0 0 12px",
-              fontFamily: "Georgia, serif",
-              fontSize: 36,
-              fontWeight: 400,
-              lineHeight: 1.15,
-            }}
-          >
-            Something went wrong
-          </h1>
-          <p style={{ margin: "0 0 28px", fontSize: 17, lineHeight: 1.6, color: "#4a5e6e" }}>
-            The site couldn&apos;t load. Please try again, or come back in a few minutes.
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <button
-              type="button"
-              onClick={() => reset()}
-              style={{
-                background: "#b8893a",
-                color: "#0a1f33",
-                padding: "12px 20px",
-                border: 0,
-                borderRadius: 6,
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Try again
-            </button>
-            {/* Plain link: a full reload is the safest way back after a fatal error. */}
-            <a
-              href="/"
-              style={{
-                display: "inline-block",
-                padding: "11px 20px",
-                border: "1px solid rgba(10, 31, 51, 0.25)",
-                borderRadius: 6,
-                color: "#0a1f33",
-                fontSize: 14,
-                fontWeight: 600,
-                textDecoration: "none",
-              }}
-            >
-              Back to home
-            </a>
+    <html lang="en" style={FONT_FALLBACKS}>
+      <head>
+        <title>Something went wrong — LEVANTER</title>
+        <meta name="robots" content="noindex" />
+        <meta name="theme-color" content="#0A1F33" />
+      </head>
+      <body className="min-h-screen bg-navy font-body text-white">
+        <main className="relative isolate flex min-h-screen items-center overflow-hidden">
+          <div className="uv-hero-pattern" aria-hidden="true" />
+          <div className="container relative z-[1] py-20">
+            <p className="font-display text-sm tracking-[0.32em] text-brass-light">LEVANTER</p>
+            <h1 className="mt-10 max-w-2xl font-display text-[38px] leading-[1.08] tracking-tight sm:text-5xl lg:text-[56px]">
+              Something went wrong
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-fog">
+              The site couldn&apos;t load. Please try again, or come back in a few minutes.
+            </p>
+            {error.digest && (
+              <p className="mt-4 text-sm text-fog">
+                Reference{" "}
+                <code className="select-all rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[13px] text-white">
+                  {error.digest}
+                </code>
+              </p>
+            )}
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button type="button" onClick={() => reset()} className="uv-btn uv-btn--lg">
+                <RotateCcw aria-hidden="true" />
+                <span>Try again</span>
+              </button>
+              {/* Plain link: a full reload is the safest way back after a fatal error. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a href="/" className="uv-btn-ghost-light uv-btn--lg">
+                Back to home
+                <ArrowRight aria-hidden="true" />
+              </a>
+            </div>
+
+            <p className="mt-10 text-sm text-fog">
+              Working a live fixture? Email{" "}
+              <a href={`mailto:${EMAIL}`} className="uv-link font-semibold text-white">
+                {EMAIL}
+              </a>
+              .
+            </p>
           </div>
         </main>
       </body>

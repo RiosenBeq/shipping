@@ -226,7 +226,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "commercial",
     term: "Demurrage",
-    def: "Daily compensation paid by the charterer to the owner for time used at port beyond the agreed laytime. Typical Suezmax demurrage: $35–45k/day.",
+    def: "Daily compensation paid by the charterer to the owner for time used at port beyond the agreed laytime. The daily rate is agreed in the charter party and usually tracks the ship's size and the market at the time of fixing.",
   },
   {
     group: "commercial",

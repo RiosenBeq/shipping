@@ -66,16 +66,16 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     keyTrends: [
       {
-        title: "Newbuilding capacity squeeze",
-        body: "Korean yards (HHI, SHI, HSHI) are largely committed to 2028 for VLCC slots. Chinese yards have more 2027 availability but pricing has caught up.",
+        title: "Fleet age and vetting",
+        body: "Oil-major vetting, age and scrubber/ECO specification separate the fleet into tiers; we check each ship's approvals before an offer goes back to a charterer.",
       },
       {
-        title: "Second-hand parity argument",
-        body: "5-year-old VLCC values are pushing toward replacement cost as the orderbook stays tight and scrapping near multi-year lows.",
+        title: "Ballast legs drive the price",
+        body: "A VLCC spends close to half its round voyage in ballast, so where the ship opens next matters as much as the laden leg. We price ideas on round-trip TCE, not single-leg Worldscale.",
       },
       {
-        title: "Eastward arb sensitivity",
-        body: "VLCC ballast strategy now blends round-trip TCE rather than single-leg — TD15 is reliably running 70–80% of TD3C laden TCE.",
+        title: "Discharge-port congestion",
+        body: "Waiting time at Chinese discharge ports is the largest avoidable demurrage exposure on the long-haul lanes; laycan and laytime terms are where we protect against it.",
       },
     ],
     charterShape:
@@ -122,12 +122,12 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     keyTrends: [
       {
-        title: "Persistent Atlantic basin tightness",
-        body: "CPC programme rebound + thin Atlantic basin tonnage = WS 95–105 base case for TD20 through Q2 2026 on the desk's read.",
+        title: "Atlantic sentiment",
+        body: "TD20 and the CPC programme set the tone for Atlantic Suezmax freight. Every idea we send shows the Worldscale and TCE assumptions behind it, so the numbers can be checked.",
       },
       {
-        title: "CPC volume gravity",
-        body: "~38% of our YTD Suezmax fixtures touch CPC or Novorossiysk. The Bosphorus angle is structural, not seasonal.",
+        title: "The Straits in every estimate",
+        body: "Black Sea and CPC cargoes transit the Bosphorus and Dardanelles. Transit timing, waiting and Straits rules go into every voyage estimate we send.",
       },
       {
         title: "Compliance overhead",
@@ -135,7 +135,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
     ],
     charterShape:
-      "Spot voyages, COAs (especially CPC programmes), and 6–12 month time charters. Demurrage typical $35–45k/day.",
+      "Spot voyages, COAs (especially CPC programmes), and 6–12 month time charters. Demurrage rates and laytime terms are agreed per fixture in the charter party.",
     desk: "Istanbul (Mehmet Aydın) for Black Sea and CPC, London (Søren Hansen) for WAF and the Atlantic basin.",
   },
   {
@@ -170,16 +170,16 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     keyTrends: [
       {
-        title: "5-year-old market depth",
-        body: "Q1 2026 closed 14 Aframax 5-year-old transactions; Greek and Norwegian buyers led the bid, vetting-clean tonnage at 5–8% premium.",
+        title: "Vetting decides the shortlist",
+        body: "Oil-major approvals and recent inspection history narrow the list of workable Aframaxes for each cargo; we screen for them before tonnage is offered.",
       },
       {
-        title: "LR2 optionality compressed",
-        body: "Coated Aframax (LR2-capable) is trading in line with regular Aframax — unusually thin premium for the clean optionality.",
+        title: "Dirty or clean",
+        body: "A coated Aframax (LR2) can switch between crude and clean products, but cleaning time and cost decide whether the switch pays; we price it into the TCE.",
       },
       {
         title: "Black Sea relay weight",
-        body: "Aframax remains the dominant short-haul Black Sea / Med tanker; CPC programme tightness keeps utilisation high.",
+        body: "The Aframax is the main short-haul Black Sea and Med tanker, so port discipline and weather windows decide the margin on each voyage.",
       },
     ],
     charterShape:
