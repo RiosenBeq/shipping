@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight, FileCheck2, Mail, Users } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
-import { Section } from "@/components/site/Section";
+import { Eyebrow, Section } from "@/components/site/Section";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
 import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
@@ -12,6 +12,7 @@ import { LPG_CLASSES, getLpgClassBySlug } from "@/lib/data/lpg-classes";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { lpgClassInquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC, cn } from "@/lib/utils";
 
 type Params = { params: { class: string } };
 
@@ -35,8 +36,8 @@ function copy(slug: string) {
 export function generateMetadata({ params }: Params): Metadata {
   const c = getLpgClassBySlug(params.class);
   // Unknown slug: notFound() here too, so the head gets the not-found title and
-  // noindex. The page's own notFound() fires inside the loading.tsx Suspense
-  // boundary, after the head is chosen (Next 14 then answers 200 + noindex).
+  // noindex. Keep this route free of a loading.tsx (here or above): a Suspense
+  // boundary over the page turns its notFound() into HTTP 200 instead of 404.
   if (!c) notFound();
   const { title, description } = copy(c.slug);
   return buildPageMetadata({
@@ -101,9 +102,9 @@ export default function LpgClassPage({ params }: Params) {
             <div className="relative isolate overflow-hidden bg-navy px-6 pb-2 pt-5 text-white/80">
               <div className="uv-hero-pattern [--uv-grid:48px]" aria-hidden="true" />
               <div className="relative z-[1] flex items-baseline justify-between gap-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass-light">
+                <Eyebrow dark size="sm">
                   At a glance
-                </p>
+                </Eyebrow>
                 <p className="font-mono text-xs text-fog">LPG · {c.name.replace(/ LPG$/, "")}</p>
               </div>
               <Art className="relative z-[1] mx-auto mt-4 w-full max-w-[340px]" />
@@ -164,7 +165,15 @@ export default function LpgClassPage({ params }: Params) {
                 {c.routes.map((r) => (
                   <tr key={r.code + r.lane} className="align-top hover:bg-sand/30">
                     <th scope="row" className="px-4 py-4 text-start font-normal sm:px-6">
-                      <span className="inline-flex rounded-md border border-line bg-sand/50 px-2 py-0.5 font-mono text-xs font-semibold tracking-wide text-navy">
+                      {/* same chip as the route codes on the /tankers fleet cards;
+                          a block pulled up 4px so its 28px centre lines up with
+                          the 20px first line of the lane and note text */}
+                      <span
+                        className={cn(
+                          CHIP_STATIC,
+                          "-my-1 !flex !min-h-[28px] w-fit font-mono !text-xs"
+                        )}
+                      >
                         {r.code}
                       </span>
                     </th>
@@ -189,7 +198,7 @@ export default function LpgClassPage({ params }: Params) {
           {/* kit chips, like "Typical charterers" on the tanker class pages */}
           <ul aria-labelledby="trades" className="mt-4 flex flex-wrap gap-2">
             {c.trades.map((t) => (
-              <li key={t} className="uv-chip max-w-full !whitespace-normal">
+              <li key={t} className={cn(CHIP_STATIC, "max-w-full !whitespace-normal")}>
                 {t}
               </li>
             ))}
@@ -257,7 +266,7 @@ export default function LpgClassPage({ params }: Params) {
       </Section>
 
       <CtaBand
-        title={`Looking for a ${c.name}?`}
+        title={`Looking for ${c.ctaNoun}?`}
         text="Send the cargo, ports and laycan — or your open position. The LPG desk replies within 60 minutes during business hours."
         email={siteConfig.desks.lpg.email}
         inquiryHref={inquiry}

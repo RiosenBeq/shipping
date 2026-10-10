@@ -6,6 +6,7 @@ import { GLOSSARY_TERMS, GROUP_LABELS, type GlossaryTerm } from "@/lib/data/glos
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { slugify } from "@/lib/slug";
+import { GlossaryNav } from "./GlossaryNav";
 
 const TITLE = "Tanker & LPG Chartering Glossary";
 const DESCRIPTION =
@@ -87,27 +88,9 @@ export default function GlossaryPage() {
         {/* Sticky under the 64px header so the sections stay one tap away on a
           long page. Always one row (swipeable where it doesn't fit) so its
           height — and the scroll-mt-14 offsets below — stay fixed. */}
-        <nav
-          aria-label="Glossary sections"
-          className="sticky top-16 z-30 border-b border-line bg-white/[0.97] backdrop-blur supports-[backdrop-filter]:bg-white/[0.94]"
-        >
-          {/* scroll-px matches the container gutter, so snapped chips keep their
-              inset instead of landing flush on the screen edge; below md a
-              short fade on the end edge shows the row scrolls. */}
-          <ul className="container flex snap-x scroll-px-5 gap-2 overflow-x-auto py-3 [scrollbar-width:none] max-md:[mask-image:linear-gradient(90deg,#000_calc(100%_-_2.5rem),transparent)] md:scroll-px-8 [&::-webkit-scrollbar]:hidden">
-            {GROUPS.map((g) => (
-              <li key={g.group} className="shrink-0 snap-start">
-                <a href={`#${g.group}`} className="uv-chip">
-                  {g.label}
-                  <span className="font-mono text-[11px] text-slate">
-                    {g.terms.length}
-                    <span className="sr-only"> terms</span>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <GlossaryNav
+          items={GROUPS.map((g) => ({ id: g.group, label: g.label, count: g.terms.length }))}
+        />
 
         <div className="container py-4 md:py-8">
           {GROUPS.map((g) => (
@@ -118,7 +101,9 @@ export default function GlossaryPage() {
               // html scroll-padding clears the header; this clears the sticky section nav.
               className="scroll-mt-14 border-b border-line py-12 last:border-b-0 md:py-16"
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+              {/* count under the title on phones, to its right from sm — never
+                  one or the other depending on the title's length */}
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
                 <h2
                   id={`${g.group}-title`}
                   className="font-display text-[32px] leading-[1.12] tracking-tight text-navy md:text-[40px]"

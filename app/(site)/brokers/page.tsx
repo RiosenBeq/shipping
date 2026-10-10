@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
+import { ArrowDown, Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
@@ -8,6 +8,7 @@ import { CtaBand } from "@/components/site/CtaBand";
 import { BROKERS, TEAM_LABEL, TEAM_ORDER, brokersByTeam } from "@/lib/data/brokers";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 const TITLE = "Our Brokers — Tanker & LPG Chartering Team";
 const DESCRIPTION =
@@ -75,6 +76,8 @@ export default function BrokersPage() {
                     {brokersByTeam(team).length}
                     <span className="sr-only"> brokers</span>
                   </span>
+                  {/* in-page jump: the arrow says it's a link (static chips have no dot) */}
+                  <ArrowDown className="h-3 w-3 text-brass-ink" aria-hidden="true" />
                 </a>
               </li>
             ))}
@@ -84,6 +87,7 @@ export default function BrokersPage() {
 
       {TEAM_ORDER.map((team, i) => {
         const desk = team === "lpg" ? siteConfig.desks.lpg : siteConfig.desks.tankers;
+        const people = brokersByTeam(team);
         return (
           <Section
             key={team}
@@ -101,10 +105,17 @@ export default function BrokersPage() {
               </a>
             }
           >
-            {/* 4-up only from xl (as on the home and /lpg pages): at lg the cards
-                are too narrow for the name block and the two actions */}
-            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {brokersByTeam(team).map((b) => (
+            {/* Columns by head count, so a short desk doesn't leave a hole in
+                the row: 4 brokers go 4-up from xl (at lg the cards are too
+                narrow for the name block and the two actions, as on the home
+                and /lpg pages); smaller desks use the 3-up grid of /tankers. */}
+            <ul
+              className={cn(
+                "grid gap-5 sm:grid-cols-2",
+                people.length === 4 ? "xl:grid-cols-4" : "lg:grid-cols-3"
+              )}
+            >
+              {people.map((b) => (
                 <li key={b.name}>
                   <BrokerCard broker={b} />
                 </li>

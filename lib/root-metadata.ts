@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "./site";
+import { LOCALES } from "./i18n";
 
 /**
  * Site-wide defaults shared by both root layouts: app/(site)/layout.tsx
@@ -23,7 +24,7 @@ export const rootMetadata: Metadata = {
     type: "website",
     siteName: siteConfig.name,
     locale: siteConfig.locale,
-    alternateLocale: ["tr_TR"],
+    alternateLocale: LOCALES.map((l) => l.ogLocale),
     url: siteConfig.url,
     title: defaultTitle,
     description: siteConfig.description,

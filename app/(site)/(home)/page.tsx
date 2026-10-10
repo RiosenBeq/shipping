@@ -130,6 +130,7 @@ const FAQ = [
 
 const desks = [
   {
+    id: "desk-tankers",
     href: "/tankers",
     eyebrow: "Tanker desk",
     cta: "Explore the tanker desk",
@@ -139,6 +140,7 @@ const desks = [
     classes: TANKER_CLASSES.map((t) => ({ name: t.name, href: `/tankers/${t.slug}` })),
   },
   {
+    id: "desk-lpg",
     href: "/lpg",
     eyebrow: "LPG & ammonia desk",
     cta: "Explore the LPG & ammonia desk",
@@ -260,10 +262,13 @@ export default function HomePage() {
       >
         <div className="grid gap-6 lg:grid-cols-2">
           {desks.map(({ Art, ...d }) => (
-            // Stretched-link card: the title link covers the card, class chips sit above it.
+            // Stretched-link card: the title link covers the card, class chips sit
+            // above it. The kit's hover (lift, brass sweep, title underline, arrow)
+            // is driven by the title link's hover, not the card's, so hovering a
+            // size chip highlights only that chip.
             <article
               key={d.href}
-              className="uv-card uv-card--hover !gap-0 !p-5 !pb-14 has-[h3_a:focus-visible]:outline has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-offset-[3px] has-[h3_a:focus-visible]:outline-navy sm:!p-8 sm:!pb-14"
+              className="group/desk uv-card !gap-0 !p-5 !pb-14 has-[h3_a:hover]:-translate-y-0.5 has-[h3_a:hover]:border-navy/20 has-[h3_a:hover]:shadow-[0_14px_32px_-18px_rgba(10,31,51,0.35)] has-[h3_a:focus-visible]:outline has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-offset-[3px] has-[h3_a:focus-visible]:outline-navy has-[h3_a:hover]:before:scale-x-100 sm:!p-8 sm:!pb-14"
             >
               <div
                 aria-hidden="true"
@@ -273,12 +278,15 @@ export default function HomePage() {
                 <Art className="relative z-[1] mx-auto w-full max-w-[400px]" />
               </div>
               <p className={`mt-7 ${EYEBROW}`}>{d.eyebrow}</p>
-              <h3 className="uv-card__title !mt-3 font-display !text-[26px] !font-normal !leading-tight sm:!text-[30px]">
+              <h3 className="uv-card__title !mt-3 font-display !text-[26px] !font-normal !leading-tight has-[a:hover]:underline has-[a:hover]:decoration-brass has-[a:hover]:decoration-1 has-[a:hover]:underline-offset-4 sm:!text-[30px]">
+                {/* Name = visible title + visible CTA, so "click Explore the
+                    tanker desk" works for voice users too. */}
                 <Link
                   href={d.href}
+                  aria-labelledby={`${d.id}-title ${d.id}-cta`}
                   className="after:absolute after:inset-0 after:z-[1] focus-visible:outline-none"
                 >
-                  {d.title}
+                  <span id={`${d.id}-title`}>{d.title}</span>
                 </Link>
               </h3>
               <p className="mt-3 max-w-lg leading-relaxed">{d.text}</p>
@@ -287,14 +295,21 @@ export default function HomePage() {
                   <li key={c.href}>
                     <Link href={c.href} className="uv-chip z-[2]">
                       {c.name}
+                      <ArrowRight className="h-3 w-3 text-brass-ink" aria-hidden="true" />
                     </Link>
                   </li>
                 ))}
               </ul>
-              <span className="uv-card__meta pt-6 !text-[15px] font-semibold !text-navy">
+              <span
+                id={`${d.id}-cta`}
+                className="uv-card__meta pt-6 !text-[15px] font-semibold !text-navy"
+              >
                 {d.cta}
               </span>
-              <span className="uv-card__arrow" aria-hidden="true" />
+              <span
+                className="uv-card__arrow group-has-[h3_a:hover]/desk:bg-navy group-has-[h3_a:hover]/desk:text-brass-light group-has-[h3_a:hover]/desk:before:translate-x-[3px]"
+                aria-hidden="true"
+              />
             </article>
           ))}
         </div>

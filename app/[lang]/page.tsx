@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { Eyebrow, Section } from "@/components/site/Section";
 import { DeskCard } from "@/components/site/DeskCard";
 import { Faq } from "@/components/site/Faq";
+import { initialsColor } from "@/components/site/BrokerCard";
 import { CtaBand } from "@/components/site/CtaBand";
 import { GasCarrierArt, TankerArt } from "@/components/site/VesselArt";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
@@ -88,12 +89,14 @@ export default function LocalizedHome({ params }: Params) {
 
   const desks = [
     {
+      id: "desk-tankers",
       href: "/tankers",
       ...t.tankerDesk,
       Art: TankerArt,
       classes: TANKER_CLASSES.map((c) => ({ name: c.name, href: `/tankers/${c.slug}` })),
     },
     {
+      id: "desk-lpg",
       href: "/lpg",
       ...t.lpgDesk,
       Art: GasCarrierArt,
@@ -162,8 +165,9 @@ export default function LocalizedHome({ params }: Params) {
                 >
                   <span
                     aria-hidden="true"
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-xs text-white ring-1 ring-white/20"
-                    style={{ background: speaker.color }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-xs ring-1 ring-brass-light/60"
+                    // same fill and initials colour as the broker cards
+                    style={{ background: speaker.color, color: initialsColor(speaker.color) }}
                   >
                     {speaker.initials}
                   </span>
@@ -213,9 +217,11 @@ export default function LocalizedHome({ params }: Params) {
       <Section eyebrow={t.desksEyebrow} title={t.desksTitle} intro={t.desksIntro}>
         <div className="grid gap-6 lg:grid-cols-2">
           {desks.map(({ Art, ...d }) => (
+            // Hover driven by the title link (see the English home), so hovering
+            // a size chip highlights only that chip.
             <article
               key={d.href}
-              className="uv-card uv-card--hover !gap-0 !p-5 !pb-14 has-[h3_a:focus-visible]:outline has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-offset-[3px] has-[h3_a:focus-visible]:outline-navy sm:!p-8 sm:!pb-14"
+              className="group/desk uv-card !gap-0 !p-5 !pb-14 has-[h3_a:hover]:-translate-y-0.5 has-[h3_a:hover]:border-navy/20 has-[h3_a:hover]:shadow-[0_14px_32px_-18px_rgba(10,31,51,0.35)] has-[h3_a:focus-visible]:outline has-[h3_a:focus-visible]:outline-2 has-[h3_a:focus-visible]:outline-offset-[3px] has-[h3_a:focus-visible]:outline-navy has-[h3_a:hover]:before:scale-x-100 sm:!p-8 sm:!pb-14"
             >
               <div
                 aria-hidden="true"
@@ -226,14 +232,17 @@ export default function LocalizedHome({ params }: Params) {
               </div>
               <p className={`mt-7 ${EYEBROW}`}>{d.eyebrow}</p>
               <h3
-                className={`uv-card__title !mt-3 font-display !text-[26px] !leading-tight sm:!text-[30px] ${nonLatinScript ? "!font-medium" : "!font-normal"}`}
+                className={`uv-card__title !mt-3 font-display !text-[26px] !leading-tight has-[a:hover]:underline has-[a:hover]:decoration-brass has-[a:hover]:decoration-1 has-[a:hover]:underline-offset-4 sm:!text-[30px] ${nonLatinScript ? "!font-medium" : "!font-normal"}`}
               >
+                {/* Name = visible title + visible CTA (which carries the
+                    "English page" note), for screen-reader and voice users. */}
                 <Link
                   href={d.href}
                   hrefLang="en"
+                  aria-labelledby={`${d.id}-title ${d.id}-cta`}
                   className="after:absolute after:inset-0 after:z-[1] focus-visible:outline-none"
                 >
-                  {d.title}
+                  <span id={`${d.id}-title`}>{d.title}</span>
                 </Link>
               </h3>
               <p className="mt-3 max-w-lg leading-relaxed">{d.text}</p>
@@ -242,16 +251,23 @@ export default function LocalizedHome({ params }: Params) {
                   <li key={c.href}>
                     <Link href={c.href} hrefLang="en" className="uv-chip z-[2]">
                       {c.name}
+                      <ArrowRight
+                        className="h-3 w-3 text-brass-ink rtl:rotate-180"
+                        aria-hidden="true"
+                      />
                     </Link>
                   </li>
                 ))}
               </ul>
-              <span className="uv-card__meta pt-6 !text-[15px] font-semibold !text-navy">
+              <span
+                id={`${d.id}-cta`}
+                className="uv-card__meta pt-6 !text-[15px] font-semibold !text-navy"
+              >
                 {t.explore}
               </span>
               {/* Kit pins the arrow tab bottom-right; mirror it to bottom-left on RTL. */}
               <span
-                className="uv-card__arrow rtl:!right-auto rtl:left-0 rtl:-scale-x-100"
+                className="uv-card__arrow group-has-[h3_a:hover]/desk:bg-navy group-has-[h3_a:hover]/desk:text-brass-light group-has-[h3_a:hover]/desk:before:translate-x-[3px] rtl:!right-auto rtl:left-0 rtl:-scale-x-100"
                 aria-hidden="true"
               />
             </article>
@@ -319,6 +335,8 @@ export default function LocalizedHome({ params }: Params) {
         email={siteConfig.email}
         labels={{ inquiry: t.ctaInquiry, email: t.ctaEmail, newTab: t.newTab }}
         whatsappText={t.whatsappGreeting}
+        // same warning as under the hero's button: the form is English-only
+        note={t.formNote}
       />
     </>
   );

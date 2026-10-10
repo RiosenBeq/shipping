@@ -16,6 +16,7 @@ import { REPORTS } from "@/lib/data/research";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC, cn } from "@/lib/utils";
 import { LpgConverter } from "./LpgConverter";
 
 const TITLE = "LPG Shipbroker — VLGC, MGC & Ammonia Chartering";
@@ -129,25 +130,33 @@ export default function LpgPage() {
         lead="Propane, butane, ammonia and petrochemical gases — spot, period and COA. One desk that follows every size of gas carrier, run from Istanbul with brokers in London and Singapore."
         crumbs={[{ name: "LPG & Ammonia", path: "/lpg" }]}
         aside={
-          <CoverageCard
-            title="Gas carriers we fix"
-            items={LPG_CLASSES.map((c) => ({
-              name: c.name,
-              size: c.capacity.split(" — ")[0],
-              href: `/lpg/${c.slug}`,
-            }))}
-          />
+          // Desktop only: on phones it would stack under the CTAs and repeat the
+          // fleet cards that follow straight after.
+          <div className="max-lg:hidden">
+            <CoverageCard
+              title="Gas carriers we fix"
+              items={LPG_CLASSES.map((c) => ({
+                name: c.name,
+                size: c.capacity.split(" — ")[0],
+                href: `/lpg/${c.slug}`,
+              }))}
+            />
+          </div>
         }
       >
         <Link href={inquiryHref({ segment: "lpg" })} className="uv-btn uv-btn--lg w-full sm:w-auto">
           Send an LPG inquiry <ArrowRight aria-hidden="true" />
         </Link>
+        {/* labelled like the class pages; the address is printed in the CTA band and footer */}
         <a
           href={`mailto:${siteConfig.desks.lpg.email}`}
           className="uv-btn-ghost-light uv-btn--lg w-full sm:w-auto"
         >
           <Mail aria-hidden="true" />
-          <span>{siteConfig.desks.lpg.email}</span>
+          <span>
+            Email the LPG desk
+            <span className="sr-only"> ({siteConfig.desks.lpg.email})</span>
+          </span>
         </a>
       </PageHeader>
 
@@ -181,7 +190,7 @@ export default function LpgPage() {
                     <p className="mt-3 text-sm leading-relaxed">{c.capacity}</p>
                     <ul className="mt-4 flex flex-wrap gap-1.5">
                       {c.cargoes.slice(0, 3).map((g) => (
-                        <li key={g} className="uv-chip !min-h-[28px] !text-xs">
+                        <li key={g} className={cn(CHIP_STATIC, "!min-h-[28px] !text-xs")}>
                           {g}
                         </li>
                       ))}
@@ -221,7 +230,7 @@ export default function LpgPage() {
             <h3 className={EYEBROW}>Cargoes</h3>
             <ul className="mt-4 flex flex-wrap gap-2">
               {CARGOES.map((c) => (
-                <li key={c} className="uv-chip">
+                <li key={c} className={CHIP_STATIC}>
                   {c}
                 </li>
               ))}
@@ -243,7 +252,7 @@ export default function LpgPage() {
       <Section
         id="converter"
         eyebrow="Free tool"
-        title="LPG cargo converter: cbm ↔ tonnes."
+        title="LPG cargo converter: cbm to tonnes."
         intro="Quickly check how many tonnes fit in a ship's tanks — or how much capacity a parcel needs — for propane, butane, ammonia and petrochemical gases."
       >
         <LpgConverter />
@@ -293,7 +302,9 @@ export default function LpgPage() {
         title="Have an LPG or ammonia cargo?"
         text="Send the grade, quantity, ports and laycan. The LPG desk replies within 60 minutes during business hours."
         email={siteConfig.desks.lpg.email}
-        inquiryHref={inquiryHref({ segment: "lpg" })}
+        // LPG or ammonia: no cargo preselected, so an ammonia shipper isn't sent
+        // in as "LPG". Both reach the gas desk.
+        inquiryHref={inquiryHref()}
       />
     </>
   );

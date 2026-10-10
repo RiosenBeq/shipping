@@ -16,6 +16,8 @@ type Props = {
   whatsappText?: string;
   /** Small label above the title. Omit for none. */
   eyebrow?: string;
+  /** Short note under the buttons, e.g. "The inquiry form is in English." on localized pages. */
+  note?: string;
 };
 
 /** End-of-page call to action on navy: inquiry form, WhatsApp, email. */
@@ -27,6 +29,7 @@ export function CtaBand({
   inquiryHref = "/contact",
   whatsappText,
   eyebrow,
+  note,
 }: Props) {
   return (
     // data-fab-hide: the floating WhatsApp button steps aside while this band
@@ -51,7 +54,7 @@ export function CtaBand({
           <h2 className="font-display text-[32px] leading-[1.12] tracking-tight md:text-[44px]">
             {title}
           </h2>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-fog">{text}</p>
+          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-fog">{text}</p>
         </div>
 
         <div className="flex w-full flex-col gap-4 lg:max-w-md lg:justify-self-end">
@@ -77,6 +80,7 @@ export function CtaBand({
               </a>
             </Button>
           </div>
+          {note && <p className="text-sm text-fog">{note}</p>}
           {/* The address as plain, selectable text for people without a mail client.
               The paragraph keeps the page direction (right-aligned on RTL); only the
               address itself is isolated as LTR. */}

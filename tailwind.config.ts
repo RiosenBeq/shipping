@@ -55,7 +55,10 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: { lg: "10px", md: "6px", sm: "4px" },
-      maxWidth: { prose: "68ch" },
+      // One fixed reading measure for the article column (≈68ch of the 17px
+      // .lv-prose body). In rem, not ch, so cards, dividers and tag rows set
+      // at 16px end on the same edge as the prose.
+      maxWidth: { prose: "44rem" },
     },
   },
   plugins: [animate],

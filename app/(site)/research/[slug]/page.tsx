@@ -6,7 +6,7 @@ import { CtaBand } from "@/components/site/CtaBand";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ReportCard } from "@/components/site/ReportCard";
-import { Section } from "@/components/site/Section";
+import { Eyebrow, Section } from "@/components/site/Section";
 import {
   REPORTS,
   getReportBySlug,
@@ -18,6 +18,7 @@ import { REPORT_BODIES, type ReportBlock } from "@/lib/data/research-bodies";
 import { articleLd, buildPageMetadata } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC } from "@/lib/utils";
 
 type Props = { params: { slug: string } };
 
@@ -25,7 +26,8 @@ const DESKS = {
   lpg: {
     label: "LPG & ammonia",
     deskName: siteConfig.desks.lpg.label,
-    inline: "LPG & ammonia desk",
+    // non-breaking spaces: the heading never breaks before the ampersand
+    inline: "LPG\u00a0&\u00a0ammonia desk",
     short: "LPG",
     href: "/lpg",
     email: siteConfig.desks.lpg.email,
@@ -41,6 +43,10 @@ const DESKS = {
     keywords: ["tanker market", "tanker chartering", "crude tanker freight"],
   },
 } as const satisfies Record<Report["desk"], unknown>;
+
+/** Cargo to preselect from a gas-desk note: ammonia notes ask about ammonia. */
+const gasSegment = (r: Report) =>
+  /ammonia|\bNH3\b/i.test(`${r.label} ${r.title}`) ? ("ammonia" as const) : ("lpg" as const);
 
 const titleCase = (s: string) => s.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
 
@@ -64,8 +70,9 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: Props): Metadata {
   const r = getReportBySlug(params.slug);
   // Unknown slug: notFound() here too, so the head gets the not-found title and
-  // noindex. The page's own notFound() fires inside the loading.tsx Suspense
-  // boundary, after the head is chosen (Next 14 then answers 200 + noindex).
+  // noindex. Keep this route free of a loading.tsx (here or above; the index
+  // skeleton lives in research/(index)/): a Suspense boundary over the page
+  // turns its notFound() into HTTP 200 instead of 404.
   if (!r) notFound();
   const tags = r.label
     .split("·")
@@ -96,14 +103,21 @@ function Block({ block }: { block: ReportBlock }) {
       );
     case "callout":
       return (
-        <aside className="relative my-10 overflow-hidden rounded-lg border border-line bg-sand px-6 py-5 md:px-7 md:py-6">
-          <span className="absolute inset-y-0 left-0 w-[3px] bg-brass" aria-hidden="true" />
-          <p className="!mb-2 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-            <span className="h-1.5 w-1.5 rounded-full bg-brass" aria-hidden="true" />
+        // House accent: the kit card's 2px brass top rule (as on the desk card).
+        // Part of the article, so a note rather than a complementary landmark.
+        <div
+          role="note"
+          className="relative my-10 overflow-hidden rounded-lg border border-line bg-sand px-6 py-5 md:px-7 md:py-6"
+        >
+          <span
+            className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brass to-brass-light"
+            aria-hidden="true"
+          />
+          <Eyebrow size="sm" className="!mb-2">
             {block.label}
-          </p>
+          </Eyebrow>
           <p className="!mb-0 text-base leading-relaxed text-navy">{block.text}</p>
-        </aside>
+        </div>
       );
   }
 }
@@ -149,19 +163,19 @@ export default function ReportPage({ params }: Props) {
       >
         <ul className="flex flex-wrap gap-2" aria-label="About this note">
           <li>
-            <span className="uv-chip">
+            <span className={CHIP_STATIC}>
               <time dateTime={published.slice(0, 10)} className="font-mono text-xs">
                 {r.date}
               </time>
             </span>
           </li>
           <li>
-            <span className="uv-chip">
+            <span className={CHIP_STATIC}>
               {r.gated ? "Summary · full report on request" : `${r.read} min read`}
             </span>
           </li>
           <li>
-            <span className="uv-chip">{issueLabel(r.iss)}</span>
+            <span className={CHIP_STATIC}>{issueLabel(r.iss)}</span>
           </li>
         </ul>
       </PageHeader>
@@ -172,9 +186,9 @@ export default function ReportPage({ params }: Props) {
             {r.gated ? (
               <>
                 <div className="lv-prose">
-                  <p className="!mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
+                  <Eyebrow size="sm" className="!mb-2">
                     Summary
-                  </p>
+                  </Eyebrow>
                   <p>{body?.summary ?? r.desc}</p>
                 </div>
                 {/* static kit card (shared border, radius, colours) with the brass top rule */}
@@ -213,7 +227,7 @@ export default function ReportPage({ params }: Props) {
               <ul className="flex flex-wrap gap-2">
                 {tagList(r.label).map((t) => (
                   <li key={t}>
-                    <span className="uv-chip">{t}</span>
+                    <span className={CHIP_STATIC}>{t}</span>
                   </li>
                 ))}
               </ul>
@@ -229,16 +243,20 @@ export default function ReportPage({ params }: Props) {
             </p>
           </article>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start print:hidden">
+          {/* A labelled section, not an aside: a complementary landmark must
+              not sit inside <main>. */}
+          <section
+            aria-labelledby="note-desk-title"
+            className="lg:sticky lg:top-24 lg:self-start print:hidden"
+          >
             <div className="uv-card !gap-0 !p-6">
               <span
                 className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brass to-brass-light"
                 aria-hidden="true"
               />
-              <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-                <span className="h-px w-6 bg-brass" aria-hidden="true" />
+              <Eyebrow as="h2" size="sm" id="note-desk-title">
                 {desk.deskName}
-              </p>
+              </Eyebrow>
               <p className="mt-4 leading-relaxed text-slate">
                 Questions on this note, or a cargo or ship it affects? Talk to the brokers who wrote
                 it.
@@ -258,7 +276,7 @@ export default function ReportPage({ params }: Props) {
                 <span className="select-all">{desk.email}</span>
               </p>
             </div>
-          </aside>
+          </section>
         </div>
       </section>
 
@@ -287,8 +305,9 @@ export default function ReportPage({ params }: Props) {
 
       <CtaBand
         email={r.desk === "lpg" ? siteConfig.desks.lpg.email : siteConfig.desks.tankers.email}
-        // LPG notes preselect LPG; tanker notes span crude and clean, so the visitor picks.
-        inquiryHref={r.desk === "lpg" ? inquiryHref({ segment: "lpg" }) : undefined}
+        // Gas notes preselect their cargo (ammonia notes: ammonia, others: LPG);
+        // tanker notes span crude and clean, so the visitor picks.
+        inquiryHref={r.desk === "lpg" ? inquiryHref({ segment: gasSegment(r) }) : undefined}
       />
     </>
   );

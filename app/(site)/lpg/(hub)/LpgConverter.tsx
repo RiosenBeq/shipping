@@ -7,6 +7,7 @@ import { LPG_CARGO_DENSITY, type LpgCargoKey } from "@/lib/data/lpg-classes";
 import { inquiryHref } from "@/lib/inquiry";
 import { parseLocaleNumber } from "@/lib/number";
 import { cn, FORCED_FOCUS, FORCED_SEGMENTED } from "@/lib/utils";
+import { Eyebrow } from "@/components/site/Section";
 
 type Mode = "cbm" | "mt";
 
@@ -56,7 +57,7 @@ export function LpgConverter() {
   // Only complain about values that are present and wrong — an empty field while
   // retyping just blanks the result.
   const amountError =
-    amount.trim() !== "" && !(Number.isFinite(value) && value >= 0)
+    amount.trim() !== "" && !(Number.isFinite(value) && value > 0)
       ? "Enter a positive number, e.g. 84,000"
       : undefined;
   const fillError =
@@ -90,7 +91,7 @@ export function LpgConverter() {
   /**
    * Flip direction and carry the current result over, so the swap reads as a
    * true reverse. Two decimals (not a rounded integer), so flipping back and
-   * forth doesn't drift: 84,000 → 47,911.25 → 84,000.
+   * forth doesn't drift: 84,000 → 47,910.24 → 84,000.
    */
   const switchMode = (next: Mode) => {
     if (next === mode) return;
@@ -104,7 +105,8 @@ export function LpgConverter() {
     cargo === "ammonia" ? "ammonia" : cargo === "propane" || cargo === "butane" ? "lpg" : "petchem";
   const findShipHref = inquiryHref({
     segment,
-    quantity: Number.isFinite(tonnes) ? `${fmt(tonnes)} mt ${spec.label}` : undefined,
+    // only a real parcel pre-fills the form (never "0 mt")
+    quantity: Number.isFinite(tonnes) && tonnes > 0 ? `${fmt(tonnes)} mt ${spec.label}` : undefined,
   });
 
   const field = (
@@ -133,7 +135,7 @@ export function LpgConverter() {
           onBlur={() => {
             // Tidy the figure (thousands separators) once the visitor leaves the field.
             const n = parse(val);
-            if (key === "amount" && Number.isFinite(n) && n >= 0) set(fmt(n, 2));
+            if (key === "amount" && Number.isFinite(n) && n > 0) set(fmt(n, 2));
           }}
           aria-invalid={err ? true : undefined}
           aria-describedby={msg ? msgId : undefined}
@@ -278,10 +280,9 @@ export function LpgConverter() {
         <div className="relative isolate flex flex-col overflow-hidden rounded-md bg-navy p-6 text-white sm:p-8">
           <div className="uv-hero-pattern" aria-hidden="true" />
           <div className="relative z-[1] flex flex-1 flex-col">
-            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brass-light">
-              <span className="h-px w-6 bg-brass-light/70" aria-hidden="true" />
+            <Eyebrow dark size="sm">
               {heading}
-            </p>
+            </Eyebrow>
             {/* Visible figure updates instantly; the debounced sr-only line below is the announcement. */}
             <output
               htmlFor={`${id}-amount ${id}-fill`}
@@ -302,7 +303,8 @@ export function LpgConverter() {
               {announce}
             </p>
 
-            <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 text-sm lg:mt-auto">
+            {/* figure and specs stay together; the CTA below anchors the bottom edge */}
+            <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 text-sm">
               <div>
                 <dt className="text-fog">Density</dt>
                 <dd className="tnum mt-0.5 font-mono text-white">{density} t/m³</dd>
@@ -325,7 +327,7 @@ export function LpgConverter() {
                 : "Enter an amount and a filling limit"}
             </p>
             {/* next step: take the sized parcel straight to an inquiry */}
-            <p className="mt-6">
+            <p className="mt-auto pt-6">
               <Link
                 href={findShipHref}
                 className="uv-link inline-flex items-center gap-1.5 text-sm font-semibold text-white"

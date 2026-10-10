@@ -364,6 +364,16 @@
 .uv-field select ~ label {
   transform: translateY(-0.6rem) scale(0.78);
 }
+/* Text fields have nothing on the right, so their label can run closer to the
+   edge; once floated (scaled to 78%) it gets the width the scale frees up, so
+   a long label like "Phone / WhatsApp (optional)" isn't cut at 320px. */
+.uv-field :is(input, textarea) ~ label {
+  right: 0.5rem;
+}
+.uv-field :is(input, textarea):is(:focus, :not(:placeholder-shown), :autofill) ~ label {
+  right: auto;
+  width: calc((100% - 1.375rem) / 0.78);
+}
 .uv-field :is(input, textarea, select):focus ~ label {
   color: var(--uv-brass-ink);
 }

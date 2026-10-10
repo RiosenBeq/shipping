@@ -1,7 +1,7 @@
 import { Languages, Mail, MapPin, MessageCircle } from "lucide-react";
 import { TEAM_LABEL, type Broker } from "@/lib/data/brokers";
 import { siteConfig, whatsappUrl } from "@/lib/site";
-import { cn } from "@/lib/utils";
+import { CHIP_STATIC, cn } from "@/lib/utils";
 
 /** WCAG relative luminance of a #rrggbb colour. */
 function luminance(hex: string) {
@@ -13,10 +13,17 @@ function luminance(hex: string) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** White initials when they reach 4.5:1 on the avatar colour, navy otherwise (e.g. on brass). */
-function initialsColor(bg: string) {
+const BRASS_LIGHT = "#D9B071";
+const NAVY = "#0A1F33";
+
+/**
+ * Initials colour for an avatar fill: brass-light when it reaches 4.5:1 on the
+ * fill (navy discs), navy otherwise (brass discs). Also used by the localized
+ * landing pages' broker link.
+ */
+export function initialsColor(bg: string) {
   if (!/^#[0-9a-f]{6}$/i.test(bg)) return "#fff";
-  return 1.05 / (luminance(bg) + 0.05) >= 4.5 ? "#fff" : "#0A1F33";
+  return (luminance(BRASS_LIGHT) + 0.05) / (luminance(bg) + 0.05) >= 4.5 ? BRASS_LIGHT : NAVY;
 }
 
 /**
@@ -66,7 +73,7 @@ export function BrokerCard({
       <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${firstName}'s focus`}>
         {broker.focus.map((f) => (
           <li key={f}>
-            <span className="uv-chip">{f}</span>
+            <span className={CHIP_STATIC}>{f}</span>
           </li>
         ))}
       </ul>

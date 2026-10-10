@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Eyebrow } from "@/components/site/Section";
 import { JsonLd } from "@/components/site/JsonLd";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC } from "@/lib/utils";
 
 const TITLE = "Terms of Use";
 const DESCRIPTION =
@@ -56,7 +58,7 @@ export default function TermsPage() {
         lead="The rules for using this website and its free tools. By using the site you accept these terms."
         crumbs={[{ name: "Terms of Use", path: "/terms" }]}
       >
-        <span className="uv-chip">
+        <span className={CHIP_STATIC}>
           Last updated <time dateTime="2026-10-09">9 October 2026</time>
         </span>
       </PageHeader>
@@ -67,10 +69,7 @@ export default function TermsPage() {
           aria-label="On this page"
           className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
         >
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-            <span className="h-px w-6 bg-brass" aria-hidden="true" />
-            On this page
-          </p>
+          <Eyebrow size="sm">On this page</Eyebrow>
           <ol className="mt-4 space-y-1 border-l border-line pl-4">
             {TOC.map((t) => (
               <li key={t.id}>

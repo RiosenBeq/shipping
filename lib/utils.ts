@@ -17,3 +17,11 @@ export const FORCED_FOCUS =
 /** Add to a `.uv-segmented` wrapper: outline the checked segment. */
 export const FORCED_SEGMENTED =
   "forced-colors:[&_input:checked+span]:outline forced-colors:[&_input:checked+span]:outline-2 forced-colors:[&_input:checked+span]:-outline-offset-2";
+
+/**
+ * A `.uv-chip` used as a static label (a fact, not a link). The kit's brass
+ * dot is dropped, so static pills can't be mistaken for link chips, which
+ * keep the dot and carry a trailing arrow. Padding evened out without the dot.
+ * `before:hidden`/`!px-3` — the kit's chip rules load after Tailwind.
+ */
+export const CHIP_STATIC = "uv-chip before:hidden !px-3";

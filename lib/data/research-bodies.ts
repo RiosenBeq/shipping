@@ -133,15 +133,15 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
           "Order-book delivery pace into the segment has slowed — 18 deliveries scheduled for full year 2026 vs 27 in 2025.",
         ],
       },
-      { kind: "h2", text: "TD20 base / bear / bull" },
+      { kind: "h2", text: "TD20 base / bear / bull: what moves it" },
       {
         kind: "p",
-        text: "On the desk's read, TD20 (WAF → UKC) holds a base case of WS 95–105 through end-Q2 2026, with TCE/day around $48–55k. The bear case — say, an OPEC+ supply pause and CPC programme slip combining — pulls TD20 down to WS 80, TCE near $35k. The bull case — sustained CPC + Russia–India arb tightening East-of-Suez supply — pushes TD20 to WS 125+, TCE through $70k.",
+        text: "We frame TD20 (WAF → UKC) by drivers rather than levels, because the levels move weekly. The base case holds while CPC and West African programmes stay full and the Atlantic position list stays short. The bear case is a combination — an OPEC+ supply pause and a CPC programme slip together — that lengthens the list and softens rates. The bull case is sustained CPC volume plus a Russia–India arbitrage that keeps tightening East-of-Suez supply, drawing ships out of the Atlantic.",
       },
       {
         kind: "callout",
         label: "Practical takeaway",
-        text: "If you're holding a Q3 charter window for WAF or CPC, our read is that the Q2 strength carries; we'd still encourage clients to lock at least 50% of programme exposure on time-charter or COA terms while WS sits above the 5-year average.",
+        text: "If you hold a WAF or CPC charter window, watch the CPC programme and the Atlantic position list first. When both point to a tight market, it is worth covering part of the programme exposure on time-charter or COA terms rather than leaving it all to the spot market. Ask the desk for the current numbers before you fix.",
       },
       { kind: "h2", text: "Where the call could break" },
       {

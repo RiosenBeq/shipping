@@ -184,22 +184,22 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "ports",
     term: "DA (Disbursement Account)",
-    def: "Itemised port costs for one call: dues, pilotage, towage, mooring, agency, statutory fees. Typically $60k–$100k for a Suezmax.",
+    def: "Itemised port costs for one call: dues, pilotage, towage, mooring, agency, statutory fees. Varies widely with the port, the ship's size and the time alongside — the agent's pro-forma DA gives the estimate for a given call.",
   },
   {
     group: "ports",
     term: "Suez Canal",
-    def: "Egypt. Laden Suezmax dues ≈ $525k; ballast ≈ $365k. Average transit 14–16 hours. The single biggest canal expense in tanker chartering.",
+    def: "Egypt. Dues scale with the ship's tonnage and laden or ballast status, and change each year — ask the desk for a current estimate. Average transit 14–16 hours. The single biggest canal expense in tanker chartering.",
   },
   {
     group: "ports",
     term: "Panama Canal (Neopanamax)",
-    def: "Laden Suezmax-equivalent dues ≈ $485k; ballast ≈ $320k. Transit 8–10 hours. Slot booking system; congestion pricing during dry seasons.",
+    def: "Dues depend on the ship's size, laden or ballast status and slot booking, and change each year — ask the desk for a current estimate. Transit 8–10 hours. Slot booking system; congestion pricing during dry seasons.",
   },
   {
     group: "ports",
     term: "Bosphorus + Dardanelles",
-    def: "Türkiye. Tonnage-based dues ≈ $28.5k flat (laden or ballast). Transit 10–14 hours. Critical for Black Sea exports — CPC, Russian Urals, Kazakh crude.",
+    def: "Türkiye. Tonnage-based dues, the same laden or ballast, revised from time to time — ask the desk for a current figure. Transit 10–14 hours. Critical for Black Sea exports — CPC, Russian Urals, Kazakh crude.",
   },
   {
     group: "ports",

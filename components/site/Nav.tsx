@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronDown, Globe, Menu, MessageCircle, Phone, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOCALES } from "@/lib/i18n";
 import { inquiryHrefFor } from "@/lib/inquiry";
 import { siteConfig, telUrl, whatsappUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { Eyebrow } from "./Section";
 
 const LINKS = [
   { href: "/tankers", label: "Tankers" },
@@ -27,6 +28,9 @@ const LANGUAGES = [
     hreflang: l.hreflang,
   })),
 ];
+
+/** Only the home page is translated; say so before a visitor switches mid-site. */
+const LANGUAGE_HINT = "Overview page in your language — the rest of the site is in English.";
 
 /** Language switcher: native <details> disclosure, closes on Escape, outside click and focus loss. */
 function LanguageMenu({ current }: { current: string }) {
@@ -64,6 +68,7 @@ function LanguageMenu({ current }: { current: string }) {
   }, [close]);
 
   const active = LANGUAGES.find((l) => l.code === current) ?? LANGUAGES[0];
+  const hintId = useId();
 
   return (
     <details ref={ref} className="group/lang relative">
@@ -77,10 +82,12 @@ function LanguageMenu({ current }: { current: string }) {
         />
       </summary>
       <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-[10px] border border-line bg-white shadow-[0_18px_40px_-20px_rgba(10,31,51,0.45)] motion-safe:duration-200 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1">
-        <p className="flex items-center gap-2.5 border-b border-line px-4 pb-2.5 pt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate">
-          <span className="h-px w-4 bg-brass" aria-hidden="true" />
-          Language
-        </p>
+        <div className="border-b border-line px-4 pb-2.5 pt-3">
+          <Eyebrow size="sm">Language</Eyebrow>
+          <p id={hintId} className="mt-1.5 text-[12px] leading-snug text-slate">
+            {LANGUAGE_HINT}
+          </p>
+        </div>
         <ul className="py-1.5">
           {LANGUAGES.map((l) => {
             const isCurrent = l.code === current;
@@ -91,6 +98,7 @@ function LanguageMenu({ current }: { current: string }) {
                   hrefLang={l.hreflang}
                   lang={l.hreflang}
                   aria-current={isCurrent ? "true" : undefined}
+                  aria-describedby={l.code === "en" ? undefined : hintId}
                   onClick={() => close()}
                   className={cn(
                     "flex min-h-[40px] items-center gap-3 px-4 py-2 text-[15px] transition-colors hover:bg-sand focus-visible:bg-sand focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-navy",
@@ -120,10 +128,32 @@ export function Nav() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const first = pathname.split("/")[1] ?? "";
   const current = LOCALES.some((l) => l.code === first) ? first : "en";
-  // "Send inquiry" keeps the page's context: tanker pages preselect crude/clean
-  // (and the ship size on class pages), LPG pages preselect LPG.
+  // "Send inquiry" keeps the page's context: tanker and LPG class pages
+  // preselect their segment and ship size; the hubs (which span crude/clean,
+  // and LPG/ammonia) leave the cargo for the visitor to pick.
   const inquiryHref = inquiryHrefFor(pathname);
+  // On /contact the form is right here: the CTA scrolls to it (and keeps any
+  // ?segment= preselect) instead of reloading the page it is on.
+  const onContact = pathname === "/contact" || pathname.startsWith("/contact/");
   const close = () => setOpen(false);
+  const drawerHintId = useId();
+
+  const toForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = document.getElementById("inquiry-title");
+    if (!target) return; // no form here after all: follow the hash
+    e.preventDefault();
+    setOpen(false);
+    // Next frame: the drawer has closed, its scroll lock and `inert` are gone.
+    // Smooth or instant follows the html scroll-behavior (reduced motion aware).
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start" });
+      target.focus({ preventScroll: true });
+    });
+  };
+  /** Props for a "Send inquiry" link: the page's inquiry, or the form on /contact. */
+  const inquiryLink = onContact
+    ? { href: "#inquiry-title", "aria-current": "page" as const, onClick: toForm }
+    : { href: inquiryHref, onClick: close };
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -253,27 +283,43 @@ export function Nav() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageMenu current={current} />
-          <Link href={inquiryHref} className="uv-btn uv-btn--sm">
+          <Link {...inquiryLink} className="uv-btn uv-btn--sm">
             Send inquiry
             <ArrowRight aria-hidden="true" />
           </Link>
         </div>
 
-        <button
-          ref={toggleRef}
-          type="button"
-          className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? (
-            <X className="h-6 w-6" aria-hidden="true" />
-          ) : (
-            <Menu className="h-6 w-6" aria-hidden="true" />
+        {/* Phones and tablets: the main action stays one tap away next to the
+            menu (not on /contact, where the form is the page). */}
+        <div className="flex items-center gap-1.5 lg:hidden">
+          {/* Hidden while the drawer is open (its first action is the same
+              CTA) and below 360px, where it would push the toggle off-screen.
+              `!` because the kit's .uv-btn display loads after Tailwind. */}
+          {!onContact && !open && (
+            <Link
+              href={inquiryHref}
+              onClick={close}
+              className="uv-btn uv-btn--sm max-[359px]:!hidden"
+            >
+              Inquiry
+            </Link>
           )}
-        </button>
+          <button
+            ref={toggleRef}
+            type="button"
+            className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? (
+              <X className="h-6 w-6" aria-hidden="true" />
+            ) : (
+              <Menu className="h-6 w-6" aria-hidden="true" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div
@@ -325,7 +371,7 @@ export function Nav() {
           </ul>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href={inquiryHref} className="uv-btn uv-btn--lg w-full" onClick={close}>
+            <Link {...inquiryLink} className="uv-btn uv-btn--lg w-full">
               Send inquiry
               <ArrowRight aria-hidden="true" />
             </Link>
@@ -348,9 +394,11 @@ export function Nav() {
             </a>
           </p>
 
-          <p className="mt-10 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate">
-            <span className="h-px w-6 bg-brass" aria-hidden="true" />
+          <Eyebrow size="sm" className="mt-10">
             Language
+          </Eyebrow>
+          <p id={drawerHintId} className="mt-2 text-[12px] leading-snug text-slate">
+            {LANGUAGE_HINT}
           </p>
           <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {LANGUAGES.map((l) => {
@@ -362,6 +410,7 @@ export function Nav() {
                     hrefLang={l.hreflang}
                     lang={l.hreflang}
                     aria-current={isCurrent ? "true" : undefined}
+                    aria-describedby={l.code === "en" ? undefined : drawerHintId}
                     onClick={close}
                     className={cn(
                       "flex min-h-[48px] items-center justify-between gap-2 rounded-md border px-3.5 py-2 text-[15px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy",

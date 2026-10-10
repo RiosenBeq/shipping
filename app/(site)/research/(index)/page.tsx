@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Mail, Rss } from "lucide-react";
+import { ArrowDown, ArrowRight, Mail, Rss } from "lucide-react";
 import { CtaBand } from "@/components/site/CtaBand";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import { ReportCard } from "@/components/site/ReportCard";
-import { Section } from "@/components/site/Section";
+import { Eyebrow, Section } from "@/components/site/Section";
 import { REPORTS, reportDateIso, reportSlug, type Report } from "@/lib/data/research";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
@@ -94,7 +94,8 @@ export default function ResearchPage() {
 
       <PageHeader
         eyebrow="Research"
-        title="Market notes from the tanker & LPG desks"
+        // non-breaking spaces: never break before the ampersand
+        title={"Market notes from the tanker\u00a0&\u00a0LPG desks"}
         lead="Route guides, market outlooks and regulatory notes, written by the brokers who fix the cargoes. Free to read, with no login."
         crumbs={[{ name: "Research", path: "/research" }]}
       >
@@ -108,12 +109,15 @@ export default function ResearchPage() {
                     {d.reports.length}
                     <span className="sr-only"> notes</span>
                   </span>
+                  {/* in-page jump: the arrow says it's a link (static chips have no dot) */}
+                  <ArrowDown className="h-3 w-3 text-brass-ink" aria-hidden="true" />
                 </a>
               </li>
             ))}
             <li>
               <a href="/research/feed.xml" type="application/rss+xml" className="uv-chip">
                 RSS feed
+                <ArrowRight className="h-3 w-3 text-brass-ink rtl:rotate-180" aria-hidden="true" />
               </a>
             </li>
           </ul>
@@ -164,9 +168,7 @@ export default function ResearchPage() {
               aria-hidden="true"
             />
             <div className="max-w-xl">
-              <p className="font-mono text-xs uppercase tracking-[0.14em] text-brass-ink">
-                Weekly · free · no login
-              </p>
+              <Eyebrow size="sm">Weekly · free · no login</Eyebrow>
               <h2
                 id="subscribe-title"
                 className="mt-3 font-display text-[26px] leading-tight tracking-tight text-navy md:text-[30px]"

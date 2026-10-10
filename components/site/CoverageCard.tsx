@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { Eyebrow } from "./Section";
 
 /** Hero aside listing the ship sizes a desk covers, each linking to its guide. */
 export function CoverageCard({
@@ -12,10 +13,9 @@ export function CoverageCard({
   return (
     // `!` overrides: the kit card's own padding/gap load after Tailwind.
     <div className="uv-card uv-card--dark !gap-0 !p-6 md:!p-8">
-      <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brass-light">
-        <span className="h-px w-6 bg-brass-light/70" aria-hidden="true" />
+      <Eyebrow dark size="sm">
         {title}
-      </p>
+      </Eyebrow>
       <ol className="mt-5 divide-y divide-white/10 border-y border-white/10">
         {items.map((i, n) => (
           <li key={i.href}>

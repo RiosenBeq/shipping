@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { reportDateIso, reportSlug, type Report } from "@/lib/data/research";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,14 @@ export function ReportCard({ report, className }: { report: Report; className?: 
             {report.date}
           </time>
           <span aria-hidden="true">·</span>
-          <span>{report.gated ? "Summary" : `${report.read} min read`}</span>
+          {report.gated ? (
+            <span className="inline-flex items-center gap-1">
+              <Lock className="h-3 w-3 text-brass-ink" aria-hidden="true" />
+              Full report on request
+            </span>
+          ) : (
+            <span>{report.read} min read</span>
+          )}
         </span>
         <span className="uv-card__arrow" aria-hidden="true" />
       </Link>

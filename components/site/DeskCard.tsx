@@ -1,7 +1,20 @@
+import { Fragment } from "react";
 import { ArrowRight, Clock, Mail, MessageCircle } from "lucide-react";
 import { siteConfig, whatsappUrl } from "@/lib/site";
+import { Eyebrow } from "./Section";
 
 type Line = { label: string; value: string; href: string };
+
+/** An email with soft wrap points before "@" and each "." (nothing is added
+    to the copied text), so a narrow card breaks it at a natural place. */
+function breakable(email: string) {
+  return email.split(/(?=[@.])/).map((part, i) => (
+    <Fragment key={i}>
+      {i > 0 && <wbr />}
+      {part}
+    </Fragment>
+  ));
+}
 
 /**
  * Evergreen hero card: direct desk lines and the reply promise.
@@ -53,10 +66,9 @@ export function DeskCard({
   return (
     // `!` overrides: the kit card's own padding/gap load after Tailwind.
     <div className="uv-card uv-card--dark !gap-0 !p-6 md:!p-8">
-      <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brass-light">
-        <span className="h-px w-6 bg-brass-light/70" aria-hidden="true" />
+      <Eyebrow dark size="sm">
         {title}
-      </p>
+      </Eyebrow>
 
       <ul className="mt-5 divide-y divide-white/10 border-y border-white/10">
         {rows.map((r) => (
@@ -75,8 +87,10 @@ export function DeskCard({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-xs text-fog">{r.label}</span>
-                <span className="mt-0.5 block truncate text-[15px] font-medium text-white transition-colors group-hover:text-brass-light">
-                  <bdi dir="ltr">{r.value}</bdi>
+                {/* Wraps (never clips): this is the address people read and
+                    copy. Emails break before "@" or "." where they can. */}
+                <span className="mt-0.5 block text-[15px] font-medium text-white transition-colors [overflow-wrap:anywhere] group-hover:text-brass-light">
+                  <bdi dir="ltr">{r.icon === "mail" ? breakable(r.value) : r.value}</bdi>
                 </span>
               </span>
               <ArrowRight

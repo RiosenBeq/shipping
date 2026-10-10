@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight, FileCheck2, Mail, Users } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
-import { Section } from "@/components/site/Section";
+import { Eyebrow, Section } from "@/components/site/Section";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
 import { TankerArt } from "@/components/site/VesselArt";
@@ -16,6 +16,7 @@ import {
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { VESSEL_BY_CLASS, inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC, cn } from "@/lib/utils";
 
 type Params = { params: { class: string } };
 
@@ -35,14 +36,18 @@ function copy(t: TankerClassData) {
   };
 }
 
+/** "an Aframax", "a VLCC": the class name with its article, for running copy. */
+const withArticle = (t: TankerClassData) => `${t.article} ${t.shortName}`;
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 function faqFor(t: TankerClassData) {
   return [
     {
-      q: `What size is a ${t.shortName} tanker?`,
-      a: `A ${t.longName} is typically ${t.dwtRange}, around ${t.loa} long with a ${t.draft} draft, carrying ${t.cargoCapacity}.`,
+      q: `What size is ${withArticle(t)} tanker?`,
+      a: `${capitalize(withArticle(t))} is typically ${t.dwtRange}, around ${t.loa} long with a ${t.draft} draft, carrying ${t.cargoCapacity}.`,
     },
     {
-      q: `Which routes do ${t.shortName}s trade?`,
+      q: `Which routes do ${t.plural} trade?`,
       a: `Key ${t.shortName} benchmarks include ${t.routes
         .map((r) => `${r.code} (${r.lane})`)
         .join(", ")}.`,
@@ -57,8 +62,8 @@ function faqFor(t: TankerClassData) {
 export function generateMetadata({ params }: Params): Metadata {
   const t = getTankerClassBySlug(params.class);
   // Unknown slug: notFound() here too, so the head gets the not-found title and
-  // noindex. The page's own notFound() fires inside the loading.tsx Suspense
-  // boundary, after the head is chosen (Next 14 then answers 200 + noindex).
+  // noindex. Keep this route free of a loading.tsx (here or above): a Suspense
+  // boundary over the page turns its notFound() into HTTP 200 instead of 404.
   if (!t) notFound();
   const { title, description } = copy(t);
   return buildPageMetadata({
@@ -122,9 +127,9 @@ export default function TankerClassPage({ params }: Params) {
             <div className="relative isolate overflow-hidden bg-navy px-6 pb-2 pt-5 text-white/80">
               <div className="uv-hero-pattern [--uv-grid:48px]" aria-hidden="true" />
               <div className="relative z-[1] flex items-baseline justify-between gap-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass-light">
+                <Eyebrow dark size="sm">
                   At a glance
-                </p>
+                </Eyebrow>
                 <p className="font-mono text-xs text-fog">
                   {t.family === "crude" ? "Crude" : "Clean"} · {t.shortName}
                 </p>
@@ -187,7 +192,15 @@ export default function TankerClassPage({ params }: Params) {
                 {t.routes.map((r) => (
                   <tr key={r.code} className="align-top hover:bg-sand/30">
                     <th scope="row" className="px-4 py-4 text-start font-normal sm:px-6">
-                      <span className="inline-flex rounded-md border border-line bg-sand/50 px-2 py-0.5 font-mono text-xs font-semibold tracking-wide text-navy">
+                      {/* same chip as the route codes on the /tankers fleet cards;
+                          a block pulled up 4px so its 28px centre lines up with
+                          the 20px first line of the lane and note text */}
+                      <span
+                        className={cn(
+                          CHIP_STATIC,
+                          "-my-1 !flex !min-h-[28px] w-fit font-mono !text-xs"
+                        )}
+                      >
                         {r.code}
                       </span>
                     </th>
@@ -211,7 +224,7 @@ export default function TankerClassPage({ params }: Params) {
           </h3>
           <ul aria-labelledby="charterers" className="mt-4 flex flex-wrap gap-2">
             {t.marketsServed.map((m) => (
-              <li key={m} className="uv-chip max-w-full !whitespace-normal">
+              <li key={m} className={cn(CHIP_STATIC, "max-w-full !whitespace-normal")}>
                 {m}
               </li>
             ))}
@@ -282,7 +295,7 @@ export default function TankerClassPage({ params }: Params) {
       </Section>
 
       <CtaBand
-        title={`Looking for a ${t.shortName}?`}
+        title={`Looking for ${withArticle(t)}?`}
         text="Send the cargo, ports and laycan — or your open position. The tanker desk replies within 60 minutes during business hours."
         email={siteConfig.desks.tankers.email}
         inquiryHref={inquiry}

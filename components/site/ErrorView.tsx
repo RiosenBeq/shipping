@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LifeBuoy, RotateCcw } from "lucide-react";
 import { siteConfig } from "@/lib/site";
+import { LightGraticule } from "./LightGraticule";
+import { Eyebrow } from "./Section";
 
 /**
  * Segment error UI shared by both root layouts (English copy, so it marks
@@ -41,27 +43,25 @@ export function ErrorView({
     <section
       lang="en"
       dir="ltr"
-      className="border-b border-line bg-sand"
+      className="relative isolate border-b border-line bg-sand"
       aria-labelledby="error-title"
     >
-      <div className="container py-20 md:py-28">
+      <LightGraticule />
+      <div className="container relative z-[1] py-20 md:py-28">
         <span
           className="flex h-14 w-14 items-center justify-center rounded-full border border-brass/60 bg-white text-brass-ink shadow-[0_0_0_6px_rgba(184,137,58,0.08)]"
           aria-hidden="true"
         >
           <LifeBuoy className="h-6 w-6" />
         </span>
-        <p className="mt-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brass-ink">
-          <span className="h-px w-8 bg-brass" aria-hidden="true" />
-          Error
-        </p>
+        <Eyebrow className="mt-8">Error</Eyebrow>
         <h1
           id="error-title"
           className="mt-4 max-w-2xl font-display text-[38px] leading-[1.08] tracking-tight text-navy sm:text-5xl"
         >
           Something went wrong
         </h1>
-        <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate">
+        <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-slate">
           This page didn&apos;t load properly. Try again, or go back to the home page. If it keeps
           happening, please let us know.
         </p>

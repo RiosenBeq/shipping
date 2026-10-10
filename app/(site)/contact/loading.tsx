@@ -1,6 +1,6 @@
 import { PageSkeleton } from "@/components/site/PageSkeleton";
 
-/** Class pages open on the light (sand) header, unlike their navy desk page. */
+/** This page opens on the light (sand) PageHeader. */
 export default function Loading() {
   return <PageSkeleton />;
 }

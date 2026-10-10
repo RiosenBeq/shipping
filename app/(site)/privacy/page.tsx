@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Eyebrow } from "@/components/site/Section";
 import { JsonLd } from "@/components/site/JsonLd";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC } from "@/lib/utils";
 
 const TITLE = "Privacy Policy";
 const DESCRIPTION =
@@ -58,8 +60,8 @@ export default function PrivacyPage() {
         lead="What personal data we receive, why we use it and the choices you have."
         crumbs={[{ name: "Privacy Policy", path: "/privacy" }]}
       >
-        <span className="uv-chip">
-          Last updated <time dateTime="2026-10-09">9 October 2026</time>
+        <span className={CHIP_STATIC}>
+          Last updated <time dateTime="2026-10-10">10 October 2026</time>
         </span>
       </PageHeader>
 
@@ -69,10 +71,7 @@ export default function PrivacyPage() {
           aria-label="On this page"
           className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
         >
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-            <span className="h-px w-6 bg-brass" aria-hidden="true" />
-            On this page
-          </p>
+          <Eyebrow size="sm">On this page</Eyebrow>
           <ol className="mt-4 space-y-1 border-l border-line pl-4">
             {TOC.map((t) => (
               <li key={t.id}>
@@ -213,6 +212,12 @@ export default function PrivacyPage() {
               We do not set advertising or tracking cookies, and our analytics does not use cookies.
               That is why this site has no cookie banner. If we ever add cookies that need your
               consent, we will ask first and update this policy.
+            </p>
+            <p>
+              The inquiry form keeps an unsent draft in your browser&rsquo;s session storage, for
+              that tab only, so a stray tap doesn&rsquo;t lose what you typed. It never leaves your
+              device and is deleted when you close the tab or hand the inquiry to your email app or
+              WhatsApp.
             </p>
 
             <h2 id="rights">Your rights</h2>

@@ -10,6 +10,8 @@ export type LpgClassData = {
   slug: string;
   name: string;
   longName: string;
+  /** Noun phrase with its article for running copy: "Looking for an MGC?". */
+  ctaNoun: string;
   capacity: string;
   containment: string;
   typicalCargo: string;
@@ -29,6 +31,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     slug: "vlgc",
     name: "VLGC",
     longName: "Very Large Gas Carrier",
+    ctaNoun: "a VLGC",
     capacity: "70,000 cbm and above — modern ships mostly 78,000–93,000 cbm",
     containment: "Fully refrigerated, prismatic tanks, atmospheric pressure (~−50 °C)",
     typicalCargo: "≈ 44,000–46,000 mt fully refrigerated propane/butane",
@@ -90,6 +93,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     slug: "mgc",
     name: "MGC",
     longName: "Midsize Gas Carrier",
+    ctaNoun: "an MGC",
     capacity: "25,000–50,000 cbm — the core of the fleet is 35,000–40,000 cbm",
     containment: "Fully refrigerated; most ships are certified for ammonia",
     typicalCargo: "≈ 20,000–25,000 mt LPG or ammonia",
@@ -151,6 +155,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     slug: "handysize",
     name: "Handysize",
     longName: "Handysize gas carrier",
+    ctaNoun: "a Handysize gas carrier",
     capacity: "15,000–25,000 cbm",
     containment: "Semi-refrigerated or fully refrigerated; some ships are ethylene-capable",
     typicalCargo: "Parcels from 5,000 to 15,000 mt, often multi-grade",
@@ -212,6 +217,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     slug: "pressurised",
     name: "Pressurised LPG",
     longName: "Pressurised & semi-ref coasters",
+    ctaNoun: "a pressurised LPG carrier",
     capacity: "Coasters below 15,000 cbm — most fully pressurised ships are much smaller",
     containment:
       "Fully pressurised cylindrical tanks at ambient temperature, or small semi-refrigerated",

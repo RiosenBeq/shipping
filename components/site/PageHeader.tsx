@@ -3,6 +3,7 @@ import { breadcrumbsLd, type Crumb } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "./JsonLd";
 import { Eyebrow } from "./Section";
+import { LightGraticule } from "./LightGraticule";
 
 type Props = {
   eyebrow?: string;
@@ -17,19 +18,6 @@ type Props = {
   aside?: React.ReactNode;
   /** Extra classes for the outer <section>. */
   className?: string;
-};
-
-/**
- * Navy-tinted take on the kit's `.uv-hero-pattern` graticule for light
- * headers: same 120px chart grid with 24px minor lines, faded in from the end
- * edge. Inline because the kit class is tuned for navy and isn't edited here.
- */
-const LIGHT_GRATICULE: React.CSSProperties = {
-  backgroundImage:
-    "conic-gradient(from 90deg at 1px 1px, #0000 90deg, rgba(10,31,51,0.07) 0), conic-gradient(from 90deg at 1px 1px, #0000 90deg, rgba(10,31,51,0.035) 0)",
-  backgroundSize: "120px 120px, 24px 24px",
-  WebkitMaskImage: "radial-gradient(ellipse 80% 75% at 75% 40%, #000 15%, transparent 72%)",
-  maskImage: "radial-gradient(ellipse 80% 75% at 75% 40%, #000 15%, transparent 72%)",
 };
 
 /** Page-level hero used by every inner page. Renders the page's only <h1>. */
@@ -64,16 +52,9 @@ export function PageHeader({
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_80%_at_85%_0%,rgba(255,255,255,0.7),transparent_70%)]"
         />
       )}
-      {!dark && !aside && (
-        // Light header with nothing on the end side: the kit's chart graticule,
-        // tinted navy at a whisper, fills the empty half on desktop. Static (no
-        // drift) and decorative only.
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 end-0 -z-10 hidden w-[55%] lg:block rtl:-scale-x-100"
-          style={LIGHT_GRATICULE}
-        />
-      )}
+      {/* Light header with nothing on the end side: the kit's chart graticule,
+          tinted navy at a whisper, fills the empty half on desktop. */}
+      {!dark && !aside && <LightGraticule />}
       {trail.length > 0 && <JsonLd data={breadcrumbsLd(trail)} />}
 
       <div
@@ -141,7 +122,7 @@ export function PageHeader({
           {lead && (
             <p
               className={cn(
-                "mt-6 max-w-2xl text-lg leading-relaxed",
+                "mt-6 max-w-2xl text-pretty text-lg leading-relaxed",
                 dark ? "text-fog" : "text-slate"
               )}
             >

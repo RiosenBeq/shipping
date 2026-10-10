@@ -14,12 +14,17 @@ export type Broker = {
   focus: string[];
   languages: string[];
   initials: string;
-  color: string;
+  /** Avatar fill: palette only — brass for desk heads, navy for everyone else. */
+  color: AvatarColor;
 };
+
+/** The two avatar fills, from the site palette (navy & brass). */
+export const AVATAR_COLOR = { head: "#B8893A", broker: "#0A1F33" } as const;
+export type AvatarColor = (typeof AVATAR_COLOR)[keyof typeof AVATAR_COLOR];
 
 export const TEAM_LABEL: Record<Team, string> = {
   crude: "Crude tankers",
-  clean: "Clean & products",
+  clean: "Clean products",
   lpg: "LPG & ammonia",
 };
 
@@ -34,7 +39,7 @@ export const BROKERS: Broker[] = [
     focus: ["VLGC", "MGC", "East Med imports"],
     languages: ["Turkish", "English"],
     initials: "EK",
-    color: "#B8893A",
+    color: AVATAR_COLOR.head,
   },
   {
     name: "Kerem Yılmaz",
@@ -44,7 +49,7 @@ export const BROKERS: Broker[] = [
     focus: ["Pressurised", "Semi-ref", "Black Sea"],
     languages: ["Turkish", "English", "Russian"],
     initials: "KY",
-    color: "#0A1F33",
+    color: AVATAR_COLOR.broker,
   },
   {
     name: "Léa Martin",
@@ -54,7 +59,7 @@ export const BROKERS: Broker[] = [
     focus: ["Propylene", "Butadiene", "NWE–Med"],
     languages: ["French", "English"],
     initials: "LM",
-    color: "#1B4D5C",
+    color: AVATAR_COLOR.broker,
   },
   {
     name: "Hiroshi Tanaka",
@@ -64,7 +69,7 @@ export const BROKERS: Broker[] = [
     focus: ["BLPG1", "BLPG3", "Japan/Korea"],
     languages: ["Japanese", "English"],
     initials: "HT",
-    color: "#4A5E6E",
+    color: AVATAR_COLOR.broker,
   },
   {
     name: "Mehmet Aydın",
@@ -74,7 +79,7 @@ export const BROKERS: Broker[] = [
     focus: ["Suezmax", "CPC", "Black Sea"],
     languages: ["Turkish", "English"],
     initials: "MA",
-    color: "#B8893A",
+    color: AVATAR_COLOR.head,
   },
   {
     name: "Søren Hansen",
@@ -84,7 +89,7 @@ export const BROKERS: Broker[] = [
     focus: ["TD20", "Cross-Med", "North Sea"],
     languages: ["Danish", "English"],
     initials: "SH",
-    color: "#0E3454",
+    color: AVATAR_COLOR.broker,
   },
   {
     name: "Wei Zhang",
@@ -94,7 +99,7 @@ export const BROKERS: Broker[] = [
     focus: ["TD3C", "TD15", "China"],
     languages: ["Mandarin", "English"],
     initials: "WZ",
-    color: "#0A1F33",
+    color: AVATAR_COLOR.broker,
   },
   {
     name: "Demetrios Pavlou",
@@ -104,7 +109,7 @@ export const BROKERS: Broker[] = [
     focus: ["LR2", "LR1", "MR"],
     languages: ["Greek", "English"],
     initials: "DP",
-    color: "#1B4D5C",
+    color: AVATAR_COLOR.head,
   },
   {
     name: "Ahmed El-Sayed",
@@ -114,7 +119,7 @@ export const BROKERS: Broker[] = [
     focus: ["Med", "Egypt", "Libya"],
     languages: ["Arabic", "English", "Turkish"],
     initials: "AE",
-    color: "#4A5E6E",
+    color: AVATAR_COLOR.broker,
   },
 ];
 

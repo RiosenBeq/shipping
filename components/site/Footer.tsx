@@ -5,6 +5,7 @@ import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { LOCALES } from "@/lib/i18n";
 import { BrandMark } from "./BrandMark";
+import { Eyebrow } from "./Section";
 
 /**
  * Navigation lists use the kit's light nav link: fog at rest with no
@@ -36,19 +37,19 @@ const LEGAL = [
  */
 function ColumnTitle({ children, href }: { children: React.ReactNode; href?: string }) {
   return (
-    <h2 className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brass-light">
-      <span className="h-px w-5 bg-brass" aria-hidden="true" />
+    // the shared small eyebrow (same rule, tracking and colour as everywhere else)
+    <Eyebrow as="h2" dark size="sm">
       {href ? (
         <Link
           href={href}
-          className="uv-nav-link uv-nav-link--light !p-0 !text-[11px] !font-semibold !tracking-[0.2em] !text-brass-light after:!-bottom-1 hover:!text-white"
+          className="uv-nav-link uv-nav-link--light !p-0 !text-[11px] !font-semibold !tracking-[0.18em] !text-brass-light after:!-bottom-1 hover:!text-white"
         >
           {children}
         </Link>
       ) : (
         children
       )}
-    </h2>
+    </Eyebrow>
   );
 }
 

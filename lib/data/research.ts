@@ -147,7 +147,8 @@ export const REPORTS: Report[] = [
     date: "28 MAR 2026",
     read: 9,
     gated: false,
-    title: "TD7 NSEA → CONT: short-haul, fast turn, thin margin",
+    // en dash, not an arrow: a Unicode arrow falls back to another font in the display serif
+    title: "TD7 NSEA–CONT: short-haul, fast turn, thin margin",
     desc: "How Aframax desks build TCE on routes where you live or die on portage and weather windows.",
     label: "AFRAMAX · TD7",
   },

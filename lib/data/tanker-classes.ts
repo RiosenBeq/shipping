@@ -6,6 +6,10 @@ export type TankerClassData = {
   slug: string;
   name: string;
   shortName: string;
+  /** Indefinite article for `shortName` ("an Aframax", "an MR", "a VLCC"). */
+  article: "a" | "an";
+  /** Plural of `shortName` ("Suezmaxes", "LR1s"). */
+  plural: string;
   longName: string;
   family: "crude" | "clean";
   dwtRange: string;
@@ -28,6 +32,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     slug: "vlcc",
     name: "VLCC",
     shortName: "VLCC",
+    article: "a",
+    plural: "VLCCs",
     longName: "Very Large Crude Carrier",
     family: "crude",
     dwtRange: "270,000 – 320,000 dwt",
@@ -86,6 +92,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     slug: "suezmax",
     name: "Suezmax",
     shortName: "Suezmax",
+    article: "a",
+    plural: "Suezmaxes",
     longName: "Suezmax (Suez Canal-max)",
     family: "crude",
     dwtRange: "130,000 – 160,000 dwt",
@@ -142,6 +150,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     slug: "aframax",
     name: "Aframax / LR2",
     shortName: "Aframax",
+    article: "an",
+    plural: "Aframaxes",
     longName: "Aframax / Long Range 2",
     family: "crude",
     dwtRange: "80,000 – 115,000 dwt",
@@ -190,6 +200,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     slug: "lr1",
     name: "LR1",
     shortName: "LR1",
+    article: "an",
+    plural: "LR1s",
     longName: "Long Range 1 (clean products)",
     family: "clean",
     dwtRange: "55,000 – 80,000 dwt",
@@ -224,6 +236,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     slug: "mr",
     name: "MR",
     shortName: "MR",
+    article: "an",
+    plural: "MRs",
     longName: "Medium Range (clean products)",
     family: "clean",
     dwtRange: "40,000 – 55,000 dwt",

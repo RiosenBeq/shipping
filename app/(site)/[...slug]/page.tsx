@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 
 /**
  * Throw from metadata too, so the head gets the not-found title and noindex.
- * (site)/loading.tsx is a Suspense boundary above this page, so in Next 14 the
- * page's notFound() renders the styled 404 with HTTP 200 + noindex.
+ * There is deliberately no (site)/loading.tsx: a Suspense boundary above this
+ * page would turn its notFound() into HTTP 200 (a soft 404). Skeletons live
+ * next to the static pages that use them.
  */
 export function generateMetadata(): never {
   notFound();

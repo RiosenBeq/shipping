@@ -16,30 +16,45 @@ type Props = {
   children: React.ReactNode;
 };
 
-/** Short brass rule + small caps label. Shared by sections and page headers. */
+/**
+ * Short brass rule + small caps label. Shared by sections, page headers and
+ * cards, so the rule length, tracking and colour never drift.
+ *  - `size="md"` (default): section- and page-level labels.
+ *  - `size="sm"`: labels inside cards, asides, menus and form legends.
+ */
 export function Eyebrow({
   children,
   dark = false,
+  size = "md",
+  as: Tag = "p",
+  id,
   className,
 }: {
   children: React.ReactNode;
   dark?: boolean;
+  size?: "md" | "sm";
+  /** Element to render; use a heading when the label titles a region. */
+  as?: "p" | "span" | "h2" | "h3";
+  id?: string;
   className?: string;
 }) {
+  const sm = size === "sm";
   return (
-    <p
+    <Tag
+      id={id}
       className={cn(
-        "flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em]",
+        "flex items-center gap-3 font-semibold uppercase tracking-[0.18em]",
+        sm ? "text-[11px]" : "text-xs",
         dark ? "text-brass-light" : "text-brass-ink",
         className
       )}
     >
       <span
-        className={cn("h-px w-8 shrink-0", dark ? "bg-brass-light/70" : "bg-brass")}
+        className={cn("h-px shrink-0", sm ? "w-6" : "w-8", dark ? "bg-brass-light/70" : "bg-brass")}
         aria-hidden="true"
       />
       {children}
-    </p>
+    </Tag>
   );
 }
 
@@ -93,7 +108,12 @@ export function Section({
                 </h2>
               )}
               {intro && (
-                <p className={cn("mt-5 text-lg leading-relaxed", dark ? "text-fog" : "text-slate")}>
+                <p
+                  className={cn(
+                    "mt-5 text-pretty text-lg leading-relaxed",
+                    dark ? "text-fog" : "text-slate"
+                  )}
+                >
                   {intro}
                 </p>
               )}

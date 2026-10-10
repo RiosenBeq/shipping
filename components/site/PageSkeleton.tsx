@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -15,6 +18,13 @@ export function PageSkeleton({
   crumbs?: boolean;
 }) {
   const dark = tone === "dark";
+  // The live region mounts empty and gets its text a moment later, so screen
+  // readers announce it as a change (text present at insertion is often not read).
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    const t = window.setTimeout(() => setStatus("Loading page…"), 100);
+    return () => window.clearTimeout(t);
+  }, []);
   // On navy: translucent white bars and a faint shimmer instead of the kit's
   // sand bar with a near-white sweep.
   const bar = dark
@@ -22,10 +32,9 @@ export function PageSkeleton({
     : undefined;
 
   return (
-    <div
-      aria-busy="true"
-      className="motion-safe:delay-150 motion-safe:duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:fill-mode-both"
-    >
+    // No aria-busy here: it would hold back the status announcement below; the
+    // skeleton bars are aria-hidden anyway.
+    <div className="motion-safe:delay-150 motion-safe:duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:fill-mode-both">
       <div
         className={cn(
           "relative isolate overflow-hidden border-b",
@@ -60,12 +69,10 @@ export function PageSkeleton({
       </div>
 
       <div className="container flex min-h-[32vh] items-center justify-center py-16">
-        <div role="status">
-          <span className="uv-loader" aria-hidden="true" />
-          <span className="sr-only" lang="en">
-            Loading page…
-          </span>
-        </div>
+        <span className="uv-loader" aria-hidden="true" />
+        <p role="status" className="sr-only" lang="en">
+          {status}
+        </p>
       </div>
     </div>
   );

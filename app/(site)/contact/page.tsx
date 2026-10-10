@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Phone, Ship } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
+import { Eyebrow } from "@/components/site/Section";
 import { buildPageMetadata, localBusinessLd, webPageLd } from "@/lib/seo";
 import { siteConfig, telUrl, whatsappUrl } from "@/lib/site";
 import { CopyButton, InquiryForm } from "./InquiryForm";
@@ -22,11 +23,11 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.latitude},${siteConfig.geo.longitude}`;
+/** Link chip with a leading icon in place of the kit's dot. */
+const LINK_CHIP =
+  "uv-chip before:hidden [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:shrink-0 [&_svg]:text-brass-ink";
 
-/** Small brass-ink label used for the aside's section headings. */
-const ASIDE_H2 =
-  "flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink";
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.latitude},${siteConfig.geo.longitude}`;
 
 export default function ContactPage() {
   const lines = [
@@ -80,23 +81,29 @@ export default function ContactPage() {
         ]}
       />
       <PageHeader
-        eyebrow="Charter inquiry"
+        // "Contact", not "Charter inquiry": the form's own h2 says that just below.
+        eyebrow="Contact"
         title="Tell us what you’re moving."
         lead="Cargo, ports, dates and a way to reach you — about two minutes, and anything marked optional can wait. A broker replies within 60 minutes during business hours."
         crumbs={[{ name: "Contact", path: "/contact" }]}
         // Phones: no chips, so the form's first control is inside the first screen.
         childrenClassName="max-sm:hidden"
       >
-        <ul className="flex flex-wrap gap-2" aria-label="How we work">
-          <li>
-            <span className="uv-chip">First reply within 60 minutes</span>
-          </li>
-          <li>
-            <span className="uv-chip">Istanbul · London · Singapore</span>
-          </li>
-          <li>
-            <span className="uv-chip">Tankers · LPG · ammonia</span>
-          </li>
+        {/* Facts, not links: plain text with icons, so nothing here looks tappable. */}
+        <ul
+          className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-navy"
+          aria-label="How we work"
+        >
+          {[
+            { Icon: Clock, text: "First reply within 60 minutes" },
+            { Icon: MapPin, text: "Istanbul, London and Singapore" },
+            { Icon: Ship, text: "Tankers, LPG and ammonia" },
+          ].map(({ Icon, text }) => (
+            <li key={text} className="flex items-center gap-2">
+              <Icon className="h-4 w-4 shrink-0 text-brass-ink" aria-hidden="true" />
+              {text}
+            </li>
+          ))}
         </ul>
       </PageHeader>
 
@@ -104,9 +111,11 @@ export default function ContactPage() {
         <div className="container grid gap-14 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-20">
           <div className="min-w-0">
             <div className="mb-6 max-w-2xl md:mb-8">
+              {/* tabIndex: the header's "Send inquiry" on this page moves focus here */}
               <h2
                 id="inquiry-title"
-                className="font-display text-[30px] leading-tight tracking-tight text-navy md:text-[36px]"
+                tabIndex={-1}
+                className="font-display text-[30px] leading-tight tracking-tight text-navy outline-none md:text-[36px]"
               >
                 Charter inquiry
               </h2>
@@ -117,18 +126,22 @@ export default function ContactPage() {
                 className="mt-4 flex flex-wrap gap-2 lg:hidden"
                 aria-label="Or contact us directly"
               >
+                {/* action chips: a leading icon instead of the kit dot marks them as links */}
                 <li>
-                  <a href={telUrl()} className="uv-chip">
+                  <a href={telUrl()} className={LINK_CHIP}>
+                    <Phone aria-hidden="true" />
                     Call<span className="sr-only"> {siteConfig.phone}</span>
                   </a>
                 </li>
                 <li>
-                  <a href={whatsappUrl()} target="_blank" rel="noopener" className="uv-chip">
+                  <a href={whatsappUrl()} target="_blank" rel="noopener" className={LINK_CHIP}>
+                    <MessageCircle aria-hidden="true" />
                     WhatsApp<span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
                 <li>
-                  <a href={`mailto:${siteConfig.email}`} className="uv-chip">
+                  <a href={`mailto:${siteConfig.email}`} className={LINK_CHIP}>
+                    <Mail aria-hidden="true" />
                     Email<span className="sr-only"> {siteConfig.email}</span>
                   </a>
                 </li>
@@ -137,12 +150,16 @@ export default function ContactPage() {
             <InquiryForm />
           </div>
 
-          <aside aria-label="Contact details" className="space-y-12">
+          {/* Sticky beside the long form on desktop, where the viewport is tall
+              enough to show all of it (about 780px from its 96px sticky top,
+              so 56rem = 896px leaves a small margin under it). A plain div,
+              not an aside: a complementary landmark inside <main> is flagged,
+              and its two sections are already labelled regions. */}
+          <div className="space-y-12 lg:self-start lg:[@media(min-height:56rem)]:sticky lg:[@media(min-height:56rem)]:top-24">
             <section aria-labelledby="lines-title">
-              <h2 id="lines-title" className={ASIDE_H2}>
-                <span className="h-px w-6 bg-brass" aria-hidden="true" />
+              <Eyebrow as="h2" size="sm" id="lines-title">
                 Direct lines
-              </h2>
+              </Eyebrow>
               {/* No overflow:hidden here — the copy tooltips sit above each button. */}
               <ul className="mt-5 divide-y divide-line rounded-lg border border-line bg-white">
                 {lines.map(({ Icon, label, value, href, copy, copyLabel, external }) => (
@@ -176,10 +193,9 @@ export default function ContactPage() {
             </section>
 
             <section aria-labelledby="offices-title">
-              <h2 id="offices-title" className={ASIDE_H2}>
-                <span className="h-px w-6 bg-brass" aria-hidden="true" />
+              <Eyebrow as="h2" size="sm" id="offices-title">
                 Offices
-              </h2>
+              </Eyebrow>
               <ul className="mt-5 divide-y divide-line border-y border-line">
                 {siteConfig.offices.map((o) => (
                   <li key={o.city} className="flex items-baseline justify-between gap-4 py-3.5">
@@ -212,7 +228,7 @@ export default function ContactPage() {
                 </span>
               </address>
             </section>
-          </aside>
+          </div>
         </div>
       </section>
     </>

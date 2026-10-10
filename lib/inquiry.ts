@@ -67,7 +67,8 @@ export function inquiryHrefFor(pathname: string) {
     });
   }
   if (section === "lpg") {
-    return slug ? lpgClassInquiryHref(slug) : inquiryHref({ segment: "lpg" });
+    // The hub covers LPG and ammonia, so (like the tanker hub) the visitor picks.
+    return slug ? lpgClassInquiryHref(slug) : "/contact";
   }
   return "/contact";
 }

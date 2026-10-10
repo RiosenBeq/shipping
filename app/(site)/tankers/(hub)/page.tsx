@@ -16,6 +16,7 @@ import { REPORTS } from "@/lib/data/research";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { CHIP_STATIC, cn } from "@/lib/utils";
 
 const TITLE = "Tanker Broker — Crude & Product Tanker Chartering";
 const DESCRIPTION =
@@ -46,7 +47,7 @@ const FAMILIES = [
   },
   {
     key: "clean" as const,
-    title: "Clean & products",
+    title: "Clean products",
     text: "Coated tankers for gasoil, jet, gasoline and naphtha. LR1 and MR across the Med, the Atlantic basin and East of Suez.",
   },
 ];
@@ -130,25 +131,33 @@ export default function TankersPage() {
         lead="VLCC to MR — spot, period and COA. Black Sea, CPC and Mediterranean business run from Istanbul, with London and Singapore covering the Atlantic and East of Suez."
         crumbs={[{ name: "Tankers", path: "/tankers" }]}
         aside={
-          <CoverageCard
-            title="Tankers we fix"
-            items={TANKER_CLASSES.map((t) => ({
-              name: t.name,
-              size: t.dwtRange,
-              href: `/tankers/${t.slug}`,
-            }))}
-          />
+          // Desktop only: on phones it would stack under the CTAs and repeat the
+          // fleet cards that follow straight after.
+          <div className="max-lg:hidden">
+            <CoverageCard
+              title="Tankers we fix"
+              items={TANKER_CLASSES.map((t) => ({
+                name: t.name,
+                size: t.dwtRange,
+                href: `/tankers/${t.slug}`,
+              }))}
+            />
+          </div>
         }
       >
         <Link href={inquiryHref()} className="uv-btn uv-btn--lg w-full sm:w-auto">
           Send a tanker inquiry <ArrowRight aria-hidden="true" />
         </Link>
+        {/* labelled like the class pages; the address is printed in the CTA band and footer */}
         <a
           href={`mailto:${siteConfig.desks.tankers.email}`}
           className="uv-btn-ghost-light uv-btn--lg w-full sm:w-auto"
         >
           <Mail aria-hidden="true" />
-          <span>{siteConfig.desks.tankers.email}</span>
+          <span>
+            Email the tanker desk
+            <span className="sr-only"> ({siteConfig.desks.tankers.email})</span>
+          </span>
         </a>
       </PageHeader>
 
@@ -194,7 +203,10 @@ export default function TankersPage() {
                           <p className="tnum mt-2 text-sm">{t.dwtRange}</p>
                           <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Key routes">
                             {t.routes.map((r) => (
-                              <li key={r.code} className="uv-chip !min-h-[28px] font-mono !text-xs">
+                              <li
+                                key={r.code}
+                                className={cn(CHIP_STATIC, "!min-h-[28px] font-mono !text-xs")}
+                              >
                                 {r.code}
                               </li>
                             ))}

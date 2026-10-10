@@ -81,6 +81,66 @@ describe("InquirySchema", () => {
     expect(InquirySchema.safeParse({ ...valid, loadArea: " " }).success).toBe(false);
     expect(InquirySchema.safeParse({ ...valid, dischargeArea: "" }).success).toBe(false);
   });
+
+  it("reports every missing field at once, even with no cargo chosen", () => {
+    const r = InquirySchema.safeParse({
+      ...valid,
+      segment: "",
+      loadArea: "",
+      dischargeArea: "",
+      quantity: "",
+      laycanFrom: "",
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const paths = r.error.issues.map((i) => i.path.join("."));
+      for (const k of ["segment", "loadArea", "dischargeArea", "quantity", "laycanFrom"]) {
+        expect(paths).toContain(k);
+      }
+    }
+  });
+
+  it("defaults to a cargo inquiry", () => {
+    const r = InquirySchema.safeParse(valid);
+    expect(r.success && r.data.mode).toBe("cargo");
+  });
+
+  it("makes redelivery optional on a time charter and asks for a period", () => {
+    const tc = { ...valid, term: "tc", dischargeArea: "", quantity: "12 months" };
+    expect(InquirySchema.safeParse(tc).success).toBe(true);
+    const r = InquirySchema.safeParse({ ...tc, quantity: "" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues.find((i) => i.path[0] === "quantity")?.message).toMatch(/period/i);
+    }
+  });
+
+  it("accepts an open ship without discharge or quantity", () => {
+    const ship = {
+      ...valid,
+      mode: "ship",
+      dischargeArea: "",
+      quantity: "",
+      laycanTo: "2026-10-01",
+    };
+    // laycanTo is ignored for an open ship (one open date), even if out of order
+    expect(InquirySchema.safeParse(ship).success).toBe(true);
+  });
+
+  it("still needs the open port and date for an open ship", () => {
+    const r = InquirySchema.safeParse({ ...valid, mode: "ship", loadArea: "", laycanFrom: "" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const paths = r.error.issues.map((i) => i.path.join("."));
+      expect(paths).toEqual(expect.arrayContaining(["loadArea", "laycanFrom"]));
+      expect(paths).not.toContain("dischargeArea");
+      expect(paths).not.toContain("quantity");
+    }
+  });
+
+  it("rejects an unknown mode", () => {
+    expect(InquirySchema.safeParse({ ...valid, mode: "broker" }).success).toBe(false);
+  });
 });
 
 describe("ResearchCategorySchema", () => {

@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
 import { AlertCircle, ArrowRight, Check, Copy, MessageCircle } from "lucide-react";
+import { Eyebrow } from "@/components/site/Section";
 import {
+  INQUIRY_MODES,
   INQUIRY_SEGMENTS,
   INQUIRY_TERMS,
   INQUIRY_VESSELS,
+  InquiryModeSchema,
   InquirySchema,
   InquirySegmentSchema,
+  InquiryTermSchema,
   type Inquiry,
   type InquirySegment,
 } from "@/lib/schemas";
@@ -33,6 +38,7 @@ const ANY_VESSEL: Vessel = INQUIRY_VESSELS[0];
 
 /** No cargo preselected: an inquiry is never routed to a desk by default. */
 const EMPTY: Form = {
+  mode: "cargo",
   segment: "",
   vessel: ANY_VESSEL,
   term: "voyage",
@@ -50,6 +56,7 @@ const EMPTY: Form = {
 
 /** Visual order of the fields — the first invalid one in this order gets focus. */
 const FIELD_ORDER: Field[] = [
+  "mode",
   "segment",
   "term",
   "vessel",
@@ -120,6 +127,7 @@ const TERM_LABEL: Record<keyof typeof INQUIRY_TERMS, React.ReactNode> = {
  * load after Tailwind.
  */
 const SEGMENTED_GRID = {
+  mode: "max-sm:!grid max-sm:grid-cols-2 max-sm:[&_span]:h-full",
   segment:
     "max-sm:!grid max-sm:grid-cols-2 max-sm:[&>label:last-child:nth-child(odd)]:col-span-2 max-sm:[&_span]:h-full",
   term: "max-sm:!grid max-sm:grid-cols-3 max-sm:[&_span]:h-full max-sm:[&_span]:!px-2",
@@ -129,7 +137,61 @@ const SEGMENTED_GRID = {
 const COPY_ICON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E")`;
 
 const NOTES_MAX = 2000;
-const LAYCAN_ORDER_MSG = "Laycan end must be on or after the start date";
+
+/** Unsent inquiry, kept for this tab only, so a stray tap and Back loses nothing. */
+const DRAFT_KEY = "lv-inquiry-draft";
+
+function loadDraft(): Partial<Form> {
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY);
+    const data: unknown = raw ? JSON.parse(raw) : null;
+    if (!data || typeof data !== "object") return {};
+    const draft: Partial<Form> = {};
+    for (const k of Object.keys(EMPTY) as Field[]) {
+      const v = (data as Record<string, unknown>)[k];
+      if (typeof v === "string") draft[k] = v.slice(0, k === "notes" ? NOTES_MAX : 200);
+    }
+    // Enumerated fields must still be valid options; anything else falls back.
+    if (draft.mode && !InquiryModeSchema.safeParse(draft.mode).success) delete draft.mode;
+    if (draft.term && !InquiryTermSchema.safeParse(draft.term).success) delete draft.term;
+    if (draft.segment && !InquirySegmentSchema.safeParse(draft.segment).success)
+      delete draft.segment;
+    if (draft.vessel && !INQUIRY_VESSELS.includes(draft.vessel as Vessel)) delete draft.vessel;
+    if (
+      draft.segment &&
+      draft.vessel &&
+      !vesselsFor(draft.segment).includes(draft.vessel as Vessel)
+    ) {
+      draft.vessel = ANY_VESSEL;
+    }
+    return draft;
+  } catch {
+    return {};
+  }
+}
+
+function saveDraft(form: Form) {
+  try {
+    window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+  } catch {
+    // storage full or blocked: the form still works, just without a draft
+  }
+}
+
+function clearDraft() {
+  try {
+    window.sessionStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // nothing to clear
+  }
+}
+
+/** Today in the visitor's time zone, as yyyy-mm-dd (the date inputs' format). */
+function localToday() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
 
 /*
  * Kit gaps, patched per input (uiverse.css is shared):
@@ -151,15 +213,42 @@ const AUTOFILL = `[&:-webkit-autofill]:shadow-[inset_0_0_0_100vmax_#f8f5ef] [&:-
 const DATE =
   "min-h-[3.6rem] [&::-webkit-date-and-time-value]:text-left [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 data-[empty=true]:[&:not(:focus)]:!text-slate";
 
+/** Plain-text inquiry for the email body / WhatsApp message, shaped by mode and terms. */
 function summary(v: Inquiry) {
+  const ship = v.mode === "ship";
+  const tc = !ship && v.term === "tc";
+  const window = (label: string) =>
+    `${label}: ${v.laycanFrom}${v.laycanTo ? ` – ${v.laycanTo}` : " (end date open)"}`;
+  const lines: (string | null)[] = ship
+    ? [
+        "Open position",
+        v.quantity ? `Ship: ${v.quantity}` : null,
+        `Vessel: ${v.vessel}`,
+        `Trades: ${INQUIRY_SEGMENTS[v.segment]}`,
+        `Open: ${v.loadArea}, ${v.laycanFrom}`,
+        `Employment sought: ${INQUIRY_TERMS[v.term]}`,
+      ]
+    : tc
+      ? [
+          `Cargo: ${INQUIRY_SEGMENTS[v.segment]}`,
+          `Vessel: ${v.vessel}`,
+          `Terms: ${INQUIRY_TERMS[v.term]}`,
+          `Delivery: ${v.loadArea}`,
+          v.dischargeArea ? `Redelivery: ${v.dischargeArea}` : null,
+          `Period: ${v.quantity}`,
+          window("Delivery window"),
+        ]
+      : [
+          `Cargo: ${INQUIRY_SEGMENTS[v.segment]}`,
+          `Vessel: ${v.vessel}`,
+          `Terms: ${INQUIRY_TERMS[v.term]}`,
+          `Load: ${v.loadArea}`,
+          `Discharge: ${v.dischargeArea}`,
+          `Quantity: ${v.quantity}`,
+          window("Laycan"),
+        ];
   return [
-    `Cargo: ${INQUIRY_SEGMENTS[v.segment]}`,
-    `Vessel: ${v.vessel}`,
-    `Terms: ${INQUIRY_TERMS[v.term]}`,
-    `Load: ${v.loadArea}`,
-    `Discharge: ${v.dischargeArea}`,
-    `Quantity: ${v.quantity}`,
-    `Laycan: ${v.laycanFrom}${v.laycanTo ? ` – ${v.laycanTo}` : " (end date open)"}`,
+    ...lines,
     v.notes ? `Notes: ${v.notes}` : null,
     "",
     `${v.name} · ${v.company}`,
@@ -170,23 +259,56 @@ function summary(v: Inquiry) {
     .join("\n");
 }
 
-/** Zod validation, one message per field. Laycan order is checked even while other fields are open. */
+/** Email subject: says at a glance whether it is a cargo, a period or an open ship. */
+function subjectFor(v: Inquiry) {
+  const cargo = INQUIRY_SEGMENTS[v.segment];
+  if (v.mode === "ship") {
+    const ship = v.vessel === ANY_VESSEL ? cargo : v.vessel;
+    return `Open position — ${ship} — open ${v.loadArea} ${v.laycanFrom}`;
+  }
+  if (v.term === "tc") return `Time charter inquiry — ${cargo} — delivery ${v.loadArea}`;
+  const kind = v.term === "coa" ? "COA inquiry" : "Charter inquiry";
+  return `${kind} — ${cargo} — ${v.loadArea} to ${v.dischargeArea}`;
+}
+
+/**
+ * Zod validation, one message per field (the schema's checks depend on the
+ * mode and terms), plus what only the browser knows: today's date.
+ */
 function validate(form: Form): { data?: Inquiry; errors: Errors } {
   const r = InquirySchema.safeParse(form);
-  if (r.success) return { data: r.data, errors: {} };
   const errors: Errors = {};
-  for (const issue of r.error.issues) {
-    const k = issue.path[0] as Field | undefined;
-    if (k && !errors[k]) errors[k] = issue.message;
+  if (!r.success) {
+    for (const issue of r.error.issues) {
+      const k = issue.path[0] as Field | undefined;
+      if (k && !errors[k]) errors[k] = issue.message;
+    }
   }
-  if (!errors.laycanTo && form.laycanFrom && form.laycanTo && form.laycanFrom > form.laycanTo) {
-    errors.laycanTo = LAYCAN_ORDER_MSG;
+  const ship = form.mode === "ship";
+  const tc = !ship && form.term === "tc";
+  if (errors.segment && ship) errors.segment = "Choose what the ship carries";
+  // `min` only limits the date picker; a typed date (e.g. the wrong year) isn't.
+  if (!errors.laycanFrom && form.laycanFrom && form.laycanFrom < localToday()) {
+    errors.laycanFrom = ship
+      ? "The open date can’t be in the past"
+      : tc
+        ? "Delivery can’t start in the past"
+        : "Laycan can’t start in the past";
   }
-  return { errors };
+  if (!r.success || Object.keys(errors).length > 0) return { errors };
+  return { data: r.data, errors };
 }
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** Scroll a field into view and focus it (radio groups: their first option). */
+function focusById(elId: string) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.scrollIntoView({ block: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  el.focus({ preventScroll: true });
+}
 
 /**
  * Single-page charter inquiry. Validates with Zod, then opens the visitor's
@@ -209,12 +331,17 @@ export function InquiryForm() {
   /** Removes the blur/visibilitychange listeners of the current hand-off. */
   const stopWatching = useRef<() => void>();
 
-  // Client-only setup: ?segment=…&vessel=…&quantity=… pre-select (links from
-  // desk, class pages and the LPG converter) and today's date as the earliest
-  // laycan (computed here to avoid a hydration mismatch). Unknown values, or a
-  // ship size that doesn't fit the cargo, are ignored. A ship size alone (MGC,
-  // Handysize guides: they swing between cargoes) is kept with no cargo picked.
+  // Client-only setup, in order: the unsent draft from this tab (back after a
+  // stray tap), then ?segment=…&vessel=…&quantity=… pre-select (links from
+  // desk, class pages and the LPG converter), which wins for those fields, and
+  // today's date as the earliest laycan (computed here to avoid a hydration
+  // mismatch). Unknown values, or a ship size that doesn't fit the cargo, are
+  // ignored. A ship size alone (MGC, Handysize guides: they swing between
+  // cargoes) is kept with no cargo picked. Any pre-select means a cargo inquiry.
   useEffect(() => {
+    const draft = loadDraft();
+    if (Object.keys(draft).length > 0) setForm((f) => ({ ...f, ...draft }));
+
     const params = new URLSearchParams(window.location.search);
     const parsed = InquirySegmentSchema.safeParse(params.get("segment"));
     const vesselOnly = params.get("vessel");
@@ -224,7 +351,14 @@ export function InquiryForm() {
       vesselOnly !== ANY_VESSEL &&
       INQUIRY_VESSELS.includes(vesselOnly as Vessel)
     ) {
-      setForm((f) => ({ ...f, vessel: vesselOnly }));
+      setForm((f) => ({
+        ...f,
+        mode: "cargo",
+        vessel: vesselOnly,
+        // a drafted cargo that doesn't fit the linked ship size is dropped
+        segment:
+          f.segment && !vesselsFor(f.segment).includes(vesselOnly as Vessel) ? "" : f.segment,
+      }));
     }
     if (parsed.success) {
       const segment = parsed.data;
@@ -232,6 +366,7 @@ export function InquiryForm() {
       const quantity = params.get("quantity")?.trim().slice(0, 60);
       setForm((f) => ({
         ...f,
+        mode: "cargo",
         segment,
         vessel:
           vessel && vesselsFor(segment).includes(vessel as Vessel)
@@ -242,9 +377,7 @@ export function InquiryForm() {
         quantity: quantity || f.quantity,
       }));
     }
-    const d = new Date();
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    setToday(d.toISOString().slice(0, 10));
+    setToday(localToday());
     return () => {
       window.clearTimeout(timer.current);
       stopWatching.current?.();
@@ -257,15 +390,19 @@ export function InquiryForm() {
     const k = pendingFocus.current;
     if (!k) return;
     pendingFocus.current = null;
-    const el = document.getElementById(`${id}-${k}`);
-    if (!el) return;
-    el.scrollIntoView({ block: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" });
-    el.focus({ preventScroll: true });
+    focusById(`${id}-${k}`);
   }, [errors, id]);
+
+  /** The error summary's action: back to the first field that needs attention. */
+  const focusFirstError = () => {
+    const k = FIELD_ORDER.find((f) => errors[f]);
+    if (k) focusById(`${id}-${k}`);
+  };
 
   const update = (patch: Partial<Form>) => {
     const next = { ...form, ...patch };
     setForm(next);
+    saveDraft(next);
     // Errors only appear after a send attempt; from then on the whole form
     // re-validates as you type, so messages clear (or update) in step.
     if (attempted) setErrors(validate(next).errors);
@@ -292,7 +429,7 @@ export function InquiryForm() {
     const gas = isGas(data.segment);
     const desk = gas ? siteConfig.desks.lpg : siteConfig.desks.tankers;
     const deskName = gas ? "LPG & ammonia desk" : "tanker desk";
-    const subject = `Charter inquiry — ${INQUIRY_SEGMENTS[data.segment]} — ${data.loadArea} to ${data.dischargeArea}`;
+    const subject = subjectFor(data);
     const body = summary(data);
 
     setSent(null);
@@ -330,6 +467,8 @@ export function InquiryForm() {
       stopWatching.current?.();
       setBusy(null);
       setSent({ via, opened, deskName, deskEmail: desk.email, subject, body });
+      // Handed off to the mail app / WhatsApp: the draft has done its job.
+      if (opened) clearDraft();
     }, 1500);
   };
 
@@ -400,7 +539,7 @@ export function InquiryForm() {
   );
 
   const segmented = (
-    k: "segment" | "term",
+    k: "mode" | "segment" | "term",
     label: string,
     options: [string, React.ReactNode][],
     onPick: (value: string) => void
@@ -451,17 +590,24 @@ export function InquiryForm() {
   // Floated full-width legend: it lays out like a normal block (margins work, and
   // the fieldset's top rule isn't broken by it). The content after it clears.
   const legend = (n: string, text: string) => (
-    <legend className="float-left mb-6 flex w-full items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-      <span className="font-mono text-[11px] tracking-normal text-slate" aria-hidden="true">
+    <legend className="float-left mb-6 flex w-full items-center gap-3">
+      <span className="font-mono text-[11px] text-slate" aria-hidden="true">
         {n}
       </span>
-      <span className="h-px w-6 bg-brass/60" aria-hidden="true" />
-      {text}
+      <Eyebrow as="span" size="sm">
+        {text}
+      </Eyebrow>
     </legend>
   );
 
   const gas = isGas(form.segment);
   const notesLeft = NOTES_MAX - form.notes.length;
+  // The form follows what the visitor brings and the terms: an owner with an
+  // open ship, or a period charterer, isn't asked for a discharge port and a
+  // cargo tonnage.
+  const ship = form.mode === "ship";
+  const tc = !ship && form.term === "tc";
+  const coa = !ship && form.term === "coa";
 
   return (
     <form
@@ -477,14 +623,23 @@ export function InquiryForm() {
         {legend("01", "Cargo & ship")}
         <div className="clear-left grid gap-6">
           {segmented(
+            "mode",
+            "I have",
+            (Object.keys(INQUIRY_MODES) as (keyof typeof INQUIRY_MODES)[]).map((k) => [
+              k,
+              INQUIRY_MODES[k],
+            ]),
+            (mode) => update({ mode })
+          )}
+          {segmented(
             "segment",
-            "Cargo",
+            ship ? "The ship carries" : "Cargo",
             (Object.keys(INQUIRY_SEGMENTS) as InquirySegment[]).map((k) => [k, SEGMENT_SHORT[k]]),
             setSegment
           )}
           {segmented(
             "term",
-            "Charter terms",
+            ship ? "Employment sought" : "Charter terms",
             (Object.keys(INQUIRY_TERMS) as (keyof typeof INQUIRY_TERMS)[]).map((k) => [
               k,
               TERM_LABEL[k],
@@ -509,24 +664,54 @@ export function InquiryForm() {
               <label htmlFor={`${id}-vessel`}>Vessel size</label>
               {message("vessel")}
             </div>
-            {input("quantity", "Quantity", {
-              placeholder: gas ? "e.g. 44,000 mt or 5,000 mt ±10%" : "e.g. 80,000 mt ±10%",
-            })}
+            {ship
+              ? input("quantity", "Ship name / size", {
+                  placeholder: "e.g. MT Levant Star, 115,000 dwt",
+                  optional: true,
+                })
+              : input("quantity", tc ? "Charter period" : "Quantity", {
+                  placeholder: tc
+                    ? "e.g. 12 months ± 30 days"
+                    : coa
+                      ? gas
+                        ? "e.g. 6 × 44,000 mt over 12 months"
+                        : "e.g. 6 × 80,000 mt over 12 months"
+                      : gas
+                        ? "e.g. 44,000 mt or 5,000 mt ±10%"
+                        : "e.g. 80,000 mt ±10%",
+                })}
           </div>
         </div>
       </fieldset>
 
       <fieldset className="mt-10 border-t border-line pt-8">
-        {legend("02", "Route & timing")}
+        {legend("02", ship ? "Position & timing" : "Route & timing")}
         <div className="clear-left grid gap-x-5 gap-y-6 md:grid-cols-2">
-          {input("loadArea", "Load port / area", { placeholder: "e.g. Novorossiysk, Houston" })}
-          {input("dischargeArea", "Discharge port / area", { placeholder: "e.g. Aliağa, Augusta" })}
-          {input("laycanFrom", "Laycan from", { type: "date", min: today })}
-          {input("laycanTo", "Laycan to", {
-            type: "date",
-            min: form.laycanFrom || today,
-            optional: true,
-          })}
+          {ship ? (
+            <>
+              {input("loadArea", "Open port / area", { placeholder: "e.g. Aliağa, Fujairah" })}
+              {input("laycanFrom", "Open date", { type: "date", min: today })}
+            </>
+          ) : (
+            <>
+              {input("loadArea", tc ? "Delivery area" : "Load port / area", {
+                placeholder: tc ? "e.g. East Med, Singapore" : "e.g. Novorossiysk, Houston",
+              })}
+              {input("dischargeArea", tc ? "Redelivery area" : "Discharge port / area", {
+                placeholder: tc ? "e.g. worldwide, Med–Black Sea" : "e.g. Aliağa, Augusta",
+                optional: tc,
+              })}
+              {input("laycanFrom", tc ? "Delivery from" : "Laycan from", {
+                type: "date",
+                min: today,
+              })}
+              {input("laycanTo", tc ? "Delivery to" : "Laycan to", {
+                type: "date",
+                min: form.laycanFrom || today,
+                optional: true,
+              })}
+            </>
+          )}
         </div>
       </fieldset>
 
@@ -551,7 +736,11 @@ export function InquiryForm() {
               {...control("notes", notesLeft < 300)}
               rows={4}
               maxLength={NOTES_MAX}
-              placeholder="Grade, terminals, restrictions, CP form…"
+              placeholder={
+                ship
+                  ? "Last cargoes, approvals, trading limits…"
+                  : "Grade, terminals, restrictions, CP form…"
+              }
               className={AUTOFILL}
             />
             <label htmlFor={`${id}-notes`}>Notes (optional)</label>
@@ -599,16 +788,24 @@ export function InquiryForm() {
             )}
             <span>{busy === "whatsapp" ? "Opening WhatsApp…" : "Send via WhatsApp"}</span>
           </button>
+          {/* Own row, flush with the field errors above; a way back to the first one. */}
           {attempted && errorCount > 0 && (
-            <p className="flex items-center gap-1.5 text-sm font-medium text-state-negative sm:ml-2">
-              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {errorCount === 1 ? "1 field needs attention" : `${errorCount} fields need attention`}
+            <p className="flex items-start gap-1.5 text-sm font-medium text-state-negative sm:basis-full">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <button type="button" onClick={focusFirstError} className="uv-link text-start">
+                {errorCount === 1
+                  ? "1 field needs attention — go to it"
+                  : `${errorCount} fields need attention — go to the first`}
+              </button>
             </p>
           )}
         </div>
-        <p className="mt-4 max-w-xl text-[13px] leading-relaxed text-slate">
-          Opens your own email app or WhatsApp with the inquiry filled in. Nothing is stored on this
-          site.
+        <p className="mt-4 max-w-xl text-pretty text-[13px] leading-relaxed text-slate">
+          Opens your own email app or WhatsApp with the inquiry filled in. Nothing is stored on our
+          servers; an unsent draft stays in this browser tab until you send it or close the tab.{" "}
+          <Link href="/privacy" className="uv-link font-medium text-navy">
+            Privacy policy
+          </Link>
         </p>
 
         {/* Always-present live region, so the confirmation is announced reliably. */}

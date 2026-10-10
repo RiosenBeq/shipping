@@ -39,11 +39,14 @@ const REVEAL_AT = 0.7;
  *   section (the CtaBand, whose full-width phone buttons it would otherwise sit
  *   on, and which has its own WhatsApp button) is on screen. Not shown on
  *   /contact, which lists WhatsApp twice already.
- * - Round 48px icon below 1600px; the label slides in on hover/focus and is
- *   always shown on very wide screens. It only clears the content column
- *   above ~1340px; narrower, it overlaps the content edge, so it sits a little
- *   tighter to the corner on phones. The accessible name starts with the
- *   visible label (WCAG 2.5.3).
+ * - The kit's labelled pill from md up; a round 48px icon only on phones,
+ *   where a full-width pill would cover too much of the page. It only clears
+ *   the content column above ~1340px; narrower, it overlaps the content edge,
+ *   so it sits a little tighter to the corner on phones. The accessible name
+ *   starts with the visible label (WCAG 2.5.3).
+ * - Hide targets are collected live: a page that streams in after a loading
+ *   skeleton (same pathname, so the effect doesn't re-run) still registers
+ *   its CtaBand through the MutationObserver below.
  * - Localized: label, greeting and side (left on RTL) follow the landing page.
  */
 export function FloatingContact() {
@@ -70,12 +73,8 @@ export function FloatingContact() {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
 
-    const targets = [
-      document.getElementById("site-footer"),
-      ...Array.from(document.querySelectorAll("[data-fab-hide]")),
-    ].filter((el): el is Element => el !== null);
     const io =
-      targets.length > 0 && "IntersectionObserver" in window
+      "IntersectionObserver" in window
         ? new IntersectionObserver((entries) => {
             for (const entry of entries) {
               if (entry.isIntersecting) blocking.add(entry.target);
@@ -84,13 +83,47 @@ export function FloatingContact() {
             schedule();
           })
         : null;
-    if (io) targets.forEach((el) => io.observe(el));
+    // observe() is a no-op for targets already observed, so re-scanning is cheap.
+    const collect = () => {
+      if (!io) return;
+      const footer = document.getElementById("site-footer");
+      if (footer) io.observe(footer);
+      document.querySelectorAll("[data-fab-hide]").forEach((el) => io.observe(el));
+      // A band that left the DOM (page swap) no longer blocks.
+      let pruned = false;
+      blocking.forEach((el) => {
+        if (!el.isConnected) {
+          blocking.delete(el);
+          io.unobserve(el);
+          pruned = true;
+        }
+      });
+      if (pruned) schedule();
+    };
+    collect();
+    // Content that arrives later (streamed in after loading.tsx) is picked up too.
+    const content = document.getElementById("content");
+    let scan = 0;
+    const mo =
+      io && content
+        ? new MutationObserver(() => {
+            if (!scan) {
+              scan = window.requestAnimationFrame(() => {
+                scan = 0;
+                collect();
+              });
+            }
+          })
+        : null;
+    if (mo && content) mo.observe(content, { childList: true, subtree: true });
 
     update();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
     return () => {
       io?.disconnect();
+      mo?.disconnect();
+      if (scan) window.cancelAnimationFrame(scan);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (frame) window.cancelAnimationFrame(frame);
@@ -126,14 +159,13 @@ export function FloatingContact() {
         // Brass hairline keeps the navy pill visible over navy sections (WCAG
         // 1.4.11); `!` because the kit sets `border: 0` after Tailwind.
         className={cn(
-          "uv-fab group ![border:1px_solid_rgba(217,176,113,0.45)]",
-          "!px-0 hover:!px-4 focus-visible:!px-4 min-[1600px]:!px-4"
+          "uv-fab ![border:1px_solid_rgba(217,176,113,0.45)]",
+          // icon-only disc on phones, the kit's labelled pill from md up
+          "max-md:!px-0"
         )}
       >
         <WhatsAppGlyph />
-        <span className="hidden whitespace-nowrap group-hover:inline group-focus-visible:inline min-[1600px]:inline">
-          {label}
-        </span>
+        <span className="whitespace-nowrap max-md:hidden">{label}</span>
       </a>
     </div>
   );
