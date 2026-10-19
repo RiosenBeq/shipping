@@ -1,31 +1,24 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
+import { AI_AGENTS } from "@/lib/crawlers";
 
 /**
- * Open to search engines and AI search crawlers (so the desks surface in AI
- * answers). Only framework internals are disallowed.
+ * Open to search engines and to AI search, assistant and training crawlers, so
+ * the desks surface in AI answers. Only API routes are disallowed: `/_next/`
+ * must stay crawlable, because Google renders pages with the CSS and JS
+ * served from there.
+ *
+ * AI crawlers get their own group so the policy is explicit per bot (a bot
+ * that finds a group naming it ignores the `*` group).
  */
 export default function robots(): MetadataRoute.Robots {
-  const disallow = ["/api/", "/_next/"];
-  const aiAgents = [
-    "GPTBot",
-    "OAI-SearchBot",
-    "ChatGPT-User",
-    "ClaudeBot",
-    "Claude-SearchBot",
-    "Claude-User",
-    "PerplexityBot",
-    "Perplexity-User",
-    "Google-Extended",
-    "Applebot-Extended",
-  ];
+  const disallow = ["/api/"];
 
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },
-      { userAgent: aiAgents, allow: "/", disallow },
+      { userAgent: AI_AGENTS, allow: "/", disallow },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,
-    host: siteConfig.url,
   };
 }

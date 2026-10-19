@@ -36,6 +36,26 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     term: "Hi-5 spread",
     def: "VLSFO − HSFO price differential. Wider spread improves scrubber payback economics; narrower spread weakens the case for retrofits.",
   },
+  {
+    group: "freight",
+    term: "Overage",
+    def: "Cargo loaded above the minimum quantity in the charter party. Tanker charters often pay overage at a reduced rate, commonly half the agreed freight rate.",
+  },
+  {
+    group: "freight",
+    term: "Address commission",
+    def: "A percentage of freight or hire returned to the charterer, set in the charter party. Compare offers on the same commission basis.",
+  },
+  {
+    group: "freight",
+    term: "Ballast bonus",
+    def: "A lump sum paid to the owner to position a ship from a distant area to the load port, used when the ship would otherwise not ballast there.",
+  },
+  {
+    group: "freight",
+    term: "Ton-mile demand",
+    def: "Cargo volume multiplied by distance sailed. Longer voyages for the same cargo, such as Atlantic crude replacing Gulf crude in Asia, tie up more ships and support freight.",
+  },
 
   // Vessels & classes
   {
@@ -127,6 +147,21 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   },
   {
     group: "gas",
+    term: "Cooling down & gassing up",
+    def: "Preparing gas carrier tanks for a new cargo: replacing inert gas with cargo vapour, then cooling tanks to loading temperature. It takes time and cargo, so the charter party should say whether it counts as laytime and who pays.",
+  },
+  {
+    group: "gas",
+    term: "Ammonia carrier (NH₃)",
+    def: "A gas carrier certified for ammonia, usually a fully refrigerated MGC or Handysize ship carrying it at about −33 °C. Ammonia needs suitable tank materials, and terminals often restrict previous cargoes.",
+  },
+  {
+    group: "gas",
+    term: "Dual-fuel LPG",
+    def: "A gas carrier that can burn LPG from its cargo as fuel as well as conventional fuel oil. It changes the fuel cost in a TCE comparison and is common on newer VLGCs.",
+  },
+  {
+    group: "gas",
     term: "Filling limit",
     def: "The maximum level a cargo tank may be filled to, leaving room for thermal expansion — typically 98% under the IGC Code. Used when converting tank capacity into cargo tonnes.",
   },
@@ -172,12 +207,42 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "regulatory",
     term: "G7 price cap",
-    def: "Coordinated G7 cap on Russian-origin crude (since Dec 2022) and petroleum products (since Feb 2023). Service providers (insurers, brokers) may only support transactions priced at or below the cap.",
+    def: "Cap on the price of Russian-origin crude (since Dec 2022) and petroleum products (since Feb 2023). Service providers such as insurers, financiers and brokers may only support cargoes bought at or below the cap. The EU and UK now apply a lower crude cap that resets periodically, so the level differs by jurisdiction; check it on the day of fixing.",
   },
   {
     group: "regulatory",
     term: "OFAC / OFSI",
     def: "Office of Foreign Assets Control (US) and Office of Financial Sanctions Implementation (UK). Counterparty and vessel screening against their sanctions lists is standard practice on every fixture.",
+  },
+  {
+    group: "regulatory",
+    term: "FuelEU Maritime",
+    def: "EU rule in force since 1 January 2025 limiting the greenhouse-gas intensity of energy used by ships on EU voyages, with penalties above the limit and pooling between ships. Separate from the EU ETS and needs its own clause.",
+  },
+  {
+    group: "regulatory",
+    term: "Shadow fleet",
+    def: "Tankers trading outside mainstream insurance, class and ownership transparency, often to move sanctioned cargo. Signs include recent flag and name changes, AIS gaps and unexplained ship-to-ship transfers.",
+  },
+  {
+    group: "regulatory",
+    term: "AIS (Automatic Identification System)",
+    def: "Transponder that broadcasts a ship's identity, position and course. Gaps in AIS data are a standard red flag in sanctions screening.",
+  },
+  {
+    group: "regulatory",
+    term: "War-risk additional premium (AP)",
+    def: "Extra insurance premium charged for each call or transit in a war-risk listed area. Charter parties decide whether owners or charterers pay it, together with crew war bonuses.",
+  },
+  {
+    group: "regulatory",
+    term: "JWC listed area",
+    def: "An area listed by the Joint War Committee of the London insurance market as high risk. Ships entering need to notify underwriters and usually pay additional war-risk premium. In 2026 the list includes the Gulf, the Strait of Hormuz and parts of the Black Sea.",
+  },
+  {
+    group: "regulatory",
+    term: "VOYWAR / CONWARTIME",
+    def: "BIMCO war risks clauses for voyage charters (VOYWAR) and time charters (CONWARTIME). They let owners refuse to enter areas that become dangerous and pass additional war-risk costs to charterers.",
   },
 
   // Ports & chokepoints
@@ -199,19 +264,34 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "ports",
     term: "Bosphorus + Dardanelles",
-    def: "Türkiye. Tonnage-based dues, the same laden or ballast, revised from time to time — ask the desk for a current figure. Transit 10–14 hours. Critical for Black Sea exports — CPC, Russian Urals, Kazakh crude.",
+    def: "The Turkish Straits, Türkiye: the Black Sea's only sea link, roughly 160 nm through the Bosphorus, the Sea of Marmara and the Dardanelles. No toll; ships pay Montreux dues plus pilotage and tugs if used. Tankers of 200 m and above pass the Bosphorus in daylight, so waiting time, not steaming time, drives Black Sea estimates.",
   },
   {
     group: "ports",
     term: "Strait of Malacca",
     def: "Singapore / Indonesia / Malaysia. No transit fee; ~12 hours through. Carries ~1/4 of seaborne trade and most MEG → East crude.",
   },
+  {
+    group: "ports",
+    term: "Strait of Hormuz",
+    def: "The chokepoint between the Gulf and the Gulf of Oman through which Middle East Gulf crude, product, LPG and ammonia exports normally sail. Traffic has been severely disrupted since March 2026.",
+  },
+  {
+    group: "ports",
+    term: "Montreux Convention",
+    def: "The 1936 treaty that guarantees merchant ships freedom of passage through the Turkish Straits in peacetime and sets the only dues Türkiye may charge for a transit without a port call: lighthouse, health and life-saving services.",
+  },
+  {
+    group: "ports",
+    term: "STS (ship-to-ship transfer)",
+    def: "Moving cargo between two ships alongside each other, at anchor or under way. Routine in lightering and LPG distribution, but unexplained STS transfers are a sanctions red flag.",
+  },
 
   // Commercial / contract
   {
     group: "commercial",
     term: "COA (Contract of Affreightment)",
-    def: "Multi-shipment contract committing the owner to lift a series of cargoes at agreed terms over a defined period. Common in steel-mill iron ore programmes and refiner crude flows.",
+    def: "Multi-shipment contract committing the owner to lift a series of cargoes at agreed terms over a defined period, without naming one ship. Common for refinery crude programmes, LPG distribution and ammonia supply.",
   },
   {
     group: "commercial",
@@ -240,6 +320,41 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   },
   {
     group: "commercial",
+    term: "NOR (Notice of Readiness)",
+    def: "The master's notice that the ship has arrived and is ready to load or discharge. A valid NOR, tendered where and when the charter party allows, starts the laytime clock.",
+  },
+  {
+    group: "commercial",
+    term: "Statement of facts (SOF)",
+    def: "The agent's or terminal's record of every time in port: arrival, NOR, berthing, hoses on and off, documents. The basis of every laytime and demurrage calculation.",
+  },
+  {
+    group: "commercial",
+    term: "Detention",
+    def: "Damages for delay to the ship that the demurrage clause does not cover, for example before laytime could start. Usually harder to claim than demurrage.",
+  },
+  {
+    group: "commercial",
+    term: "Off-hire",
+    def: "Time under a time charter for which the charterer does not pay hire, because the ship is not fully working: breakdowns, crew problems or deficiencies, as defined in the off-hire clause.",
+  },
+  {
+    group: "commercial",
+    term: "Time bar",
+    def: "A deadline in the charter party for presenting a claim, such as demurrage, with all supporting documents. Many tanker forms set 90 days; a late or incomplete claim can be lost entirely.",
+  },
+  {
+    group: "commercial",
+    term: "Turkish Straits clause",
+    def: "A charter party clause that decides who bears time and cost waiting to transit the Bosphorus and Dardanelles: laytime, demurrage or owners' account.",
+  },
+  {
+    group: "commercial",
+    term: "Charter party (C/P)",
+    def: "The contract between owner and charterer. Usually a standard form, such as ASBATANKVOY, Shellvoy, GASVOY or Shelltime, with typed additional clauses.",
+  },
+  {
+    group: "commercial",
     term: "Laden / Ballast",
     def: "Loaded with cargo (laden) / sailing empty between loads (ballast). Ballast legs eat into TCE because they earn no freight.",
   },
@@ -251,7 +366,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "commercial",
     term: "TD / TC lanes",
-    def: "Worldscale lane codes. TD = Dirty (crude). TC = Clean (products). e.g. TD3C MEG→China, TD20 WAF→UKC, TC2 CONT→USAC, TC14 USG→UKC.",
+    def: "Baltic Exchange tanker route codes, priced in Worldscale or $/mt. TD = dirty (crude and fuel oil), TC = clean (products). e.g. TD3C MEG→China, TD20 WAF→UKC, TC2 CONT→USAC, TC14 USG→UKC.",
   },
 ];
 

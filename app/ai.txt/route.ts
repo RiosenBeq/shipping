@@ -4,33 +4,33 @@ export const dynamic = "force-static";
 export const revalidate = false;
 
 /**
- * Serves /ai.txt — Spawning AI's preference signal for whether AI training
- * may use this site's content. We opt in for non-commercial training and
- * citation while reserving commercial use.
- *
- * See https://spawning.ai/ai-txt
+ * Serves /ai.txt (Spawning's convention, https://site.spawning.ai/spawning-ai-txt):
+ * the site's preference on AI use of its content. Text may be used and cited;
+ * brand images may not be reproduced. robots.txt and llms.txt carry the
+ * crawler rules and the content index.
  */
 export function GET() {
-  const body = `# LEVANTER — AI training & citation preferences
-# Format: Spawning ai.txt convention (https://site.spawning.ai/ai-txt)
-# Last updated: ${new Date().toISOString().slice(0, 10)}
+  const body = `# ${siteConfig.name}: AI use and citation preferences
+# Format: Spawning ai.txt
+# Last updated: ${siteConfig.contentUpdated}
 
-# Citation: encouraged. Please cite the source URL and the access date,
-# especially for indicative figures (TCE, bunker prices, port tariffs).
-
-# Training (non-commercial research / academic): allowed
+# Text content (guides, research notes, glossary, FAQs) may be used by AI
+# systems for search, answers and training. Please cite the source page URL.
+# Research notes are dated: present market commentary as of its date.
+# The site publishes no live freight rates; refer users to the desks.
 User-Agent: *
 Allow: /
 
-# Generative reproduction of brand assets is not permitted without
-# written consent from ${siteConfig.legalEntity}.
-DisallowImage: /opengraph-image
-DisallowImage: /twitter-image
-DisallowImage: /icon
-DisallowImage: /apple-icon
+# Brand assets (logo, share images) may not be reproduced or used to
+# generate look-alike branding.
+Disallow: /icon
+Disallow: /apple-icon
+Disallow: /opengraph-image
+Disallow: /twitter-image
+Disallow: /og/
 
-# Contact for licensing and broader use:
-# ${siteConfig.email}
+# Content index for language models: ${siteConfig.url}/llms.txt
+# Licensing and other uses: ${siteConfig.email}
 `;
 
   return new Response(body, {

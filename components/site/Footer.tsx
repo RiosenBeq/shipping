@@ -23,7 +23,10 @@ const smallCls = "uv-nav-link uv-nav-link--light !py-0.5 !text-[13px] after:!-bo
 const contactCls = "uv-link transition-colors hover:text-white focus-visible:text-white";
 
 const LEGAL = [
+  { href: "/about", label: "About" },
   { href: "/research", label: "Research" },
+  { href: "/turkish-straits", label: "Turkish Straits guide" },
+  { href: "/compliance", label: "Compliance" },
   { href: "/brokers", label: "Team" },
   { href: "/glossary", label: "Glossary" },
   { href: "/contact", label: "Contact" },

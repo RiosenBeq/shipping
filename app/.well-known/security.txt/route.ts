@@ -19,13 +19,11 @@ export function GET() {
   const body = `# LEVANTER security disclosure
 # Per RFC 9116 — https://www.rfc-editor.org/rfc/rfc9116
 
-Contact: mailto:security@${siteConfig.url.replace(/^https?:\/\//, "")}
+Contact: mailto:security@${siteConfig.email.split("@")[1]}
 Contact: ${siteConfig.url}/contact
 Expires: ${expires.toISOString()}
 Preferred-Languages: en, tr
 Canonical: ${siteConfig.url}/.well-known/security.txt
-Policy: ${siteConfig.url}/security-policy
-Acknowledgments: ${siteConfig.url}/security-acknowledgments
 
 # How to report
 # - Please do not test against production data, charter inquiries, or live

@@ -6,8 +6,8 @@ import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { LOCALES, homeLanguages } from "@/lib/i18n";
 
-/** Bump when page content changes materially; avoids a fake "now" on every build. */
-const CONTENT_UPDATED = new Date("2026-10-09");
+/** siteConfig.contentUpdated: bumped when content changes, not a fake "now" per build. */
+const CONTENT_UPDATED = new Date(siteConfig.contentUpdated);
 
 const url = (path: string) => new URL(path, siteConfig.url).toString();
 
@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const reports: MetadataRoute.Sitemap = REPORTS.map((r) => ({
     url: url(`/research/${reportSlug(r)}`),
-    lastModified: new Date(reportDateIso(r.date)),
+    lastModified: new Date(reportDateIso(r.updated ?? r.date)),
     changeFrequency: "yearly" as const,
     priority: 0.6,
   }));

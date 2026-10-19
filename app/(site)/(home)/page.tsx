@@ -28,10 +28,11 @@ import { REPORTS } from "@/lib/data/research";
 import { buildPageMetadata, localBusinessLd, serviceLd, webPageLd } from "@/lib/seo";
 import { siteConfig, whatsappUrl } from "@/lib/site";
 import { homeLanguages } from "@/lib/i18n";
+import { HOME_FAQ } from "@/lib/data/faqs";
 
 const TITLE = "LEVANTER — Tanker & LPG Shipbrokers in Istanbul";
 const DESCRIPTION =
-  "Istanbul-based tanker and LPG chartering brokers. Crude, clean products, LPG and ammonia — spot, time charter and COA, with direct broker access and a 60-minute first reply.";
+  "Istanbul tanker and LPG shipbrokers: crude, clean products, LPG and ammonia on spot, time charter and COA. Direct broker access, first reply in 60 minutes.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -76,21 +77,28 @@ const WHY = [
     Icon: Anchor,
     title: "On the Turkish Straits",
     text: "Our Istanbul desk sits on the Bosphorus. Transit timing, waiting and Straits rules go into every Black Sea estimate we send.",
+    link: { href: "/turkish-straits", label: "Turkish Straits guide" },
   },
   {
     Icon: Flame,
     title: "Small LPG specialists",
     text: "Pressurised and semi-refrigerated LPG in the Med, Black Sea and Türkiye — the trades the large houses tend to underserve.",
+    link: { href: "/lpg/pressurised", label: "Pressurised LPG guide" },
   },
   {
     Icon: UserCheck,
     title: "Senior brokers on every deal",
     text: "You talk to the broker who works your cargo or ship, from first idea to post-fixture.",
+    link: { href: "/about", label: "About LEVANTER" },
   },
   {
     Icon: ListChecks,
     title: "Numbers you can check",
     text: "We show the TCE, routing and port-time assumptions behind every freight idea, so you can check the numbers line by line.",
+    link: {
+      href: "/research/worldscale-and-tce-explained-how-tanker-freight-is-quoted",
+      label: "Worldscale and TCE explained",
+    },
   },
 ];
 
@@ -103,29 +111,6 @@ const STEPS = [
     text: "We negotiate main terms and the charter party to a clean fixture.",
   },
   { n: "04", title: "Post-fixture", text: "Voyage follow-up, laytime, demurrage and claims." },
-];
-
-const FAQ = [
-  {
-    q: "What does a tanker or LPG shipbroker do?",
-    a: "A shipbroker matches cargoes with ships. We find suitable tonnage (or cargo), negotiate freight and charter party terms for our client, and follow the voyage through to laytime, demurrage and claims settlement.",
-  },
-  {
-    q: "Which ships do you charter?",
-    a: "Crude tankers (VLCC, Suezmax, Aframax), product tankers (LR2, LR1, MR) and LPG/ammonia carriers from VLGCs and MGCs down to Handysize and small pressurised ships.",
-  },
-  {
-    q: "Do you broker ammonia and petrochemical gases?",
-    a: "Yes. Our LPG desk covers ammonia on MGCs and Handysize ships, and petrochemical gases such as propylene, butadiene and VCM on semi-refrigerated tonnage.",
-  },
-  {
-    q: "How quickly will I hear back?",
-    a: "A broker replies within 60 minutes during business hours (Istanbul, London and Singapore). Outside these hours, WhatsApp the desk for live fixtures.",
-  },
-  {
-    q: "Who pays the brokerage commission?",
-    a: "Brokerage is normally paid by the shipowner as a percentage of freight or hire, agreed in the charter party. There is no charge to send us an inquiry.",
-  },
 ];
 
 const desks = [
@@ -318,7 +303,7 @@ export default function HomePage() {
       {/* Why */}
       <Section tone="sand" eyebrow="Why LEVANTER" title="A boutique desk with local depth.">
         <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY.map(({ Icon, title, text }) => (
+          {WHY.map(({ Icon, title, text, link }) => (
             <li
               key={title}
               className="relative border-t border-line pt-6 before:absolute before:-top-px before:start-0 before:h-0.5 before:w-12 before:bg-brass"
@@ -332,6 +317,11 @@ export default function HomePage() {
               </span>
               <h3 className="mt-4 text-lg font-semibold text-navy">{title}</h3>
               <p className="mt-2 leading-relaxed text-slate">{text}</p>
+              <p className="mt-3 text-[15px]">
+                <Link href={link.href} className="uv-link font-semibold text-navy">
+                  {link.label}
+                </Link>
+              </p>
             </li>
           ))}
         </ul>
@@ -400,7 +390,7 @@ export default function HomePage() {
 
       {/* FAQ */}
       <Section eyebrow="FAQ" title="Working with a tanker & LPG broker.">
-        <Faq items={FAQ} />
+        <Faq items={HOME_FAQ} />
       </Section>
 
       <CtaBand />

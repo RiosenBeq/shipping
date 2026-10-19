@@ -7,6 +7,9 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { Eyebrow, Section } from "@/components/site/Section";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
+import { HormuzBadge, HormuzNote } from "@/components/site/HormuzNote";
+import { ReportCard } from "@/components/site/ReportCard";
+import { relatedReports } from "@/lib/data/research";
 import { TankerArt } from "@/components/site/VesselArt";
 import {
   TANKER_CLASSES,
@@ -206,6 +209,7 @@ export default function TankerClassPage({ params }: Params) {
                     </th>
                     <td className="px-4 py-4 sm:px-6">
                       <span className="font-medium text-navy">{r.lane}</span>
+                      {r.hormuz && <HormuzBadge />}
                       <p className="mt-1 leading-relaxed text-slate md:hidden">{r.note}</p>
                     </td>
                     <td className="hidden px-6 py-4 leading-relaxed text-slate md:table-cell">
@@ -217,6 +221,7 @@ export default function TankerClassPage({ params }: Params) {
             </table>
           </div>
         </div>
+        {t.routes.some((r) => r.hormuz) && <HormuzNote />}
 
         <div className="mt-10">
           <h3 id="charterers" className={EYEBROW}>
@@ -289,6 +294,24 @@ export default function TankerClassPage({ params }: Params) {
                 </span>
                 <span className="uv-card__arrow" aria-hidden="true" />
               </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        eyebrow="Research"
+        title={`Notes for ${t.shortName} charterers.`}
+        action={
+          <Link href="/research" className="uv-btn-outline">
+            All research <ArrowRight aria-hidden="true" />
+          </Link>
+        }
+      >
+        <ul className="grid gap-5 md:grid-cols-3">
+          {relatedReports("tankers", [t.shortName, ...t.routes.map((r) => r.code)]).map((r) => (
+            <li key={r.slug}>
+              <ReportCard report={r} />
             </li>
           ))}
         </ul>

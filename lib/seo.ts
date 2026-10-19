@@ -1,20 +1,33 @@
 import type { Metadata } from "next";
 import { siteConfig } from "./site";
 import { LOCALES } from "./i18n";
+import { BROKERS, type Broker } from "./data/brokers";
+import { shareImageFor } from "./og-cards";
 
 type PageMetaInput = {
   title: string;
   description: string;
   path: string;
   keywords?: string[];
-  ogImage?: string; // path relative to site URL
+  /**
+   * Share image path relative to the site URL. Defaults to the page's card in
+   * lib/og-cards.ts (served from /og/…), else the site-wide image. `null`
+   * leaves images out.
+   */
+  ogImage?: string | null;
   /** When true, the title is used verbatim instead of the `%s — LEVANTER` template. */
   absoluteTitle?: boolean;
   /** hreflang alternates, e.g. { en: "/", "zh-Hans": "/zh" }. */
   languages?: Record<string, string>;
   /** Open Graph locale override (defaults to en_US). */
   locale?: string;
-  article?: { publishedTime: string; section?: string };
+  article?: {
+    publishedTime: string;
+    modifiedTime?: string;
+    section?: string;
+    authors?: string[];
+    tags?: string[];
+  };
 };
 
 const abs = (path: string) => new URL(path, siteConfig.url).toString();
@@ -25,7 +38,11 @@ const abs = (path: string) => new URL(path, siteConfig.url).toString();
  */
 export function buildPageMetadata(input: PageMetaInput): Metadata {
   const url = abs(input.path);
-  const ogImageUrl = abs(input.ogImage ?? siteConfig.ogImage);
+  // Default: the page's own card from /og/… when it has one, else the site card.
+  const ogImageUrl =
+    input.ogImage === null
+      ? null
+      : abs(input.ogImage ?? shareImageFor(input.path) ?? siteConfig.ogImage);
   const languages = input.languages
     ? {
         ...Object.fromEntries(Object.entries(input.languages).map(([k, v]) => [k, abs(v)])),
@@ -45,9 +62,17 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       description: input.description,
       siteName: siteConfig.name,
       locale: input.locale ?? siteConfig.locale,
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: input.title }],
+      ...(ogImageUrl
+        ? { images: [{ url: ogImageUrl, width: 1200, height: 630, alt: input.title }] }
+        : {}),
       ...(input.article
-        ? { publishedTime: input.article.publishedTime, section: input.article.section }
+        ? {
+            publishedTime: input.article.publishedTime,
+            modifiedTime: input.article.modifiedTime,
+            section: input.article.section,
+            authors: input.article.authors,
+            tags: input.article.tags,
+          }
         : {}),
     },
     twitter: {
@@ -55,7 +80,8 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       title: input.title,
       description: input.description,
       site: siteConfig.twitter,
-      images: [ogImageUrl],
+      creator: siteConfig.twitter,
+      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
     },
   };
 }
@@ -63,6 +89,11 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
 /* ====================== JSON-LD helpers ====================== */
 
 const ORG_ID = `${siteConfig.url}#organization`;
+
+/** Languages spoken across the desks (from the team list), English first. */
+const ORG_LANGUAGES = Array.from(
+  new Set(["English", "Turkish", ...BROKERS.flatMap((b) => b.languages)])
+);
 
 export function organizationLd() {
   return {
@@ -72,9 +103,20 @@ export function organizationLd() {
     name: siteConfig.legalEntity,
     alternateName: siteConfig.name,
     url: siteConfig.url,
-    logo: abs("/icon"),
+    // Google asks for a logo of at least 112 × 112 px: the 180 px apple-icon.
+    logo: {
+      "@type": "ImageObject",
+      "@id": `${siteConfig.url}#logo`,
+      url: abs("/apple-icon"),
+      width: 180,
+      height: 180,
+      caption: siteConfig.name,
+    },
+    image: { "@id": `${siteConfig.url}#logo` },
     description: siteConfig.description,
+    slogan: siteConfig.tagline,
     foundingDate: siteConfig.founded,
+    foundingLocation: { "@type": "Place", name: "Istanbul, Türkiye" },
     email: siteConfig.email,
     telephone: siteConfig.phone,
     address: {
@@ -103,17 +145,35 @@ export function organizationLd() {
       },
     ],
     knowsAbout: [
+      "Shipbroking",
       "Tanker chartering",
+      "Crude oil tankers",
+      "Product tankers",
       "LPG shipping",
       "Ammonia shipping",
+      "Petrochemical gases",
       "VLCC",
       "Suezmax",
       "Aframax",
+      "LR2 tankers",
+      "LR1 tankers",
       "MR tankers",
       "VLGC",
       "Midsize gas carriers",
+      "Pressurised LPG carriers",
       "Turkish Straits",
+      "Bosphorus transit",
+      "Black Sea shipping",
+      "Laytime and demurrage",
+      "Sanctions compliance in shipping",
     ],
+    knowsLanguage: ORG_LANGUAGES,
+    areaServed: ["Worldwide", "Mediterranean", "Black Sea", "Middle East", "Türkiye"],
+    location: siteConfig.offices.map((o) => ({
+      "@type": "Place",
+      name: `${siteConfig.name} ${o.city}`,
+      address: { "@type": "PostalAddress", addressLocality: o.city, addressCountry: o.country },
+    })),
     sameAs: Object.values(siteConfig.socials),
   };
 }
@@ -151,6 +211,9 @@ export function localBusinessLd() {
       },
     ],
     areaServed: ["Worldwide", "Mediterranean", "Black Sea", "Middle East", "Türkiye"],
+    hasMap: `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.latitude},${siteConfig.geo.longitude}`,
+    knowsLanguage: ORG_LANGUAGES,
+    sameAs: Object.values(siteConfig.socials),
   };
 }
 
@@ -188,12 +251,18 @@ export function webPageLd({
   path,
   type = "WebPage",
   lang = "en",
+  dateModified,
+  about,
 }: {
   title: string;
   description: string;
   path: string;
-  type?: "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage";
+  type?: "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "FAQPage";
   lang?: string;
+  /** ISO date of the last material content change. */
+  dateModified?: string;
+  /** What the page is about: schema.org Thing(s) or @id references. */
+  about?: object | object[];
 }) {
   const url = abs(path);
   return {
@@ -206,6 +275,8 @@ export function webPageLd({
     isPartOf: { "@id": `${siteConfig.url}#website` },
     publisher: { "@id": ORG_ID },
     inLanguage: lang,
+    ...(dateModified ? { dateModified } : {}),
+    ...(about ? { about } : {}),
   };
 }
 
@@ -271,29 +342,65 @@ export function articleLd({
   description,
   path,
   datePublished,
+  dateModified,
   section,
+  author,
+  keywords,
+  gated = false,
+  text,
+  type = "Article",
 }: {
   title: string;
   description: string;
   path: string;
   datePublished: string;
+  dateModified?: string;
   section: string;
+  /** Broker who wrote it; falls back to the company. */
+  author?: Broker;
+  keywords?: string[];
+  /** Summary-only notes: the full report is sent on request. */
+  gated?: boolean;
+  /** Plain text of the body, for wordCount. */
+  text?: string;
+  type?: "Article" | "TechArticle";
 }) {
   const url = abs(path);
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": type,
     "@id": `${url}#article`,
-    headline: title,
+    headline: title.length > 110 ? `${title.slice(0, 107)}…` : title,
     description,
     url,
-    mainEntityOfPage: url,
+    mainEntityOfPage: { "@id": `${url}#webpage`, "@type": "WebPage", url },
     datePublished,
-    dateModified: datePublished,
+    dateModified: dateModified ?? datePublished,
     articleSection: section,
-    image: abs(siteConfig.ogImage),
-    author: { "@id": ORG_ID },
+    ...(keywords?.length ? { keywords: keywords.join(", ") } : {}),
+    ...(text ? { wordCount: text.split(/\s+/).filter(Boolean).length } : {}),
+    isAccessibleForFree: true,
+    ...(gated ? { abstract: description } : {}),
+    image: {
+      "@type": "ImageObject",
+      url: abs(shareImageFor(path) ?? siteConfig.ogImage),
+      width: 1200,
+      height: 630,
+    },
+    author: author
+      ? {
+          "@type": "Person",
+          name: author.name,
+          jobTitle: author.title,
+          worksFor: { "@id": ORG_ID },
+          workLocation: { "@type": "Place", name: author.office },
+          knowsLanguage: author.languages,
+          knowsAbout: author.focus,
+          url: abs("/brokers"),
+        }
+      : { "@id": ORG_ID },
     publisher: { "@id": ORG_ID },
+    isPartOf: { "@id": `${siteConfig.url}#website` },
     inLanguage: "en",
   };
 }

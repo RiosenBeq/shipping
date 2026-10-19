@@ -17,10 +17,11 @@ import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { CHIP_STATIC, cn } from "@/lib/utils";
+import { TANKERS_FAQ } from "@/lib/data/faqs";
 
 const TITLE = "Tanker Broker — Crude & Product Tanker Chartering";
 const DESCRIPTION =
-  "Crude and product tanker chartering from Istanbul: VLCC, Suezmax, Aframax/LR2, LR1 and MR. Black Sea, CPC, Mediterranean and long-haul lanes — spot, time charter and COA.";
+  "Crude and product tanker chartering from Istanbul: VLCC, Suezmax, Aframax/LR2, LR1 and MR on Black Sea, CPC, Med and long-haul lanes. Spot, TC and COA.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -68,25 +69,6 @@ const SERVICES = [
   {
     title: "Post-fixture & compliance",
     text: "Laytime and demurrage, claims, and sanctions / price-cap documentation on every fixture.",
-  },
-];
-
-const FAQ = [
-  {
-    q: "Which tanker sizes do you broker?",
-    a: "Crude: VLCC (270,000–320,000 dwt), Suezmax (130,000–160,000 dwt) and Aframax/LR2 (80,000–115,000 dwt). Clean: LR1 (55,000–80,000 dwt) and MR (40,000–55,000 dwt).",
-  },
-  {
-    q: "Why use an Istanbul-based tanker broker?",
-    a: "Black Sea and CPC cargoes transit the Bosphorus and Dardanelles. Being on the Straits means we price transit timing and waiting realistically and follow the regional charterers and owners every day.",
-  },
-  {
-    q: "How do you handle sanctions and the G7 price cap?",
-    a: "Counterparty screening and price-cap attestation checks run before a freight idea goes back to the charterer. We do not work inquiries that fail compliance review.",
-  },
-  {
-    q: "How are tanker freight rates quoted?",
-    a: "Spot crude and product voyages are usually quoted in Worldscale points (WS) or as a lump sum. We always show the time-charter equivalent (TCE) so offers can be compared.",
   },
 ];
 
@@ -294,7 +276,7 @@ export default function TankersPage() {
       )}
 
       <Section eyebrow="FAQ" title="Tanker chartering questions.">
-        <Faq items={FAQ} />
+        <Faq items={TANKERS_FAQ} />
       </Section>
 
       <CtaBand

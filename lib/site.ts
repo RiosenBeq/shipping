@@ -13,6 +13,8 @@ export const siteConfig = {
   twitter: "@levanter",
   legalEntity: "LEVANTER Shipbrokers A.Ş.",
   founded: "2024",
+  /** Last material content update (ISO date): sitemap, humans.txt, ai.txt. */
+  contentUpdated: "2026-10-19",
   email: "desk@levanter.example",
   phone: "+90 212 000 0000",
   whatsapp: "+905330000000", // E.164, no spaces — used to build wa.me links

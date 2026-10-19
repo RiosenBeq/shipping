@@ -44,7 +44,8 @@ export const PAGES: PageEntry[] = [
   {
     path: "/research",
     title: "Research",
-    summary: "Route guides, weekly outlooks and regulatory notes from the tanker and LPG desks.",
+    summary:
+      "Route guides, practical guides (Worldscale and TCE, laytime and demurrage, LPG charter types), market outlooks and risk and regulatory briefs (Strait of Hormuz, price cap, EU ETS) from the tanker and LPG desks.",
     group: "primary",
     priority: 0.8,
     changeFrequency: "weekly",
@@ -67,10 +68,37 @@ export const PAGES: PageEntry[] = [
     changeFrequency: "monthly",
   },
   {
+    path: "/turkish-straits",
+    title: "Turkish Straits Transit Guide",
+    summary:
+      "Bosphorus and Dardanelles transits for tanker and LPG charterers: VTS rules, daylight transits for 200 m+ tankers, pilotage, waiting time, Montreux dues and the Turkish Straits clause.",
+    group: "primary",
+    priority: 0.85,
+    changeFrequency: "monthly",
+  },
+  {
+    path: "/compliance",
+    title: "Sanctions & Compliance Screening",
+    summary:
+      "How every fixture is screened: counterparties, ships, cargo origin, oil price-cap attestations and war-risk areas, before an offer is made.",
+    group: "primary",
+    priority: 0.7,
+    changeFrequency: "monthly",
+  },
+  {
+    path: "/about",
+    title: "About LEVANTER",
+    summary:
+      "Company facts: founded in Istanbul in 2024, offices in Istanbul, London and Singapore, two desks, working principles and how brokers are paid.",
+    group: "primary",
+    priority: 0.7,
+    changeFrequency: "monthly",
+  },
+  {
     path: "/glossary",
     title: "Chartering Glossary",
     summary:
-      "Plain-English tanker and LPG chartering terms: Worldscale, TCE, VLGC, MGC, cbm, demurrage.",
+      "Plain-English tanker and LPG chartering terms: Worldscale, TCE, VLGC, MGC, cbm, laytime, demurrage, NOR, war risk and more.",
     group: "primary",
     priority: 0.6,
     changeFrequency: "monthly",

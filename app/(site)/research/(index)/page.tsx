@@ -12,7 +12,7 @@ import { siteConfig } from "@/lib/site";
 
 const TITLE = "Tanker & LPG Market Research";
 const DESCRIPTION =
-  "Free market notes from our tanker and LPG desks: VLGC and MGC routing, small LPG in the Black Sea and Med, Suezmax and Aframax outlooks, and charter party regulation.";
+  "Notes from our tanker and LPG desks: Hormuz risk brief, laytime and Worldscale guides, VLGC and MGC routing, small LPG in the Black Sea, price cap, EU ETS.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -29,6 +29,10 @@ export const metadata: Metadata = buildPageMetadata({
     "Aframax TD7",
     "Black Sea tanker market",
     "EU ETS charter party",
+    "Strait of Hormuz tanker",
+    "laytime and demurrage guide",
+    "Worldscale explained",
+    "LPG charter party COA",
   ],
 });
 
@@ -47,7 +51,7 @@ const DESKS = [
     eyebrow: "LPG & ammonia desk",
     title: "LPG & ammonia",
     intro:
-      "VLGC routing, ammonia on midsize gas carriers, and small pressurised LPG ships in the Med and Black Sea.",
+      "VLGC routing, ammonia on midsize gas carriers, small pressurised LPG ships in the Med and Black Sea, and how to choose between spot, time charter and COA.",
     href: "/lpg",
     linkLabel: "LPG & ammonia desk",
     reports: SORTED.filter((r) => r.desk === "lpg"),
@@ -57,7 +61,7 @@ const DESKS = [
     eyebrow: "Tanker desk",
     title: "Tankers",
     intro:
-      "Crude and product tanker outlooks, route guides for the main TD lanes, and the rules that shape charter parties.",
+      "Crude and product tanker outlooks, route guides for the main TD lanes, practical guides to freight and laytime, and the rules and risks that shape charter parties.",
     href: "/tankers",
     linkLabel: "Tanker desk",
     reports: SORTED.filter((r) => r.desk === "tankers"),
@@ -96,7 +100,7 @@ export default function ResearchPage() {
         eyebrow="Research"
         // non-breaking spaces: never break before the ampersand
         title={"Market notes from the tanker\u00a0&\u00a0LPG desks"}
-        lead="Route guides, market outlooks and regulatory notes, written by the brokers who fix the cargoes. Free to read, with no login."
+        lead="Route guides, practical guides, market outlooks and risk briefs, written by the brokers who fix the cargoes. Free to read, with no login."
         crumbs={[{ name: "Research", path: "/research" }]}
       >
         <nav aria-label="Research desks">

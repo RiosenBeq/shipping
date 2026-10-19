@@ -7,6 +7,9 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { Eyebrow, Section } from "@/components/site/Section";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
+import { HormuzBadge, HormuzNote } from "@/components/site/HormuzNote";
+import { ReportCard } from "@/components/site/ReportCard";
+import { relatedReports } from "@/lib/data/research";
 import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
 import { LPG_CLASSES, getLpgClassBySlug } from "@/lib/data/lpg-classes";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
@@ -26,7 +29,7 @@ function copy(slug: string) {
   const c = getLpgClassBySlug(slug)!;
   return {
     title: `${c.name} Chartering — ${c.longName}`,
-    description: `${c.name} chartering from LEVANTER's LPG desk: ${c.capacity.toLowerCase()}, ${c.cargoes
+    description: `${c.name} chartering from LEVANTER's LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
       .slice(0, 3)
       .join(", ")
       .toLowerCase()}. Spot, time charter and COA.`,
@@ -179,6 +182,7 @@ export default function LpgClassPage({ params }: Params) {
                     </th>
                     <td className="px-4 py-4 sm:px-6">
                       <span className="font-medium text-navy">{r.lane}</span>
+                      {r.hormuz && <HormuzBadge />}
                       <p className="mt-1 leading-relaxed text-slate md:hidden">{r.note}</p>
                     </td>
                     <td className="hidden px-6 py-4 leading-relaxed text-slate md:table-cell">
@@ -190,6 +194,7 @@ export default function LpgClassPage({ params }: Params) {
             </table>
           </div>
         </div>
+        {c.routes.some((r) => r.hormuz) && <HormuzNote />}
 
         <div className="mt-10">
           <h3 id="trades" className={EYEBROW}>
@@ -260,6 +265,24 @@ export default function LpgClassPage({ params }: Params) {
                 <span className="uv-card__meta pt-3 font-semibold !text-navy">{o.name} guide</span>
                 <span className="uv-card__arrow" aria-hidden="true" />
               </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        eyebrow="Research"
+        title={`Notes for ${c.name} charterers.`}
+        action={
+          <Link href="/research" className="uv-btn-outline">
+            All research <ArrowRight aria-hidden="true" />
+          </Link>
+        }
+      >
+        <ul className="grid gap-5 md:grid-cols-3">
+          {relatedReports("lpg", [c.name, ...c.routes.map((r) => r.code)]).map((r) => (
+            <li key={r.slug}>
+              <ReportCard report={r} />
             </li>
           ))}
         </ul>

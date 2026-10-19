@@ -9,7 +9,7 @@ import { CopyButton, InquiryForm } from "./InquiryForm";
 
 const TITLE = "Contact — Send a Tanker or LPG Charter Inquiry";
 const DESCRIPTION =
-  "Send a tanker or LPG charter inquiry to LEVANTER in Istanbul. Cargo, ports and laycan — a broker replies within 60 minutes during business hours. Email, phone or WhatsApp.";
+  "Send a tanker or LPG charter inquiry to LEVANTER in Istanbul: cargo, ports and laycan. A broker replies within 60 minutes. Email, phone or WhatsApp.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,

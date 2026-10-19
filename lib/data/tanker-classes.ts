@@ -20,7 +20,8 @@ export type TankerClassData = {
   speed: string;
   consumption: string;
   intro: string;
-  routes: { code: string; lane: string; note: string }[];
+  /** `hormuz`: loads in the Middle East Gulf, so it depends on Strait of Hormuz transit. */
+  routes: { code: string; lane: string; note: string; hormuz?: boolean }[];
   marketsServed: string[];
   keyTrends: { title: string; body: string }[];
   charterShape: string;
@@ -44,10 +45,11 @@ export const TANKER_CLASSES: TankerClassData[] = [
     speed: "13.5 kn (laden) / 14.0 kn (ballast)",
     consumption: "70–80 mt/d VLSFO at sea, ~5 mt/d in port",
     intro:
-      "The VLCC is the workhorse of the long-haul crude trade. Roughly 38% of all VLCC fixtures touch some version of the Middle East Gulf to East lane. Modern VLCCs are dual-fuel-ready, increasingly methanol- or LNG-spec on newbuildings, and almost all of the working fleet is now ECO/Tier-3 emissions compliant.",
+      "The VLCC is the workhorse of the long-haul crude trade. In normal markets the Middle East Gulf to Asia lane is its largest single trade; since the Strait of Hormuz was disrupted in March 2026, Asian refiners have bought more Atlantic-basin crude from the US Gulf, Brazil and West Africa, which means longer voyages for the same barrels. Newbuildings are increasingly dual-fuel ready, and charterers vet age, emissions and sanctions history as closely as price.",
     routes: [
       {
         code: "TD3C",
+        hormuz: true,
         lane: "MEG → China",
         note: "The single most-fixed long-haul tanker route. ~6,300 nm, 19–21 days laden via Strait of Malacca.",
       },
@@ -118,6 +120,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
       {
         code: "TD23",
+        hormuz: true,
         lane: "MEG → Med",
         note: "Middle East Gulf to Mediterranean via Suez. ~5,800 nm; growing share of West-of-Suez supply.",
       },
@@ -169,7 +172,12 @@ export const TANKER_CLASSES: TankerClassData[] = [
         lane: "NSEA → CONT",
         note: "North Sea to Continent. 14-day round trip; portage discipline matters.",
       },
-      { code: "TD8", lane: "Kuwait → Singapore", note: "Aframax MEG → SE Asia; ~4,500 nm." },
+      {
+        code: "TD8",
+        lane: "Kuwait → Singapore",
+        note: "Aframax MEG → SE Asia; ~4,500 nm.",
+        hormuz: true,
+      },
       { code: "TD19", lane: "C. Med → Med", note: "Cross-Med Aframax; CPC, Black Sea relay." },
     ],
     marketsServed: [
@@ -214,8 +222,18 @@ export const TANKER_CLASSES: TankerClassData[] = [
     intro:
       "The LR1 sits between the LR2 and MR — bigger than the products workhorse but more flexible than the long-range coated Aframax. The clean product trade flows it dominates run MEG to East Africa, MEG to Europe, and intra-Asia.",
     routes: [
-      { code: "TC5", lane: "MEG → Japan", note: "Naphtha and gasoil MEG to Far East." },
-      { code: "TC8", lane: "MEG → UK Continent", note: "MEG → UKC clean products via Suez." },
+      {
+        code: "TC5",
+        lane: "MEG → Japan",
+        note: "Naphtha and gasoil MEG to Far East.",
+        hormuz: true,
+      },
+      {
+        code: "TC8",
+        lane: "MEG → UK Continent",
+        note: "MEG → UKC clean products via Suez.",
+        hormuz: true,
+      },
     ],
     marketsServed: ["Asian refiners", "Indian product traders", "Mediterranean blenders"],
     keyTrends: [
@@ -262,6 +280,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
       {
         code: "TC17",
+        hormuz: true,
         lane: "MEG → East Africa",
         note: "MR clean products to East African coastal refiners.",
       },

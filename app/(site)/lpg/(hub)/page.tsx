@@ -18,10 +18,11 @@ import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { CHIP_STATIC, cn } from "@/lib/utils";
 import { LpgConverter } from "./LpgConverter";
+import { LPG_FAQ } from "@/lib/data/faqs";
 
 const TITLE = "LPG Shipbroker — VLGC, MGC & Ammonia Chartering";
 const DESCRIPTION =
-  "LPG and ammonia chartering from Istanbul: VLGC, MGC, Handysize and pressurised gas carriers. Spot, time charter and COA for propane, butane, ammonia and petrochemical gases.";
+  "LPG and ammonia chartering from Istanbul: VLGC, MGC, Handysize and pressurised gas carriers for propane, butane, ammonia and petchem gases. Spot, TC, COA.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -74,25 +75,6 @@ const FOCUS = [
   {
     title: "Ammonia & petchem gases",
     text: "MGC ammonia lanes and Handysize petrochemical parcels, including grade-switch planning.",
-  },
-];
-
-const FAQ = [
-  {
-    q: "What size LPG carriers do you charter?",
-    a: "The full range: VLGCs (70,000 cbm and above), MGCs (25,000–50,000 cbm), Handysize gas carriers (15,000–25,000 cbm) and small pressurised or semi-refrigerated ships below 15,000 cbm.",
-  },
-  {
-    q: "How is LPG freight quoted?",
-    a: "Spot voyages are usually quoted in US dollars per metric tonne ($/mt). Time charters are quoted per month or per day. We always show the equivalent time-charter earnings (TCE) so offers can be compared.",
-  },
-  {
-    q: "Do you handle ammonia cargoes?",
-    a: "Yes. Ammonia moves mainly on fully refrigerated MGCs and on suitable Handysize ships. We check ammonia certification, previous cargoes and terminal requirements before fixing.",
-  },
-  {
-    q: "Can you help with LPG imports into Türkiye?",
-    a: "Yes. Our Istanbul LPG desk works with importers and distributors on small and mid-size ships into Turkish terminals, including Bosphorus and Dardanelles transit planning.",
   },
 ];
 
@@ -295,7 +277,7 @@ export default function LpgPage() {
       )}
 
       <Section tone="sand" eyebrow="FAQ" title="LPG chartering questions.">
-        <Faq items={FAQ} onSand />
+        <Faq items={LPG_FAQ} onSand />
       </Section>
 
       <CtaBand

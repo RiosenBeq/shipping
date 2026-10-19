@@ -7,17 +7,42 @@ export type Report = {
   cat: Exclude<ResearchCategory, "all">;
   catLabel: string;
   iss: string;
+  /** Publication date, "28 APR 2026". */
   date: string;
+  /** Last material revision, same format. Feeds dateModified and the sitemap. */
+  updated?: string;
+  /** Broker who wrote the note (name as in lib/data/brokers.ts). */
+  author: string;
   read: number;
   /** Gated reports show the summary on the site; the full PDF is sent on request. */
   gated: boolean;
   title: string;
+  /** Shorter <title> for search results when `title` runs past ~60 characters. */
+  seoTitle?: string;
   desc: string;
   label: string;
 };
 
 export function reportSlug(r: Pick<Report, "slug">): string {
   return r.slug;
+}
+
+/** The Strait of Hormuz brief, linked from route tables that load in the Gulf. */
+export const HORMUZ_NOTE_PATH =
+  "/research/strait-of-hormuz-disruption-checklist-for-tanker-and-lpg-charterers";
+
+/**
+ * Notes for a class guide or desk page: those whose tags mention one of
+ * `terms` (e.g. "VLGC"), newest first, topped up with the desk's latest notes.
+ */
+export function relatedReports(desk: Report["desk"], terms: string[], n = 3): Report[] {
+  const byDate = [...REPORTS].sort((a, b) =>
+    reportDateIso(b.date).localeCompare(reportDateIso(a.date))
+  );
+  const re = new RegExp(`\\b(${terms.map((t) => t.replace(/\W/g, "")).join("|")})\\b`, "i");
+  const matched = terms.length ? byDate.filter((r) => re.test(`${r.label} ${r.title}`)) : [];
+  const rest = byDate.filter((r) => r.desk === desk && !matched.includes(r));
+  return [...matched, ...rest].slice(0, n);
 }
 
 export function getReportBySlug(slug: string): Report | undefined {
@@ -48,12 +73,72 @@ export function reportDateIso(date: string): string {
 
 export const REPORTS: Report[] = [
   {
+    slug: "strait-of-hormuz-disruption-checklist-for-tanker-and-lpg-charterers",
+    desk: "tankers",
+    cat: "reg",
+    catLabel: "Risk Brief",
+    iss: "OCTOBER 2026",
+    date: "16 OCT 2026",
+    author: "Mehmet Aydın",
+    read: 9,
+    gated: false,
+    title: "Strait of Hormuz disruption: a checklist for tanker and LPG charterers",
+    seoTitle: "Strait of Hormuz Disruption: Checklist for Charterers",
+    desc: "What the 2026 Hormuz crisis changes in a fixture: war-risk cover, clauses, routing, laytime and sanctions checks to agree before you fix.",
+    label: "CRUDE · LPG · WAR RISK",
+  },
+  {
+    slug: "laytime-and-demurrage-a-practical-guide-for-tanker-and-lpg-charters",
+    desk: "tankers",
+    cat: "guide",
+    catLabel: "Guide",
+    iss: "OCTOBER 2026",
+    date: "14 OCT 2026",
+    author: "Ahmed El-Sayed",
+    read: 10,
+    gated: false,
+    title: "Laytime and demurrage: a practical guide for tanker and LPG charters",
+    seoTitle: "Laytime & Demurrage Guide for Tanker and LPG Charters",
+    desc: "When laytime starts, what stops the clock, how demurrage is calculated and the documents that win or lose a claim.",
+    label: "LAYTIME · DEMURRAGE · POST-FIXTURE",
+  },
+  {
+    slug: "spot-time-charter-or-coa-how-to-charter-an-lpg-carrier",
+    desk: "lpg",
+    cat: "guide",
+    catLabel: "Guide",
+    iss: "OCTOBER 2026",
+    date: "13 OCT 2026",
+    author: "Elif Kaya",
+    read: 9,
+    gated: false,
+    title: "Spot, time charter or COA: how to charter an LPG carrier",
+    desc: "Voyage, time charter and contract of affreightment compared for LPG and ammonia: who carries which cost and risk, and when each fits.",
+    label: "LPG · CHARTER PARTY · COA",
+  },
+  {
+    slug: "worldscale-and-tce-explained-how-tanker-freight-is-quoted",
+    desk: "tankers",
+    cat: "guide",
+    catLabel: "Guide",
+    iss: "OCTOBER 2026",
+    date: "09 OCT 2026",
+    author: "Demetrios Pavlou",
+    read: 8,
+    gated: false,
+    title: "Worldscale and TCE explained: how tanker freight is quoted",
+    desc: "Flat rates, Worldscale points, overage and commissions, and how to turn any freight offer into a comparable time-charter equivalent.",
+    label: "WORLDSCALE · TCE · FREIGHT",
+  },
+  {
     slug: "vlgc-routing-us-gulf-asia-panama-or-the-cape",
     desk: "lpg",
     cat: "route",
     catLabel: "Route Guide",
     iss: "OCTOBER 2026",
     date: "06 OCT 2026",
+    updated: "19 OCT 2026",
+    author: "Hiroshi Tanaka",
     read: 8,
     gated: false,
     title: "VLGC routing on US Gulf–Asia: Panama or the Cape?",
@@ -67,6 +152,7 @@ export const REPORTS: Report[] = [
     catLabel: "Route Guide",
     iss: "SEPTEMBER 2026",
     date: "22 SEP 2026",
+    author: "Kerem Yılmaz",
     read: 7,
     gated: false,
     title: "Chartering small LPG ships in the Med and Black Sea",
@@ -80,6 +166,7 @@ export const REPORTS: Report[] = [
     catLabel: "Guide",
     iss: "SEPTEMBER 2026",
     date: "08 SEP 2026",
+    author: "Elif Kaya",
     read: 6,
     gated: false,
     title: "Ammonia on MGCs: switching grades without losing a voyage",
@@ -93,6 +180,7 @@ export const REPORTS: Report[] = [
     catLabel: "Weekly Outlook",
     iss: "18 / 2026",
     date: "28 APR 2026",
+    author: "Søren Hansen",
     read: 7,
     gated: false,
     title: "Suezmax tightness sustains as CPC volumes rebound",
@@ -106,6 +194,8 @@ export const REPORTS: Report[] = [
     catLabel: "Route Guide",
     iss: "APRIL 2026",
     date: "22 APR 2026",
+    updated: "19 OCT 2026",
+    author: "Wei Zhang",
     read: 11,
     gated: false,
     title: "TD3C demystified: MEG to China end-to-end",
@@ -119,6 +209,7 @@ export const REPORTS: Report[] = [
     catLabel: "Weekly Outlook",
     iss: "17 / 2026",
     date: "21 APR 2026",
+    author: "Wei Zhang",
     read: 7,
     gated: false,
     title: "WAF–East: the slow re-rating",
@@ -132,10 +223,12 @@ export const REPORTS: Report[] = [
     catLabel: "Regulatory",
     iss: "Q2 2026",
     date: "15 APR 2026",
+    updated: "19 OCT 2026",
+    author: "Demetrios Pavlou",
     read: 14,
     gated: true,
     title: "EU ETS phase-2: cargo allocation, who actually pays",
-    desc: "With 70% phasing in 2026, the contractual fight has begun. Standard clauses, charterer pushback, and what a fair split looks like.",
+    desc: "2026 brings 100% of emissions, plus methane and N₂O, into scope. Standard clauses, charterer pushback, and what a fair split looks like.",
     label: "EU ETS · CHARTER PARTY",
   },
   {
@@ -145,6 +238,7 @@ export const REPORTS: Report[] = [
     catLabel: "Route Guide",
     iss: "MARCH 2026",
     date: "28 MAR 2026",
+    author: "Søren Hansen",
     read: 9,
     gated: false,
     // en dash, not an arrow: a Unicode arrow falls back to another font in the display serif
@@ -159,6 +253,8 @@ export const REPORTS: Report[] = [
     catLabel: "Regulatory",
     iss: "BRIEF",
     date: "18 MAR 2026",
+    updated: "19 OCT 2026",
+    author: "Mehmet Aydın",
     read: 8,
     gated: false,
     title: "G7 price cap attestation — the desk-level workflow",

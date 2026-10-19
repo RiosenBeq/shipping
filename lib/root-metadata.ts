@@ -9,6 +9,24 @@ import { LOCALES } from "./i18n";
  */
 const defaultTitle = `${siteConfig.name} — ${siteConfig.tagline}`;
 
+/**
+ * Search-console ownership tokens, set per deployment (Vercel env vars) so no
+ * token is committed. Unset ones are left out of the head.
+ */
+const env = process.env;
+const otherVerification = Object.fromEntries(
+  [
+    ["msvalidate.01", env.NEXT_PUBLIC_BING_SITE_VERIFICATION],
+    ["yandex-verification", env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION],
+  ].filter((e): e is [string, string] => Boolean(e[1]))
+);
+const verification: Metadata["verification"] = {
+  ...(env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : {}),
+  ...(Object.keys(otherVerification).length ? { other: otherVerification } : {}),
+};
+
 export const rootMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: defaultTitle, template: `%s — ${siteConfig.name}` },
@@ -54,6 +72,7 @@ export const rootMetadata: Metadata = {
     other: [{ rel: "author", url: "/humans.txt" }],
   },
   manifest: "/manifest.webmanifest",
+  ...(Object.keys(verification).length ? { verification } : {}),
   alternates: {
     types: { "application/rss+xml": [{ url: "/research/feed.xml", title: "LEVANTER Research" }] },
   },

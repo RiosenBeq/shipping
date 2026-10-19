@@ -17,7 +17,8 @@ export type LpgClassData = {
   typicalCargo: string;
   cargoes: string[];
   intro: string;
-  routes: { code: string; lane: string; note: string }[];
+  /** `hormuz`: loads in the Middle East Gulf, so it depends on Strait of Hormuz transit. */
+  routes: { code: string; lane: string; note: string; hormuz?: boolean }[];
   trades: string[];
   watchpoints: { title: string; body: string }[];
   charterShape: string;
@@ -41,6 +42,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     routes: [
       {
         code: "BLPG1",
+        hormuz: true,
         lane: "Ras Tanura → Chiba",
         note: "Baltic benchmark for Middle East Gulf to Japan; 44,000 mt fully refrigerated basis.",
       },

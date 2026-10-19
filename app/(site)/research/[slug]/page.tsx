@@ -14,8 +14,9 @@ import {
   reportSlug,
   type Report,
 } from "@/lib/data/research";
-import { REPORT_BODIES, type ReportBlock } from "@/lib/data/research-bodies";
-import { articleLd, buildPageMetadata } from "@/lib/seo";
+import { REPORT_BODIES, bodyText, type ReportBlock } from "@/lib/data/research-bodies";
+import { getBroker } from "@/lib/data/brokers";
+import { articleLd, buildPageMetadata, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { CHIP_STATIC } from "@/lib/utils";
@@ -78,12 +79,21 @@ export function generateMetadata({ params }: Props): Metadata {
     .split("·")
     .map((t) => t.trim())
     .filter(Boolean);
+  const seoTitle = r.seoTitle ?? r.title;
   return buildPageMetadata({
-    title: r.title,
+    title: seoTitle,
+    // Drop the " — LEVANTER" suffix when it would push the title past ~60 characters.
+    absoluteTitle: seoTitle.length > 48,
     description: r.desc,
     path: `/research/${reportSlug(r)}`,
     keywords: [...tags, r.catLabel, ...DESKS[r.desk].keywords],
-    article: { publishedTime: reportDateIso(r.date), section: r.catLabel },
+    article: {
+      publishedTime: reportDateIso(r.date),
+      modifiedTime: reportDateIso(r.updated ?? r.date),
+      section: r.catLabel,
+      authors: [r.author],
+      tags,
+    },
   });
 }
 
@@ -101,6 +111,55 @@ function Block({ block }: { block: ReportBlock }) {
           ))}
         </ul>
       );
+    case "ol":
+      return (
+        <ol>
+          {block.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      );
+    case "table":
+      return (
+        // Wide tables scroll inside their frame instead of widening the page.
+        <div className="my-8 overflow-x-auto rounded-[10px] border border-line bg-white">
+          <table className="w-full text-start text-[15px] leading-snug">
+            <caption className="border-b border-line bg-sand/60 px-4 py-3 text-start text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+              {block.caption}
+            </caption>
+            <thead className="border-b border-line">
+              <tr>
+                {block.head.map((h, i) => (
+                  <th key={i} scope="col" className="px-4 py-3 text-start font-semibold text-navy">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {block.rows.map((row, i) => (
+                <tr key={i} className="align-top">
+                  {row.map((cell, j) =>
+                    j === 0 ? (
+                      <th
+                        key={j}
+                        scope="row"
+                        className="px-4 py-3 text-start font-medium text-navy"
+                      >
+                        {cell}
+                      </th>
+                    ) : (
+                      <td key={j} className="tnum px-4 py-3 text-slate">
+                        {cell}
+                      </td>
+                    )
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
     case "callout":
       return (
         // House accent: the kit card's 2px brass top rule (as on the desk card).
@@ -117,6 +176,11 @@ function Block({ block }: { block: ReportBlock }) {
             {block.label}
           </Eyebrow>
           <p className="!mb-0 text-base leading-relaxed text-navy">{block.text}</p>
+          {block.link && (
+            <p className="!mb-0 mt-3 text-[15px]">
+              <Link href={block.link.href}>{block.link.label}</Link>
+            </p>
+          )}
         </div>
       );
   }
@@ -131,6 +195,8 @@ export default function ReportPage({ params }: Props) {
   const body = REPORT_BODIES[slug];
   const desk = DESKS[r.desk];
   const published = reportDateIso(r.date);
+  const modified = reportDateIso(r.updated ?? r.date);
+  const author = getBroker(r.author);
 
   const related = REPORTS.filter((o) => o.desk === r.desk && reportSlug(o) !== slug)
     .sort((a, b) => reportDateIso(b.date).localeCompare(reportDateIso(a.date)))
@@ -143,13 +209,26 @@ export default function ReportPage({ params }: Props) {
   return (
     <>
       <JsonLd
-        data={articleLd({
-          title: r.title,
-          description: r.desc,
-          path,
-          datePublished: published,
-          section: r.catLabel,
-        })}
+        data={[
+          webPageLd({
+            title: r.title,
+            description: r.desc,
+            path,
+            dateModified: modified,
+          }),
+          articleLd({
+            title: r.title,
+            description: r.desc,
+            path,
+            datePublished: published,
+            dateModified: modified,
+            section: r.catLabel,
+            author,
+            keywords: tagList(r.label),
+            gated: r.gated,
+            text: body ? bodyText(body) : r.desc,
+          }),
+        ]}
       />
 
       <PageHeader
@@ -169,6 +248,16 @@ export default function ReportPage({ params }: Props) {
               </time>
             </span>
           </li>
+          {r.updated && (
+            <li>
+              <span className={CHIP_STATIC}>
+                Updated{" "}
+                <time dateTime={modified.slice(0, 10)} className="font-mono text-xs">
+                  {r.updated}
+                </time>
+              </span>
+            </li>
+          )}
           <li>
             <span className={CHIP_STATIC}>
               {r.gated ? "Summary · full report on request" : `${r.read} min read`}
@@ -182,7 +271,22 @@ export default function ReportPage({ params }: Props) {
 
       <section className="py-12 md:py-16">
         <div className="container grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
-          <article>
+          <article className="min-w-0">
+            {author && (
+              <p className="mb-8 flex max-w-prose items-center gap-3 border-b border-line pb-6 text-sm text-slate">
+                <span
+                  aria-hidden="true"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-mono text-xs text-white"
+                  style={{ backgroundColor: author.color }}
+                >
+                  {author.initials}
+                </span>
+                <span>
+                  By <span className="font-semibold text-navy">{author.name}</span>, {author.title}{" "}
+                  · {author.office}
+                </span>
+              </p>
+            )}
             {r.gated ? (
               <>
                 <div className="lv-prose">
@@ -190,6 +294,7 @@ export default function ReportPage({ params }: Props) {
                     Summary
                   </Eyebrow>
                   <p>{body?.summary ?? r.desc}</p>
+                  {body?.blocks.map((b, i) => <Block key={i} block={b} />)}
                 </div>
                 {/* static kit card (shared border, radius, colours) with the brass top rule */}
                 <div className="uv-card mt-10 max-w-prose !gap-0 !p-6 md:!p-8">

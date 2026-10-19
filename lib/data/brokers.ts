@@ -123,6 +123,10 @@ export const BROKERS: Broker[] = [
   },
 ];
 
+export function getBroker(name: string): Broker | undefined {
+  return BROKERS.find((b) => b.name === name);
+}
+
 export function brokersByTeam(team: Team): Broker[] {
   return BROKERS.filter((b) => b.team === team);
 }
