@@ -24,8 +24,6 @@ Contact: ${siteConfig.url}/contact
 Expires: ${expires.toISOString()}
 Preferred-Languages: en, tr
 Canonical: ${siteConfig.url}/.well-known/security.txt
-Policy: ${siteConfig.url}/security-policy
-Acknowledgments: ${siteConfig.url}/security-acknowledgments
 
 # How to report
 # - Please do not test against production data, charter inquiries, or live

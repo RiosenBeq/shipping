@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { InputPanel, CharterType } from "./components/InputPanel";
 import { SummaryStrip } from "./components/SummaryStrip";
@@ -184,18 +185,18 @@ export function VoyageEstimator() {
       {/* PAGE HEADER */}
       <section className="ph">
         <div className="container">
-          <div className="crumbs">
-            <Link href="/">Home</Link>
-            <span>/</span>
-            <a href="#">Tools</a>
-            <span>/</span> Voyage Estimator
-          </div>
-          <span className="eyebrow">Voyage Estimator</span>
-          <h1 className="display h1">Run the numbers before you fix.</h1>
+          <Breadcrumbs
+            crumbs={[
+              { name: "Home", path: "/" },
+              { name: "Voyage estimator", path: "/voyage-estimator" },
+            ]}
+          />
+          <span className="eyebrow">Voyage estimator · run the numbers before you fix</span>
+          <h1 className="display h1">Tanker voyage estimator &amp; TCE calculator.</h1>
           <p>
-            Indicative TCE, freight, and P&amp;L modelling across all major tanker lanes. You set
-            the bunker, WS, and port costs; the calculator does the rest. Share or save your
-            scenario in one click.
+            Indicative TCE, freight, bunker cost and P&amp;L modelling across major tanker lanes.
+            You set the bunker prices, Worldscale and port costs; the calculator does the rest.
+            Share or save your scenario in one click.
           </p>
         </div>
       </section>
@@ -208,6 +209,7 @@ export function VoyageEstimator() {
               key={k}
               href={`#${k}`}
               className={view === k ? "active" : ""}
+              aria-current={view === k ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
                 switchView(k);
@@ -220,7 +222,7 @@ export function VoyageEstimator() {
       </nav>
 
       {/* ESTIMATOR VIEW */}
-      <div className={`view${view === "estimator" ? "active" : ""}`}>
+      <div id="estimator" className={`view${view === "estimator" ? "active" : ""}`}>
         <section className="estimator">
           <InputPanel
             inputs={inputs}
@@ -252,30 +254,33 @@ export function VoyageEstimator() {
       </div>
 
       {/* DISTANCES */}
-      <div className={`view${view === "distances" ? "active" : ""}`}>
+      <div id="distances" className={`view${view === "distances" ? "active" : ""}`}>
         <DistancesView activeNm={inputs.distance} onPick={onPickDistance} />
       </div>
 
       {/* TARIFFS */}
-      <div className={`view${view === "tariffs" ? "active" : ""}`}>
+      <div id="tariffs" className={`view${view === "tariffs" ? "active" : ""}`}>
         <TariffsView />
       </div>
 
       {/* REFERENCE */}
-      <div className={`view${view === "reference" ? "active" : ""}`}>
+      <div id="reference" className={`view${view === "reference" ? "active" : ""}`}>
         <ReferenceView />
       </div>
 
       {/* CTA STRIP */}
       <section className="cta-strip">
         <div>
-          <h3>Want a specific scenario modelled?</h3>
+          <h2>Want a specific scenario modelled?</h2>
           <p>
-            Send your CP terms and we&apos;ll return a full estimator pack with sensitivity tables
-            and bunker hedging options inside 60 minutes.
+            Send your CP terms and the desk will come back with a worked estimate and sensitivity
+            table. A broker replies within 60 minutes during business hours.
           </p>
         </div>
-        <a href="#contact" className="btn btn-primary">
+        <Link
+          href={`/contact?notes=${encodeURIComponent("Please model a voyage scenario: ")}`}
+          className="btn btn-primary"
+        >
           Send to a broker
           <svg
             width="14"
@@ -284,10 +289,11 @@ export function VoyageEstimator() {
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
+            aria-hidden="true"
           >
             <path d="M5 12h14M13 5l7 7-7 7" />
           </svg>
-        </a>
+        </Link>
       </section>
     </>
   );

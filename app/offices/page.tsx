@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { ContactCta } from "../components/ContactCta";
 import { OfficesView } from "./OfficesView";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { OFFICES } from "@/lib/data/offices";
+import { buildPageMetadata, breadcrumbsLd, officeLd, webPageLd } from "@/lib/seo";
+import { OFFICES, OFFICE_ORDER, weekdayCoverageHours } from "@/lib/data/offices";
+import { OFFICE_DETAILS } from "@/lib/data/office-detail";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Offices — Istanbul, London, Singapore, Houston",
   description:
-    "Four desks across the Bosphorus, City of London, Marina Bay, and the US Gulf. 22-hour live coverage with direct broker access.",
+    "LEVANTER shipbroking desks: Istanbul headquarters on the Bosphorus plus London, Singapore and Houston. Local times, trading hours, languages and direct lines.",
   path: "/offices",
   keywords: [
+    "shipbroker offices",
     "Istanbul shipbroker",
     "London shipbroker",
     "Singapore shipbroker",
@@ -23,18 +25,15 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const officeLocationsLd = Object.values(OFFICES).map((o) => ({
-  "@context": "https://schema.org",
-  "@type": "Place",
-  name: `${siteConfig.name} ${o.city}`,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: o.addr,
-    addressLocality: o.city,
-  },
-  telephone: o.phone,
-  containedInPlace: { "@id": `${siteConfig.url}#organization` },
-}));
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Offices", path: "/offices" },
+];
+
+const offices = OFFICE_ORDER.map((slug) => OFFICES[slug]);
+const coverageHours = weekdayCoverageHours(offices);
+const timeZones = new Set(offices.map((o) => o.tz)).size;
+const weekendDesks = offices.filter((o) => o.openingHours.days.includes("Saturday"));
 
 export default function OfficesPage() {
   return (
@@ -42,67 +41,82 @@ export default function OfficesPage() {
       <JsonLd
         data={[
           webPageLd({
-            title: "LEVANTER Offices — 22-hour coverage",
-            description: "Four desks. Headquartered on the Bosphorus.",
+            title: "LEVANTER Offices",
+            description: "Istanbul headquarters plus London, Singapore and Houston desks.",
             path: "/offices",
-            type: "AboutPage",
+            type: "CollectionPage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Offices", path: "/offices" },
-          ]),
-          ...officeLocationsLd,
+          breadcrumbsLd(CRUMBS),
+          ...offices.map((o) =>
+            officeLd({
+              name: `${siteConfig.name} ${o.city}`,
+              path: `/offices/${o.slug}`,
+              description: OFFICE_DETAILS[o.slug].intro,
+              streetAddress: o.street,
+              locality: o.city,
+              postalCode: o.postalCode,
+              country: o.country,
+              telephone: o.phone,
+              hours: o.openingHours,
+            })
+          ),
         ]}
       />
       <Nav active="offices" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Offices
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Offices</span>
-            <h1 className="display h1">Four desks. The sun never sets on the order book.</h1>
-            <p>Headquartered on the Bosphorus. Coverage across UKC, Asia, and the US Gulf.</p>
+            <h1 className="display h1">
+              Shipbroking offices in Istanbul, London, Singapore and Houston.
+            </h1>
+            <p>Headquartered on the Bosphorus, with desks covering UKC, Asia and the US Gulf.</p>
           </div>
         </section>
 
         <OfficesView />
 
-        <section className="coverage">
+        <section className="coverage" aria-labelledby="coverage-h">
           <div className="container">
             <span className="eyebrow" style={{ color: "var(--accent-amber)" }}>
               Coverage
             </span>
-            <h2 className="display h2">Where we cover, who we cover with.</h2>
+            <h2 id="coverage-h" className="display h2">
+              Where we cover, and when.
+            </h2>
             <p>
-              Direct counterparty access in every major loading region for crude and clean. No
-              layered sub-broking.
+              Direct counterparty access in the major loading regions for crude, clean and dry bulk,
+              without a layer of sub-brokers. Coverage below is worked out from each desk&apos;s
+              published trading hours.
             </p>
             <div className="cov-stats">
               <div className="cov-stat">
-                <div className="v">38</div>
-                <div className="l">Countries · charterers</div>
+                <div className="v">{offices.length}</div>
+                <div className="l">Desks · {offices.map((o) => o.city).join(", ")}</div>
               </div>
               <div className="cov-stat">
-                <div className="v">120+</div>
-                <div className="l">Owners on first-name terms</div>
+                <div className="v">{timeZones}</div>
+                <div className="l">Time zones</div>
               </div>
               <div className="cov-stat">
-                <div className="v">4</div>
-                <div className="l">Time zones · 22-hr coverage</div>
+                <div className="v">{coverageHours} h</div>
+                <div className="l">Weekday coverage across the desks</div>
               </div>
               <div className="cov-stat">
-                <div className="v">62 min</div>
-                <div className="l">Median first reply, hand-off</div>
+                <div className="v">{weekendDesks.length > 0 ? "Daily" : "—"}</div>
+                <div className="l">
+                  {weekendDesks.length > 0
+                    ? `Weekends: ${weekendDesks.map((o) => `${o.city} ${o.hours.replace(" daily", "")} local`).join(", ")}`
+                    : "Weekend cover by arrangement"}
+                </div>
               </div>
             </div>
           </div>
         </section>
         <ContactCta
           headline="Pick a desk and call."
-          body="Each office runs its own desk: Istanbul for Black Sea/Med, London for Atlantic, Singapore for Asia, Houston for US Gulf. Pick the one closest to your trade."
+          body="Each office runs its own desk: Istanbul for the Black Sea and Med, London for the Atlantic, Singapore for Asia, Houston for the US Gulf. Pick the one closest to your trade."
           context="multi-office routing"
         />
       </main>

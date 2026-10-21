@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { ArrowRight, Phone, MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, telUrl, whatsappUrl, mailUrl } from "@/lib/site";
+import { TrackedAnchor } from "./TrackedAnchor";
 
 type Props = {
   /** Optional override for the headline text. */
   headline?: string;
   /** Optional override for the body copy. */
   body?: string;
-  /** Optional context the CTA pre-fills into the inquiry context. Currently informational. */
+  /** Topic pre-filled into the WhatsApp message and email subject. */
   context?: string;
+  /** Inquiry form link, e.g. with the cargo pre-selected (`/contact?cargo=bulk`). */
+  inquiryHref?: string;
 };
 
 const DEFAULT_HEADLINE = "Talk to the desk.";
@@ -21,26 +24,23 @@ const DEFAULT_BODY =
  * WhatsApp, telephone, and email. Drop in below long-form content on
  * any page to convert reader → desk-conversation.
  */
-export function ContactCta({ headline, body, context }: Props) {
-  const waText = encodeURIComponent(
+export function ContactCta({ headline, body, context, inquiryHref = "/contact" }: Props) {
+  const waUrl = whatsappUrl(
     context
       ? `Hi LEVANTER desk — I'd like to discuss: ${context}`
       : "Hi LEVANTER desk — I'd like to discuss a fixture."
   );
-  const waUrl = `https://wa.me/${siteConfig.whatsapp.replace(/\+/g, "")}?text=${waText}`;
-  const telUrl = `tel:${siteConfig.phone.replace(/\s+/g, "")}`;
-  const mailUrl = `mailto:${siteConfig.email}${
-    context ? `?subject=${encodeURIComponent(`LEVANTER · ${context}`)}` : ""
-  }`;
+  const emailUrl = mailUrl(context ? `LEVANTER · ${context}` : undefined);
 
   return (
-    <section className="contact-cta">
+    <section className="contact-cta" aria-labelledby="contact-cta-h">
       <div className="contact-cta-inner">
         <div className="contact-cta-head">
           <span className="eyebrow" style={{ color: "var(--accent-brass-lt)" }}>
             Reach the desk
           </span>
           <h2
+            id="contact-cta-h"
             className="display"
             style={{
               color: "var(--ink-bone)",
@@ -68,38 +68,38 @@ export function ContactCta({ headline, body, context }: Props) {
 
         <div className="contact-cta-grid">
           <Button asChild size="lg" className="contact-cta-primary">
-            <Link href="/contact">
-              Charter inquiry <ArrowRight className="h-4 w-4" />
+            <Link href={inquiryHref}>
+              Charter inquiry <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
 
-          <a
+          <TrackedAnchor
+            channel="whatsapp"
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="contact-channel"
-            aria-label={`WhatsApp ${siteConfig.whatsappDisplay}`}
           >
-            <MessageCircle className="h-5 w-5" />
+            <MessageCircle className="h-5 w-5" aria-hidden="true" />
             <div>
               <div className="contact-channel-name">WhatsApp</div>
               <div className="contact-channel-value">{siteConfig.whatsappDisplay}</div>
             </div>
-          </a>
-          <a href={telUrl} className="contact-channel" aria-label={`Call ${siteConfig.phone}`}>
-            <Phone className="h-5 w-5" />
+          </TrackedAnchor>
+          <TrackedAnchor channel="phone" href={telUrl()} className="contact-channel">
+            <Phone className="h-5 w-5" aria-hidden="true" />
             <div>
               <div className="contact-channel-name">Call HQ</div>
               <div className="contact-channel-value">{siteConfig.phone}</div>
             </div>
-          </a>
-          <a href={mailUrl} className="contact-channel" aria-label={`Email ${siteConfig.email}`}>
-            <Mail className="h-5 w-5" />
+          </TrackedAnchor>
+          <TrackedAnchor channel="email" href={emailUrl} className="contact-channel">
+            <Mail className="h-5 w-5" aria-hidden="true" />
             <div>
               <div className="contact-channel-name">Email</div>
               <div className="contact-channel-value">{siteConfig.email}</div>
             </div>
-          </a>
+          </TrackedAnchor>
         </div>
       </div>
     </section>

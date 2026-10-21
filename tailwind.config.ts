@@ -23,6 +23,7 @@ const config: Config = {
         },
         accent: {
           brass: "var(--accent-brass)",
+          "brass-fill": "var(--accent-brass-fill)",
           "brass-lt": "var(--accent-brass-lt)",
           amber: "var(--accent-amber)",
           teal: "var(--accent-teal)",
@@ -46,7 +47,8 @@ const config: Config = {
         border: "var(--hairline)",
         input: "var(--hairline)",
         ring: "var(--accent-brass)",
-        primary: { DEFAULT: "var(--accent-brass)", foreground: "#ffffff" },
+        "on-brass": "var(--on-brass)",
+        primary: { DEFAULT: "var(--accent-brass-fill)", foreground: "var(--on-brass)" },
         secondary: { DEFAULT: "var(--surface-cream)", foreground: "var(--fg)" },
         destructive: { DEFAULT: "var(--state-negative)", foreground: "#ffffff" },
         accentUI: { DEFAULT: "var(--accent-brass-lt)", foreground: "var(--ink-deep-petrol)" },

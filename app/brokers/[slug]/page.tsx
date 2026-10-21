@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Phone, Mail, Linkedin, MessageCircle } from "lucide-react";
+import { ArrowRight, Phone, Mail, MessageCircle } from "lucide-react";
 import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
+import { Breadcrumbs } from "../../components/Breadcrumbs";
+import { TrackedAnchor } from "../../components/TrackedAnchor";
 import { Button } from "@/components/ui/button";
 import {
   BROKERS,
@@ -13,9 +15,18 @@ import {
   SECTOR_LABEL,
   CLASS_LABEL,
 } from "@/lib/data/brokers";
-import { OFFICES } from "@/lib/data/offices";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
+import { OFFICES, DESK_TO_OFFICE } from "@/lib/data/offices";
+import { absoluteUrl, buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { siteConfig, telUrl, whatsappUrl, mailUrl } from "@/lib/site";
+import type { Sector } from "@/lib/schemas";
+
+/** Inquiry-form cargo pre-selection for a broker's main sector. */
+const SECTOR_CARGO: Partial<Record<Sector, string>> = {
+  crude: "crude",
+  clean: "clean",
+  chem: "chem",
+  bulk: "bulk",
+};
 
 export function generateStaticParams() {
   return BROKERS.map((b) => ({ slug: brokerSlug(b) }));
@@ -31,8 +42,8 @@ export async function generateMetadata({
   const b = getBrokerBySlug(params.slug);
   if (!b) return { title: "Broker not found" };
   return buildPageMetadata({
-    title: `${b.name} — ${b.title}`,
-    description: `${b.name} — ${b.title}, LEVANTER ${b.desk} desk. Coverage: ${b.tags.join(", ")}. Sectors: ${b.sectors.map((s) => SECTOR_LABEL[s]).join(", ")}.`,
+    title: `${b.name} — ${b.title}, ${b.desk}`,
+    description: `${b.name}, ${b.title} on the LEVANTER ${b.desk} desk. Covers ${b.tags.join(", ")} (${b.sectors.map((s) => SECTOR_LABEL[s]).join(", ")}). Contact the desk directly.`,
     path: `/brokers/${params.slug}`,
     keywords: [
       b.name,
@@ -44,34 +55,45 @@ export async function generateMetadata({
   });
 }
 
-const DESK_TO_OFFICE: Record<string, keyof typeof OFFICES> = {
-  Istanbul: "ist",
-  London: "lon",
-  Singapore: "sg",
-  Houston: "hou",
-};
-
 export default function BrokerProfile({ params }: { params: { slug: string } }) {
   const b = getBrokerBySlug(params.slug);
   if (!b) notFound();
 
-  const office = OFFICES[DESK_TO_OFFICE[b.desk]];
+  const officeSlug = DESK_TO_OFFICE[b.desk];
+  const office = OFFICES[officeSlug];
+  const path = `/brokers/${params.slug}`;
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Brokers", path: "/brokers" },
+    { name: b.name, path },
+  ];
+  const cargo = b.sectors.map((s) => SECTOR_CARGO[s]).find(Boolean);
+  const inquiryHref = `/contact?${new URLSearchParams({
+    ...(cargo ? { cargo } : {}),
+    notes: `Attn: ${b.name}`,
+  }).toString()}`;
+  const colleagues = BROKERS.filter((x) => x.desk === b.desk && x.name !== b.name);
 
+  // No photo yet: Person.image is omitted rather than pointing at a generic brand image.
   const personLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": `${siteConfig.url}/brokers/${params.slug}#person`,
+    "@id": `${absoluteUrl(path)}#person`,
     name: b.name,
     jobTitle: b.title,
-    image: `${siteConfig.url}/opengraph-image`,
     worksFor: { "@id": `${siteConfig.url}#organization` },
     workLocation: {
       "@type": "Place",
       name: `${siteConfig.name} ${b.desk}`,
-      address: { "@type": "PostalAddress", addressLocality: b.desk },
+      url: absoluteUrl(`/offices/${officeSlug}`),
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: b.desk,
+        addressCountry: office.country,
+      },
     },
     knowsAbout: [...b.tags, ...b.sectors.map((s) => SECTOR_LABEL[s])],
-    url: `${siteConfig.url}/brokers/${params.slug}`,
+    url: absoluteUrl(path),
   };
 
   return (
@@ -81,27 +103,18 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
           webPageLd({
             title: `${b.name} — ${b.title}`,
             description: `${b.name} — ${b.title} at the LEVANTER ${b.desk} desk.`,
-            path: `/brokers/${params.slug}`,
-            type: "AboutPage",
+            path,
+            type: "ProfilePage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Brokers", path: "/brokers" },
-            { name: b.name, path: `/brokers/${params.slug}` },
-          ]),
+          breadcrumbsLd(crumbs),
           personLd,
         ]}
       />
       <Nav active="brokers" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span>
-              <Link href="/brokers">Brokers</Link>
-              <span>/</span> {b.name}
-            </div>
+            <Breadcrumbs crumbs={crumbs} />
             <div
               style={{
                 display: "flex",
@@ -125,7 +138,9 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                 {b.initials}
               </div>
               <div>
-                <span className="eyebrow">{b.desk} desk</span>
+                <span className="eyebrow">
+                  <Link href={`/offices/${officeSlug}`}>{b.desk} desk</Link>
+                </span>
                 <h1 className="display h1" style={{ marginBottom: 6 }}>
                   {b.name}
                 </h1>
@@ -201,87 +216,61 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
 
                 <div style={{ marginTop: 32 }}>
                   <Button asChild>
-                    <Link href="/contact">
-                      Send {b.name.split(" ")[0]} an inquiry <ArrowRight className="h-4 w-4" />
+                    <Link href={inquiryHref}>
+                      Send {b.name.split(" ")[0]} an inquiry{" "}
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </Button>
                 </div>
+
+                {colleagues.length > 0 && (
+                  <div style={{ marginTop: 40 }}>
+                    <h2 className="eyebrow" style={{ display: "block", marginBottom: 12 }}>
+                      Also on the {b.desk} desk
+                    </h2>
+                    <ul className="related-list">
+                      {colleagues.map((c) => (
+                        <li key={c.name}>
+                          <Link href={`/brokers/${brokerSlug(c)}`}>
+                            <span className="meta">{c.title}</span>
+                            {c.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              <aside>
+              <div>
                 <div className="b-card" style={{ padding: 28 }}>
                   <div className="filter-h" style={{ marginBottom: 12 }}>
                     Contact
                   </div>
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      padding: 0,
-                      margin: 0,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 10,
-                      fontSize: 14,
-                    }}
-                  >
+                  <ul className="broker-contact">
                     <li>
-                      <a
-                        href={`tel:${office?.phone.replace(/\s+/g, "")}`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--accent-brass)",
-                        }}
-                      >
-                        <Phone className="h-4 w-4" />
-                        {office?.phone}
-                      </a>
+                      <TrackedAnchor channel="phone" href={telUrl(office.phone)}>
+                        <Phone className="h-4 w-4" aria-hidden="true" />
+                        {office.phone}
+                        <span className="sr-only"> ({b.desk} desk)</span>
+                      </TrackedAnchor>
                     </li>
                     <li>
-                      <a
-                        href={`mailto:${b.name.toLowerCase().replace(/[^a-z]+/g, ".")}@${siteConfig.url.replace(
-                          /^https?:\/\//,
-                          ""
-                        )}`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--accent-brass)",
-                        }}
-                      >
-                        <Mail className="h-4 w-4" />
-                        Direct email
-                      </a>
+                      <TrackedAnchor channel="email" href={mailUrl(`Attn: ${b.name}`)}>
+                        <Mail className="h-4 w-4" aria-hidden="true" />
+                        Email the desk (Attn: {b.name.split(" ")[0]})
+                      </TrackedAnchor>
                     </li>
                     <li>
-                      <a
-                        href="#"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--accent-brass)",
-                        }}
+                      <TrackedAnchor
+                        channel="whatsapp"
+                        href={whatsappUrl(`Hi LEVANTER desk — I'd like to speak to ${b.name}.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        <MessageCircle className="h-4 w-4" />
-                        WhatsApp
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--accent-brass)",
-                        }}
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
-                      </a>
+                        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                        WhatsApp {siteConfig.whatsappDisplay}
+                      </TrackedAnchor>
                     </li>
                   </ul>
                 </div>
@@ -304,7 +293,7 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                     {office?.hours}
                   </p>
                   <Link
-                    href="/offices"
+                    href={`/offices/${officeSlug}`}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -315,10 +304,10 @@ export default function BrokerProfile({ params }: { params: { slug: string } }) 
                       color: "var(--accent-brass)",
                     }}
                   >
-                    All offices <ArrowRight className="h-3 w-3" />
+                    {b.desk} office <ArrowRight className="h-3 w-3" aria-hidden="true" />
                   </Link>
                 </div>
-              </aside>
+              </div>
             </div>
           </div>
         </section>

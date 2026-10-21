@@ -1,89 +1,90 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Phone,
-  Mail,
-  Linkedin,
-  MessageCircle,
-  Anchor,
-  Globe2,
-  FileText,
-  Compass,
-  Award,
-  Building2,
-  ShipWheel,
-} from "lucide-react";
+import { ArrowRight, Phone, Mail, MessageCircle, FileText, Award } from "lucide-react";
 import { Nav } from "./components/Nav";
 import { Footer } from "./components/Footer";
 import { JsonLd } from "./components/JsonLd";
+import { TrackedAnchor } from "./components/TrackedAnchor";
 import { Button } from "@/components/ui/button";
 import { HomeHero } from "./_home/HomeHero";
 import { Ticker } from "./_home/Ticker";
 import { BosphorusSection } from "./_home/BosphorusSection";
-import { BROKERS } from "@/lib/data/brokers";
-import { REPORTS } from "@/lib/data/research";
-import { buildPageMetadata, professionalServiceLd, webPageLd } from "@/lib/seo";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
+import { REPORTS, reportSlug } from "@/lib/data/research";
+import { OFFICES, OFFICE_ORDER, DESK_TO_OFFICE, weekdayCoverageHours } from "@/lib/data/offices";
+import { siteConfig, telUrl, whatsappUrl, mailUrl, verifiedMemberships } from "@/lib/site";
+import { buildPageMetadata, webPageLd } from "@/lib/seo";
+
+const TITLE = "LEVANTER — Tanker & Dry Bulk Shipbrokers, Istanbul";
+const DESCRIPTION =
+  "Istanbul shipbrokers for crude, clean and chemical tankers, dry bulk and S&P, with desks in London, Singapore and Houston. Send a charter inquiry.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "LEVANTER — Premium Maritime Brokerage from the Bosphorus",
-  description:
-    "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through. Direct broker access, live TCE, and Bosphorus desk depth.",
+  title: TITLE,
+  description: DESCRIPTION,
   path: "/",
   keywords: [
-    "premium tanker brokerage",
+    "shipbroker Istanbul",
+    "tanker chartering",
+    "dry bulk chartering",
+    "ship sale and purchase",
     "Bosphorus shipbroker",
+    "Black Sea tanker broker",
     "VLCC charter",
     "Suezmax",
     "Aframax",
-    "Black Sea tanker",
-    "Worldscale TCE",
-    "voyage estimator",
-    "EU ETS shipping",
   ],
   absoluteTitle: true,
 });
 
-const COUNTERS = [
-  { lbl: "Years combined experience", val: "80+" },
-  { lbl: "Global offices", val: "4" },
-  { lbl: "Broker coverage", val: "24/7" },
-  { lbl: "First reply SLA", val: "60", unit: "min" },
+const offices = OFFICE_ORDER.map((slug) => OFFICES[slug]);
+const coverageHours = weekdayCoverageHours(offices);
+
+/** Structural facts that follow from the site's own data — no unverifiable statistics. */
+const COVERAGE = [
+  { lbl: "Desks", val: String(offices.length), note: offices.map((o) => o.city).join(" · ") },
+  {
+    lbl: "Weekday coverage",
+    val: coverageHours >= 24 ? "24" : String(coverageHours),
+    unit: "h",
+    note: `Across ${new Set(offices.map((o) => o.tz)).size} time zones, from published trading hours`,
+  },
+  { lbl: "Segments", val: "5", note: "Crude · Clean · Chemicals · Dry bulk · S&P" },
+  { lbl: "First reply target", val: "60", unit: "min", note: "During business hours" },
 ];
 
 const TANKER_TILES = [
   {
     lbl: "Crude",
     name: "VLCC · Suezmax · Aframax",
-    desc: "Long-haul crude trades, AG–East, WAF–UKC, CPC, Black Sea.",
+    desc: "Long-haul crude trades: MEG–East, WAF–UKC, CPC and the Black Sea.",
+    href: "/tankers",
+    cta: "Crude tankers",
   },
   {
     lbl: "Clean",
     name: "LR2 · LR1 · MR · Handy",
-    desc: "Refined products from Med, AG, USG and the Far East.",
+    desc: "Refined products from the Med, MEG, USG and the Far East.",
+    href: "/tankers#clean",
+    cta: "Clean tankers",
   },
   {
-    lbl: "Chemicals & Specialised",
+    lbl: "Chemicals & specialised",
     name: "IMO 2/3, coated, stainless",
-    desc: "Purpose-built parcels. Strict specs, deeper benches.",
+    desc: "Parcel trades with strict specs and tank-coating requirements.",
+    href: "/contact?cargo=chem",
+    cta: "Ask the chemicals desk",
   },
   {
-    lbl: "Projects & TC",
-    name: "Long-haul, time charters",
-    desc: "Multi-year programmes, COAs, dedicated tonnage.",
+    lbl: "Period & COA",
+    name: "Time charters, COAs",
+    desc: "Multi-voyage programmes and period tonnage.",
+    href: "/contact?term=tc",
+    cta: "Discuss period cover",
   },
 ];
 
 const BULK_CLASSES = ["Capesize", "Panamax / Kamsarmax", "Supramax / Ultramax", "Handysize"];
-
-const TRUST_BADGES = [
-  { Icon: Globe2, org: "Baltic Exchange", status: "Application in progress" },
-  { Icon: ShipWheel, org: "ICS", status: "Member (FICS)" },
-  { Icon: Building2, org: "BIMCO", status: "Application in progress" },
-  { Icon: Anchor, org: "INTERTANKO", status: "Associate Member" },
-  { Icon: Compass, org: "Worldscale", status: "Subscriber" },
-  { Icon: Award, org: "FONASBA", status: "Application in progress" },
-];
 
 const HOMEPAGE_BROKERS = BROKERS.slice(0, 5);
 const HOMEPAGE_REPORTS = REPORTS.slice(0, 3);
@@ -111,54 +112,41 @@ function ReportCover({ color, accent }: { color: string; accent: string }) {
 }
 
 export default function HomePage() {
+  const memberships = verifiedMemberships();
+
   return (
     <>
-      <JsonLd
-        data={[
-          webPageLd({
-            title: "LEVANTER — Premium Maritime Brokerage",
-            description:
-              "Crude, clean, chemicals, and dry bulk chartering at the strait that 3% of the world's oil flow passes through.",
-            path: "/",
-          }),
-          professionalServiceLd({
-            name: "LEVANTER Tanker & Bulk Chartering",
-            description:
-              "Spot voyages, COAs, time charters, S&P, and research across crude, clean, chemicals, and dry bulk.",
-            serviceType: "Ship brokerage",
-            path: "/",
-          }),
-        ]}
-      />
+      <JsonLd data={[webPageLd({ title: TITLE, description: DESCRIPTION, path: "/" })]} />
       <Nav active="home" />
-      <main>
+      <main id="main">
         <HomeHero />
         <Ticker />
 
-        {/* Counters */}
-        <section className="counters">
+        {/* Coverage */}
+        <section className="counters" aria-label="Coverage at a glance">
           <div className="counters-grid container">
-            {COUNTERS.map((c) => (
+            {COVERAGE.map((c) => (
               <div className="counter" key={c.lbl}>
                 <div className="lbl">{c.lbl}</div>
                 <div className="val">
                   {c.val}
                   {c.unit && <span style={{ fontSize: "0.6em" }}> {c.unit}</span>}
                 </div>
+                <div className="note">{c.note}</div>
               </div>
             ))}
           </div>
         </section>
 
         {/* Services */}
-        <section className="sec" id="services">
+        <section className="sec" id="services" aria-labelledby="services-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Services</span>
-              <h2 className="display h2">
-                Built around tanker depth.
+              <h2 id="services-h" className="display h2">
+                Tanker chartering at the core.
                 <br />
-                Backed by a full dry bulk desk.
+                Dry bulk and S&amp;P alongside.
               </h2>
             </div>
             <div className="services-grid">
@@ -175,14 +163,14 @@ export default function HomePage() {
                     <path d="M2 12 L8 8 L52 8 L58 12 L52 14 L8 14 Z" />
                     <rect x="44" y="4" width="8" height="4" />
                   </svg>
-                  <span className="svc-title">Tankers</span>
+                  <h3 className="svc-title">Tankers</h3>
                 </div>
                 <p className="svc-line">
-                  Crude, clean, chemicals — and the routes that connect them.
+                  Crude, clean and chemicals — and the routes that connect them.
                 </p>
                 <div className="tanker-tiles">
                   {TANKER_TILES.map((t) => (
-                    <Link key={t.lbl} href="/tankers" className="tanker-tile">
+                    <Link key={t.lbl} href={t.href} className="tanker-tile">
                       <svg
                         className="vsl-icon"
                         viewBox="0 0 60 18"
@@ -195,15 +183,17 @@ export default function HomePage() {
                       <span className="lbl">{t.lbl}</span>
                       <span className="name">{t.name}</span>
                       <span className="desc">{t.desc}</span>
-                      <span className="explore">Explore →</span>
+                      <span className="explore">
+                        {t.cta} <span aria-hidden="true">→</span>
+                      </span>
                     </Link>
                   ))}
                 </div>
               </article>
 
               <article className="svc-bulk">
-                <span className="svc-title">Dry Bulk</span>
-                <h3 className="svc-line">Iron ore to grains, port-to-port.</h3>
+                <h3 className="svc-title">Dry Bulk</h3>
+                <p className="svc-line">Iron ore to grains, port-to-port.</p>
                 {BULK_CLASSES.map((name) => (
                   <Link href="/dry-bulk" key={name} className="bulk-row">
                     <svg
@@ -216,7 +206,9 @@ export default function HomePage() {
                       <rect x="36" y="3" width="6" height="4" />
                     </svg>
                     <span className="name">{name}</span>
-                    <span className="arr">→</span>
+                    <span className="arr" aria-hidden="true">
+                      →
+                    </span>
                   </Link>
                 ))}
               </article>
@@ -224,18 +216,18 @@ export default function HomePage() {
               <div className="svc-stack">
                 <Link href="/sale-purchase" className="svc-card">
                   <span className="svc-title">Sale &amp; Purchase</span>
-                  <h3 className="svc-line">Newbuilding · Second-hand · Demolition</h3>
-                  <p>Tanker and bulker S&amp;P, valuations, and disposal advisory.</p>
+                  <span className="svc-line">Newbuilding · Second-hand · Recycling</span>
+                  <p>Tanker and bulker S&amp;P with comps-based valuation ranges.</p>
                 </Link>
                 <Link href="/research" className="svc-card">
                   <span className="svc-title">Research</span>
-                  <h3 className="svc-line">Weekly · Quarterly · Custom</h3>
-                  <p>Desk-grade analysis. Numbers and views, not narratives.</p>
+                  <span className="svc-line">Outlooks · Route guides · Regulation</span>
+                  <p>Desk views with the numbers and assumptions spelled out.</p>
                 </Link>
                 <Link href="/voyage-estimator" className="svc-card">
-                  <span className="svc-title">Working tools</span>
-                  <h3 className="svc-line">TCE · Distance · ETS</h3>
-                  <p>Run the numbers before you fix. Live calculator with sensitivity tables.</p>
+                  <span className="svc-title">Voyage estimator</span>
+                  <span className="svc-line">TCE · Freight · Bunkers · EU ETS</span>
+                  <p>Run the numbers before you fix, with a TCE sensitivity grid.</p>
                 </Link>
               </div>
             </div>
@@ -245,52 +237,77 @@ export default function HomePage() {
         <BosphorusSection />
 
         {/* Brokers preview */}
-        <section className="sec" id="brokers-preview">
+        <section className="sec" id="brokers-preview" aria-labelledby="brokers-h">
           <div className="container">
             <div className="sec-head">
-              <span className="eyebrow">Our People</span>
-              <h2 className="display h2">Direct access. Real brokers.</h2>
-              <p>No forms, no gatekeepers. Speak to the desk that handles your cargo.</p>
+              <span className="eyebrow">Our people</span>
+              <h2 id="brokers-h" className="display h2">
+                Speak to the broker who handles your cargo.
+              </h2>
+              <p>Each desk answers its own phone. No relationship-manager layer in between.</p>
             </div>
             <div className="brokers-row">
-              {HOMEPAGE_BROKERS.map((b) => (
-                <article className="broker-card" key={b.name}>
-                  <div className="broker-avatar" style={{ background: b.color }}>
-                    {b.initials}
-                  </div>
-                  <h3 className="broker-name">{b.name}</h3>
-                  <p className="broker-title">{b.title}</p>
-                  <div className="broker-tags">
-                    {b.tags.map((t) => (
-                      <span key={t} className="broker-tag">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="broker-icons">
-                    <a href="#" aria-label={`Phone ${b.name}`}>
-                      <Phone className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`WhatsApp ${b.name}`}>
-                      <MessageCircle className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`Email ${b.name}`}>
-                      <Mail className="h-4 w-4" />
-                    </a>
-                    <a href="#" aria-label={`LinkedIn ${b.name}`}>
-                      <Linkedin className="h-4 w-4" />
-                    </a>
-                  </div>
-                  <Link href="/brokers" className="broker-profile">
-                    View profile <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </article>
-              ))}
+              {HOMEPAGE_BROKERS.map((b) => {
+                const office = OFFICES[DESK_TO_OFFICE[b.desk]];
+                return (
+                  <article className="broker-card" key={b.name}>
+                    <div
+                      className="broker-avatar"
+                      style={{ background: b.color }}
+                      aria-hidden="true"
+                    >
+                      {b.initials}
+                    </div>
+                    <h3 className="broker-name">
+                      <Link href={`/brokers/${brokerSlug(b)}`}>{b.name}</Link>
+                    </h3>
+                    <p className="broker-title">
+                      {b.title} · {b.desk}
+                    </p>
+                    <div className="broker-tags">
+                      {b.tags.map((t) => (
+                        <span key={t} className="broker-tag">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="broker-icons">
+                      <TrackedAnchor
+                        channel="phone"
+                        href={telUrl(office.phone)}
+                        aria-label={`Call the ${b.desk} desk for ${b.name}`}
+                      >
+                        <Phone className="h-4 w-4" aria-hidden="true" />
+                      </TrackedAnchor>
+                      <TrackedAnchor
+                        channel="whatsapp"
+                        href={whatsappUrl(`Hi LEVANTER desk — I'd like to speak to ${b.name}.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`WhatsApp the desk for ${b.name}`}
+                      >
+                        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      </TrackedAnchor>
+                      <TrackedAnchor
+                        channel="email"
+                        href={mailUrl(`Attn: ${b.name}`)}
+                        aria-label={`Email the desk for ${b.name}`}
+                      >
+                        <Mail className="h-4 w-4" aria-hidden="true" />
+                      </TrackedAnchor>
+                    </div>
+                    <Link href={`/brokers/${brokerSlug(b)}`} className="broker-profile">
+                      View profile <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                      <span className="sr-only">: {b.name}</span>
+                    </Link>
+                  </article>
+                );
+              })}
             </div>
             <div className="brokers-cta">
               <Button asChild variant="outline">
                 <Link href="/brokers">
-                  View all brokers <ArrowRight className="h-4 w-4" />
+                  View all brokers <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
@@ -298,19 +315,21 @@ export default function HomePage() {
         </section>
 
         {/* Research preview */}
-        <section className="sec" style={{ paddingTop: 0 }}>
+        <section className="sec" style={{ paddingTop: 0 }} aria-labelledby="research-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Research</span>
-              <h2 className="display h2">Sharp views. On the desk by Monday.</h2>
+              <h2 id="research-h" className="display h2">
+                Desk views, with the numbers shown.
+              </h2>
             </div>
             <div className="research-grid">
               {HOMEPAGE_REPORTS.map((r) => (
-                <Link key={r.title} className="report-card" href="/research">
-                  <div className="report-cover">
+                <Link key={r.title} className="report-card" href={`/research/${reportSlug(r)}`}>
+                  <div className="report-cover" aria-hidden="true">
                     <ReportCover color={r.coverColor} accent={r.coverAccent} />
                     <span className="lbl">{r.label}</span>
-                    <h4 className="heading">{r.title.split(":")[0]}</h4>
+                    <span className="heading">{r.title.split(":")[0]}</span>
                   </div>
                   <div className="report-body">
                     <div className="meta">
@@ -319,7 +338,7 @@ export default function HomePage() {
                     <h3>{r.title}</h3>
                     <p>{r.desc}</p>
                     <span className="read flex items-center gap-1">
-                      Read · {r.read} min <ArrowRight className="h-3 w-3" />
+                      Read · {r.read} min <ArrowRight className="h-3 w-3" aria-hidden="true" />
                     </span>
                   </div>
                 </Link>
@@ -328,35 +347,41 @@ export default function HomePage() {
             <div className="brokers-cta">
               <Button asChild variant="outline">
                 <Link href="/research">
-                  All research <ArrowRight className="h-4 w-4" />
+                  All research <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
           </div>
         </section>
 
-        {/* Trust badges */}
-        <section className="sec" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className="trust-head">
-              <span className="eyebrow slate">Memberships &amp; Accreditations</span>
+        {/* Memberships — only rendered once verified (see MEMBERSHIPS in lib/site.ts) */}
+        {memberships.length > 0 && (
+          <section className="sec" style={{ paddingTop: 0 }} aria-labelledby="memberships-h">
+            <div className="container">
+              <div className="trust-head">
+                <h2 id="memberships-h" className="eyebrow slate">
+                  Memberships &amp; accreditations
+                </h2>
+              </div>
+              <div className="badges">
+                {memberships.map((m) => (
+                  <div className="badge" key={m.org}>
+                    <Award className="mark" aria-hidden="true" />
+                    <div className="org">{m.org}</div>
+                    <div className="status">{m.status}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="badges">
-              {TRUST_BADGES.map(({ Icon, org, status }) => (
-                <div className="badge" key={org}>
-                  <Icon className="mark" />
-                  <div className="org">{org}</div>
-                  <div className="status">{status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Final CTA */}
-        <section className="final-cta">
+        <section className="final-cta" aria-labelledby="final-cta-h">
           <span className="eyebrow">Ready to move?</span>
-          <h2 className="display h2">Ready to charter?</h2>
+          <h2 id="final-cta-h" className="display h2">
+            Ready to charter?
+          </h2>
           <p>
             Send us your CP terms or just describe what you&apos;re moving. A broker replies within
             60 minutes during business hours.
@@ -364,15 +389,18 @@ export default function HomePage() {
           <div className="cta-row">
             <Button asChild>
               <Link href="/contact">
-                Charter inquiry <ArrowRight className="h-4 w-4" />
+                Charter inquiry <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button asChild variant="bone" className="btn-bone">
               <Link href="/voyage-estimator">
-                Open voyage estimator <FileText className="h-4 w-4" />
+                Open voyage estimator <FileText className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
           </div>
+          <p className="final-cta-alt">
+            Or call {siteConfig.phone} · <a href={mailUrl()}>{siteConfig.email}</a>
+          </p>
         </section>
       </main>
       <Footer />

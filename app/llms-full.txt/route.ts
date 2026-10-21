@@ -36,7 +36,7 @@ export function GET() {
   const officeLines = Object.values(OFFICES)
     .map(
       (o) =>
-        `- **${o.city}** (${o.tz}) — ${o.addr}\n  Sectors: ${o.sectors}\n  Hours: ${o.hours}\n  Languages: ${o.lang}\n  Memberships: ${o.member}\n  Head: ${o.head} (${o.headRole})`
+        `- **${o.city}** (${o.tz}) — ${o.addr}\n  Sectors: ${o.sectors}\n  Hours: ${o.hours}\n  Languages: ${o.lang}\n  Head: ${o.head} (${o.headRole})`
     )
     .join("\n");
 
@@ -48,7 +48,7 @@ This is the long-form companion to /llms.txt. It includes the structured
 content of every public page (page index, broker roster, research catalogue,
 office list) so an LLM can ingest the site without crawling each route.
 
-Last generated from production data as part of the Next.js build.
+Generated from the site data as part of the Next.js build.
 
 ---
 
@@ -92,11 +92,11 @@ ${officeLines}
 - Brand assets (LEVANTER name, logo) are trademarks of ${
     siteConfig.legalEntity
   }; reproduction requires written permission.
-- Numerical data (TCE, bunker prices, port tariffs, distances) is indicative
-  and may change between page loads. Cite the source URL and the date of access.
+- Numerical data (WS levels, TCE, port tariffs, distances) is indicative or
+  illustrative, not live market data. Cite the source URL and the date of access.
 - For machine-readable structured data, see Schema.org JSON-LD embedded in each
   page (Organization, WebSite, BreadcrumbList, ItemList, Article, Person,
-  Place, ContactPoint, ProfessionalService, SoftwareApplication, FAQPage).
+  ProfessionalService, Service, SoftwareApplication, FAQPage, DefinedTermSet).
 - Security disclosures: /.well-known/security.txt
 `;
 

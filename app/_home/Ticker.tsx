@@ -1,32 +1,47 @@
-const RATES = [
-  { code: "TD3C", route: "MEG → CHN", ws: "72.5", delta: "+2.1%", up: true },
-  { code: "TD20", route: "WAF → UKC", ws: "95.0", delta: "−1.4%", up: false },
-  { code: "TD6", route: "BLK → MED", ws: "128", delta: "+3.2%", up: true },
-  { code: "TC2", route: "CONT → USAC", ws: "146", delta: "+0.4%", up: true },
-  { code: "TC14", route: "USG → UKC", ws: "118", delta: "−0.8%", up: false },
-  { code: "TD22", route: "USG → CHN", ws: "62.0", delta: "+1.1%", up: true },
-  { code: "TD7", route: "NSEA → CONT", ws: "112", delta: "−0.8%", up: false },
-  { code: "TD15", route: "WAF → EAST", ws: "68.0", delta: "+0.6%", up: true },
+/**
+ * Scrolling strip of the benchmark tanker routes the desk works on. It names the
+ * Baltic route definitions only — no freight levels, because static numbers on a
+ * ticker read as live market data.
+ */
+const ROUTES = [
+  { code: "TD3C", route: "MEG → China", size: "VLCC · 270,000 mt" },
+  { code: "TD20", route: "WAF → UKC", size: "Suezmax · 130,000 mt" },
+  { code: "TD6", route: "Black Sea → Med", size: "Suezmax · 135,000 mt" },
+  { code: "TD15", route: "WAF → China", size: "VLCC · 260,000 mt" },
+  { code: "TD7", route: "North Sea → Continent", size: "Aframax · 80,000 mt" },
+  { code: "TD22", route: "USG → China", size: "VLCC · 270,000 mt" },
+  { code: "TC2", route: "Continent → USAC", size: "MR · 37,000 mt" },
+  { code: "TC14", route: "USG → Continent", size: "MR · 38,000 mt" },
 ];
+
+function Items({ hidden = false }: { hidden?: boolean }) {
+  return (
+    <ul className="ticker-list" aria-hidden={hidden || undefined}>
+      {ROUTES.map((r) => (
+        <li className="ticker-item" key={r.code}>
+          <span className="code">{r.code}</span>
+          <span aria-hidden="true">·</span>
+          <span>{r.route}</span>
+          <span className="ws">{r.size}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function Ticker() {
   return (
-    <div className="ticker" aria-label="Indicative freight rates">
-      <div className="ticker-pill" aria-hidden="true">
-        <span className="dot"></span>
-        <span>Indicative</span>
+    <section className="ticker" aria-label="Benchmark tanker routes">
+      <div className="ticker-pill">
+        <span className="dot" aria-hidden="true"></span>
+        <span>Benchmark routes</span>
       </div>
-      <div className="ticker-track">
-        {[...RATES, ...RATES].map((r, i) => (
-          <span className="ticker-item" key={i}>
-            <span className="code">{r.code}</span>
-            <span>·</span>
-            <span>{r.route}</span>
-            <span className="ws">WS {r.ws}</span>
-            <span className={`delta ${r.up ? "up" : "down"}`}>{r.delta}</span>
-          </span>
-        ))}
+      <div className="ticker-viewport">
+        <div className="ticker-track">
+          <Items />
+          <Items hidden />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

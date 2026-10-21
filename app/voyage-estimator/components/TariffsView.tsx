@@ -69,8 +69,9 @@ export function TariffsView() {
           </tbody>
         </table>
         <div className="note">
-          Tariffs updated weekly. Always confirm with port agent before fixture — local conditions,
-          draft restrictions, and special cargoes can vary the DA significantly.
+          Indicative figures, not a live tariff feed — always confirm with the port agent before
+          fixing. Turkish Straits dues are charged per net ton under the Montreux Convention
+          (US$6.70 per NT from 1 July 2026); the Suezmax figure assumes about 48,000 NT.
         </div>
       </div>
     </section>

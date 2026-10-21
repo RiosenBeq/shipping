@@ -45,7 +45,9 @@ export const ROUTE_DATA: Record<RouteKey, RouteData> = {
     nm: 2400,
     load: "Novorossiysk",
     disch: "Augusta",
-    canal: 28500,
+    // Turkish Straits dues are levied per net ton (Montreux Convention): ≈48,000 NT ×
+    // US$6.70/NT, the rate in force from 1 Jul 2026 to 30 Jun 2027. Confirm with the agent.
+    canal: 321600,
     ets: 0,
     loadXY: [825, 205],
     dischXY: [755, 260],
@@ -300,7 +302,12 @@ export const CANAL_ROWS: CanalRow[] = [
     ballast: "320,000",
     transit: "8–10 hr",
   },
-  { waterway: "Bosphorus + Dardanelles", laden: "28,500", ballast: "28,500", transit: "10–14 hr" },
+  {
+    waterway: "Bosphorus + Dardanelles (per net ton)",
+    laden: "321,600",
+    ballast: "321,600",
+    transit: "10–14 hr + waiting",
+  },
   { waterway: "Strait of Malacca", laden: "—", ballast: "—", transit: "12 hr" },
   { waterway: "Strait of Hormuz", laden: "—", ballast: "—", transit: "3 hr" },
 ];

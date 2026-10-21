@@ -50,7 +50,7 @@ const GLOSSARY: { term: string; def: string }[] = [
   },
   {
     term: "Suez / Panama / Bosphorus",
-    def: "Major chokepoints. Suez (laden Suezmax ≈ $525k), Panama Neopanamax (≈ $485k), Bosphorus + Dardanelles (≈ $28.5k flat).",
+    def: "Major chokepoints. Suez (laden Suezmax ≈ $525k), Panama Neopanamax (≈ $485k). Turkish Straits dues are charged per net ton — US$6.70/NT from 1 July 2026, so ≈ $320k for a Suezmax of about 48,000 NT.",
   },
 ];
 
@@ -116,7 +116,7 @@ const ETS_SCHEDULE: { year: string; share: string; note: string }[] = [
   {
     year: "2024",
     share: "40%",
-    note: "Phase-in year 1. Half of intra-EEA voyages + 50% of EEA-to-3rd-country voyages exempt from surrender.",
+    note: "Phase-in year 1. 100% of emissions on voyages within the EEA and at EEA berths are in scope, plus 50% on voyages into or out of the EEA; 40% of in-scope emissions must be covered.",
   },
   {
     year: "2025",

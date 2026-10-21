@@ -15,35 +15,39 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
-    // In production, route this to your error tracker.
+    // No error tracker is wired up yet — log to the console so it shows in browser devtools.
     console.error(error);
   }, [error]);
 
   return (
     <>
       <Nav />
-      <main className="notfound">
-        <div className="code">!</div>
+      <main className="notfound" id="main">
+        <div className="code" aria-hidden="true">
+          !
+        </div>
         <h1 className="display">Something went sideways.</h1>
         <p>
-          An unexpected error blocked this page. The desk has been notified.
-          {error.digest && (
+          An unexpected error stopped this page from loading. Try again, or contact the desk if it
+          keeps happening
+          {error.digest ? (
             <>
               {" "}
-              Reference:{" "}
+              and quote reference{" "}
               <span className="mono" style={{ color: "var(--accent-brass)" }}>
                 {error.digest}
               </span>
             </>
-          )}
+          ) : null}
+          .
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button onClick={() => reset()}>
-            Try again <RotateCcw className="h-4 w-4" />
+            Try again <RotateCcw className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button asChild variant="outline">
             <Link href="/">
-              Back to home <ArrowRight className="h-4 w-4" />
+              Back to home <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
         </div>

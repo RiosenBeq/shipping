@@ -95,7 +95,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "regulatory",
     term: "EU ETS",
-    def: "EU Emissions Trading System. Vessels surrender EUAs (1 per t CO₂) for emissions on EEA-touching voyages. Phase-in: 40% (2024) → 70% (2025) → 100% (2026). CH₄ and N₂O included from 2026.",
+    def: "EU Emissions Trading System. Shipping companies surrender EUAs (1 per t CO₂e) for 100% of emissions on voyages within the EEA and at EEA berths, and 50% on voyages into or out of the EEA. Phase-in by emissions year: 40% (2024) → 70% (2025) → 100% (2026). CH₄ and N₂O included from 2026.",
   },
   {
     group: "regulatory",
@@ -147,7 +147,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "ports",
     term: "Bosphorus + Dardanelles",
-    def: "Türkiye. Tonnage-based dues ≈ $28.5k flat (laden or ballast). Transit 10–14 hours. Critical for Black Sea exports — CPC, Russian Urals, Kazakh crude.",
+    def: "Türkiye. Transit dues under the 1936 Montreux Convention are charged per net ton — US$6.70/NT from 1 July 2026 to 30 June 2027 for ships passing without a Turkish port call — so the bill scales with net tonnage. Roughly 10–14 hours of steaming plus any waiting for one-way traffic and daylight rules on large tankers. The export route for Black Sea crude and products, including CPC Blend.",
   },
   {
     group: "ports",

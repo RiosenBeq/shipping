@@ -38,8 +38,8 @@ export function InputPanel({
   };
 
   return (
-    <aside className="calc-panel">
-      <h2>Voyage inputs</h2>
+    <section className="calc-panel" aria-labelledby="calc-panel-h">
+      <h2 id="calc-panel-h">Voyage inputs</h2>
       <p className="sub">All fields update results live.</p>
 
       <div className="calc-group">
@@ -221,13 +221,16 @@ export function InputPanel({
         <div className="calc-group-title">Charter terms</div>
         <div className="calc-row full">
           <div className="field">
-            <label>Charter type</label>
-            <div className="seg" role="tablist">
+            <span id="charter-type-label" className="field-label">
+              Charter type
+            </span>
+            <div className="seg" role="group" aria-labelledby="charter-type-label">
               {(["voyage", "tc", "coa"] as CharterType[]).map((c) => (
                 <button
                   key={c}
                   type="button"
                   className={charter === c ? "active" : ""}
+                  aria-pressed={charter === c}
                   onClick={() => onCharterChange(c)}
                 >
                   {c === "voyage" ? "Voyage" : c === "tc" ? "Time charter" : "COA"}
@@ -284,7 +287,7 @@ export function InputPanel({
           </svg>
         </button>
       </div>
-    </aside>
+    </section>
   );
 }
 

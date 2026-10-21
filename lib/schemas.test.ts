@@ -49,18 +49,26 @@ describe("Inquiry step schemas", () => {
     expect(InquiryStep1Schema.safeParse({ cargo: "rocks" }).success).toBe(false);
   });
 
-  it("Step 2 requires a non-empty stem", () => {
+  it("Step 2 accepts an empty stem but rejects unknown areas and classes", () => {
     const base = {
-      loadArea: "blk-cpc",
+      loadArea: "blk",
       dischArea: "ukc-med",
       vesselClass: "Suezmax",
     };
     expect(InquiryStep2Schema.safeParse({ ...base, stem: "130000 mt" }).success).toBe(true);
-    expect(InquiryStep2Schema.safeParse({ ...base, stem: "" }).success).toBe(false);
-    expect(InquiryStep2Schema.safeParse({ ...base, stem: "   " }).success).toBe(false);
+    expect(InquiryStep2Schema.safeParse({ ...base, stem: "" }).success).toBe(true);
+    expect(InquiryStep2Schema.safeParse({ ...base }).success).toBe(true);
+    expect(InquiryStep2Schema.safeParse({ ...base, loadArea: "moon" }).success).toBe(false);
+    expect(InquiryStep2Schema.safeParse({ ...base, vesselClass: "Titanic" }).success).toBe(false);
+    expect(InquiryStep2Schema.safeParse({ ...base, vesselClass: "Capesize" }).success).toBe(true);
   });
 
-  it("Step 3 enforces laycanFrom <= laycanTo", () => {
+  it("Step 3 makes laycan optional but enforces laycanFrom <= laycanTo", () => {
+    expect(InquiryStep3Schema.safeParse({ term: "voy" }).success).toBe(true);
+    expect(InquiryStep3Schema.safeParse({ laycanFrom: "", laycanTo: "", term: "tc" }).success).toBe(
+      true
+    );
+
     const ok = InquiryStep3Schema.safeParse({
       laycanFrom: "2026-05-03",
       laycanTo: "2026-05-08",
@@ -74,6 +82,26 @@ describe("Inquiry step schemas", () => {
       term: "voy",
     });
     expect(bad.success).toBe(false);
+    if (!bad.success) expect(bad.error.issues[0]?.path).toEqual(["laycanTo"]);
+  });
+
+  it("Step 3 caps free-text notes", () => {
+    expect(InquiryStep3Schema.safeParse({ term: "coa", notes: "CP: Asbatankvoy" }).success).toBe(
+      true
+    );
+    expect(InquiryStep3Schema.safeParse({ term: "coa", notes: "x".repeat(2001) }).success).toBe(
+      false
+    );
+  });
+
+  it("returns English validation messages", () => {
+    const r = InquiryStep4Schema.safeParse({ name: "", firm: "", email: "nope" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const messages = r.error.issues.map((i) => i.message);
+      expect(messages).toContain("Enter your name");
+      expect(messages).toContain("Enter a valid email address");
+    }
   });
 
   it("Step 4 requires name, firm, and a valid email", () => {

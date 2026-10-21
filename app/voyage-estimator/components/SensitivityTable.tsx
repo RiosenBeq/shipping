@@ -7,26 +7,37 @@ export function SensitivityTable({ rows }: { rows: SensitivityRow[] }) {
         TCE Sensitivity
         <span className="meta">$/day across freight × bunker</span>
       </h2>
-      <div className="panel" style={{ padding: 0 }}>
+      <div
+        className="panel overflow-x-auto"
+        style={{ padding: 0 }}
+        role="region"
+        aria-label="TCE sensitivity table"
+        tabIndex={0}
+      >
         <table className="sens-table">
+          <caption className="sr-only">
+            TCE in US dollars per day for each Worldscale level (columns) and VLSFO price (rows)
+          </caption>
           <thead>
             <tr>
-              <th>Worldscale →</th>
+              <th scope="col">Worldscale →</th>
               {WS_LEVELS.map((ws) => (
-                <th key={ws}>WS {ws}</th>
+                <th key={ws} scope="col">
+                  WS {ws}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.delta} className={row.isCenter ? "center-row" : ""}>
-                <td>
+                <th scope="row">
                   VLSFO ${row.vlsfo}{" "}
-                  <small style={{ color: "var(--ink-fog)", fontSize: 10 }}>
+                  <small style={{ color: "var(--muted)", fontSize: 10 }}>
                     ({row.delta >= 0 ? "+" : ""}
                     {row.delta})
                   </small>
-                </td>
+                </th>
                 {row.cells.map((c, i) => (
                   <td key={i} className={c.cls}>
                     ${fmt(c.tce)}

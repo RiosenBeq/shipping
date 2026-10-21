@@ -1,14 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { JsonLd } from "./components/JsonLd";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
+import { ConsentAnalytics } from "./components/ConsentAnalytics";
 import { FloatingCta } from "./components/FloatingCta";
 import { organizationLd, websiteLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, twitterHandle } from "@/lib/site";
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -24,77 +23,70 @@ const manrope = Manrope({
   display: "swap",
 });
 
+// Mono is only used for small labels and data, so it doesn't compete with the
+// display and body fonts for preload bandwidth.
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
+
+const handle = twitterHandle();
+const defaultTitle = `${siteConfig.name} — ${siteConfig.tagline}, Istanbul`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — ${siteConfig.tagline}`,
+    default: defaultTitle,
     template: `%s — ${siteConfig.name}`,
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  generator: "Next.js",
-  referrer: "origin-when-cross-origin",
+  referrer: "strict-origin-when-cross-origin",
   keywords: [
-    "shipbroker",
-    "tanker brokerage",
-    "voyage estimator",
-    "TCE calculator",
+    "shipbroker Istanbul",
+    "tanker chartering",
+    "dry bulk chartering",
+    "ship sale and purchase",
     "VLCC",
     "Suezmax",
     "Aframax",
     "MR tanker",
-    "freight ws",
+    "voyage estimator",
+    "TCE calculator",
     "Bosphorus",
     "Black Sea shipping",
-    "EU ETS",
-    "bunker prices",
-    "Worldscale",
-    "premium maritime brokerage",
   ],
   authors: [{ name: siteConfig.legalEntity, url: siteConfig.url }],
   creator: siteConfig.legalEntity,
   publisher: siteConfig.legalEntity,
   category: "Maritime Shipping",
   formatDetection: { telephone: true, email: true, address: true },
-  alternates: {
-    canonical: siteConfig.url,
-  },
+  // No layout-level canonical: every page sets its own via buildPageMetadata, and an
+  // inherited homepage canonical would wrongly canonicalise pages that don't (e.g. 404s).
   openGraph: {
     type: "website",
     siteName: siteConfig.name,
     locale: siteConfig.locale,
     url: siteConfig.url,
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    title: defaultTitle,
     description: siteConfig.description,
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} — Premium Maritime Brokerage`,
-      },
-    ],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: defaultTitle }],
   },
   twitter: {
     card: "summary_large_image",
-    site: siteConfig.twitter,
-    creator: siteConfig.twitter,
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    ...(handle ? { site: handle, creator: handle } : {}),
+    title: defaultTitle,
     description: siteConfig.description,
     images: ["/opengraph-image"],
   },
   robots: {
-    index: true,
+    index: siteConfig.indexable,
     follow: true,
     googleBot: {
-      index: true,
+      index: siteConfig.indexable,
       follow: true,
       "max-video-preview": -1,
       "max-image-preview": "large",
@@ -117,7 +109,7 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: siteConfig.themeColor },
     { media: "(prefers-color-scheme: dark)", color: siteConfig.themeColor },
   ],
-  colorScheme: "light",
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -128,7 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body>
-        <a href="#content" className="skip-link">
+        <a href="#main" className="skip-link">
           Skip to content
         </a>
         <JsonLd data={[organizationLd(), websiteLd()]} />
@@ -137,8 +129,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <FloatingCta />
           <CookieConsent />
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <ConsentAnalytics />
       </body>
     </html>
   );

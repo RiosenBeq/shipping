@@ -3,26 +3,39 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
+import { ContactCta } from "../components/ContactCta";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { buildPageMetadata, breadcrumbsLd, professionalServiceLd, webPageLd } from "@/lib/seo";
+import { ArrowRight } from "lucide-react";
+import { buildPageMetadata, breadcrumbsLd, faqLd, serviceLd, webPageLd } from "@/lib/seo";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
+import { REPORTS, reportSlug } from "@/lib/data/research";
+import { OFFICES, OFFICE_ORDER, weekdayCoverageHours } from "@/lib/data/offices";
+import { siteConfig, telUrl } from "@/lib/site";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Crude Tankers — VLCC · Suezmax · Aframax",
+  title: "Tanker Chartering — Crude & Clean, VLCC to MR",
   description:
-    "VLCC, Suezmax, Aframax — every long-haul lane that matters. Spot voyages, COAs, and time charters across MEG, WAF, Black Sea, CPC, and BTC.",
+    "Spot, time charter and COA chartering for VLCC, Suezmax, Aframax/LR2, LR1 and MR tankers across MEG, WAF, Black Sea/CPC, USG and Med lanes. Talk to the desk.",
   path: "/tankers",
   keywords: [
+    "tanker chartering",
     "VLCC chartering",
     "Suezmax broker",
-    "Aframax tanker",
-    "TD3C MEG China",
-    "TD20 WAF UKC",
+    "Aframax chartering",
+    "clean tanker chartering",
+    "MR tanker",
+    "TD3C",
+    "TD20",
     "TD6 Black Sea Med",
-    "CPC programme",
-    "crude tanker desk",
+    "CPC",
   ],
 });
+
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Tankers", path: "/tankers" },
+];
 
 const VESSEL_CLASSES = [
   {
@@ -35,8 +48,8 @@ const VESSEL_CLASSES = [
       ["Draft", "22.5 m"],
       ["Speed (laden)", "13.5 kt"],
     ],
-    routes: ["TD3C MEG-CHN", "TD15 WAF-EAST", "TD22 USG-CHN"],
-    cta: "Explore VLCC",
+    routes: ["TD3C MEG–CHN", "TD15 WAF–EAST", "TD22 USG–CHN"],
+    cta: "VLCC chartering",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -57,13 +70,13 @@ const VESSEL_CLASSES = [
     name: "Suezmax",
     desc: "130–160,000 DWT · LIGHT-CRUDE WORKHORSE",
     specs: [
-      ["Cargo", "1 m bbl"],
+      ["Cargo", "~1 m bbl"],
       ["Length OA", "275 m"],
-      ["Draft", "17 m"],
+      ["Draft", "≈17 m"],
       ["Speed (laden)", "14 kt"],
     ],
-    routes: ["TD20 WAF-UKC", "TD6 BLK-MED", "TD23 MEG-MED"],
-    cta: "Explore Suezmax",
+    routes: ["TD20 WAF–UKC", "TD6 BLK–MED", "TD23 MEG–MED"],
+    cta: "Suezmax chartering",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -83,13 +96,13 @@ const VESSEL_CLASSES = [
     name: "Aframax / LR2",
     desc: "80–115,000 DWT · SHORT-HAUL · BLACK SEA & MED",
     specs: [
-      ["Cargo", "700 k bbl"],
+      ["Cargo", "~700 k bbl"],
       ["Length OA", "250 m"],
       ["Draft", "14.5 m"],
       ["Speed (laden)", "14.5 kt"],
     ],
-    routes: ["TD7 NSEA-CONT", "TD8 KUW-SPORE", "TD19 CMED-MED"],
-    cta: "Explore Aframax / LR2",
+    routes: ["TD7 NSEA–CONT", "TD8 KUW–SPORE", "TD19 X-MED"],
+    cta: "Aframax / LR2 chartering",
     svg: (
       <svg
         className="vsl mb-5 text-accent-brass"
@@ -111,56 +124,65 @@ const CLEAN_CLASSES = [
     slug: "lr1",
     name: "LR1",
     desc: "55–80,000 DWT · CLEAN PRODUCTS",
-    note: "Naphtha, gasoil, jet — MEG to East Africa, MEG to UKC.",
-    routes: ["TC5 MEG-JPN", "TC8 MEG-UKC"],
+    note: "Naphtha, gasoil and jet — MEG to the Far East and MEG to UKC.",
+    routes: ["TC5 MEG–JPN", "TC8 MEG–UKC"],
   },
   {
     slug: "mr",
     name: "MR",
     desc: "40–55,000 DWT · CLEAN PRODUCTS",
-    note: "Atlantic and US Gulf workhorse — TC2, TC14, TC17.",
-    routes: ["TC2 CONT-USAC", "TC14 USG-UKC", "TC17 MEG-EAFR"],
+    note: "The Atlantic and US Gulf workhorse — TC2, TC14, TC17.",
+    routes: ["TC2 CONT–USAC", "TC14 USG–CONT", "TC17 MEG–EAFR"],
   },
 ];
 
-const ROUTES = [
-  { code: "TD3C", route: "MEG → China", ws: "72.5", tce: "$48,200", delta: "▲ 2.1%", up: true },
-  { code: "TD20", route: "WAF → UKC", ws: "95.0", tce: "$51,800", delta: "▼ 1.4%", up: false },
-  { code: "TD6", route: "Black Sea → Med", ws: "128", tce: "$44,100", delta: "▲ 3.2%", up: true },
-  { code: "TD15", route: "WAF → East", ws: "68.0", tce: "$39,400", delta: "▲ 0.6%", up: true },
-  { code: "TD7", route: "NSEA → CONT", ws: "112", tce: "$32,900", delta: "▼ 0.8%", up: false },
-  { code: "TD22", route: "USG → China", ws: "62.0", tce: "$36,100", delta: "▲ 1.1%", up: true },
-  { code: "TD23", route: "MEG → Med", ws: "88.5", tce: "$41,700", delta: "▲ 1.8%", up: true },
+/** Baltic Exchange benchmark route definitions (route, lane, class basis, cargo size). */
+const BENCHMARK_ROUTES = [
+  { code: "TD3C", lane: "MEG → China", cls: "VLCC", size: "270,000 mt" },
+  { code: "TD15", lane: "West Africa → China", cls: "VLCC", size: "260,000 mt" },
+  { code: "TD22", lane: "US Gulf → China", cls: "VLCC", size: "270,000 mt" },
+  { code: "TD20", lane: "West Africa → Continent", cls: "Suezmax", size: "130,000 mt" },
+  { code: "TD6", lane: "Black Sea → Med", cls: "Suezmax", size: "135,000 mt" },
+  { code: "TD23", lane: "MEG → Med (via Suez)", cls: "Suezmax", size: "140,000 mt" },
+  { code: "TD7", lane: "North Sea → Continent", cls: "Aframax", size: "80,000 mt" },
+  { code: "TD19", lane: "Cross-Med", cls: "Aframax", size: "80,000 mt" },
+  { code: "TC2", lane: "Continent → US Atlantic coast", cls: "MR", size: "37,000 mt" },
+  { code: "TC14", lane: "US Gulf → Continent", cls: "MR", size: "38,000 mt" },
 ];
 
-const TEAM = [
-  { initials: "MA", name: "Mehmet Aydın", title: "Senior Crude · VLCC", color: "#B8893A" },
-  { initials: "SH", name: "Søren Hansen", title: "Suezmax · WAF", color: "#D4A04A" },
-  { initials: "EK", name: "Elif Kaya", title: "Aframax · Black Sea", color: "#4A5E6E" },
-  { initials: "WZ", name: "Wei Zhang", title: "Asia · VLCC", color: "#0A1F33" },
-];
+const CRUDE_DESK = BROKERS.filter((b) => b.sectors.includes("crude") && !b.sectors.includes("sp"));
 
-const INSIGHTS = [
+const CRUDE_READS = [
+  "suezmax-tightness-sustains-as-cpc-volumes-rebound",
+  "td3c-demystified-meg-to-china-end-to-end",
+  "waf-east-the-slow-re-rating",
+]
+  .map((slug) => REPORTS.find((r) => reportSlug(r) === slug))
+  .filter((r): r is (typeof REPORTS)[number] => Boolean(r));
+
+const routeCount = new Set(
+  [...VESSEL_CLASSES.flatMap((v) => v.routes), ...CLEAN_CLASSES.flatMap((c) => c.routes)].map(
+    (r) => r.split(" ")[0]
+  )
+).size;
+const coverageHours = weekdayCoverageHours(OFFICE_ORDER.map((s) => OFFICES[s]));
+
+const FAQ = [
   {
-    tag: "Weekly Outlook",
-    date: "28 APR 2026",
-    title: "Suezmax tightness sustains as CPC volumes rebound",
-    desc: "Black Sea exports tracking Q1 highs while Atlantic Basin tonnage thins. Where the squeeze holds.",
-    read: "7 min",
+    q: "What's the difference between a voyage charter, a time charter and a COA?",
+    a: "A voyage (spot) charter moves one cargo from A to B for freight per tonne or a lump sum. A time charter hires the ship for a period at a daily rate, with the charterer paying voyage costs such as bunkers and port dues. A contract of affreightment (COA) commits the owner to lift a series of cargoes on agreed terms over a set period.",
   },
   {
-    tag: "Route Guide",
-    date: "APRIL 2026",
-    title: "TD3C demystified: MEG–China, end-to-end",
-    desc: "Loading windows, transit math, demurrage triggers, and the four laycan patterns charterers actually run.",
-    read: "11 min",
+    q: "Which tanker size fits my cargo?",
+    a: "As a rule of thumb: VLCC for about 2 million barrels of crude, Suezmax for about 1 million, Aframax / LR2 for around 600–750 thousand barrels, and LR1 or MR for clean product parcels. Port draft and berth limits, cargo grade and the charter-party terms narrow it down — the desk checks those before quoting.",
   },
   {
-    tag: "Desk note",
-    date: "21 APR 2026",
-    title: "WAF–East: the slow re-rating",
-    desc: "Asian buying for crude diet has shifted. What that means for VLCC ballast economics through Q2.",
-    read: "5 min",
+    q: "Do you screen for sanctions and handle price-cap attestation?",
+    a: "Yes. Counterparties and vessels are screened against OFAC, UK OFSI and EU consolidated lists before a freight idea goes back to the charterer, and cap-eligible cargoes go through a documented G7 price-cap attestation chain.",
+  },
+  {
+    q: "How quickly will I hear back?",
+    a: "A broker replies within 60 minutes during business hours. Include the cargo, load and discharge areas, laycan and stem to get a sharper first idea.",
   },
 ];
 
@@ -170,26 +192,24 @@ export default function TankersPage() {
       <JsonLd
         data={[
           webPageLd({
-            title: "Crude Tankers — LEVANTER",
+            title: "Tanker Chartering — LEVANTER",
             description:
-              "VLCC, Suezmax, Aframax chartering across the long-haul crude lanes — MEG, WAF, Black Sea, CPC.",
+              "Crude and clean tanker chartering: VLCC, Suezmax, Aframax/LR2, LR1 and MR across MEG, WAF, Black Sea/CPC, USG and Med lanes.",
             path: "/tankers",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Tankers", path: "/tankers" },
-          ]),
-          professionalServiceLd({
-            name: "LEVANTER Crude Tanker Desk",
+          breadcrumbsLd(CRUMBS),
+          serviceLd({
+            name: "LEVANTER Tanker Desk",
             description:
-              "Spot voyages, COAs, and time charters for VLCC, Suezmax, and Aframax tankers.",
-            serviceType: "Crude tanker brokerage",
+              "Spot voyages, COAs and time charters for crude (VLCC, Suezmax, Aframax) and clean (LR2, LR1, MR) tankers.",
+            serviceType: "Tanker chartering",
             path: "/tankers",
           }),
+          faqLd(FAQ),
         ]}
       />
       <Nav active="tankers" />
-      <main>
+      <main id="main">
         {/* Hero band */}
         <section className="hero-band">
           <svg
@@ -226,55 +246,49 @@ export default function TankersPage() {
             </g>
           </svg>
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span>
-              <span>Tankers</span>
-              <span>/</span>
-              Crude
-            </div>
-            <span className="eyebrow">Crude Tankers</span>
-            <h1 className="display h1">
-              VLCC, Suezmax, Aframax — every long-haul lane that matters.
-            </h1>
+            <Breadcrumbs crumbs={CRUMBS} />
+            <span className="eyebrow">Tanker chartering</span>
+            <h1 className="display h1">Crude and clean tanker chartering, VLCC to MR.</h1>
             <p className="lead">
-              Spot voyages, COAs, and time charters across MEG, WAF, Black Sea, CPC, and BTC. The
-              desk that books where the trade actually moves.
+              Spot voyages, COAs and time charters across the MEG, West Africa, the Black Sea / CPC,
+              the US Gulf and the Med — booked by brokers who work these lanes every day.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button asChild>
-                <a href="#inquiry">
-                  Charter inquiry <ArrowRight className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button asChild variant="bone">
-                <Link href="/research">
-                  Latest crude outlook <ArrowRight className="h-4 w-4" />
+                <Link href="/contact?cargo=crude">
+                  Charter inquiry <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
+              {CRUDE_READS[0] && (
+                <Button asChild variant="bone">
+                  <Link href={`/research/${reportSlug(CRUDE_READS[0])}`}>
+                    Latest crude outlook <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              )}
             </div>
 
             <div className="hero-stats">
               <div className="stat">
-                <div className="lbl">Active VLCC fixtures (Apr)</div>
-                <div className="val display">38</div>
-                <div className="delta">▲ vs Mar +12%</div>
+                <div className="lbl">Crude classes</div>
+                <div className="val display">3</div>
+                <div className="delta">VLCC · Suezmax · Aframax</div>
               </div>
               <div className="stat">
-                <div className="lbl">Suezmax COAs running</div>
-                <div className="val display">6</div>
-                <div className="delta">3 in CPC programme</div>
+                <div className="lbl">Clean classes</div>
+                <div className="val display">3</div>
+                <div className="delta">LR2 · LR1 · MR</div>
               </div>
               <div className="stat">
-                <div className="lbl">Avg first reply</div>
+                <div className="lbl">Benchmark routes</div>
+                <div className="val display">{routeCount}</div>
+                <div className="delta">Baltic TD / TC definitions</div>
+              </div>
+              <div className="stat">
+                <div className="lbl">Weekday coverage</div>
                 <div className="val display">
-                  42 <span className="text-[0.5em]">min</span>
+                  {coverageHours} <span className="text-[0.5em]">h</span>
                 </div>
-                <div className="delta">SLA 60 min</div>
-              </div>
-              <div className="stat">
-                <div className="lbl">Desks covering</div>
-                <div className="val display">24/7</div>
                 <div className="delta">Istanbul · London · SG · HOU</div>
               </div>
             </div>
@@ -282,16 +296,16 @@ export default function TankersPage() {
         </section>
 
         {/* Vessel classes */}
-        <section className="section">
+        <section className="section" aria-labelledby="classes-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Classes covered</span>
-              <h2 className="display h2">
-                Three sizes. One philosophy: charter where the trade is.
+              <h2 id="classes-h" className="display h2">
+                Three crude sizes. One philosophy: charter where the trade is.
               </h2>
               <p>
-                Indicative ranges only — real fixtures depend on age, ice class, vetting, charterer
-                requirements.
+                Indicative ranges only — real fixtures depend on age, ice class, vetting and
+                charterer requirements.
               </p>
             </div>
 
@@ -317,21 +331,21 @@ export default function TankersPage() {
                     ))}
                   </div>
                   <Link href={`/tankers/${v.slug}`} className="cta">
-                    {v.cta} <ArrowRight className="h-3.5 w-3.5" />
+                    {v.cta} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </article>
               ))}
             </div>
 
             {/* Clean tanker classes */}
-            <div className="sec-head" style={{ marginTop: 48 }}>
+            <div className="sec-head" id="clean" style={{ marginTop: 48, scrollMarginTop: 96 }}>
               <span className="eyebrow">Also covered</span>
-              <h3
+              <h2
                 className="display"
                 style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", margin: 0 }}
               >
                 Clean products tonnage.
-              </h3>
+              </h2>
             </div>
             <div className="class-grid" style={{ marginTop: 18 }}>
               {CLEAN_CLASSES.map((c) => (
@@ -356,7 +370,7 @@ export default function TankersPage() {
                     ))}
                   </div>
                   <Link href={`/tankers/${c.slug}`} className="cta">
-                    Explore {c.name} <ArrowRight className="h-3.5 w-3.5" />
+                    {c.name} chartering <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </article>
               ))}
@@ -364,124 +378,181 @@ export default function TankersPage() {
           </div>
         </section>
 
-        {/* Indicative route board */}
-        <section className="section">
+        {/* Benchmark routes */}
+        <section className="section" aria-labelledby="routes-h">
           <div className="container">
             <div className="sec-head">
-              <span className="eyebrow">Indicative route board</span>
-              <h2 className="display h2">Where the desk is fixing this week.</h2>
+              <span className="eyebrow">Benchmark routes</span>
+              <h2 id="routes-h" className="display h2">
+                The lanes the desk works every day.
+              </h2>
               <p>
-                Snapshot from recent fixtures — confirm with the desk before pricing. Numbers move
-                fast.
+                Baltic Exchange route definitions. For current freight levels ask the desk, or model
+                a voyage in the <Link href="/voyage-estimator">voyage estimator</Link>.
               </p>
             </div>
             <div className="routes-grid">
               <div className="routes-table overflow-x-auto">
                 <table>
+                  <caption className="sr-only">Benchmark tanker routes and cargo sizes</caption>
                   <thead>
                     <tr>
-                      <th>Route</th>
-                      <th>WS</th>
-                      <th>TCE / day</th>
-                      <th>5-day</th>
+                      <th scope="col">Route</th>
+                      <th scope="col">Class</th>
+                      <th scope="col">Cargo basis</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ROUTES.map((r) => (
+                    {BENCHMARK_ROUTES.map((r) => (
                       <tr key={r.code}>
-                        <td>
-                          <strong>{r.code}</strong> {r.route}
-                        </td>
-                        <td className="ws">{r.ws}</td>
-                        <td className="tce">{r.tce}</td>
-                        <td className={`delta ${r.up ? "up" : "down"} flex items-center gap-1`}>
-                          {r.up ? (
-                            <ArrowUpRight className="h-3 w-3" />
-                          ) : (
-                            <ArrowDownRight className="h-3 w-3" />
-                          )}
-                          {r.delta.replace(/[▲▼]\s*/, "")}
-                        </td>
+                        <th scope="row" style={{ textAlign: "left", fontWeight: 400 }}>
+                          <strong>{r.code}</strong> {r.lane}
+                        </th>
+                        <td>{r.cls}</td>
+                        <td className="ws">{r.size}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <aside className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
                 <div className="callout">
                   <span className="eyebrow">Bosphorus angle</span>
-                  <h4>CPC programme tightness, Black Sea–Med weight</h4>
+                  <h3>CPC and Black Sea crude, through the Turkish Straits</h3>
                   <p>
-                    ~38% of our 2026 Suezmax YTD fixtures touch CPC or Novorossiysk. Where Atlantic
-                    Basin tonnage is short, we have the relationships.
+                    Black Sea barrels reach the Med through the Bosphorus and Dardanelles. Transit
+                    queues, daylight rules and per-net-ton straits dues (US$6.70/NT from July 2026)
+                    go into every TD6 estimate we run.
                   </p>
-                  <a href="#" className="link">
-                    See Black Sea desk →
-                  </a>
+                  <Link href="/offices/istanbul" className="link">
+                    Meet the Istanbul desk →
+                  </Link>
                 </div>
                 <div className="callout">
                   <span className="eyebrow">Sanctions discipline</span>
-                  <h4>Compliance built into every fix</h4>
+                  <h3>Compliance built into every fixture</h3>
                   <p>
-                    OFAC, UK OFSI, EU consolidated screening on every counterparty and vessel. Price
-                    cap and G7 attestation handled at the desk.
+                    OFAC, UK OFSI and EU consolidated screening on every counterparty and vessel.
+                    Price-cap attestation is handled at the desk.
                   </p>
-                  <a href="#" className="link">
-                    Compliance approach →
-                  </a>
+                  <Link
+                    href="/research/g7-price-cap-attestation-the-desk-level-workflow"
+                    className="link"
+                  >
+                    How we handle price-cap attestation →
+                  </Link>
                 </div>
-              </aside>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Desk strip */}
-        <section className="desk">
+        <section className="desk" aria-labelledby="desk-h">
           <div className="container">
             <span className="eyebrow" style={{ color: "var(--accent-amber)" }}>
               Crude desk
             </span>
-            <h2 className="display h2">Five brokers. One number to call.</h2>
-            <p>You speak to the broker who handles your cargo. Not a relationship manager.</p>
-            <div className="desk-team">
-              {TEAM.map((m) => (
-                <div className="desk-card" key={m.initials}>
-                  <div className="avatar" style={{ background: m.color }}>
+            <h2 id="desk-h" className="display h2">
+              Crude brokers. One number to call.
+            </h2>
+            <p>
+              You speak to the broker who handles your cargo, not a relationship manager. Desk line:{" "}
+              <a
+                href={telUrl()}
+                style={{
+                  color: "var(--accent-brass-lt)",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                }}
+              >
+                {siteConfig.phone}
+              </a>
+            </p>
+            <ul className="desk-team">
+              {CRUDE_DESK.map((m) => (
+                <li className="desk-card" key={m.name}>
+                  <div className="avatar" style={{ background: m.color }} aria-hidden="true">
                     {m.initials}
                   </div>
                   <div>
-                    <div className="nm">{m.name}</div>
-                    <div className="ti">{m.title}</div>
+                    <Link className="nm" href={`/brokers/${brokerSlug(m)}`}>
+                      {m.name}
+                    </Link>
+                    <div className="ti">
+                      {m.title} · {m.desk}
+                    </div>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
         {/* Insights */}
-        <section className="section">
+        <section className="section" aria-labelledby="reads-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Recent crude views</span>
-              <h2 className="display h2">From the desk, not the press release.</h2>
+              <h2 id="reads-h" className="display h2">
+                From the desk, not the press release.
+              </h2>
             </div>
             <div className="insights">
-              {INSIGHTS.map((i) => (
-                <article key={i.title} className="insight">
+              {CRUDE_READS.map((r) => (
+                <article key={r.title} className="insight">
                   <div className="meta">
-                    <span className="tag">{i.tag}</span> · {i.date}
+                    <span className="tag">{r.catLabel}</span> · {r.date}
                   </div>
-                  <h4>{i.title}</h4>
-                  <p>{i.desc}</p>
-                  <Link href="/research" className="read">
-                    Read · {i.read} →
-                  </Link>
+                  <h3>
+                    <Link href={`/research/${reportSlug(r)}`}>{r.title}</Link>
+                  </h3>
+                  <p>{r.desc}</p>
+                  <span className="read">{r.read} min read</span>
                 </article>
               ))}
             </div>
           </div>
         </section>
+
+        {/* FAQ */}
+        <section className="section" style={{ paddingTop: 0 }} aria-labelledby="faq-h">
+          <div className="container" style={{ maxWidth: 820 }}>
+            <div className="sec-head">
+              <span className="eyebrow">FAQ</span>
+              <h2 id="faq-h" className="display h2">
+                Tanker chartering questions.
+              </h2>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              {FAQ.map((f) => (
+                <article key={f.q} className="panel">
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-display),serif",
+                      fontWeight: 500,
+                      fontSize: 18,
+                      letterSpacing: "-0.01em",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    {f.q}
+                  </h3>
+                  <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.65, margin: 0 }}>
+                    {f.a}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <ContactCta
+          headline="A crude or clean cargo to move?"
+          body="Send the cargo, load and discharge areas, laycan and stem. A tanker broker replies within 60 minutes during business hours."
+          context="tanker inquiry"
+          inquiryHref="/contact?cargo=crude"
+        />
       </main>
       <Footer />
     </>

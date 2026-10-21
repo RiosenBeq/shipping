@@ -5,12 +5,12 @@ import Link from "next/link";
 import { Search, Lock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { REPORTS, Report, reportSlug } from "@/lib/data/research";
 import { ResearchCategory, SubscribeSchema } from "@/lib/schemas";
 import { siteConfig } from "@/lib/site";
+import { trackConversion } from "@/lib/analytics";
 
-const TABS: { value: ResearchCategory; label: string }[] = [
+const FILTERS: { value: ResearchCategory; label: string }[] = [
   { value: "all", label: "All" },
   { value: "weekly", label: "Weekly Outlook" },
   { value: "route", label: "Route Guides" },
@@ -77,35 +77,35 @@ export function ResearchPortal() {
     });
   }, [cat, q]);
 
-  // No backend ESP — validate the email and open the user's mail client with
-  // a pre-filled subscribe request. The desk replies and adds them to the list.
+  // No mailing-list backend yet — validate the email and open the visitor's mail
+  // client with a pre-filled request; the desk adds them to the list by hand.
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     const result = SubscribeSchema.safeParse({ email });
     if (!result.success) {
       setSubStatus("error");
-      setSubError(result.error.errors[0]?.message ?? "Geçersiz e-posta");
+      setSubError(result.error.errors[0]?.message ?? "Enter a valid email address");
       return;
     }
     setSubStatus("ok");
     setSubError("");
-    if (typeof window !== "undefined") {
-      const subject = "Subscribe — Bosphorus Brief";
-      const body = `Please add this email to the Bosphorus Brief mailing list:\n\n${email}`;
-      window.location.href = `mailto:${siteConfig.email}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
-    }
+    trackConversion("subscribe_request");
+    const subject = "Subscribe — Bosphorus Brief";
+    const body = `Please add this email to the Bosphorus Brief mailing list:\n\n${result.data.email}`;
+    window.location.href = `mailto:${siteConfig.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
   };
 
   return (
     <>
-      <section className="research-toolbar">
+      <section className="research-toolbar" aria-label="Filter research">
         <div className="container">
           <div className="toolbar">
             <div className="search-box">
-              <Search className="h-4 w-4 text-ink-fog" />
+              <Search className="h-4 w-4" aria-hidden="true" style={{ color: "var(--muted)" }} />
               <input
+                type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search outlooks, routes, regulations…"
@@ -113,23 +113,27 @@ export function ResearchPortal() {
               />
             </div>
           </div>
-          <Tabs value={cat} onValueChange={(v) => setCat(v as ResearchCategory)} className="mt-8">
-            <TabsList className="w-full !justify-start">
-              {TABS.map((t) => (
-                <TabsTrigger key={t.value} value={t.value}>
-                  {t.label}{" "}
-                  <span className="ml-1.5 font-mono text-[11px] text-ink-fog data-[active=true]:text-accent-brass">
-                    {counts[t.value]}
-                  </span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="filter-buttons mt-8" role="group" aria-label="Report category">
+            {FILTERS.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                aria-pressed={cat === t.value}
+                onClick={() => setCat(t.value)}
+              >
+                {t.label}
+                <span className="count">{counts[t.value]}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="research-list">
+      <section className="research-list" aria-label="Reports">
         <div className="container">
+          <p className="sr-only" aria-live="polite">
+            {filtered.length} {filtered.length === 1 ? "report" : "reports"} shown
+          </p>
           <div className="r-grid">
             {filtered.length ? (
               filtered.map((r) => (
@@ -137,9 +141,8 @@ export function ResearchPortal() {
                   key={r.title}
                   href={`/research/${reportSlug(r)}`}
                   className={`r-card ${r.gated ? "gated-card" : ""}`}
-                  aria-label={r.title}
                 >
-                  <div className="r-cover">
+                  <div className="r-cover" aria-hidden="true">
                     <Cover r={r} />
                     <span className="label">{r.label}</span>
                     {r.gated ? (
@@ -147,12 +150,12 @@ export function ResearchPortal() {
                     ) : (
                       <span className="iss">{r.iss}</span>
                     )}
-                    <h4 className="heading">{r.title.split(":")[0]}</h4>
+                    <span className="heading">{r.title.split(":")[0]}</span>
                     {r.gated && (
                       <div className="lock-overlay">
                         <Lock className="h-7 w-7" strokeWidth={1.5} />
                         <div className="t">LEVANTER Pro</div>
-                        <div className="b">Sign in or request access — desk clients automatic.</div>
+                        <div className="b">Public summary · full report on request</div>
                       </div>
                     )}
                   </div>
@@ -160,12 +163,15 @@ export function ResearchPortal() {
                     <div className="meta">
                       <span className="cat">{r.catLabel}</span> · {r.date}
                     </div>
-                    <h3>{r.title}</h3>
+                    <h2 className="r-title">{r.title}</h2>
                     <p>{r.desc}</p>
                     <div className="r-foot">
-                      <span>{r.read} min read</span>
+                      <span>
+                        {r.read} min read{r.gated ? " · Pro" : ""}
+                      </span>
                       <span className="read flex items-center gap-1">
-                        {r.gated ? "Sign in" : "Read"} <ArrowRight className="h-3 w-3" />
+                        {r.gated ? "Summary" : "Read"}{" "}
+                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
                       </span>
                     </div>
                   </div>
@@ -173,7 +179,7 @@ export function ResearchPortal() {
               ))
             ) : (
               <div className="r-empty">
-                <h3>Nothing matches that yet.</h3>
+                <h2 className="r-title">Nothing matches that yet.</h2>
                 <p>Try a broader term or clear your filters.</p>
               </div>
             )}
@@ -181,16 +187,20 @@ export function ResearchPortal() {
 
           <div className="subs">
             <div>
-              <h3>The Bosphorus Brief — every Monday, 06:30 GMT.</h3>
+              <h2 className="subs-title">
+                The Bosphorus Brief — the desk&apos;s market note by email.
+              </h2>
               <p>
-                Crude, clean, dry — what the desk is reading before they pick up the phone. Free, no
-                spam, unsubscribe in one click.
+                Crude, clean, dry — what the desk is reading before they pick up the phone. Free. We
+                add you by hand; reply &ldquo;unsubscribe&rdquo; at any time to leave.
               </p>
             </div>
             <form onSubmit={handleSubscribe} noValidate>
               <Input
                 type="email"
                 placeholder="you@company.com"
+                aria-label="Email address"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -199,14 +209,19 @@ export function ResearchPortal() {
                 aria-invalid={subStatus === "error"}
                 aria-describedby={subStatus === "error" ? "sub-err" : undefined}
                 required
-                disabled={subStatus === "ok"}
               />
-              <Button type="submit" disabled={subStatus === "ok"}>
-                {subStatus === "ok" ? "Mail draft opened ✓" : "Subscribe"}
+              <Button type="submit">
+                {subStatus === "ok" ? "Email draft opened" : "Request to join"}
               </Button>
               {subStatus === "error" && (
-                <p id="sub-err" className="mt-1 w-full text-xs text-state-negative">
+                <p id="sub-err" className="mt-1 w-full text-xs text-state-negative" role="alert">
                   {subError}
+                </p>
+              )}
+              {subStatus === "ok" && (
+                <p className="mt-1 w-full text-xs" style={{ color: "var(--muted)" }} role="status">
+                  Your email app should open with the request — press send. Nothing opened? Email{" "}
+                  {siteConfig.email}.
                 </p>
               )}
             </form>

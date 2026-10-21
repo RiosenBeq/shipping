@@ -92,7 +92,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     ],
   },
 
-  "wafeast-the-slow-re-rating": {
+  "waf-east-the-slow-re-rating": {
     dek: "Asian buying for crude diet has shifted. What that means for VLCC ballast economics through Q2.",
     blocks: [
       {
@@ -116,18 +116,18 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     ],
   },
 
-  "td7-nsea-cont-shorthaul-fast-turn-thin-margin": {
-    dek: "How Aframax desks build TCE on routes where you live or die on portage and weather windows.",
+  "td7-nsea-cont-short-haul-fast-turn-thin-margin": {
+    dek: "How Aframax desks build TCE on routes where you live or die on port time and weather windows.",
     blocks: [
       {
         kind: "p",
-        text: "TD7 — North Sea → Continent — looks unremarkable on paper: a 14-day round-trip Aframax run at Worldscale levels that rarely make headlines. But this is where short-haul Aframax desks earn their keep. The TCE differential between a smartly-fixed TD7 voyage and a clumsily-fixed one can be $8–12k/day, almost entirely on portage cost discipline and weather window selection.",
+        text: "TD7 — North Sea → Continent — looks unremarkable on paper: a 14-day round-trip Aframax run at Worldscale levels that rarely make headlines. But this is where short-haul Aframax desks earn their keep. The TCE differential between a smartly-fixed TD7 voyage and a clumsily-fixed one can be $8–12k/day, almost entirely on port-time discipline and weather window selection.",
       },
       { kind: "h2", text: "Where the margin lives" },
       {
         kind: "ul",
         items: [
-          "Portage: Mongstad and Sture pilotage windows are tide-dependent. Missing the slot adds 8–14 hours.",
+          "Port time: Mongstad and Sture pilotage and berth windows are tight. Missing the slot adds 8–14 hours.",
           "Weather routing: the North Sea–English Channel transit takes 3–5% longer in Q4/Q1 with prevailing wind/sea against.",
           "Discharge sequencing: Rotterdam vs Antwerp vs Wilhelmshaven — pilotage and tug pricing varies materially.",
           "Demurrage: short laytime regimes mean any port slip hits hard.",
@@ -141,12 +141,12 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     ],
   },
 
-  "g7-price-cap-attestation-the-desklevel-workflow": {
+  "g7-price-cap-attestation-the-desk-level-workflow": {
     dek: "What we actually check, what we ask for, and the documentation chain we run on every cap-eligible fixture.",
     blocks: [
       {
         kind: "p",
-        text: "The G7 oil price cap regime — in force on Russian-origin crude since December 2022 and on petroleum products since February 2023 — has shifted from a high-level compliance topic to a deck-level workflow item. Every fixture our desk runs that touches Russian molecules requires a documented attestation chain. Here's what that chain looks like in practice.",
+        text: "The G7 oil price cap regime — in force on Russian-origin crude since December 2022 and on petroleum products since February 2023 — has shifted from a high-level compliance topic to a desk-level workflow item. Every fixture our desk runs that touches Russian molecules requires a documented attestation chain. Here's what that chain looks like in practice.",
       },
       { kind: "h2", text: "What we collect, in order" },
       {
@@ -172,7 +172,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     ],
   },
 
-  "aframax-5yearold-market-14-deals-3-themes": {
+  "aframax-5-year-old-market-14-deals-3-themes": {
     dek: "Where prices held, where they slipped, and what the buy-side composition tells you about Q3 supply.",
     blocks: [
       {

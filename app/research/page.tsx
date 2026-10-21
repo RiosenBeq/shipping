@@ -3,49 +3,36 @@ import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { ContactCta } from "../components/ContactCta";
 import { ResearchPortal } from "./ResearchPortal";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { REPORTS } from "@/lib/data/research";
-import { siteConfig } from "@/lib/site";
+import { buildPageMetadata, breadcrumbsLd, itemListLd, webPageLd } from "@/lib/seo";
+import { REPORTS, reportSlug } from "@/lib/data/research";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Research — Weekly Outlooks, Route Guides, Regulatory Deep-Dives",
+  title: "Tanker Market Research & Route Guides",
   description:
-    "Weekly tanker outlooks, lane-by-lane route guides, EU ETS and regulatory deep-dives. Free briefs are public; LEVANTER Pro reports are gated.",
+    "Tanker market outlooks, lane-by-lane route guides (TD3C, TD7) and EU ETS and G7 price-cap notes from the LEVANTER desk. Free notes are public.",
   path: "/research",
   keywords: [
-    "tanker research",
-    "Worldscale outlook",
-    "TD20 forecast",
-    "EU ETS shipping",
-    "VLCC TD3C",
+    "tanker market research",
+    "tanker market outlook",
+    "shipping route guide",
+    "TD3C route",
     "Suezmax outlook",
-    "shipping research portal",
+    "EU ETS shipping",
+    "G7 price cap shipping",
   ],
 });
 
-const reportListLd = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "LEVANTER research reports",
-  numberOfItems: REPORTS.length,
-  itemListElement: REPORTS.map((r, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    item: {
-      "@type": "Article",
-      headline: r.title,
-      description: r.desc,
-      datePublished: r.date,
-      author: { "@id": `${siteConfig.url}#organization` },
-      publisher: { "@id": `${siteConfig.url}#organization` },
-      isAccessibleForFree: !r.gated,
-    },
-  })),
-};
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Research", path: "/research" },
+];
+
+const FEATURED = REPORTS.find((r) => r.cat === "weekly" && !r.gated) ?? REPORTS[0];
 
 export default function ResearchPage() {
   return (
@@ -53,32 +40,29 @@ export default function ResearchPage() {
       <JsonLd
         data={[
           webPageLd({
-            title: "Research — LEVANTER",
+            title: "Tanker Market Research — LEVANTER",
             description:
-              "Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public.",
+              "Tanker market outlooks, route guides and regulatory notes from the LEVANTER desk.",
             path: "/research",
             type: "CollectionPage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Research", path: "/research" },
-          ]),
-          reportListLd,
+          breadcrumbsLd(CRUMBS),
+          itemListLd(
+            "LEVANTER research",
+            REPORTS.map((r) => ({ name: r.title, path: `/research/${reportSlug(r)}` }))
+          ),
         ]}
       />
       <Nav active="research" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Research
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Research</span>
-            <h1 className="display h1">Views from the desk. Not the press release.</h1>
+            <h1 className="display h1">Tanker market research, route guides and regulation.</h1>
             <p>
-              Weekly outlooks, route guides, regulatory deep-dives. Free briefs are public. Pro
-              reports are gated.
+              Desk outlooks, lane-by-lane route guides and regulatory notes — views from the desk,
+              not the press release. Free notes are public; Pro reports show a public summary.
             </p>
           </div>
         </section>
@@ -125,29 +109,25 @@ export default function ResearchPage() {
                     fill="rgba(241,236,220,.5)"
                     letterSpacing="0.1em"
                   >
-                    CRUDE Q2 2026 · WEEKLY OUTLOOK
+                    {FEATURED.label} · {FEATURED.catLabel.toUpperCase()}
                   </text>
                 </svg>
-                <div className="iss">ISSUE 18 / 2026 · 28 APR</div>
+                <div className="iss">
+                  ISSUE {FEATURED.iss} · {FEATURED.date}
+                </div>
               </div>
               <div className="feat-content">
                 <div className="meta">
-                  <span className="tag">FEATURED · WEEKLY OUTLOOK</span> · 12 MIN READ
+                  <span className="tag">FEATURED · {FEATURED.catLabel.toUpperCase()}</span> ·{" "}
+                  {FEATURED.read} MIN READ
                 </div>
-                <h2>Why Suezmax tightness is the story to watch through Q2.</h2>
-                <p>
-                  CPC programme rebound, Atlantic ballast economics, and what it means if
-                  you&apos;re holding a Q3 charter window. Including our base, bear, and bull TCE
-                  scenarios for TD20.
-                </p>
+                <h2>{FEATURED.title}</h2>
+                <p>{FEATURED.desc}</p>
                 <div className="ctas">
                   <Button asChild>
-                    <a href="#read">
-                      Read full outlook <ArrowRight className="h-4 w-4" />
-                    </a>
-                  </Button>
-                  <Button asChild variant="outline" className="btn-outline">
-                    <a href="#download">Download PDF</a>
+                    <Link href={`/research/${reportSlug(FEATURED)}`}>
+                      Read the outlook <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
                   </Button>
                 </div>
               </div>

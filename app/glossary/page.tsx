@@ -4,15 +4,17 @@ import { ArrowRight } from "lucide-react";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { ContactCta } from "../components/ContactCta";
 import { Button } from "@/components/ui/button";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { absoluteUrl, buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { slugify } from "@/lib/slug";
 import { GLOSSARY_TERMS, GROUP_LABELS, type GlossaryTerm } from "@/lib/data/glossary";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Chartering Glossary — Worldscale, TCE, COA, EU ETS",
+  title: "Chartering Glossary — Shipping Terms Explained",
   description:
-    "Plain-English definitions of every term used by the LEVANTER desk: Worldscale, TCE, COA, demurrage, vessel classes, bunker grades, EU ETS, G7 price cap, and more.",
+    "Plain-English chartering terms: Worldscale, TCE, COA, demurrage, laytime, vessel classes, EU ETS, the G7 price cap and Turkish Straits dues.",
   path: "/glossary",
   keywords: [
     "shipping glossary",
@@ -24,19 +26,30 @@ export const metadata: Metadata = buildPageMetadata({
     "EU ETS shipping",
     "G7 price cap",
     "HKC Hong Kong Convention",
+    "laytime",
+    "demurrage",
   ],
 });
+
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Glossary", path: "/glossary" },
+];
+
+const TERMSET_ID = `${absoluteUrl("/glossary")}#termset`;
 
 const definedTermLd = {
   "@context": "https://schema.org",
   "@type": "DefinedTermSet",
-  "@id": "https://levanter.example/glossary#termset",
+  "@id": TERMSET_ID,
   name: "LEVANTER chartering glossary",
+  url: absoluteUrl("/glossary"),
   hasDefinedTerm: GLOSSARY_TERMS.map((t) => ({
     "@type": "DefinedTerm",
     name: t.term,
     description: t.def,
-    inDefinedTermSet: { "@id": "https://levanter.example/glossary#termset" },
+    url: absoluteUrl(`/glossary#${slugify(t.term)}`),
+    inDefinedTermSet: { "@id": TERMSET_ID },
   })),
 };
 
@@ -57,23 +70,17 @@ export default function GlossaryPage() {
               "Plain-English definitions of the terms used by the LEVANTER chartering desk.",
             path: "/glossary",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Glossary", path: "/glossary" },
-          ]),
+          breadcrumbsLd(CRUMBS),
           definedTermLd,
         ]}
       />
       <Nav />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Glossary
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Reference</span>
-            <h1 className="display h1">Chartering glossary.</h1>
+            <h1 className="display h1">Chartering glossary: shipping terms explained.</h1>
             <p>
               Plain-English definitions of every term the desk uses on a fixture call. From
               Worldscale and TCE to EU ETS phase-in and the G7 price cap — short, current, and
@@ -85,7 +92,8 @@ export default function GlossaryPage() {
         {/* Quick jump */}
         <section className="section" style={{ paddingTop: 32, paddingBottom: 0 }}>
           <div className="container">
-            <div
+            <nav
+              aria-label="Glossary sections"
               style={{
                 display: "flex",
                 gap: 8,
@@ -104,7 +112,7 @@ export default function GlossaryPage() {
                   {g.label} ({g.terms.length})
                 </a>
               ))}
-            </div>
+            </nav>
           </div>
         </section>
 
@@ -126,8 +134,13 @@ export default function GlossaryPage() {
               </h2>
               <div className="ref-grid">
                 {g.terms.map((t) => (
-                  <article key={t.term} className="ref-card">
-                    <div className="ref-term">{t.term}</div>
+                  <article
+                    key={t.term}
+                    id={slugify(t.term)}
+                    className="ref-card"
+                    style={{ scrollMarginTop: 96 }}
+                  >
+                    <h3 className="ref-term">{t.term}</h3>
                     <p className="ref-def">{t.def}</p>
                   </article>
                 ))}
@@ -150,7 +163,7 @@ export default function GlossaryPage() {
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild>
                 <Link href="/voyage-estimator">
-                  Open voyage estimator <ArrowRight className="h-4 w-4" />
+                  Open voyage estimator <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
@@ -159,7 +172,7 @@ export default function GlossaryPage() {
 
         <ContactCta
           headline="Stuck on a term? Ask the desk."
-          body="Glossary missing something you need? Or want a working example for your specific lane? The desk replies inside 60 minutes."
+          body="Glossary missing something you need? Or want a working example for your specific lane? The desk replies within 60 minutes during business hours."
           context="glossary follow-up"
         />
       </main>

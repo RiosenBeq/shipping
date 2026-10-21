@@ -3,12 +3,10 @@ import { PAGES } from "@/lib/pages";
 import { BROKERS, brokerSlug } from "@/lib/data/brokers";
 import { REPORTS, reportSlug } from "@/lib/data/research";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
-import { OFFICES } from "@/lib/data/offices";
+import { OFFICES, OFFICE_ORDER } from "@/lib/data/offices";
 
 export const dynamic = "force-static";
 export const revalidate = false;
-
-const OFFICE_CITIES = ["ist", "lon", "sg", "hou"] as const;
 
 /**
  * Serves /llms.txt per the convention at https://llmstxt.org/
@@ -39,8 +37,9 @@ ${siteConfig.legalEntity} is a maritime brokerage headquartered in ${
     .map((o) => o.city)
     .join(", ")}. We charter tankers (crude, clean, chemicals) and dry bulk
 carriers across the major global lanes, run an S&P advisory desk, and publish
-desk-grade research. The site documents these services and provides a live
-voyage estimator (TCE / freight / bunker / P&L modelling).
+desk research. The site documents these services and provides an interactive
+voyage estimator (indicative TCE / freight / bunker / P&L modelling from user inputs).
+Market figures on the site are indicative or illustrative, not live data.
 
 ## Pages
 ${primary.join("\n")}
@@ -55,7 +54,7 @@ ${TANKER_CLASSES.map(
 ).join("\n")}
 
 ## Offices
-${OFFICE_CITIES.map(
+${OFFICE_ORDER.map(
   (c) =>
     `- [${OFFICES[c].city}](${url(`/offices/${c}`)}): ${OFFICES[c].sectors} · ${OFFICES[c].hours}`
 ).join("\n")}
@@ -76,9 +75,9 @@ ${REPORTS.map(
 ${legal.join("\n")}
 - [Sitemap](${url("/sitemap.xml")}): Machine-readable list of every URL
 - [RSS feed](${url("/research/feed.xml")}): Latest research, RSS 2.0
-- [Brokers JSON-LD](${url("/brokers")}): \`ItemList\` of 14 brokers (Person schema)
-- [Research JSON-LD](${url("/research")}): \`ItemList\` of ${REPORTS.length} reports (Article schema)
-- [Voyage Estimator FAQ](${url("/voyage-estimator")}): \`FAQPage\` schema with the 4 most-asked questions
+- [Brokers](${url("/brokers")}): \`ItemList\` of ${BROKERS.length} broker profiles
+- [Research](${url("/research")}): \`ItemList\` of ${REPORTS.length} reports (each page has Article schema)
+- [Voyage Estimator FAQ](${url("/voyage-estimator")}): \`FAQPage\` schema
 `;
 
   return new Response(body, {

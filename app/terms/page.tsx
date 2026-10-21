@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Nav } from "../components/Nav";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
 import { ContactCta } from "../components/ContactCta";
@@ -15,6 +15,11 @@ export const metadata: Metadata = buildPageMetadata({
   keywords: ["terms of use", "terms of service", "legal"],
 });
 
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Terms", path: "/terms" },
+];
+
 export default function TermsPage() {
   return (
     <>
@@ -25,20 +30,14 @@ export default function TermsPage() {
             description: "Terms governing use of the LEVANTER website and tools.",
             path: "/terms",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Terms", path: "/terms" },
-          ]),
+          breadcrumbsLd(CRUMBS),
         ]}
       />
       <Nav />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Terms
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Legal</span>
             <h1 className="display h1">Terms of use.</h1>
             <p>

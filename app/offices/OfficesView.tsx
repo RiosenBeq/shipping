@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { OFFICES, CITY_LABEL } from "@/lib/data/offices";
+import Link from "next/link";
+import { OFFICES, OFFICE_ORDER, CITY_LABEL } from "@/lib/data/offices";
 import { OfficeCity } from "@/lib/schemas";
-
-const CITY_ORDER: OfficeCity[] = ["ist", "lon", "sg", "hou"];
+import { telUrl } from "@/lib/site";
 
 function useClocks() {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
+    // Minute precision is enough for "what time is it at the desk?".
+    const id = setInterval(() => setNow(new Date()), 15_000);
     return () => clearInterval(id);
   }, []);
   const fmtTime = (tz: string) =>
@@ -18,7 +19,6 @@ function useClocks() {
       hour12: false,
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
     }).format(now);
   const fmtZone = (tz: string) => {
     const parts = new Intl.DateTimeFormat("en-GB", {
@@ -31,17 +31,23 @@ function useClocks() {
 }
 
 export function OfficesView() {
-  const [selected, setSelected] = useState<OfficeCity>("ist");
+  const [selected, setSelected] = useState<OfficeCity>("istanbul");
   const { fmtTime, fmtZone } = useClocks();
   const office = OFFICES[selected];
 
   return (
-    <section className="map-section">
+    <section className="map-section" aria-label="Office locations">
       <div className="container">
         <div className="map-grid">
           <div>
             <div className="map-wrap">
-              <svg className="world" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+              {/* Visual map only — the office list next to it offers the same selection by keyboard. */}
+              <svg
+                className="world"
+                viewBox="0 0 1000 600"
+                preserveAspectRatio="xMidYMid slice"
+                aria-hidden="true"
+              >
                 <defs>
                   <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
                     <path
@@ -69,7 +75,7 @@ export function OfficesView() {
                   <path d="M 540 175 Q 660 130 770 230" />
                   <path d="M 540 175 Q 380 230 195 285" />
                 </g>
-                {CITY_ORDER.map((c) => {
+                {OFFICE_ORDER.map((c) => {
                   const o = OFFICES[c];
                   const stroke = o.pin.isHQ ? "#B8893A" : "#D4A04A";
                   const isActive = c === selected;
@@ -79,8 +85,7 @@ export function OfficesView() {
                       className={`pin ${isActive ? "active" : ""}`}
                       transform={`translate(${o.pin.x} ${o.pin.y})`}
                       onClick={() => setSelected(c)}
-                      role="button"
-                      aria-label={`Select ${o.city}`}
+                      style={{ cursor: "pointer" }}
                     >
                       <circle
                         className="ring"
@@ -93,13 +98,13 @@ export function OfficesView() {
                       />
                       <circle className="dot" cx="0" cy="0" r={o.pin.size} fill={stroke} />
                       <text
-                        x={c === "lon" ? -12 : 10}
-                        y={c === "lon" ? -10 : 4}
+                        x={c === "london" ? -12 : 10}
+                        y={c === "london" ? -10 : 4}
                         fontFamily="var(--font-mono),monospace"
                         fontSize="11"
                         fill="#F1ECDC"
                         fontWeight="600"
-                        textAnchor={c === "lon" ? "end" : "start"}
+                        textAnchor={c === "london" ? "end" : "start"}
                       >
                         {o.pin.isHQ ? `${o.city.toUpperCase()} · HQ` : o.city.toUpperCase()}
                       </text>
@@ -116,67 +121,52 @@ export function OfficesView() {
                 <span className="ldot amber"></span>Regional desk
               </span>
               <span style={{ fontFamily: "var(--font-mono),monospace", letterSpacing: ".06em" }}>
-                — Click a pin or card to see office detail
+                — Select an office to see its details
               </span>
             </div>
           </div>
 
-          <div className="tz-list">
-            {CITY_ORDER.map((c) => {
+          <ul className="tz-list">
+            {OFFICE_ORDER.map((c) => {
               const o = OFFICES[c];
+              const active = c === selected;
               return (
-                <article
-                  key={c}
-                  className={`tz-card ${c === selected ? "active" : ""}`}
-                  onClick={() => setSelected(c)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelected(c)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className="tz-row">
-                    <h3 className="city">{o.city}</h3>
-                    <div className="clock" suppressHydrationWarning>
-                      {fmtTime(o.tz)}
-                    </div>
-                  </div>
-                  <div className="tz-row">
-                    <div className="meta">
-                      {c === "ist"
-                        ? "Headquarters · TR"
-                        : c === "lon"
-                          ? "Atlantic Basin · UK"
-                          : c === "sg"
-                            ? "Asia Desk · SG"
-                            : "US Gulf · TX"}
-                    </div>
-                    <div className="meta" suppressHydrationWarning>
-                      {fmtZone(o.tz)}
-                    </div>
-                  </div>
-                  <div className="addr">{o.addr.split(",").slice(0, 2).join(", ")}</div>
-                  <div className="role">{o.sectors}</div>
-                  <a
-                    href={`/offices/${c}`}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginTop: 12,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "var(--accent-brass)",
-                    }}
+                <li key={c} className={`tz-card ${active ? "active" : ""}`}>
+                  <button
+                    type="button"
+                    className="tz-select"
+                    aria-pressed={active}
+                    aria-controls="office-detail"
+                    onClick={() => setSelected(c)}
                   >
-                    Office detail →
-                  </a>
-                </article>
+                    <span className="tz-row">
+                      <span className="city">{o.city}</span>
+                      <span className="clock" suppressHydrationWarning>
+                        <span className="sr-only">Local time </span>
+                        {fmtTime(o.tz)}
+                      </span>
+                    </span>
+                    <span className="tz-row">
+                      <span className="meta">
+                        {o.role} · {o.country}
+                      </span>
+                      <span className="meta" suppressHydrationWarning>
+                        {fmtZone(o.tz)}
+                      </span>
+                    </span>
+                    <span className="addr">{o.addr.split(",").slice(0, 2).join(", ")}</span>
+                    <span className="role">{o.sectors}</span>
+                  </button>
+                  <Link href={`/offices/${c}`} className="tz-link">
+                    {o.city} office page <span aria-hidden="true">→</span>
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </div>
 
-        <div className="detail">
+        <div className="detail" id="office-detail">
           <div className="detail-grid">
             <div className="head-pic">
               <div>
@@ -185,15 +175,19 @@ export function OfficesView() {
               </div>
             </div>
             <div>
-              <h3>{office.city}</h3>
+              <h2 className="detail-city">{office.city}</h2>
               <p className="city-meta">{office.meta}</p>
               <dl>
                 <dt>Address</dt>
                 <dd>{office.addr}</dd>
                 <dt>General line</dt>
-                <dd className="mono">{office.phone}</dd>
+                <dd className="mono">
+                  <a href={telUrl(office.phone)}>{office.phone}</a>
+                </dd>
                 <dt>After hours</dt>
-                <dd className="mono">{office.after}</dd>
+                <dd className="mono">
+                  <a href={telUrl(office.after)}>{office.after}</a>
+                </dd>
               </dl>
             </div>
             <div>
@@ -204,14 +198,17 @@ export function OfficesView() {
                 <dd className="mono">{office.hours}</dd>
                 <dt>Languages</dt>
                 <dd>{office.lang}</dd>
-                <dt>Lloyd&apos;s / membership</dt>
-                <dd>{office.member}</dd>
               </dl>
+              <Link href={`/offices/${selected}`} className="tz-link" style={{ marginTop: 16 }}>
+                Full {office.city} office page <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
         </div>
 
-        <p className="sr-only">Selected office: {CITY_LABEL[selected]}</p>
+        <p className="sr-only" aria-live="polite">
+          Showing details for {CITY_LABEL[selected]}
+        </p>
       </div>
     </section>
   );

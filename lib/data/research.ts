@@ -132,7 +132,7 @@ export const REPORTS: Report[] = [
     read: 9,
     gated: false,
     title: "TD7 NSEA → CONT: short-haul, fast turn, thin margin",
-    desc: "How Aframax desks build TCE on routes where you live or die on portage and weather windows.",
+    desc: "How Aframax desks build TCE on routes where you live or die on port time and weather windows.",
     label: "AFRAMAX · TD7",
     coverColor: "#162F3D",
     coverAccent: "#1B4D5C",

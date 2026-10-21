@@ -28,11 +28,11 @@ export const ResearchFilterSchema = z.object({
 export type ResearchFilter = z.infer<typeof ResearchFilterSchema>;
 
 export const SubscribeSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta giriniz"),
+  email: z.string().trim().email("Enter a valid email address"),
 });
 export type SubscribeForm = z.infer<typeof SubscribeSchema>;
 
-export const OfficeCitySchema = z.enum(["ist", "lon", "sg", "hou"]);
+export const OfficeCitySchema = z.enum(["istanbul", "london", "singapore", "houston"]);
 export type OfficeCity = z.infer<typeof OfficeCitySchema>;
 
 /* === Contact / charter inquiry === */
@@ -43,23 +43,49 @@ export const InquiryTermSchema = z.enum(["voy", "tc", "coa", "contract"]);
 export type InquiryTerm = z.infer<typeof InquiryTermSchema>;
 
 export const LoadAreaSchema = z.enum([
-  "blk-cpc",
+  "blk",
+  "med",
   "nsea-baltic",
-  "waf-med",
+  "waf",
   "ag-rs",
   "usg-caribs",
+  "ecsa",
+  "australia",
   "fareast",
+  "other",
 ]);
+export type LoadArea = z.infer<typeof LoadAreaSchema>;
+
 export const DischAreaSchema = z.enum([
   "ukc-med",
   "usg-usac",
-  "fareast-india",
-  "wcsa-ecsa",
+  "fareast",
+  "india",
+  "sam",
   "waf",
   "spore-eafr",
+  "other",
 ]);
+export type DischArea = z.infer<typeof DischAreaSchema>;
 
-export const PreferredClassSchema = z.enum(["VLCC", "Suezmax", "Aframax", "MR", "Handy", "Open"]);
+/** Preferred vessel class. Which values are offered depends on the cargo (see InquiryWizard). */
+export const PreferredClassSchema = z.enum([
+  "VLCC",
+  "Suezmax",
+  "Aframax",
+  "LR2",
+  "LR1",
+  "MR",
+  "Handy",
+  "Chem-stainless",
+  "Chem-coated",
+  "Capesize",
+  "Kamsarmax",
+  "Ultramax",
+  "Handysize",
+  "Open",
+]);
+export type PreferredClass = z.infer<typeof PreferredClassSchema>;
 
 export const InquiryStep1Schema = z.object({
   cargo: InquiryCargoSchema,
@@ -68,36 +94,36 @@ export const InquiryStep1Schema = z.object({
 export const InquiryStep2Schema = z.object({
   loadArea: LoadAreaSchema,
   dischArea: DischAreaSchema,
-  stem: z.string().trim().min(1, "Yük miktarı gerekli"),
+  /** Optional — the desk can quote a range and firm it up on the call. */
+  stem: z.string().trim().max(120, "Keep the stem under 120 characters").optional(),
   vesselClass: PreferredClassSchema,
 });
 
+const isoDate = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || !Number.isNaN(new Date(v).getTime()), "Enter a valid date");
+
 export const InquiryStep3Schema = z
   .object({
-    laycanFrom: z.string().min(1, "Laycan başlangıç tarihi gerekli"),
-    laycanTo: z.string().min(1, "Laycan bitiş tarihi gerekli"),
+    laycanFrom: isoDate.optional(),
+    laycanTo: isoDate.optional(),
     term: InquiryTermSchema,
+    notes: z.string().trim().max(2000, "Keep notes under 2,000 characters").optional(),
   })
   .refine((v) => !v.laycanFrom || !v.laycanTo || new Date(v.laycanFrom) <= new Date(v.laycanTo), {
-    message: "Laycan bitişi başlangıçtan sonra olmalı",
+    message: "Laycan end must be on or after the start date",
     path: ["laycanTo"],
   });
 
 export const InquiryStep4Schema = z.object({
-  name: z.string().trim().min(2, "Ad gerekli"),
-  firm: z.string().trim().min(2, "Şirket gerekli"),
-  email: z.string().email("Geçerli bir e-posta giriniz"),
-  phone: z.string().trim().optional(),
+  name: z.string().trim().min(2, "Enter your name"),
+  firm: z.string().trim().min(2, "Enter your company"),
+  email: z.string().trim().email("Enter a valid email address"),
+  phone: z.string().trim().max(40, "Keep the phone number under 40 characters").optional(),
 });
-
-export const InquiryFullSchema = z
-  .object({})
-  .merge(InquiryStep1Schema)
-  .merge(InquiryStep2Schema)
-  .merge(z.object({ laycanFrom: z.string(), laycanTo: z.string(), term: InquiryTermSchema }))
-  .merge(InquiryStep4Schema);
 
 export type InquiryStep1 = z.infer<typeof InquiryStep1Schema>;
 export type InquiryStep2 = z.infer<typeof InquiryStep2Schema>;
+export type InquiryStep3 = z.infer<typeof InquiryStep3Schema>;
 export type InquiryStep4 = z.infer<typeof InquiryStep4Schema>;
-export type InquiryFull = z.infer<typeof InquiryFullSchema>;

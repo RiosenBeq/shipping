@@ -1,103 +1,138 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Menu, X, ArrowRight, Phone, MessageCircle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { siteConfig, telUrl, whatsappUrl, mailUrl } from "@/lib/site";
 import { ThemeToggle } from "./ThemeToggle";
 
-type NavKey = "home" | "tankers" | "brokers" | "research" | "tools" | "offices";
+export type NavKey =
+  | "home"
+  | "tankers"
+  | "dry-bulk"
+  | "sale-purchase"
+  | "research"
+  | "brokers"
+  | "offices"
+  | "tools"
+  | "contact";
 
 const LINKS: { key: NavKey; href: string; label: string }[] = [
   { key: "tankers", href: "/tankers", label: "Tankers" },
-  { key: "brokers", href: "/brokers", label: "Brokers" },
+  { key: "dry-bulk", href: "/dry-bulk", label: "Dry Bulk" },
+  { key: "sale-purchase", href: "/sale-purchase", label: "S&P" },
   { key: "research", href: "/research", label: "Research" },
-  { key: "tools", href: "/voyage-estimator", label: "Tools" },
+  { key: "brokers", href: "/brokers", label: "Brokers" },
   { key: "offices", href: "/offices", label: "Offices" },
+  { key: "tools", href: "/voyage-estimator", label: "Tools" },
 ];
 
 export function Nav({ active }: { active?: NavKey }) {
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Close on resize past lg breakpoint
+  // Close on resize past the xl breakpoint, where the desktop nav takes over
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= 1024) setOpen(false);
+      if (window.innerWidth >= 1280) setOpen(false);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Lock scroll when open
+  // Lock scroll while open; Escape closes and returns focus to the toggle
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
-    <header className="nav">
-      <div className="nav-inner">
-        <Link href="/" className="brand" onClick={() => setOpen(false)}>
-          <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-            <circle cx="16" cy="16" r="15" fill="none" stroke="#0A1F33" strokeWidth="1.2" />
-            <path
-              d="M2 18 Q 9 18 14 17.6 Q 20 17.1 22 13.5 Q 25 12.8 30 12"
-              stroke="#B8893A"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-            />
-          </svg>
-          <span className="wordmark">LEVANTER</span>
-        </Link>
+    <>
+      <header className="nav">
+        <div className="nav-inner">
+          <Link href="/" className="brand" onClick={() => setOpen(false)}>
+            <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+              <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              <path
+                d="M2 18 Q 9 18 14 17.6 Q 20 17.1 22 13.5 Q 25 12.8 30 12"
+                stroke="#B8893A"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="wordmark">{siteConfig.name}</span>
+            <span className="sr-only"> — home</span>
+          </Link>
 
-        <nav className="hidden lg:block">
-          <ul className="nav-links">
-            {LINKS.map((l) => (
-              <li key={l.key}>
-                <Link className={cn("nav-link", active === l.key && "active")} href={l.href}>
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+          <nav className="hidden xl:block" aria-label="Main">
+            <ul className="nav-links">
+              {LINKS.map((l) => (
+                <li key={l.key}>
+                  <Link
+                    className={cn("nav-link", active === l.key && "active")}
+                    href={l.href}
+                    aria-current={active === l.key ? "page" : undefined}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        <div className="nav-right hidden items-center gap-2 lg:flex">
-          <ThemeToggle />
-          <a className="btn-login" href="#">
-            Client login
-            <ArrowRight className="h-3 w-3" />
-          </a>
+          <div className="nav-right hidden items-center gap-2 xl:flex">
+            <ThemeToggle />
+            <Link
+              className={cn("btn-nav-cta", active === "contact" && "active")}
+              href="/contact"
+              aria-current={active === "contact" ? "page" : undefined}
+            >
+              Charter inquiry
+              <ArrowRight className="h-3 w-3" aria-hidden="true" />
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1 xl:hidden">
+            <ThemeToggle />
+            <button
+              ref={toggleRef}
+              type="button"
+              className="nav-toggle"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
+      </header>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle />
-          <button
-            type="button"
-            className="-mr-2 p-2 text-foreground"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile drawer */}
+      {/* Mobile drawer — a sibling of <header>, not a child: the header's backdrop-filter
+          would otherwise become the containing block for this fixed panel and collapse it. */}
       <div
+        id="mobile-menu"
         className={cn(
-          "fixed inset-x-0 bottom-0 top-[65px] z-40 border-t border-hairline bg-background transition-all duration-200 lg:hidden",
+          "nav-drawer fixed inset-x-0 bottom-0 z-[56] overflow-y-auto border-t border-hairline bg-background transition-opacity duration-200 xl:hidden",
           open ? "visible opacity-100" : "invisible opacity-0"
         )}
         aria-hidden={!open}
       >
-        <nav className="container py-6">
+        <nav className="container py-6" aria-label="Mobile">
           <ul className="flex flex-col gap-1">
             {LINKS.map((l) => (
               <li key={l.key}>
@@ -109,6 +144,7 @@ export function Nav({ active }: { active?: NavKey }) {
                       : "text-foreground hover:text-accent-brass"
                   )}
                   href={l.href}
+                  aria-current={active === l.key ? "page" : undefined}
                   onClick={() => setOpen(false)}
                 >
                   {l.label}
@@ -116,16 +152,34 @@ export function Nav({ active }: { active?: NavKey }) {
               </li>
             ))}
           </ul>
-          <a
-            className="btn-login mt-6 inline-flex w-full justify-center"
-            href="#"
+          <Link
+            className="btn-nav-cta mt-6 w-full justify-center py-3 text-base"
+            href="/contact"
             onClick={() => setOpen(false)}
           >
-            Client login
-            <ArrowRight className="h-3 w-3" />
-          </a>
+            Charter inquiry
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+          <ul className="mobile-channels">
+            <li>
+              <a href={telUrl()}>
+                <Phone className="h-4 w-4" aria-hidden="true" /> Call {siteConfig.phone}
+              </a>
+            </li>
+            <li>
+              <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4" aria-hidden="true" /> WhatsApp{" "}
+                {siteConfig.whatsappDisplay}
+              </a>
+            </li>
+            <li>
+              <a href={mailUrl()}>
+                <Mail className="h-4 w-4" aria-hidden="true" /> {siteConfig.email}
+              </a>
+            </li>
+          </ul>
         </nav>
       </div>
-    </header>
+    </>
   );
 }

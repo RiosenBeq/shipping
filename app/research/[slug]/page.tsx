@@ -5,12 +5,15 @@ import { ArrowRight, Lock, ArrowLeft } from "lucide-react";
 import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
+import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { ContactCta } from "../../components/ContactCta";
 import { Button } from "@/components/ui/button";
 import { REPORTS, getReportBySlug, reportSlug, reportDateIso } from "@/lib/data/research";
 import { REPORT_BODIES, type ReportBlock } from "@/lib/data/research-bodies";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
+import { absoluteUrl, buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+
+const contactWithNote = (note: string) => `/contact?notes=${encodeURIComponent(note)}`;
 
 export function generateStaticParams() {
   return REPORTS.map((r) => ({ slug: reportSlug(r) }));
@@ -25,11 +28,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const r = getReportBySlug(params.slug);
   if (!r) return { title: "Report not found" };
+  const published = reportDateIso(r.date);
   return buildPageMetadata({
     title: r.title,
     description: r.desc,
     path: `/research/${params.slug}`,
-    keywords: [r.label, r.catLabel, "tanker research", "LEVANTER"],
+    keywords: [r.label, r.catLabel, "tanker market research"],
+    // Pro reports only show a short public summary, so they stay out of the index
+    // until a fuller public abstract exists.
+    noindex: r.gated,
+    article: { publishedTime: published, section: r.catLabel },
   });
 }
 
@@ -62,7 +70,8 @@ function Block({ block }: { block: ReportBlock }) {
   }
   // callout
   return (
-    <aside
+    <div
+      role="note"
       style={{
         padding: "18px 22px",
         background: "var(--card)",
@@ -84,7 +93,7 @@ function Block({ block }: { block: ReportBlock }) {
         {block.label}
       </div>
       <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--fg)", margin: 0 }}>{block.text}</p>
-    </aside>
+    </div>
   );
 }
 
@@ -93,23 +102,35 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
   if (!r) notFound();
 
   const body = REPORT_BODIES[params.slug];
+  const path = `/research/${params.slug}`;
   const datePublished = reportDateIso(r.date);
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Research", path: "/research" },
+    { name: r.title, path },
+  ];
+  const related = REPORTS.filter((x) => x !== r && (x.cat === r.cat || !x.gated)).slice(0, 3);
   const articleLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "@id": `${siteConfig.url}/research/${params.slug}#article`,
+    "@id": `${absoluteUrl(path)}#article`,
     headline: r.title,
     description: r.desc,
-    image: `${siteConfig.url}/opengraph-image`,
+    image: absoluteUrl(siteConfig.ogImage),
     datePublished,
     dateModified: datePublished,
-    author: { "@id": `${siteConfig.url}#organization` },
+    author: {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}#organization`,
+      name: siteConfig.legalEntity,
+      url: siteConfig.url,
+    },
     publisher: { "@id": `${siteConfig.url}#organization` },
     isAccessibleForFree: !r.gated,
     articleSection: r.catLabel,
     timeRequired: `PT${r.read}M`,
-    inLanguage: "en-US",
-    mainEntityOfPage: `${siteConfig.url}/research/${params.slug}`,
+    inLanguage: "en",
+    mainEntityOfPage: absoluteUrl(path),
   };
 
   return (
@@ -121,29 +142,19 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
             description: r.desc,
             path: `/research/${params.slug}`,
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Research", path: "/research" },
-            { name: r.title, path: `/research/${params.slug}` },
-          ]),
+          breadcrumbsLd(crumbs),
           articleLd,
         ]}
       />
       <Nav active="research" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span>
-              <Link href="/research">Research</Link>
-              <span>/</span> {r.iss}
-            </div>
+            <Breadcrumbs crumbs={crumbs} />
             <span className="eyebrow">
-              {r.catLabel} · {r.date} · {r.read} min read
-              {r.gated && (
-                <span style={{ color: "var(--accent-amber)", marginLeft: 12 }}>· LEVANTER Pro</span>
-              )}
+              {r.catLabel} · <time dateTime={datePublished.slice(0, 10)}>{r.date}</time> · {r.read}{" "}
+              min read
+              {r.gated && <span style={{ marginLeft: 12 }}>· LEVANTER Pro</span>}
             </span>
             <h1 className="display h1">{r.title}</h1>
             {body?.dek ? <p>{body.dek}</p> : <p>{r.desc}</p>}
@@ -160,7 +171,7 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                   padding: "20px 24px",
                   background: "var(--card)",
                   border: "1px solid var(--hairline)",
-                  borderLeft: "3px solid var(--accent-amber)",
+                  borderLeft: "3px solid var(--accent-brass)",
                 }}
               >
                 <div
@@ -170,7 +181,7 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                     fontWeight: 600,
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
-                    color: "var(--accent-amber)",
+                    color: "var(--accent-brass)",
                     marginBottom: 8,
                   }}
                 >
@@ -207,17 +218,14 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                     maxWidth: "48ch",
                   }}
                 >
-                  The full report is gated to desk clients. If you have a LEVANTER login, sign in.
-                  Otherwise, request access — desk clients are added automatically.
+                  The full report is shared with desk clients. Request access and the desk will get
+                  back to you.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <Button asChild>
-                    <Link href="/contact">
-                      Request Pro access <ArrowRight className="h-4 w-4" />
+                    <Link href={contactWithNote(`Pro access request: ${r.title}`)}>
+                      Request Pro access <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <a href="#">Sign in</a>
                   </Button>
                 </div>
               </article>
@@ -226,20 +234,10 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                 {body.blocks.map((b, i) => (
                   <Block key={i} block={b} />
                 ))}
-                <div
-                  style={{
-                    padding: "20px 24px",
-                    border: "1px solid var(--hairline)",
-                    background: "var(--card)",
-                    borderLeft: "3px solid var(--accent-brass)",
-                    fontSize: 14,
-                    color: "var(--muted)",
-                    fontFamily: "var(--font-mono),monospace",
-                    marginTop: 12,
-                  }}
-                >
-                  Filed under: {r.label} · {r.catLabel} · {r.iss}
-                </div>
+                <p className="disclaimer">
+                  Desk commentary as at {r.date} ({r.label} · {r.iss}). Figures are indicative, may
+                  have changed since publication and are not investment advice.
+                </p>
               </article>
             ) : (
               <article style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -269,10 +267,10 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                   color: "var(--accent-brass)",
                 }}
               >
-                <ArrowLeft className="h-4 w-4" /> All research
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All research
               </Link>
               <Link
-                href="/contact"
+                href={contactWithNote(`Re: ${r.title}`)}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -282,9 +280,30 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
                   color: "var(--accent-brass)",
                 }}
               >
-                Send to desk <ArrowRight className="h-4 w-4" />
+                Ask the desk about this note <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
+
+            {related.length > 0 && (
+              <div style={{ marginTop: 40 }}>
+                <h2 className="eyebrow" style={{ display: "block", marginBottom: 12 }}>
+                  More from the desk
+                </h2>
+                <ul className="related-list">
+                  {related.map((x) => (
+                    <li key={x.title}>
+                      <Link href={`/research/${reportSlug(x)}`}>
+                        <span className="meta">
+                          {x.catLabel} · {x.date}
+                          {x.gated ? " · Pro" : ""}
+                        </span>
+                        {x.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </section>
         <ContactCta
@@ -292,7 +311,7 @@ export default function ReportPage({ params }: { params: { slug: string } }) {
           body={
             r.gated
               ? "Pro reports are gated to desk clients. Request access — we'll set you up if you're already on the desk roster, or schedule a call if not."
-              : "Have a follow-up question on this view, or a fixture that's affected? The author is on the desk and replies inside 60 minutes."
+              : "Have a follow-up question on this view, or a fixture that's affected? The desk replies within 60 minutes during business hours."
           }
           context={`research: ${r.title}`}
         />

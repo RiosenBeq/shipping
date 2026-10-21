@@ -1,6 +1,10 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { siteConfig } from "@/lib/site";
+
 export function HomeHero() {
   return (
-    <section className="hero" aria-label="Bosphorus dawn">
+    <section className="hero" aria-labelledby="hero-heading">
       <svg
         className="hero-bg"
         viewBox="0 0 1600 900"
@@ -63,27 +67,20 @@ export function HomeHero() {
           </text>
         </g>
 
-        {/* twinkling stars */}
+        {/* stars */}
         <g fill="#F1ECDC">
           {[
-            [120, 80, 1.4, 3.2],
-            [340, 150, 1.1, 2.8],
-            [560, 100, 1.5, 3.5],
-            [780, 60, 1.0, 2.6],
-            [980, 130, 1.3, 3.0],
-            [1180, 90, 1.2, 2.9],
-            [1380, 160, 1.4, 3.4],
-            [220, 220, 1.0, 2.4],
-            [1480, 220, 1.2, 2.6],
-          ].map(([x, y, r, dur], i) => (
-            <circle key={i} cx={x} cy={y} r={r} opacity="0.7">
-              <animate
-                attributeName="opacity"
-                values="0.2;0.9;0.2"
-                dur={`${dur}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
+            [120, 80, 1.4, 0.6],
+            [340, 150, 1.1, 0.45],
+            [560, 100, 1.5, 0.7],
+            [780, 60, 1.0, 0.4],
+            [980, 130, 1.3, 0.55],
+            [1180, 90, 1.2, 0.5],
+            [1380, 160, 1.4, 0.65],
+            [220, 220, 1.0, 0.35],
+            [1480, 220, 1.2, 0.45],
+          ].map(([x, y, r, o], i) => (
+            <circle key={i} cx={x} cy={y} r={r} opacity={o} />
           ))}
         </g>
 
@@ -128,30 +125,10 @@ export function HomeHero() {
           <path d="M 0 0 Q 6 6 24 6 L 220 6 Q 244 6 252 0 L 244 -6 L 8 -6 Z" fill="#0A1F33" />
         </g>
 
-        {/* expanding ripples around tanker */}
-        <g fill="none" stroke="#B8893A" strokeWidth="0.7" opacity="0.35">
-          <ellipse cx="800" cy="600" rx="60" ry="6">
-            <animate attributeName="rx" from="60" to="200" dur="6s" repeatCount="indefinite" />
-            <animate attributeName="opacity" from="0.4" to="0" dur="6s" repeatCount="indefinite" />
-          </ellipse>
-          <ellipse cx="800" cy="600" rx="60" ry="6">
-            <animate
-              attributeName="rx"
-              from="60"
-              to="200"
-              dur="6s"
-              begin="2s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              from="0.4"
-              to="0"
-              dur="6s"
-              begin="2s"
-              repeatCount="indefinite"
-            />
-          </ellipse>
+        {/* ripples around tanker */}
+        <g fill="none" stroke="#B8893A" strokeWidth="0.7">
+          <ellipse cx="800" cy="600" rx="110" ry="6" opacity="0.22" />
+          <ellipse cx="800" cy="600" rx="170" ry="8" opacity="0.12" />
         </g>
 
         {/* water motion lines */}
@@ -166,40 +143,30 @@ export function HomeHero() {
 
       <div className="hero-copy">
         <div className="container">
-          <span className="hero-eyebrow">Bosphorus · 41°N 29°E</span>
-          <h1>Premium tanker brokerage. From the Bosphorus to the world.</h1>
+          <span className="hero-eyebrow">Istanbul · Bosphorus · 41°N 29°E</span>
+          <h1 id="hero-heading">
+            Tanker and dry bulk shipbroking. From the Bosphorus to the world.
+          </h1>
           <p className="lead">
-            Crude, clean, chemicals, and dry bulk — chartered at the strait that 3% of the
-            world&apos;s oil flow passes through. Direct broker access, no forms forwarded.
+            Crude, clean and chemical tankers, dry bulk and sale &amp; purchase — brokered from our
+            Istanbul headquarters on the Turkish Straits, with desks in London, Singapore and
+            Houston. You speak directly to the broker who handles your cargo.
           </p>
           <div className="hero-ctas">
-            <a className="btn btn-primary" href="/contact">
+            <Link className="btn btn-primary" href="/contact">
               Charter inquiry
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </a>
-            <a className="btn btn-bone" href="/voyage-estimator">
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link className="btn btn-bone" href="/voyage-estimator">
               Voyage estimator
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </a>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
+          <p className="hero-offices">
+            {siteConfig.offices
+              .map((o) => (o.role === "Headquarters" ? `${o.city} HQ` : o.city))
+              .join(" · ")}
+          </p>
         </div>
       </div>
     </section>

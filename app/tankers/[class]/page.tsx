@@ -5,9 +5,13 @@ import { ArrowRight, ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
+import { Breadcrumbs } from "../../components/Breadcrumbs";
+import { ContactCta } from "../../components/ContactCta";
 import { Button } from "@/components/ui/button";
-import { buildPageMetadata, breadcrumbsLd, professionalServiceLd, webPageLd } from "@/lib/seo";
+import { buildPageMetadata, breadcrumbsLd, serviceLd, webPageLd } from "@/lib/seo";
 import { TANKER_CLASSES, getTankerClassBySlug } from "@/lib/data/tanker-classes";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
+import { REPORTS, reportSlug } from "@/lib/data/research";
 
 export function generateStaticParams() {
   return TANKER_CLASSES.map((t) => ({ class: t.slug }));
@@ -22,19 +26,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const t = getTankerClassBySlug(params.class);
   if (!t) return { title: "Tanker class not found" };
-  const family = t.family === "crude" ? "Crude tanker" : "Clean products tanker";
   return buildPageMetadata({
-    title: `${t.shortName} — ${family} chartering · ${t.dwtRange}`,
-    description: `${t.longName} (${t.dwtRange}, ~${t.cargoCapacity}). Routes: ${t.routes
-      .map((r) => `${r.code} ${r.lane}`)
-      .join(" · ")}. LEVANTER ${t.family} desk.`,
+    title: t.title,
+    description: t.description,
     path: `/tankers/${t.slug}`,
     keywords: [
       `${t.shortName} chartering`,
       `${t.shortName} broker`,
-      `${t.longName}`,
+      t.longName,
       ...t.routes.map((r) => `${r.code} ${r.lane}`),
-      `${t.shortName} TCE`,
+      `${t.shortName} size`,
       `${t.shortName} dwt`,
     ],
   });
@@ -44,63 +45,60 @@ export default function TankerClassPage({ params }: { params: { class: string } 
   const t = getTankerClassBySlug(params.class);
   if (!t) notFound();
 
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Tankers", path: "/tankers" },
+    { name: t.name, path: `/tankers/${t.slug}` },
+  ];
+  const cargo = t.family === "crude" ? "crude" : "clean";
+  const desk = BROKERS.filter((b) =>
+    t.brokerClass
+      ? b.classes.includes(t.brokerClass)
+      : b.sectors.includes(t.family === "crude" ? "crude" : "clean")
+  );
+  const related = t.related
+    .map((slug) => REPORTS.find((r) => reportSlug(r) === slug))
+    .filter((r): r is (typeof REPORTS)[number] => Boolean(r));
+  const siblings = TANKER_CLASSES.filter((c) => c.slug !== t.slug);
+
   return (
     <>
       <JsonLd
         data={[
           webPageLd({
-            title: `${t.shortName} — ${t.longName}`,
+            title: `${t.title} — LEVANTER`,
             description: t.intro.slice(0, 200),
             path: `/tankers/${t.slug}`,
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Tankers", path: "/tankers" },
-            { name: t.shortName, path: `/tankers/${t.slug}` },
-          ]),
-          professionalServiceLd({
-            name: `LEVANTER ${t.shortName} Desk`,
-            description: `Spot voyages, COAs, and time charters for ${t.longName} (${t.dwtRange}).`,
+          breadcrumbsLd(crumbs),
+          serviceLd({
+            name: `LEVANTER ${t.shortName} chartering`,
+            description: `Spot voyages, COAs, and time charters for ${t.longName} tonnage (${t.dwtRange}).`,
             serviceType:
-              t.family === "crude" ? "Crude tanker brokerage" : "Clean products tanker brokerage",
+              t.family === "crude" ? "Crude tanker chartering" : "Clean tanker chartering",
             path: `/tankers/${t.slug}`,
           }),
-          {
-            "@context": "https://schema.org",
-            "@type": "Product",
-            name: `${t.shortName} chartering — LEVANTER`,
-            description: t.intro,
-            category: "Tanker brokerage",
-            brand: { "@type": "Brand", name: "LEVANTER" },
-          },
         ]}
       />
       <Nav active="tankers" />
-      <main>
+      <main id="main">
         <section className="hero-band">
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span>
-              <Link href="/tankers">Tankers</Link>
-              <span>/</span> {t.shortName}
-            </div>
+            <Breadcrumbs crumbs={crumbs} />
             <span className="eyebrow">
               {t.family === "crude" ? "Crude tankers" : "Clean tankers"}
             </span>
-            <h1 className="display h1">
-              {t.shortName} — {t.longName}.
-            </h1>
+            <h1 className="display h1">{t.h1}</h1>
             <p className="lead">{t.intro}</p>
             <div className="flex flex-wrap gap-3" style={{ marginTop: 24 }}>
               <Button asChild>
-                <Link href="/contact">
-                  Quote {t.shortName} <ArrowRight className="h-4 w-4" />
+                <Link href={`/contact?cargo=${cargo}`}>
+                  Quote a {t.shortName} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
               <Button asChild variant="bone">
                 <Link href="/voyage-estimator">
-                  Run voyage estimator <ArrowRight className="h-4 w-4" />
+                  Run voyage estimator <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
@@ -134,63 +132,36 @@ export default function TankerClassPage({ params }: { params: { class: string } 
         </section>
 
         {/* Spec sheet */}
-        <section className="section">
+        <section className="section" aria-labelledby="spec-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Specifications</span>
-              <h2 className="display h2">Class spec sheet.</h2>
+              <h2 id="spec-h" className="display h2">
+                {t.shortName} spec sheet.
+              </h2>
+              <p>Typical figures for the class — individual ships vary.</p>
             </div>
             <div className="overflow-x-auto">
               <table className="dist-table">
+                <caption className="sr-only">{t.longName} typical specifications</caption>
                 <tbody>
-                  <tr>
-                    <td className="route">
-                      <strong>Long name</strong>
-                    </td>
-                    <td>{t.longName}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>DWT range</strong>
-                    </td>
-                    <td>{t.dwtRange}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Cargo capacity</strong>
-                    </td>
-                    <td>{t.cargoCapacity}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Length overall</strong>
-                    </td>
-                    <td>{t.loa}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Beam</strong>
-                    </td>
-                    <td>{t.beam}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Draft</strong>
-                    </td>
-                    <td>{t.draft}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Speed</strong>
-                    </td>
-                    <td>{t.speed}</td>
-                  </tr>
-                  <tr>
-                    <td className="route">
-                      <strong>Consumption</strong>
-                    </td>
-                    <td>{t.consumption}</td>
-                  </tr>
+                  {[
+                    ["Full name", t.longName],
+                    ["DWT range", t.dwtRange],
+                    ["Cargo capacity", t.cargoCapacity],
+                    ["Length overall", t.loa],
+                    ["Beam", t.beam],
+                    ["Draft", t.draft],
+                    ["Speed", t.speed],
+                    ["Consumption", t.consumption],
+                  ].map(([k, v]) => (
+                    <tr key={k}>
+                      <th scope="row" className="spec-key">
+                        {k}
+                      </th>
+                      <td>{v}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -198,28 +169,18 @@ export default function TankerClassPage({ params }: { params: { class: string } 
         </section>
 
         {/* Routes */}
-        <section className="section" style={{ paddingTop: 0 }}>
+        <section className="section" style={{ paddingTop: 0 }} aria-labelledby="routes-h">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Routes</span>
-              <h2 className="display h2">Where this class fixes.</h2>
+              <h2 id="routes-h" className="display h2">
+                Where the {t.shortName} trades.
+              </h2>
             </div>
             <div className="class-grid">
               {t.routes.map((r) => (
                 <article key={`${r.code}-${r.lane}`} className="class-cell">
-                  <div
-                    style={{
-                      fontFamily: "var(--font-mono),monospace",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "var(--accent-brass)",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {r.code}
-                  </div>
+                  <div className="dwt">{r.code}</div>
                   <h3 className="nm">{r.lane}</h3>
                   <p
                     style={{
@@ -233,7 +194,8 @@ export default function TankerClassPage({ params }: { params: { class: string } 
                     {r.note}
                   </p>
                   <Link href="/voyage-estimator" className="cta">
-                    Estimate {r.code} <ArrowRight className="h-3.5 w-3.5" />
+                    Estimate a {r.code} voyage{" "}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </article>
               ))}
@@ -242,19 +204,24 @@ export default function TankerClassPage({ params }: { params: { class: string } 
         </section>
 
         {/* Trends */}
-        <section className="section" style={{ paddingTop: 0 }}>
+        <section className="section" style={{ paddingTop: 0 }} aria-labelledby="trends-h">
           <div className="container">
             <div className="sec-head">
-              <span className="eyebrow">2026 trends</span>
-              <h2 className="display h2">What the desk is watching.</h2>
+              <span className="eyebrow">Desk view</span>
+              <h2 id="trends-h" className="display h2">
+                What the desk is watching.
+              </h2>
+              <p>
+                Market commentary from the desk — not investment advice; check current conditions.
+              </p>
             </div>
             <div className="result-grid" style={{ marginBottom: 0 }}>
               {t.keyTrends.map((tr) => (
                 <article key={tr.title} className="panel">
                   <div className="panel-head">
-                    <span className="panel-title">
-                      <ArrowUpRight className="inline h-3.5 w-3.5" /> {tr.title}
-                    </span>
+                    <h3 className="panel-title" style={{ margin: 0 }}>
+                      <ArrowUpRight className="inline h-3.5 w-3.5" aria-hidden="true" /> {tr.title}
+                    </h3>
                   </div>
                   <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.65, margin: 0 }}>
                     {tr.body}
@@ -265,13 +232,18 @@ export default function TankerClassPage({ params }: { params: { class: string } 
           </div>
         </section>
 
-        {/* Charter shape + desk */}
-        <section className="section" style={{ paddingTop: 0 }}>
+        {/* Charter shape + charterers + desk */}
+        <section className="section" style={{ paddingTop: 0 }} aria-labelledby="business-h">
           <div className="container">
+            <h2 id="business-h" className="sr-only">
+              How the {t.shortName} is chartered
+            </h2>
             <div className="result-grid" style={{ marginBottom: 0 }}>
               <article className="panel">
                 <div className="panel-head">
-                  <span className="panel-title">Charter shape</span>
+                  <h3 className="panel-title" style={{ margin: 0 }}>
+                    Charter shape
+                  </h3>
                 </div>
                 <p style={{ color: "var(--fg)", fontSize: 15, lineHeight: 1.65, margin: 0 }}>
                   {t.charterShape}
@@ -279,7 +251,9 @@ export default function TankerClassPage({ params }: { params: { class: string } 
               </article>
               <article className="panel">
                 <div className="panel-head">
-                  <span className="panel-title">Markets served</span>
+                  <h3 className="panel-title" style={{ margin: 0 }}>
+                    Who charters this class
+                  </h3>
                 </div>
                 <ul
                   style={{
@@ -296,35 +270,76 @@ export default function TankerClassPage({ params }: { params: { class: string } 
                 </ul>
               </article>
             </div>
-            <div
-              style={{
-                marginTop: 20,
-                padding: "16px 22px",
-                background: "var(--card)",
-                border: "1px solid var(--hairline)",
-                borderLeft: "3px solid var(--accent-brass)",
-                fontSize: 14,
-                color: "var(--fg)",
-              }}
-            >
-              <strong>Desk:</strong> {t.desk}
-            </div>
+            {desk.length > 0 && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: "16px 22px",
+                  background: "var(--card)",
+                  border: "1px solid var(--hairline)",
+                  borderLeft: "3px solid var(--accent-brass)",
+                  fontSize: 14,
+                  color: "var(--fg)",
+                }}
+                className="prose-links"
+              >
+                <strong>Brokers covering the {t.shortName}:</strong>{" "}
+                {desk.map((b, i) => (
+                  <span key={b.name}>
+                    {i > 0 && ", "}
+                    <Link href={`/brokers/${brokerSlug(b)}`}>{b.name}</Link> ({b.desk})
+                  </span>
+                ))}
+                .
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Bottom nav */}
-        <section className="section" style={{ paddingTop: 0 }}>
+        {/* Related reading + other classes */}
+        <section className="section" style={{ paddingTop: 0 }} aria-labelledby="related-h">
           <div className="container">
-            <div
-              style={{
-                paddingTop: 24,
-                borderTop: "1px solid var(--hairline)",
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: 12,
-              }}
-            >
+            <div className="result-grid" style={{ marginBottom: 0 }}>
+              {related.length > 0 && (
+                <div>
+                  <h2
+                    id="related-h"
+                    className="eyebrow"
+                    style={{ display: "block", marginBottom: 12 }}
+                  >
+                    Related research
+                  </h2>
+                  <ul className="related-list">
+                    {related.map((r) => (
+                      <li key={r.title}>
+                        <Link href={`/research/${reportSlug(r)}`}>
+                          <span className="meta">
+                            {r.catLabel} · {r.date}
+                          </span>
+                          {r.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div>
+                <h2 className="eyebrow" style={{ display: "block", marginBottom: 12 }}>
+                  Other tanker classes
+                </h2>
+                <ul className="related-list">
+                  {siblings.map((c) => (
+                    <li key={c.slug}>
+                      <Link href={`/tankers/${c.slug}`}>
+                        <span className="meta">{c.dwtRange}</span>
+                        {c.name} chartering
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div style={{ marginTop: 32 }}>
               <Link
                 href="/tankers"
                 style={{
@@ -336,24 +351,18 @@ export default function TankerClassPage({ params }: { params: { class: string } 
                   color: "var(--accent-brass)",
                 }}
               >
-                <ArrowLeft className="h-4 w-4" /> All tanker classes
-              </Link>
-              <Link
-                href="/contact"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "var(--accent-brass)",
-                }}
-              >
-                Send a {t.shortName} inquiry <ArrowRight className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All tanker classes
               </Link>
             </div>
           </div>
         </section>
+
+        <ContactCta
+          headline={`A ${t.shortName} cargo to move?`}
+          body={`Send the cargo, load and discharge areas, laycan and stem. The ${t.family} desk replies within 60 minutes during business hours.`}
+          context={`${t.shortName} inquiry`}
+          inquiryHref={`/contact?cargo=${cargo}`}
+        />
       </main>
       <Footer />
     </>

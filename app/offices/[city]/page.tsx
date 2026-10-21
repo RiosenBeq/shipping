@@ -5,23 +5,23 @@ import { ArrowLeft, ArrowRight, Mail, Phone } from "lucide-react";
 import { Nav } from "../../components/Nav";
 import { Footer } from "../../components/Footer";
 import { JsonLd } from "../../components/JsonLd";
+import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { OFFICES } from "@/lib/data/offices";
+import { OFFICES, OFFICE_ORDER } from "@/lib/data/offices";
 import { OFFICE_DETAILS } from "@/lib/data/office-detail";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
 import { OfficeCity } from "@/lib/schemas";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
-
-const CITIES = ["ist", "lon", "sg", "hou"] as const;
+import { buildPageMetadata, breadcrumbsLd, officeLd, webPageLd } from "@/lib/seo";
+import { siteConfig, telUrl, mailUrl } from "@/lib/site";
 
 export function generateStaticParams() {
-  return CITIES.map((c) => ({ city: c }));
+  return OFFICE_ORDER.map((c) => ({ city: c }));
 }
 
 export const dynamicParams = false;
 
 function isCity(s: string): s is OfficeCity {
-  return (CITIES as readonly string[]).includes(s);
+  return (OFFICE_ORDER as readonly string[]).includes(s);
 }
 
 export async function generateMetadata({
@@ -32,8 +32,8 @@ export async function generateMetadata({
   if (!isCity(params.city)) return { title: "Office not found" };
   const o = OFFICES[params.city];
   return buildPageMetadata({
-    title: `${o.city} Office — LEVANTER ${o.city} Desk`,
-    description: `LEVANTER ${o.city} desk. ${o.sectors}. ${o.addr}. Trading hours ${o.hours}.`,
+    title: OFFICE_DETAILS[params.city].title,
+    description: OFFICE_DETAILS[params.city].description,
     path: `/offices/${params.city}`,
     keywords: [
       `${o.city} shipbroker`,
@@ -48,22 +48,12 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
   if (!isCity(params.city)) notFound();
   const o = OFFICES[params.city];
   const d = OFFICE_DETAILS[params.city];
-
-  const placeLd = {
-    "@context": "https://schema.org",
-    "@type": "Place",
-    "@id": `${siteConfig.url}/offices/${params.city}#place`,
-    name: `${siteConfig.name} ${o.city}`,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: o.addr,
-      addressLocality: o.city,
-    },
-    telephone: o.phone,
-    openingHours: o.hours,
-    containedInPlace: { "@id": `${siteConfig.url}#organization` },
-    description: d.intro,
-  };
+  const path = `/offices/${params.city}`;
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Offices", path: "/offices" },
+    { name: o.city, path },
+  ];
 
   return (
     <>
@@ -72,45 +62,42 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
           webPageLd({
             title: `${siteConfig.name} ${o.city} office`,
             description: d.intro.slice(0, 200),
-            path: `/offices/${params.city}`,
+            path,
             type: "AboutPage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Offices", path: "/offices" },
-            { name: o.city, path: `/offices/${params.city}` },
-          ]),
-          placeLd,
+          breadcrumbsLd(crumbs),
+          officeLd({
+            name: `${siteConfig.name} ${o.city}`,
+            path,
+            description: d.intro,
+            streetAddress: o.street,
+            locality: o.city,
+            postalCode: o.postalCode,
+            country: o.country,
+            telephone: o.phone,
+            hours: o.openingHours,
+          }),
         ]}
       />
       <Nav active="offices" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span>
-              <Link href="/offices">Offices</Link>
-              <span>/</span> {o.city}
-            </div>
+            <Breadcrumbs crumbs={crumbs} />
             <span className="eyebrow">
-              {params.city === "ist" ? "Headquarters" : "Regional desk"}
+              {o.role === "Headquarters" ? "Headquarters" : "Regional desk"} · {o.sectors}
             </span>
-            <h1 className="display h1">
-              LEVANTER {o.city}.
-              <br />
-              {o.sectors}.
-            </h1>
+            <h1 className="display h1">{d.h1}</h1>
             <p>{d.intro}</p>
             <div className="flex flex-wrap gap-3" style={{ marginTop: 24 }}>
               <Button asChild>
-                <Link href="/contact">
-                  Send a {o.city} inquiry <ArrowRight className="h-4 w-4" />
+                <Link href={`/contact?notes=${encodeURIComponent(`For the ${o.city} desk`)}`}>
+                  Send a {o.city} inquiry <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <a href={`tel:${o.phone.replace(/\s+/g, "")}`}>
-                  <Phone className="h-4 w-4" /> {o.phone}
+                <a href={telUrl(o.phone)}>
+                  <Phone className="h-4 w-4" aria-hidden="true" /> {o.phone}
                 </a>
               </Button>
             </div>
@@ -140,9 +127,11 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                 </div>
               </div>
               <div className="kpi">
-                <div className="kpi-label">Memberships</div>
+                <div className="kpi-label">Head of office</div>
                 <div className="kpi-value" style={{ fontSize: 16, lineHeight: 1.3 }}>
-                  {o.member}
+                  {o.head}
+                  <br />
+                  <span style={{ color: "var(--muted)" }}>{o.headRole}</span>
                 </div>
               </div>
             </div>
@@ -159,7 +148,9 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
             <div className="result-grid" style={{ marginBottom: 0 }}>
               <article className="panel">
                 <div className="panel-head">
-                  <span className="panel-title">Service lines</span>
+                  <h3 className="panel-title" style={{ margin: 0 }}>
+                    Service lines
+                  </h3>
                 </div>
                 <ul
                   style={{
@@ -177,10 +168,12 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
               </article>
               <article className="panel">
                 <div className="panel-head">
-                  <span className="panel-title">What we fix here</span>
+                  <h3 className="panel-title" style={{ margin: 0 }}>
+                    Desk focus
+                  </h3>
                 </div>
                 <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.65, margin: 0 }}>
-                  {d.whatWeFix}
+                  {d.focus}
                 </p>
               </article>
             </div>
@@ -198,26 +191,38 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
               </p>
             </div>
             <div className="brokers-row">
-              {d.team.map((m) => (
-                <article className="broker-card" key={m.name}>
-                  <div
-                    className="broker-avatar"
-                    style={{ background: "var(--accent-brass)" }}
-                    aria-hidden="true"
-                  >
-                    {m.name
-                      .split(" ")
-                      .map((p) => p[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </div>
-                  <h3 className="broker-name">{m.name}</h3>
-                  <p className="broker-title">{m.role}</p>
-                  <Link href="/brokers" className="broker-profile">
-                    View brokers <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </article>
-              ))}
+              {d.team.map((m) => {
+                const broker = BROKERS.find((b) => b.name === m.name);
+                return (
+                  <article className="broker-card" key={m.name}>
+                    <div
+                      className="broker-avatar"
+                      style={{ background: "#7F5D22" }}
+                      aria-hidden="true"
+                    >
+                      {m.name
+                        .split(" ")
+                        .map((p) => p[0])
+                        .slice(0, 2)
+                        .join("")}
+                    </div>
+                    <h3 className="broker-name">
+                      {broker ? (
+                        <Link href={`/brokers/${brokerSlug(broker)}`}>{m.name}</Link>
+                      ) : (
+                        m.name
+                      )}
+                    </h3>
+                    <p className="broker-title">{m.role}</p>
+                    {broker && (
+                      <Link href={`/brokers/${brokerSlug(broker)}`} className="broker-profile">
+                        View profile <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                        <span className="sr-only">: {m.name}</span>
+                      </Link>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -247,7 +252,7 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <article
-              className="panel"
+              className="panel on-dark"
               style={{
                 background: "var(--ink-deep-petrol)",
                 color: "var(--ink-bone)",
@@ -299,10 +304,7 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                       }}
                     >
                       <Phone className="h-4 w-4" />
-                      <a
-                        href={`tel:${o.phone.replace(/\s+/g, "")}`}
-                        style={{ color: "var(--accent-brass-lt)" }}
-                      >
+                      <a href={telUrl(o.phone)} style={{ color: "var(--accent-brass-lt)" }}>
                         {o.phone}
                       </a>
                       <span style={{ opacity: 0.6, fontSize: 13 }}>· general</span>
@@ -315,10 +317,7 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                       }}
                     >
                       <Phone className="h-4 w-4" />
-                      <a
-                        href={`tel:${o.after.replace(/\s+/g, "")}`}
-                        style={{ color: "var(--accent-brass-lt)" }}
-                      >
+                      <a href={telUrl(o.after)} style={{ color: "var(--accent-brass-lt)" }}>
                         {o.after}
                       </a>
                       <span style={{ opacity: 0.6, fontSize: 13 }}>· after hours</span>
@@ -332,7 +331,7 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                     >
                       <Mail className="h-4 w-4" />
                       <a
-                        href={`mailto:${siteConfig.email}`}
+                        href={mailUrl(`LEVANTER ${o.city} desk`)}
                         style={{ color: "var(--accent-brass-lt)" }}
                       >
                         {siteConfig.email}
@@ -342,8 +341,8 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                 </div>
                 <div>
                   <Button asChild>
-                    <Link href="/contact">
-                      Charter inquiry <ArrowRight className="h-4 w-4" />
+                    <Link href={`/contact?notes=${encodeURIComponent(`For the ${o.city} desk`)}`}>
+                      Charter inquiry <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </Button>
                 </div>
@@ -376,10 +375,10 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                   color: "var(--accent-brass)",
                 }}
               >
-                <ArrowLeft className="h-4 w-4" /> All offices
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All offices
               </Link>
               <Link
-                href="/brokers"
+                href={`/brokers?desk=${o.city}`}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -389,7 +388,7 @@ export default function OfficeCityPage({ params }: { params: { city: string } })
                   color: "var(--accent-brass)",
                 }}
               >
-                Find a broker <ArrowRight className="h-4 w-4" />
+                {o.city} brokers <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>

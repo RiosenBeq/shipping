@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
 import { ContactCta } from "../components/ContactCta";
 import { BrokersDirectory } from "./BrokersDirectory";
-import { buildPageMetadata, breadcrumbsLd, webPageLd } from "@/lib/seo";
-import { BROKERS } from "@/lib/data/brokers";
-import { siteConfig } from "@/lib/site";
+import { buildPageMetadata, breadcrumbsLd, itemListLd, webPageLd } from "@/lib/seo";
+import { BROKERS, brokerSlug } from "@/lib/data/brokers";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Find a Broker — Tanker, Bulk, Chemicals, S&P",
+  title: "Shipbrokers — Tanker, Dry Bulk & S&P Desks",
   description:
-    "Direct access to the LEVANTER broker desk. Filter 14 brokers by sector, vessel class, or office. Real brokers, no forms forwarded.",
+    "Find the LEVANTER broker for your cargo — crude, clean, chemicals, dry bulk and S&P desks in Istanbul, London, Singapore and Houston.",
   path: "/brokers",
   keywords: [
-    "shipping broker directory",
+    "shipbroker contact",
     "tanker broker",
     "dry bulk broker",
-    "chemicals broker",
+    "chemical tanker broker",
     "S&P broker",
     "Istanbul shipbroker",
     "London shipbroker",
@@ -26,23 +25,10 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const brokerCollectionLd = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "LEVANTER broker desk",
-  numberOfItems: BROKERS.length,
-  itemListElement: BROKERS.map((b, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    item: {
-      "@type": "Person",
-      name: b.name,
-      jobTitle: b.title,
-      worksFor: { "@id": `${siteConfig.url}#organization` },
-      workLocation: { "@type": "Place", name: b.desk },
-    },
-  })),
-};
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Brokers", path: "/brokers" },
+];
 
 export default function BrokersPage() {
   return (
@@ -52,28 +38,27 @@ export default function BrokersPage() {
           webPageLd({
             title: "LEVANTER Brokers — Direct desk access",
             description:
-              "Filter 14 brokers across crude, clean, chemicals, dry bulk, and S&P by class or desk.",
+              "Brokers across crude, clean, chemicals, dry bulk and S&P, filterable by class or office.",
             path: "/brokers",
             type: "CollectionPage",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Brokers", path: "/brokers" },
-          ]),
-          brokerCollectionLd,
+          breadcrumbsLd(CRUMBS),
+          itemListLd(
+            "LEVANTER brokers",
+            BROKERS.map((b) => ({ name: b.name, path: `/brokers/${brokerSlug(b)}` }))
+          ),
         ]}
       />
       <Nav active="brokers" />
-      <main>
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Brokers
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Find a broker</span>
-            <h1 className="display h1">Direct access. Real brokers.</h1>
-            <p>Filter by sector, class, or desk. Call them. No forms forwarded.</p>
+            <h1 className="display h1">
+              Shipbrokers by desk: tankers, dry bulk, chemicals and S&amp;P.
+            </h1>
+            <p>Filter by sector, vessel class or office, then call the desk directly.</p>
           </div>
         </section>
         <BrokersDirectory />

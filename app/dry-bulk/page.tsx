@@ -12,33 +12,33 @@ import {
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
+import { Breadcrumbs } from "../components/Breadcrumbs";
+import { ContactCta } from "../components/ContactCta";
 import { Button } from "@/components/ui/button";
-import {
-  buildPageMetadata,
-  breadcrumbsLd,
-  faqLd,
-  professionalServiceLd,
-  webPageLd,
-} from "@/lib/seo";
+import { buildPageMetadata, breadcrumbsLd, faqLd, serviceLd, webPageLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Dry Bulk — Capesize · Panamax · Supramax · Handysize",
+  title: "Dry Bulk Chartering — Capesize to Handysize",
   description:
-    "Iron ore to grains, port-to-port. Capesize, Panamax, Supramax, and Handysize chartering with the LEVANTER dry bulk desk in Istanbul, London, and Singapore.",
+    "Dry bulk chartering, iron ore to grains: Capesize, Kamsarmax, Ultramax and Handysize. Spot, time charter and COA from Istanbul, London and Singapore.",
   path: "/dry-bulk",
   keywords: [
-    "Capesize broker",
-    "Panamax broker",
+    "dry bulk chartering",
+    "Capesize chartering",
+    "Kamsarmax chartering",
     "Supramax broker",
+    "Ultramax",
+    "Handysize chartering",
     "iron ore chartering",
     "grain chartering",
-    "BDI snapshot",
-    "C5 W Australia Qingdao",
-    "C3 Tubarão Qingdao",
-    "P3A NoPac Japan",
-    "S1B Indo ECI",
+    "dry bulk COA",
   ],
 });
+
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Dry Bulk", path: "/dry-bulk" },
+];
 
 const CLASSES = [
   {
@@ -59,9 +59,9 @@ const CLASSES = [
     cargo: "Grains, coal, bauxite",
     typical: "Beam ≤ 32.31 m for old Panama locks; Kamsarmax LOA ≤ 229 m",
     routes: [
-      { code: "P3A", lane: "NoPac → Japan / S. Korea" },
-      { code: "P6", lane: "USEC → ARA" },
-      { code: "P8", lane: "ECSA → Far East" },
+      { code: "P3A_82", lane: "Pacific round voyage (NoPac / Australia)" },
+      { code: "P6_82", lane: "Singapore round voyage via the Atlantic" },
+      { code: "", lane: "ECSA → Far East grain" },
     ],
     Icon: Wheat,
   },
@@ -71,9 +71,9 @@ const CLASSES = [
     cargo: "Grains, minor bulks, fertilisers",
     typical: "Geared (4 × 30 t cranes); flexible draft",
     routes: [
-      { code: "S1B", lane: "Indonesia → East Coast India" },
-      { code: "S4A", lane: "USG → Continent" },
-      { code: "S10", lane: "S. China → Singapore" },
+      { code: "S1B", lane: "Çanakkale via Med / Black Sea → China–S. Korea" },
+      { code: "S4A", lane: "US Gulf → Skaw–Passero" },
+      { code: "S8", lane: "S. China via Indonesia → East Coast India" },
     ],
     Icon: Anchor,
   },
@@ -83,19 +83,36 @@ const CLASSES = [
     cargo: "Niche & coastal cargoes",
     typical: "Geared; serves smaller / draft-restricted ports",
     routes: [
-      { code: "HS", lane: "Black Sea → ARA" },
-      { code: "HS", lane: "USG → S. America" },
-      { code: "HS", lane: "Continent → W. Africa" },
+      { code: "", lane: "Black Sea / Med → Continent" },
+      { code: "", lane: "US Gulf → South America" },
+      { code: "", lane: "Continent → West Africa" },
     ],
     Icon: Globe2,
   },
 ];
 
-const BDI_INDEX = [
-  { code: "BDI", name: "Baltic Dry Index", value: "1,612", delta: "+1.8%", up: true },
-  { code: "BCI", name: "Baltic Capesize Index", value: "2,385", delta: "+3.2%", up: true },
-  { code: "BPI", name: "Baltic Panamax Index", value: "1,420", delta: "−0.6%", up: false },
-  { code: "BSI", name: "Baltic Supramax Index", value: "1,168", delta: "+0.4%", up: true },
+/** What each Baltic index measures. Levels are licensed data, so none are quoted here. */
+const BALTIC_INDICES = [
+  {
+    code: "BDI",
+    name: "Baltic Dry Index",
+    desc: "Composite of the Capesize, Panamax and Supramax time-charter averages — the headline gauge of dry bulk freight.",
+  },
+  {
+    code: "BCI",
+    name: "Baltic Capesize Index",
+    desc: "Capesize route assessments such as C3 (Tubarão → Qingdao) and C5 (W. Australia → Qingdao), plus the 5TC time-charter average.",
+  },
+  {
+    code: "BPI",
+    name: "Baltic Panamax Index",
+    desc: "Kamsarmax-basis (82,000 dwt) routes such as P3A_82 Pacific rounds and P6_82 Singapore rounds via the Atlantic.",
+  },
+  {
+    code: "BSI",
+    name: "Baltic Supramax Index",
+    desc: "Ultramax-basis routes including S1B out of Çanakkale and S8 South China–ECI — the geared-tonnage benchmark.",
+  },
 ];
 
 const FAQ = [
@@ -112,8 +129,8 @@ const FAQ = [
     a: "Both. Single spot voyages are routine; we also structure 6 / 12 / 24 month time charters and multi-year COAs for steel mills, utilities, and trading houses.",
   },
   {
-    q: "How current is the BDI snapshot on this page?",
-    a: "Indicative — the figures above are illustrative of typical Q2 2026 levels. For live BDI, BCI, BPI, BSI numbers, the desk provides daily reads on request.",
+    q: "Do you publish live Baltic index levels?",
+    a: "No. Baltic Exchange indices are licensed data, so this page explains what each index measures rather than quoting levels. Clients get current reads from the desk.",
   },
   {
     q: "What about cargo on geared vs gearless tonnage?",
@@ -129,78 +146,49 @@ export default function DryBulkPage() {
           webPageLd({
             title: "Dry Bulk Chartering — LEVANTER",
             description:
-              "Capesize, Panamax, Supramax, Handysize chartering across iron ore, coal, grain, and minor bulks.",
+              "Capesize, Panamax/Kamsarmax, Supramax/Ultramax and Handysize chartering across iron ore, coal, grain and minor bulks.",
             path: "/dry-bulk",
           }),
-          breadcrumbsLd([
-            { name: "Home", path: "/" },
-            { name: "Dry Bulk", path: "/dry-bulk" },
-          ]),
-          professionalServiceLd({
+          breadcrumbsLd(CRUMBS),
+          serviceLd({
             name: "LEVANTER Dry Bulk Desk",
             description:
-              "Capesize, Panamax, Supramax, and Handysize port-to-port chartering, COAs, and S&P advisory across iron ore, coal, grains, and minor bulks.",
-            serviceType: "Dry bulk brokerage",
+              "Capesize, Panamax/Kamsarmax, Supramax/Ultramax and Handysize chartering — spot voyages, time charters and COAs across iron ore, coal, grains and minor bulks.",
+            serviceType: "Dry bulk chartering",
             path: "/dry-bulk",
           }),
           faqLd(FAQ),
         ]}
       />
-      <Nav />
-      <main>
+      <Nav active="dry-bulk" />
+      <main id="main">
         <section className="ph">
           <div className="container">
-            <div className="crumbs">
-              <Link href="/">LEVANTER</Link>
-              <span>/</span> Dry Bulk
-            </div>
+            <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow">Dry Bulk</span>
-            <h1 className="display h1">Iron ore to grains, port-to-port.</h1>
+            <h1 className="display h1">
+              Dry bulk chartering: iron ore to grains, Capesize to Handysize.
+            </h1>
             <p>
-              From Capesize iron ore programmes out of Australia and Brazil to Handy parcels in the
-              Black Sea — we charter where the trade actually moves. Direct desk access from
-              Istanbul, London, and Singapore.
+              From Capesize iron ore programmes out of Australia and Brazil to Handysize parcels in
+              the Black Sea, we match cargo, port restrictions and laydays to the right ship. Direct
+              desk access from Istanbul, London and Singapore.
             </p>
             <div className="flex flex-wrap gap-3" style={{ marginTop: 24 }}>
               <Button asChild>
-                <Link href="/contact">
+                <Link href="/contact?cargo=bulk">
                   Send a bulk inquiry <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/brokers">Find a bulk broker</Link>
+                <Link href="/brokers?sector=bulk">Find a dry bulk broker</Link>
               </Button>
             </div>
           </div>
         </section>
 
-        {/* Indicative BDI snapshot */}
-        <section className="section" style={{ paddingTop: 64, paddingBottom: 48 }}>
-          <div className="container">
-            <div className="sec-head">
-              <span className="eyebrow">Indicative · last desk read</span>
-              <h2 className="display h2">Where the BDI sits today.</h2>
-              <p>
-                Snapshot of the Baltic Exchange family. Confirm with the desk for live numbers
-                before fixing.
-              </p>
-            </div>
-            <div className="summary-strip">
-              {BDI_INDEX.map((i) => (
-                <div className="kpi" key={i.code}>
-                  <div className="kpi-label">
-                    {i.code} · {i.name}
-                  </div>
-                  <div className="kpi-value">{i.value}</div>
-                  <div className={`kpi-delta ${i.up ? "up" : "down"}`}>{i.delta}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Vessel classes deep */}
-        <section className="section" style={{ paddingTop: 0 }}>
+        {/* Vessel classes */}
+        <section className="section">
           <div className="container">
             <div className="sec-head">
               <span className="eyebrow">Classes covered</span>
@@ -230,14 +218,39 @@ export default function DryBulkPage() {
                   </p>
                   <div className="routes">
                     {c.routes.map((r) => (
-                      <span key={`${c.name}-${r.code}-${r.lane}`} className="route-tag">
-                        <strong>{r.code}</strong> {r.lane}
+                      <span key={`${c.name}-${r.lane}`} className="route-tag">
+                        {r.code && <strong>{r.code}</strong>} {r.lane}
                       </span>
                     ))}
                   </div>
-                  <Link href="/contact" className="cta">
+                  <Link href="/contact?cargo=bulk" className="cta">
                     Quote {c.name} <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Baltic indices explainer */}
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div className="sec-head">
+              <span className="eyebrow">Reading the market</span>
+              <h2 className="display h2">The Baltic indices behind dry bulk freight.</h2>
+              <p>
+                What each benchmark measures. Index levels are licensed Baltic Exchange data, so we
+                don&apos;t quote them here — ask the desk for current reads before fixing.
+              </p>
+            </div>
+            <div className="class-grid">
+              {BALTIC_INDICES.map((i) => (
+                <article className="class-cell" key={i.code}>
+                  <div className="dwt">{i.code}</div>
+                  <h3 className="nm">{i.name}</h3>
+                  <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+                    {i.desc}
+                  </p>
                 </article>
               ))}
             </div>
@@ -257,7 +270,7 @@ export default function DryBulkPage() {
                   <span className="panel-title">
                     <TrendingUp className="inline h-3.5 w-3.5" /> Demand
                   </span>
-                  <span className="panel-meta">Q2 2026</span>
+                  <span className="panel-meta">Desk view</span>
                 </div>
                 <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.65, margin: 0 }}>
                   Chinese steel restocking is the single biggest driver for Capesize. Brazilian iron
@@ -306,7 +319,7 @@ export default function DryBulkPage() {
                   ton. Demurrage and laytime are CP-defined. Ideal for one-off cargoes and price
                   discovery in a moving market.
                 </p>
-                <Link href="/contact" className="cta">
+                <Link href="/contact?cargo=bulk&term=voy" className="cta">
                   Spot inquiry <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </article>
@@ -318,7 +331,7 @@ export default function DryBulkPage() {
                   daily hire. Useful for trading houses with a cargo programme, miners with shipping
                   exposure, and end-users hedging spot volatility.
                 </p>
-                <Link href="/contact" className="cta">
+                <Link href="/contact?cargo=bulk&term=tc" className="cta">
                   Talk TC terms <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </article>
@@ -327,10 +340,10 @@ export default function DryBulkPage() {
                 <div className="dwt">MULTI-LIFT PROGRAMME</div>
                 <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.55 }}>
                   Owner commits to ship a series of cargoes on agreed terms over a defined period.
-                  Index-linked or fixed pricing. The desk runs a number of CPC, NoPac, and ECSA-Far
-                  East COAs.
+                  Index-linked or fixed pricing. Typical programmes: iron ore and coal for steel
+                  mills and utilities, NoPac and ECSA grain to the Far East.
                 </p>
-                <Link href="/contact" className="cta">
+                <Link href="/contact?cargo=bulk&term=coa" className="cta">
                   Structure a COA <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </article>
@@ -368,20 +381,12 @@ export default function DryBulkPage() {
           </div>
         </section>
 
-        <section className="cta-strip">
-          <div>
-            <h3>A specific cargo in mind?</h3>
-            <p>
-              Send the load, discharge, lay-can, and stem — the bulk desk replies within the hour
-              during business windows.
-            </p>
-          </div>
-          <Button asChild>
-            <Link href="/contact">
-              Send a bulk inquiry <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </section>
+        <ContactCta
+          headline="A specific cargo in mind?"
+          body="Send the load and discharge ports, laycan and stem — the dry bulk desk replies within the hour during business hours."
+          context="dry bulk inquiry"
+          inquiryHref="/contact?cargo=bulk"
+        />
       </main>
       <Footer />
     </>

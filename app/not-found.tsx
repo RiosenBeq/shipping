@@ -15,22 +15,38 @@ export default function NotFound() {
   return (
     <>
       <Nav />
-      <main className="notfound">
-        <div className="code">404</div>
+      <main className="notfound" id="main">
+        <div className="code" aria-hidden="true">
+          404
+        </div>
         <h1 className="display">This lane isn&apos;t on our chart yet.</h1>
         <p>
-          The page you&apos;re looking for has either been retired or never existed. Let&apos;s get
-          you back to where the desk is fixing.
+          The page you&apos;re looking for has either been retired or never existed. Try one of
+          these instead:
         </p>
+        <ul className="notfound-links">
+          <li>
+            <Link href="/tankers">Tanker chartering</Link>
+          </li>
+          <li>
+            <Link href="/dry-bulk">Dry bulk chartering</Link>
+          </li>
+          <li>
+            <Link href="/research">Research</Link>
+          </li>
+          <li>
+            <Link href="/voyage-estimator">Voyage estimator</Link>
+          </li>
+        </ul>
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild>
             <Link href="/">
-              Back to home <ArrowRight className="h-4 w-4" />
+              Back to home <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/voyage-estimator">
-              Open voyage estimator <Compass className="h-4 w-4" />
+            <Link href="/contact">
+              Charter inquiry <Compass className="h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
         </div>

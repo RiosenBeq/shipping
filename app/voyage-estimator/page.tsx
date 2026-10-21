@@ -3,12 +3,13 @@ import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 import { JsonLd } from "../components/JsonLd";
 import { VoyageEstimator } from "./VoyageEstimator";
-import { buildPageMetadata, breadcrumbsLd, faqLd, webPageLd } from "@/lib/seo";
+import { absoluteUrl, buildPageMetadata, breadcrumbsLd, faqLd, webPageLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Voyage Estimator — TCE, Freight, Bunker Burn & P&L",
+  title: "Voyage Estimator & TCE Calculator for Tankers",
   description:
-    "Indicative TCE, freight, bunker burn, P&L, and CO₂ modelling across all major tanker lanes. You set the bunker, WS, and port costs; the calculator does the rest.",
+    "Free tanker voyage estimator: indicative TCE, freight, bunker cost, P&L and CO₂ for major lanes, with EU ETS, canal dues and a WS × bunker sensitivity grid.",
   path: "/voyage-estimator",
   keywords: [
     "voyage estimator",
@@ -20,14 +21,14 @@ export const metadata: Metadata = buildPageMetadata({
     "port disbursement",
     "canal dues",
     "Suez canal toll",
-    "Bosphorus dues",
+    "Turkish Straits dues",
   ],
 });
 
 const faq = [
   {
     q: "What inputs does the LEVANTER voyage estimator take?",
-    a: "Vessel class, speed and consumption, lane / distance, port days, cargo and Worldscale freight, demurrage, HSFO and VLSFO bunker prices, port costs, canal or SECA fees, EU ETS allowance, and charter type.",
+    a: "Vessel class, speed and consumption, lane / distance, port days, cargo and Worldscale freight, demurrage, HSFO and VLSFO bunker prices, port costs, canal or strait dues, EU ETS allowance cost, and charter type.",
   },
   {
     q: "How is TCE calculated?",
@@ -39,7 +40,7 @@ const faq = [
   },
   {
     q: "Are the bunker prices on this page live?",
-    a: "No — the bunker prices are user-editable inputs in the Calculator. Type in your own VLSFO / HSFO numbers from your bunker provider and the model recomputes in place.",
+    a: "No. Bunker prices, Worldscale and port costs are your own inputs, and the default values are illustrative. Type in current numbers from your bunker supplier and agent and the model recomputes in place.",
   },
   {
     q: "Can I share or save a scenario?",
@@ -60,8 +61,7 @@ export default function VoyageEstimatorPage() {
           }),
           breadcrumbsLd([
             { name: "Home", path: "/" },
-            { name: "Tools", path: "/voyage-estimator" },
-            { name: "Voyage Estimator", path: "/voyage-estimator" },
+            { name: "Voyage estimator", path: "/voyage-estimator" },
           ]),
           {
             "@context": "https://schema.org",
@@ -71,13 +71,15 @@ export default function VoyageEstimatorPage() {
             operatingSystem: "Web",
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
             description:
-              "Calculate TCE, freight, bunker burn, P&L, and CO₂ for any major tanker lane.",
+              "Indicative TCE, freight, bunker cost, P&L and CO₂ for major tanker lanes from your own inputs.",
+            url: absoluteUrl("/voyage-estimator"),
+            provider: { "@id": `${siteConfig.url}#organization` },
           },
           faqLd(faq),
         ]}
       />
       <Nav active="tools" />
-      <main>
+      <main id="main">
         <VoyageEstimator />
       </main>
       <Footer />

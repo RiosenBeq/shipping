@@ -4,11 +4,22 @@
  * detail separate from calculator inputs.
  */
 
+import type { VesselClassFilter } from "@/lib/schemas";
+
 export type TankerClassData = {
   slug: string;
   name: string;
   shortName: string;
   longName: string;
+  /** Page title (before the "— LEVANTER" suffix); keep it under ~50 characters. */
+  title: string;
+  /** Meta description, ≤155 characters. */
+  description: string;
+  h1: string;
+  /** Broker-directory class used to list the brokers who cover this class. */
+  brokerClass?: VesselClassFilter;
+  /** Slugs of research notes about this class. */
+  related: string[];
   family: "crude" | "clean";
   dwtRange: string;
   cargoCapacity: string;
@@ -28,6 +39,16 @@ export type TankerClassData = {
 export const TANKER_CLASSES: TankerClassData[] = [
   {
     slug: "vlcc",
+    description:
+      "VLCC chartering for 270–320k dwt crude carriers: TD3C MEG–China, TD15 WAF–China and TD22 USG–China. Spot, time charter and COA with the LEVANTER crude desk.",
+    title: "VLCC Chartering — Very Large Crude Carrier",
+    h1: "VLCC chartering — the Very Large Crude Carrier",
+    brokerClass: "VLCC",
+    related: [
+      "td3c-demystified-meg-to-china-end-to-end",
+      "waf-east-the-slow-re-rating",
+      "vlcc-newbuild-slot-pricing-the-slow-squeeze",
+    ],
     name: "VLCC",
     shortName: "VLCC",
     longName: "Very Large Crude Carrier",
@@ -40,7 +61,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     speed: "13.5 kn (laden) / 14.0 kn (ballast)",
     consumption: "70–80 mt/d VLSFO at sea, ~5 mt/d in port",
     intro:
-      "The VLCC is the workhorse of the long-haul crude trade. Roughly 38% of all VLCC fixtures touch some version of the Middle East Gulf to East lane. Modern VLCCs are dual-fuel-ready, increasingly methanol- or LNG-spec on newbuildings, and almost all of the working fleet is now ECO/Tier-3 emissions compliant.",
+      "The VLCC is the workhorse of the long-haul crude trade, and the Middle East Gulf to China voyage (TD3C) is its benchmark route. Newbuildings increasingly come scrubber-fitted or dual-fuel ready (LNG or methanol), so specification and vetting history matter as much as age when a VLCC is fixed.",
     routes: [
       {
         code: "TD3C",
@@ -59,12 +80,10 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
     ],
     marketsServed: [
-      "Saudi Aramco",
-      "ADNOC",
-      "Kuwait Petroleum",
-      "Indian state refiners",
-      "Chinese state buyers",
-      "Atlantic basin majors",
+      "Middle East Gulf producers' term and spot programmes",
+      "Indian refiners",
+      "Chinese refiners and state traders",
+      "Atlantic Basin majors and trading houses",
     ],
     keyTrends: [
       {
@@ -77,7 +96,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
       {
         title: "Eastward arb sensitivity",
-        body: "VLCC ballast strategy now blends round-trip TCE rather than single-leg — TD15 is reliably running 70–80% of TD3C laden TCE.",
+        body: "VLCC ballast strategy now blends round-trip TCE rather than single-leg; on the desk's read, TD15 has been running at roughly 70–80% of TD3C laden TCE.",
       },
     ],
     charterShape:
@@ -86,19 +105,28 @@ export const TANKER_CLASSES: TankerClassData[] = [
   },
   {
     slug: "suezmax",
+    description:
+      "Suezmax chartering for 130–160k dwt crude tankers: TD20 WAF–UKC, TD6 Black Sea–Med (via the Bosphorus) and TD23 MEG–Med. Spot, period and CPC COAs.",
+    title: "Suezmax Chartering — 130–160k dwt Crude Tankers",
+    h1: "Suezmax chartering — the Suez Canal-max crude tanker",
+    brokerClass: "Suezmax",
+    related: [
+      "suezmax-tightness-sustains-as-cpc-volumes-rebound",
+      "g7-price-cap-attestation-the-desk-level-workflow",
+    ],
     name: "Suezmax",
     shortName: "Suezmax",
-    longName: "Suezmax (Suez Canal-max)",
+    longName: "Suez Canal-max crude tanker",
     family: "crude",
     dwtRange: "130,000 – 160,000 dwt",
     cargoCapacity: "~1 million bbl crude",
     loa: "275 m",
     beam: "48 m",
-    draft: "17 m (Suez laden limit)",
+    draft: "≈17 m (laden)",
     speed: "14 kn (laden) / 14.5 kn (ballast)",
     consumption: "40–48 mt/d VLSFO at sea",
     intro:
-      "Largest tanker that can transit the Suez Canal fully laden — the practical light-crude workhorse. Suezmax fixtures cluster around West Africa, Black Sea, CPC, and Mediterranean lanes, with an increasing share of long-haul WAF → UKC and Russian / Kazakh barrels heading west via the Bosphorus.",
+      "Traditionally the largest tanker that can transit the Suez Canal fully laden — the practical light-crude workhorse. Suezmax fixtures cluster around West Africa, the Black Sea / CPC and the Mediterranean, with Kazakh CPC Blend moving west through the Turkish Straits and long-haul WAF → UKC business alongside.",
     routes: [
       {
         code: "TD20",
@@ -108,7 +136,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       {
         code: "TD6",
         lane: "Black Sea → Med",
-        note: "Novorossiysk / CPC to Augusta or Trieste. ~2,400 nm via Bosphorus + Dardanelles.",
+        note: "Black Sea (CPC / Novorossiysk) to Augusta or Trieste. ~2,400 nm via the Bosphorus and Dardanelles; Turkish Straits waiting time and dues are part of the estimate.",
       },
       {
         code: "TD23",
@@ -117,8 +145,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
     ],
     marketsServed: [
-      "European refiners (CEPSA, Saras, Repsol)",
-      "Mediterranean integrated majors",
+      "Mediterranean and European refiners",
+      "Integrated majors and trading houses",
       "CPC offtakers",
       "WAF programme charterers",
     ],
@@ -129,7 +157,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
       {
         title: "CPC volume gravity",
-        body: "~38% of our YTD Suezmax fixtures touch CPC or Novorossiysk. The Bosphorus angle is structural, not seasonal.",
+        body: "CPC Blend loadings near Novorossiysk are a core Suezmax and Aframax cargo stream, so Turkish Straits transit time and per-net-ton dues feed straight into TD6 economics. The Bosphorus angle is structural, not seasonal.",
       },
       {
         title: "Compliance overhead",
@@ -137,11 +165,20 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
     ],
     charterShape:
-      "Spot voyages, COAs (especially CPC programmes), and 6–12 month time charters. Demurrage typical $35–45k/day.",
+      "Spot voyages, COAs (especially CPC programmes), and 6–12 month time charters. Demurrage rates are fixed per charter party; indicatively $35–45k/day in recent markets.",
     desk: "Istanbul (Mehmet Aydın, Elif Kaya, Ahmed El-Sayed), London (Søren Hansen, Marta Costa).",
   },
   {
     slug: "aframax",
+    description:
+      "Aframax and LR2 chartering for 80–115k dwt tankers: TD7 North Sea, TD8 Kuwait–Singapore and TD19 Cross-Med. Spot and short time charters.",
+    title: "Aframax & LR2 Chartering — 80–115k dwt Tankers",
+    h1: "Aframax / LR2 chartering — short-haul crude and coated tonnage",
+    brokerClass: "Aframax",
+    related: [
+      "td7-nsea-cont-short-haul-fast-turn-thin-margin",
+      "aframax-5-year-old-market-14-deals-3-themes",
+    ],
     name: "Aframax / LR2",
     shortName: "Aframax",
     longName: "Aframax / Long Range 2",
@@ -159,7 +196,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       {
         code: "TD7",
         lane: "NSEA → CONT",
-        note: "North Sea to Continent. 14-day round trip; portage discipline matters.",
+        note: "North Sea to Continent. Short round trips, so port-time discipline matters.",
       },
       { code: "TD8", lane: "Kuwait → Singapore", note: "Aframax MEG → SE Asia; ~4,500 nm." },
       { code: "TD19", lane: "C. Med → Med", note: "Cross-Med Aframax; CPC, Black Sea relay." },
@@ -172,8 +209,8 @@ export const TANKER_CLASSES: TankerClassData[] = [
     ],
     keyTrends: [
       {
-        title: "5-year-old market depth",
-        body: "Q1 2026 closed 14 Aframax 5-year-old transactions; Greek and Norwegian buyers led the bid, vetting-clean tonnage at 5–8% premium.",
+        title: "Vetting drives second-hand values",
+        body: "In the 5-year-old Aframax market, vetting-clean tonnage typically commands a premium over equivalent ships that need work — build year alone no longer sets the price.",
       },
       {
         title: "LR2 optionality compressed",
@@ -190,6 +227,11 @@ export const TANKER_CLASSES: TankerClassData[] = [
   },
   {
     slug: "lr1",
+    description:
+      "LR1 tanker chartering for 55–80k dwt clean products ships: naphtha, gasoil and jet on TC5 MEG–Japan and TC8 MEG–UKC. Spot and 6–12 month charters.",
+    title: "LR1 Tanker Chartering — 55–80k dwt Clean Products",
+    h1: "LR1 chartering — Long Range 1 clean products tankers",
+    related: ["eu-ets-phase-2-cargo-allocation-who-actually-pays"],
     name: "LR1",
     shortName: "LR1",
     longName: "Long Range 1 (clean products)",
@@ -224,6 +266,12 @@ export const TANKER_CLASSES: TankerClassData[] = [
   },
   {
     slug: "mr",
+    description:
+      "MR tanker chartering for 40–55k dwt clean products ships on TC2, TC14 and TC17 — the Atlantic and US Gulf workhorse. Spot voyages and 1–3 year time charters.",
+    title: "MR Tanker Chartering — 40–55k dwt Clean Products",
+    h1: "MR chartering — Medium Range clean products tankers",
+    brokerClass: "MR",
+    related: ["eu-ets-phase-2-cargo-allocation-who-actually-pays"],
     name: "MR",
     shortName: "MR",
     longName: "Medium Range (clean products)",

@@ -8,7 +8,8 @@ export function BosphorusSection() {
         <svg
           viewBox="0 0 700 720"
           preserveAspectRatio="xMidYMid slice"
-          aria-label="Stylised map of the Bosphorus"
+          role="img"
+          aria-label="Stylised map of the Bosphorus between the Black Sea and the Sea of Marmara, with LEVANTER's Istanbul headquarters on the European shore"
         >
           <defs>
             <pattern id="dotsBos" width="14" height="14" patternUnits="userSpaceOnUse">
@@ -120,16 +121,14 @@ export function BosphorusSection() {
 
           <g transform="translate(110 360)">
             <circle r="6" fill="#B8893A" />
-            <circle r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5">
-              <animate attributeName="r" from="6" to="22" dur="2.5s" repeatCount="indefinite" />
-              <animate
-                attributeName="opacity"
-                from="0.6"
-                to="0"
-                dur="2.5s"
-                repeatCount="indefinite"
-              />
-            </circle>
+            <circle
+              className="bos-hq-ring"
+              r="11"
+              fill="none"
+              stroke="#B8893A"
+              strokeWidth="1"
+              opacity="0.5"
+            />
             <text
               x="16"
               y="3"
@@ -187,16 +186,28 @@ export function BosphorusSection() {
         </svg>
       </div>
       <div className="bos-text">
-        <span className="eyebrow">The Bosphorus Advantage</span>
-        <h2 className="display h2">Where 48,000 ships meet 3% of the world&apos;s oil flow.</h2>
+        <span className="eyebrow">The Bosphorus advantage</span>
+        <h2 className="display h2">On the strait that links the Black Sea to world markets.</h2>
         <p>
-          Our headquarters sit on the world&apos;s most strategic tanker waterway. Every barrel of
-          CPC Blend, every Russian Urals cargo heading west, every Suezmax bound for Augusta or
-          Trieste — they all pass within sight of our desk. We charter where the trade actually
-          moves: Black Sea, Eastern Mediterranean, and the long-haul lanes that connect them.
+          Our headquarters sit on the Bosphorus. Around 40,000 vessels transited it in 2025, and the
+          Turkish Straits carried about 3.7 million barrels of oil a day in the first half of the
+          year. CPC Blend and other Black Sea cargoes bound for Augusta, Trieste and beyond pass
+          within sight of the desk — so transit queues, daylight rules and per-net-ton straits dues
+          are part of every Black Sea estimate we run.
         </p>
-        <Link href="/offices" className="bos-link">
-          See our Bosphorus &amp; Black Sea desk <ArrowRight className="h-4 w-4" />
+        <p className="bos-sources">
+          Sources: Türkiye Directorate General of Maritime Affairs (2025 transit statistics);{" "}
+          <a
+            href="https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            US EIA, World Oil Transit Chokepoints
+          </a>
+          .
+        </p>
+        <Link href="/offices/istanbul" className="bos-link">
+          Meet the Istanbul desk <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
     </section>
