@@ -243,7 +243,7 @@ export const REPORTS: Report[] = [
     gated: false,
     // en dash, not an arrow: a Unicode arrow falls back to another font in the display serif
     title: "TD7 NSEA–CONT: short-haul, fast turn, thin margin",
-    desc: "How Aframax desks build TCE on routes where you live or die on portage and weather windows.",
+    desc: "How Aframax desks build TCE on routes where you live or die on port time and weather windows.",
     label: "AFRAMAX · TD7",
   },
   {

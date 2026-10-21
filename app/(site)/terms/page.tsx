@@ -162,16 +162,19 @@ export default function TermsPage() {
             <h2 id="using">Using this site</h2>
             <ul>
               <li>
-                The text, research, design and logo on this site belong to LEVANTER. You may quote
-                short extracts with a clear credit and a link to the source page.
+                The text, research, design and logo on this site belong to LEVANTER, apart from
+                interface components adapted from open-source projects, which stay under their own
+                licences. You may quote short extracts with a clear credit and a link to the source
+                page.
               </li>
               <li>
-                Do not copy the site or its research in bulk, scrape it for commercial use, or try
-                to disrupt or gain unauthorised access to it.
+                Do not copy the site or its research in bulk or republish it as your own, or try to
+                disrupt or gain unauthorised access to it. Search engines and AI systems may index,
+                use and cite the content as set out in robots.txt and ai.txt.
               </li>
               <li>
-                Links to other sites, such as WhatsApp or LinkedIn, are for convenience. We are not
-                responsible for their content or practices.
+                Links to other sites, such as WhatsApp or Google Maps, are for convenience. We are
+                not responsible for their content or practices.
               </li>
             </ul>
 

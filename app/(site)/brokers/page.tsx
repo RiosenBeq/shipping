@@ -28,24 +28,29 @@ const TEAM_INTRO: Record<(typeof TEAM_ORDER)[number], string> = {
 };
 
 export default function BrokersPage() {
-  const peopleLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "LEVANTER brokers",
-    itemListElement: BROKERS.map((b, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "Person",
-        name: b.name,
-        jobTitle: b.title,
-        worksFor: { "@id": `${siteConfig.url}#organization` },
-        workLocation: { "@type": "Place", name: b.office },
-        knowsLanguage: b.languages,
-        knowsAbout: b.focus,
-      },
-    })),
-  };
+  // Only verified brokers are published as Person entities (lib/data/brokers.ts).
+  const verified = BROKERS.filter((b) => b.verified);
+  const peopleLd =
+    verified.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "LEVANTER brokers",
+          itemListElement: verified.map((b, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            item: {
+              "@type": "Person",
+              name: b.name,
+              jobTitle: b.title,
+              worksFor: { "@id": `${siteConfig.url}#organization` },
+              workLocation: { "@type": "Place", name: b.office },
+              knowsLanguage: b.languages,
+              knowsAbout: b.focus,
+            },
+          })),
+        }
+      : null;
 
   return (
     <>

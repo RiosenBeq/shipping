@@ -61,13 +61,11 @@ export const TANKER_CLASSES: TankerClassData[] = [
       {
         code: "TD22",
         lane: "USG → China",
-        note: "US Gulf to China crude. ~11,800 nm via the Cape; rose with US shale exports.",
+        note: "US Gulf to China crude. Roughly 14,000–15,000 nm via the Cape of Good Hope; rose with US shale exports.",
       },
     ],
     marketsServed: [
-      "Saudi Aramco",
-      "ADNOC",
-      "Kuwait Petroleum",
+      "Middle East national oil companies",
       "Indian state refiners",
       "Chinese state buyers",
       "Atlantic basin majors",
@@ -102,7 +100,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
     cargoCapacity: "~1 million bbl crude",
     loa: "275 m",
     beam: "48 m",
-    draft: "17 m (Suez laden limit)",
+    draft: "~17 m (typical design draft)",
     speed: "14 kn (laden) / 14.5 kn (ballast)",
     consumption: "40–48 mt/d VLSFO at sea",
     intro:
@@ -116,7 +114,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       {
         code: "TD6",
         lane: "Black Sea → Med",
-        note: "Novorossiysk / CPC to Augusta or Trieste. ~2,400 nm via Bosphorus + Dardanelles.",
+        note: "135,000 mt CPC (Novorossiysk) to Augusta; about 1,250 nm via the Bosphorus and Dardanelles.",
       },
       {
         code: "TD23",
@@ -126,7 +124,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       },
     ],
     marketsServed: [
-      "European refiners (CEPSA, Saras, Repsol)",
+      "Mediterranean and European refiners",
       "Mediterranean integrated majors",
       "CPC offtakers",
       "WAF programme charterers",
@@ -170,7 +168,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
       {
         code: "TD7",
         lane: "NSEA → CONT",
-        note: "North Sea to Continent. 14-day round trip; portage discipline matters.",
+        note: "North Sea to Continent. About a week round trip; port-time discipline matters.",
       },
       {
         code: "TD8",
@@ -178,7 +176,11 @@ export const TANKER_CLASSES: TankerClassData[] = [
         note: "Aframax MEG → SE Asia; ~4,500 nm.",
         hormuz: true,
       },
-      { code: "TD19", lane: "C. Med → Med", note: "Cross-Med Aframax; CPC, Black Sea relay." },
+      {
+        code: "TD19",
+        lane: "Cross-Med",
+        note: "80,000 mt cross-Mediterranean Aframax benchmark, Ceyhan to Lavera.",
+      },
     ],
     marketsServed: [
       "European refiners",
@@ -282,7 +284,7 @@ export const TANKER_CLASSES: TankerClassData[] = [
         code: "TC17",
         hormuz: true,
         lane: "MEG → East Africa",
-        note: "MR clean products to East African coastal refiners.",
+        note: "MR clean products into East African import terminals.",
       },
     ],
     marketsServed: [

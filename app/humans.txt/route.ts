@@ -1,5 +1,5 @@
-import { siteConfig } from "@/lib/site";
-import { BROKERS } from "@/lib/data/brokers";
+import { COMPANY_DETAILS_CONFIRMED, publishedLegalName, siteConfig } from "@/lib/site";
+import { TEAM_LABEL, TEAM_ORDER } from "@/lib/data/brokers";
 import { LOCALES } from "@/lib/i18n";
 
 export const dynamic = "force-static";
@@ -11,10 +11,10 @@ export const revalidate = false;
  */
 export function GET() {
   const body = `/* TEAM */
-  Brokerage: ${siteConfig.legalEntity}
+  Brokerage: ${publishedLegalName()}
   Headquarters: ${siteConfig.address.locality}, Türkiye
-  Brokers: ${BROKERS.length}, see ${siteConfig.url}/brokers
-  Contact: ${siteConfig.email}
+  Desks: ${TEAM_ORDER.map((t) => TEAM_LABEL[t]).join(", ")}, see ${siteConfig.url}/brokers
+  Contact: ${COMPANY_DETAILS_CONFIRMED ? siteConfig.email : `${siteConfig.url}/contact`}
 
 /* OFFICES */
 ${siteConfig.offices.map((o) => `  ${o.city}: ${o.role}`).join("\n")}

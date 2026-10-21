@@ -11,7 +11,7 @@ export const SCREENING: { title: string; intro: string; checks: string[] }[] = [
     intro: "Every company on both sides of the fixture, and the people who own or control them.",
     checks: [
       "Owners, disponent owners, managers, charterers, shippers and receivers",
-      "OFAC (US), OFSI and the UK consolidated list, the EU consolidated list and UN Security Council lists",
+      "OFAC (US), the UK Sanctions List, the EU consolidated list and UN Security Council lists",
       "Ownership and control: companies owned 50% or more by listed parties are treated as listed",
       "Adverse media and links to sanctioned jurisdictions",
     ],
@@ -41,7 +41,7 @@ export const SCREENING: { title: string; intro: string; checks: string[] }[] = [
     intro: "Ports, routes and areas that change the legal or insurance position.",
     checks: [
       "Load and discharge ports in sanctioned or restricted locations",
-      "War-risk listed areas, such as the Gulf and Strait of Hormuz and parts of the Black Sea",
+      "War-risk listed areas, such as the Gulf and Strait of Hormuz and almost all of the Black Sea",
       "Additional insurance and documents needed for the route, including the Turkish Straits",
       "Clauses that allocate sanctions, war-risk and regulatory costs",
     ],
@@ -70,7 +70,7 @@ export const COMPLIANCE_STEPS = [
 export const COMPLIANCE_FAQ = [
   {
     q: "Which sanctions lists do you screen against?",
-    a: "The US OFAC lists, the UK consolidated list maintained by OFSI, the EU consolidated list and UN Security Council lists, together with ship designations and price-cap rules in each regime that applies to the parties.",
+    a: "The US OFAC lists, the UK Sanctions List (the single UK list since OFSI's Consolidated List closed on 28 January 2026), the EU consolidated list and UN Security Council lists, together with ship designations and price-cap rules in each regime that applies to the parties.",
   },
   {
     q: "Do you screen ships as well as companies?",

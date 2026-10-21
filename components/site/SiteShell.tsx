@@ -7,25 +7,30 @@ import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav } from "./Nav";
 
+// `subsets` only picks the files to preload: every subset is still self-hosted,
+// so Turkish letters (latin-ext) load on demand through unicode-range instead
+// of competing with the page's first render on mobile.
 const sourceSerif = Source_Serif_4({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-display",
   display: "swap",
 });
 
 const manrope = Manrope({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });
 
+// Small labels only: not worth a preload.
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 
 /**

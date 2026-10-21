@@ -1,4 +1,5 @@
-import { siteConfig } from "@/lib/site";
+import { publishedLegalName, siteConfig } from "@/lib/site";
+import { getBroker, publishableBroker } from "@/lib/data/brokers";
 import { REPORTS, reportDateIso, reportSlug } from "@/lib/data/research";
 import { REPORT_BODIES, type ReportBody } from "@/lib/data/research-bodies";
 
@@ -41,6 +42,11 @@ function bodyHtml(body: ReportBody): string {
 }
 
 const DESK_LABELS = { lpg: "LPG & ammonia", tankers: "Tankers" } as const;
+/** Byline for notes whose broker isn't verified (lib/data/brokers.ts). */
+const DESK_AUTHORS = {
+  lpg: "LEVANTER LPG & ammonia desk",
+  tankers: "LEVANTER tanker desk",
+} as const;
 
 /**
  * RSS 2.0 feed of the research notes from the tanker and LPG desks, newest
@@ -66,7 +72,7 @@ export function GET() {
       <pubDate>${new Date(reportDateIso(r.date)).toUTCString()}</pubDate>
       <category>${escape(DESK_LABELS[r.desk])}</category>
       <category>${escape(r.catLabel)}</category>
-      <dc:creator>${escape(r.author)}</dc:creator>
+      <dc:creator>${escape(publishableBroker(getBroker(r.author))?.name ?? DESK_AUTHORS[r.desk])}</dc:creator>
       <description>${escape(description)}</description>${
         body ? `\n      <content:encoded><![CDATA[${bodyHtml(body)}]]></content:encoded>` : ""
       }
@@ -86,7 +92,7 @@ export function GET() {
       "Market notes from the LEVANTER tanker and LPG desks: VLGC and MGC trades, small LPG in the Med and Black Sea, Suezmax and Aframax outlooks, and charter party regulation."
     )}</description>
     <language>en</language>
-    <copyright>${escape(`© ${siteConfig.legalEntity}`)}</copyright>
+    <copyright>${escape(`© ${publishedLegalName()}`)}</copyright>
     <image>
       <url>${escape(abs("/apple-icon"))}</url>
       <title>${escape(`${siteConfig.name} — Tanker & LPG Research`)}</title>

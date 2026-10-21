@@ -12,6 +12,11 @@ import { AI_AGENTS } from "@/lib/crawlers";
  * that finds a group naming it ignores the `*` group).
  */
 export default function robots(): MetadataRoute.Robots {
+  // Previews and builds without a real origin stay out of every index.
+  if (!siteConfig.indexable) {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
+
   const disallow = ["/api/"];
 
   return {

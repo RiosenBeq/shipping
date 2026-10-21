@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { COMPANY_DETAILS_CONFIRMED, siteConfig } from "@/lib/site";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -10,8 +10,18 @@ export const revalidate = false;
  * The Expires field is required and must be in the future. We re-issue
  * it 1 year out on every build, which is what RFC 9116 §2.5.5 recommends
  * for mostly-static deployments.
+ *
+ * Not served until the contact details are confirmed: a security.txt whose
+ * Contact bounces is worse than none.
  */
 export function GET() {
+  if (!COMPANY_DETAILS_CONFIRMED) {
+    return new Response("Not found\n", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+
   const expires = new Date();
   expires.setUTCFullYear(expires.getUTCFullYear() + 1);
   expires.setUTCHours(0, 0, 0, 0);

@@ -141,11 +141,12 @@ export default function PrivacyPage() {
             </p>
             <h3>When you browse the site</h3>
             <p>
-              We use Vercel Web Analytics and Vercel Speed Insights to count visits and measure page
-              speed. Both are <strong>cookieless</strong>: they do not set cookies, do not follow
-              you across other websites and do not identify you personally. They record aggregate
-              data such as the page viewed, referring site, country, device and browser type, and
-              loading times.
+              We use Vercel Web Analytics and Vercel Speed Insights, provided by Vercel Inc. (United
+              States), to count visits and measure page speed. Both are <strong>cookieless</strong>:
+              they do not set cookies or follow you across other websites. To produce the
+              statistics, Vercel processes request data such as your IP address and browser details;
+              we use the results in aggregate only: the page viewed, referring site, country, device
+              and browser type, and loading times.
             </p>
             <p>
               Our hosting provider (Vercel) also processes technical data, such as IP addresses, in

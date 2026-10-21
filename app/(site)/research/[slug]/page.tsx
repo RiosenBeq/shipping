@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
+import { initialsColor } from "@/components/site/BrokerCard";
 import { CtaBand } from "@/components/site/CtaBand";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -15,7 +16,7 @@ import {
   type Report,
 } from "@/lib/data/research";
 import { REPORT_BODIES, bodyText, type ReportBlock } from "@/lib/data/research-bodies";
-import { getBroker } from "@/lib/data/brokers";
+import { getBroker, publishableBroker } from "@/lib/data/brokers";
 import { articleLd, buildPageMetadata, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
@@ -91,7 +92,7 @@ export function generateMetadata({ params }: Props): Metadata {
       publishedTime: reportDateIso(r.date),
       modifiedTime: reportDateIso(r.updated ?? r.date),
       section: r.catLabel,
-      authors: [r.author],
+      authors: publishableBroker(getBroker(r.author)) ? [r.author] : undefined,
       tags,
     },
   });
@@ -276,8 +277,8 @@ export default function ReportPage({ params }: Props) {
               <p className="mb-8 flex max-w-prose items-center gap-3 border-b border-line pb-6 text-sm text-slate">
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-mono text-xs text-white"
-                  style={{ backgroundColor: author.color }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-mono text-xs"
+                  style={{ backgroundColor: author.color, color: initialsColor(author.color) }}
                 >
                   {author.initials}
                 </span>
