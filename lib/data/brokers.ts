@@ -1,6 +1,11 @@
 /**
  * The broking team, grouped by desk. Shown on /brokers and previewed on the
  * homepage and desk pages. Edit names, titles and contact lines here.
+ *
+ * The people below are design placeholders (docs/REDESIGN.md). Set `verified`
+ * only for a real broker who has agreed to be listed: until then a name is
+ * kept out of structured data, article authorship, the RSS feed and the AI
+ * files, so it is never asserted as a real person.
  */
 
 export type Team = "crude" | "clean" | "lpg";
@@ -16,6 +21,8 @@ export type Broker = {
   initials: string;
   /** Avatar fill: palette only — brass for desk heads, navy for everyone else. */
   color: AvatarColor;
+  /** A real person who has agreed to be named (see above). */
+  verified: boolean;
 };
 
 /** The two avatar fills, from the site palette (navy & brass). */
@@ -40,6 +47,7 @@ export const BROKERS: Broker[] = [
     languages: ["Turkish", "English"],
     initials: "EK",
     color: AVATAR_COLOR.head,
+    verified: false,
   },
   {
     name: "Kerem Yılmaz",
@@ -50,6 +58,7 @@ export const BROKERS: Broker[] = [
     languages: ["Turkish", "English", "Russian"],
     initials: "KY",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
   {
     name: "Léa Martin",
@@ -60,6 +69,7 @@ export const BROKERS: Broker[] = [
     languages: ["French", "English"],
     initials: "LM",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
   {
     name: "Hiroshi Tanaka",
@@ -70,6 +80,7 @@ export const BROKERS: Broker[] = [
     languages: ["Japanese", "English"],
     initials: "HT",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
   {
     name: "Mehmet Aydın",
@@ -80,6 +91,7 @@ export const BROKERS: Broker[] = [
     languages: ["Turkish", "English"],
     initials: "MA",
     color: AVATAR_COLOR.head,
+    verified: false,
   },
   {
     name: "Søren Hansen",
@@ -90,6 +102,7 @@ export const BROKERS: Broker[] = [
     languages: ["Danish", "English"],
     initials: "SH",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
   {
     name: "Wei Zhang",
@@ -100,6 +113,7 @@ export const BROKERS: Broker[] = [
     languages: ["Mandarin", "English"],
     initials: "WZ",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
   {
     name: "Demetrios Pavlou",
@@ -110,6 +124,7 @@ export const BROKERS: Broker[] = [
     languages: ["Greek", "English"],
     initials: "DP",
     color: AVATAR_COLOR.head,
+    verified: false,
   },
   {
     name: "Ahmed El-Sayed",
@@ -120,12 +135,16 @@ export const BROKERS: Broker[] = [
     languages: ["Arabic", "English", "Turkish"],
     initials: "AE",
     color: AVATAR_COLOR.broker,
+    verified: false,
   },
 ];
 
 export function getBroker(name: string): Broker | undefined {
   return BROKERS.find((b) => b.name === name);
 }
+
+/** The broker, if they may be named in machine-readable output. */
+export const publishableBroker = (b: Broker | undefined) => (b?.verified ? b : undefined);
 
 export function brokersByTeam(team: Team): Broker[] {
   return BROKERS.filter((b) => b.team === team);

@@ -86,7 +86,7 @@ export const LPG_FAQ: FaqEntry[] = [
   },
   {
     q: "How do I convert LPG from cubic metres to tonnes?",
-    a: "Multiply the volume in cbm by the liquid density of the cargo and by the filling limit. For example, 84,000 cbm of propane at about 0.58 t/m³ and a 98% filling limit is roughly 47,900 tonnes. The free converter on this page does the calculation for propane, butane, ammonia and petrochemical gases.",
+    a: "Multiply the volume in cbm by the liquid density of the cargo and by the filling limit. For example, 84,000 cbm of propane at about 0.582 t/m³ and a 98% filling limit is roughly 47,900 tonnes. The free converter on this page does the calculation for propane, butane, ammonia and petrochemical gases.",
   },
 ];
 

@@ -19,7 +19,7 @@ const NAVY = "#0A1F33";
 /**
  * Initials colour for an avatar fill: brass-light when it reaches 4.5:1 on the
  * fill (navy discs), navy otherwise (brass discs). Also used by the localized
- * landing pages' broker link.
+ * landing pages' broker link and research bylines.
  */
 export function initialsColor(bg: string) {
   if (!/^#[0-9a-f]{6}$/i.test(bg)) return "#fff";

@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { COMPANY_DETAILS_CONFIRMED, siteConfig } from "@/lib/site";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -30,7 +30,7 @@ Disallow: /twitter-image
 Disallow: /og/
 
 # Content index for language models: ${siteConfig.url}/llms.txt
-# Licensing and other uses: ${siteConfig.email}
+# Licensing and other uses: ${COMPANY_DETAILS_CONFIRMED ? siteConfig.email : `${siteConfig.url}/contact`}
 `;
 
   return new Response(body, {

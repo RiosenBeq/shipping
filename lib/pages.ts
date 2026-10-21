@@ -107,7 +107,7 @@ export const PAGES: PageEntry[] = [
   {
     path: "/privacy",
     title: "Privacy Policy",
-    summary: "GDPR/KVKK-aligned privacy policy.",
+    summary: "What the site collects, why, who processes it and how to exercise your rights.",
     group: "legal",
     priority: 0.2,
     changeFrequency: "yearly",

@@ -34,7 +34,7 @@ export const STRAITS_SECTIONS: { id: string; title: string; body: string[]; list
       "Sailing plans: ships report to the VTS before arrival with a first sailing plan (SP-1), normally at least 24 hours ahead and earlier for the largest ships, then confirm with a second report (SP-2) shortly before entering.",
       "Daylight transits: tankers and ships carrying dangerous cargo of 200 m length overall and above pass the Bosphorus in daylight, which in practice covers every Aframax and larger tanker.",
       "Large-ship windows: the VTS can hold traffic, or run it in one direction, while the largest and most hazardous ships pass. Northbound and southbound ships therefore queue in turn.",
-      "Pilotage and tugs: pilotage is compulsory for some categories of ship and strongly recommended for all others. Laden tankers almost always take a pilot, and large ones a tug escort.",
+      "Pilotage and tugs: for ships in transit the Montreux Convention leaves pilotage and towage optional, but the Turkish authorities strongly recommend a pilot, and a tug escort for large tankers. Pilotage is compulsory for ships calling at or leaving ports in the Straits. Laden tankers almost always take a pilot, and large ones a tug escort.",
       "Suspensions: the VTS stops or restricts traffic in fog, strong currents and storms, and during incidents. Queues build quickly when it does.",
     ],
   },
@@ -56,7 +56,7 @@ export const STRAITS_SECTIONS: { id: string; title: string; body: string[]; list
     id: "costs",
     title: "What a transit costs",
     body: [
-      "There is no toll for passage. Ships that transit without calling at a Turkish port pay only the dues set by the Montreux Convention for lighthouse, health and life-saving services, calculated on the ship's net tonnage. Pilotage, tugs and agency fees are added at the published tariffs when the ship uses them. We price these as separate lines rather than a lump sum, so they can be checked against the agent's account.",
+      "There is no toll for passage. Ships that transit without calling at a Turkish port pay only the dues set by the Montreux Convention for lighthouse, sanitary and life-saving services: a fixed number of gold francs per net ton, converted at a dollar value that Türkiye resets every 1 July. Pilotage, tugs and agency fees are added at the published tariffs when the ship uses them. We price these as separate lines rather than a lump sum, so they can be checked against the agent's account.",
     ],
   },
   {
@@ -68,7 +68,7 @@ export const STRAITS_SECTIONS: { id: string; title: string; body: string[]; list
     list: [
       "Voyage charters: check whether Straits waiting is excluded from laytime, paid as a separate allowance, or treated as part of the voyage.",
       "Time charters: waiting is normally the charterer's time, so it belongs in the trip estimate and in the hire calculation.",
-      "War risk: calls in listed areas of the Black Sea need additional war-risk cover, and attacks on shipping near the Bosphorus in 2026 have made underwriters stricter. Agree who pays the additional premium and crew bonuses.",
+      "War risk: since the Joint War Committee's circular JWLA-035 of 16 September 2026, the listed area covers almost the whole Black Sea outside the territorial waters of Türkiye, Bulgaria, Romania and Georgia, so most Black Sea voyages must be declared to war-risk underwriters and can carry an additional premium. Attacks on shipping near the Bosphorus in 2026 have made underwriters stricter. Agree who pays the additional premium and crew bonuses.",
       "Documents: make sure insurance certificates and any confirmation letters the Turkish authorities may ask for are on board before the ship arrives.",
     ],
   },
@@ -92,7 +92,7 @@ export const STRAITS_FAQ = [
   },
   {
     q: "Is pilotage compulsory in the Turkish Straits?",
-    a: "It is compulsory for some categories of ship and strongly recommended for all others. In practice laden tankers almost always take a pilot, and large tankers a tug escort as well.",
+    a: "Not for ships in transit: the Montreux Convention leaves pilotage optional, though the Turkish authorities strongly recommend it. It is compulsory for ships calling at or leaving ports in the Straits. In practice laden tankers almost always take a pilot, and large tankers a tug escort as well.",
   },
   {
     q: "Is there a toll for passing the Bosphorus?",

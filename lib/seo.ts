@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
-import { siteConfig } from "./site";
+import {
+  COMPANY_DETAILS_CONFIRMED,
+  publishedLegalName,
+  siteConfig,
+  twitterHandle,
+  verifiedSameAs,
+} from "./site";
 import { LOCALES } from "./i18n";
-import { BROKERS, type Broker } from "./data/brokers";
+import { BROKERS, publishableBroker, type Broker } from "./data/brokers";
 import { shareImageFor } from "./og-cards";
 
 type PageMetaInput = {
@@ -38,6 +44,7 @@ const abs = (path: string) => new URL(path, siteConfig.url).toString();
  */
 export function buildPageMetadata(input: PageMetaInput): Metadata {
   const url = abs(input.path);
+  const handle = twitterHandle();
   // Default: the page's own card from /og/… when it has one, else the site card.
   const ogImageUrl =
     input.ogImage === null
@@ -79,8 +86,7 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       card: "summary_large_image",
       title: input.title,
       description: input.description,
-      site: siteConfig.twitter,
-      creator: siteConfig.twitter,
+      ...(handle ? { site: handle, creator: handle } : {}),
       ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
     },
   };
@@ -89,6 +95,38 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
 /* ====================== JSON-LD helpers ====================== */
 
 const ORG_ID = `${siteConfig.url}#organization`;
+
+/**
+ * Street address, phone and emails, only once the company has confirmed them
+ * (COMPANY_DETAILS_CONFIRMED): placeholder details must not be indexed as the
+ * company's.
+ */
+const confirmedContact = () =>
+  COMPANY_DETAILS_CONFIRMED
+    ? {
+        email: siteConfig.email,
+        telephone: siteConfig.phone,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: siteConfig.address.street,
+          addressLocality: siteConfig.address.locality,
+          postalCode: siteConfig.address.postalCode,
+          addressCountry: siteConfig.address.country,
+        },
+      }
+    : {
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: siteConfig.address.locality,
+          addressCountry: siteConfig.address.country,
+        },
+      };
+
+/** `sameAs` with the company's verified profiles only (lib/site.ts). */
+const sameAs = () => {
+  const urls = verifiedSameAs();
+  return urls.length ? { sameAs: urls } : {};
+};
 
 /** Languages spoken across the desks (from the team list), English first. */
 const ORG_LANGUAGES = Array.from(
@@ -100,8 +138,8 @@ export function organizationLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": ORG_ID,
-    name: siteConfig.legalEntity,
-    alternateName: siteConfig.name,
+    name: publishedLegalName(),
+    ...(COMPANY_DETAILS_CONFIRMED ? { alternateName: siteConfig.name } : {}),
     url: siteConfig.url,
     // Google asks for a logo of at least 112 × 112 px: the 180 px apple-icon.
     logo: {
@@ -115,35 +153,35 @@ export function organizationLd() {
     image: { "@id": `${siteConfig.url}#logo` },
     description: siteConfig.description,
     slogan: siteConfig.tagline,
-    foundingDate: siteConfig.founded,
-    foundingLocation: { "@type": "Place", name: "Istanbul, Türkiye" },
-    email: siteConfig.email,
-    telephone: siteConfig.phone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: siteConfig.address.street,
-      addressLocality: siteConfig.address.locality,
-      postalCode: siteConfig.address.postalCode,
-      addressCountry: siteConfig.address.country,
-    },
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        contactType: "sales",
-        name: siteConfig.desks.tankers.label,
-        email: siteConfig.desks.tankers.email,
-        telephone: siteConfig.phone,
-        availableLanguage: ["English", "Turkish"],
-      },
-      {
-        "@type": "ContactPoint",
-        contactType: "sales",
-        name: siteConfig.desks.lpg.label,
-        email: siteConfig.desks.lpg.email,
-        telephone: siteConfig.phone,
-        availableLanguage: ["English", "Turkish"],
-      },
-    ],
+    ...(COMPANY_DETAILS_CONFIRMED
+      ? {
+          foundingDate: siteConfig.founded,
+          foundingLocation: { "@type": "Place", name: "Istanbul, Türkiye" },
+        }
+      : {}),
+    ...confirmedContact(),
+    ...(COMPANY_DETAILS_CONFIRMED
+      ? {
+          contactPoint: [
+            {
+              "@type": "ContactPoint",
+              contactType: "sales",
+              name: siteConfig.desks.tankers.label,
+              email: siteConfig.desks.tankers.email,
+              telephone: siteConfig.phone,
+              availableLanguage: ["English", "Turkish"],
+            },
+            {
+              "@type": "ContactPoint",
+              contactType: "sales",
+              name: siteConfig.desks.lpg.label,
+              email: siteConfig.desks.lpg.email,
+              telephone: siteConfig.phone,
+              availableLanguage: ["English", "Turkish"],
+            },
+          ],
+        }
+      : {}),
     knowsAbout: [
       "Shipbroking",
       "Tanker chartering",
@@ -174,12 +212,17 @@ export function organizationLd() {
       name: `${siteConfig.name} ${o.city}`,
       address: { "@type": "PostalAddress", addressLocality: o.city, addressCountry: o.country },
     })),
-    sameAs: Object.values(siteConfig.socials),
+    ...sameAs(),
   };
 }
 
-/** Istanbul headquarters as a local business — supports "shipbroker Istanbul" searches. */
+/**
+ * Istanbul headquarters as a local business — supports "shipbroker Istanbul"
+ * searches. Left out (null) until the address and phone are confirmed: a local
+ * business listing with placeholder details would be worse than none.
+ */
 export function localBusinessLd() {
+  if (!COMPANY_DETAILS_CONFIRMED) return null;
   return {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -213,7 +256,7 @@ export function localBusinessLd() {
     areaServed: ["Worldwide", "Mediterranean", "Black Sea", "Middle East", "Türkiye"],
     hasMap: `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.latitude},${siteConfig.geo.longitude}`,
     knowsLanguage: ORG_LANGUAGES,
-    sameAs: Object.values(siteConfig.socials),
+    ...sameAs(),
   };
 }
 
@@ -356,7 +399,7 @@ export function articleLd({
   datePublished: string;
   dateModified?: string;
   section: string;
-  /** Broker who wrote it; falls back to the company. */
+  /** Broker who wrote it; the company unless the broker is verified. */
   author?: Broker;
   keywords?: string[];
   /** Summary-only notes: the full report is sent on request. */
@@ -366,6 +409,7 @@ export function articleLd({
   type?: "Article" | "TechArticle";
 }) {
   const url = abs(path);
+  const person = publishableBroker(author);
   return {
     "@context": "https://schema.org",
     "@type": type,
@@ -387,15 +431,15 @@ export function articleLd({
       width: 1200,
       height: 630,
     },
-    author: author
+    author: person
       ? {
           "@type": "Person",
-          name: author.name,
-          jobTitle: author.title,
+          name: person.name,
+          jobTitle: person.title,
           worksFor: { "@id": ORG_ID },
-          workLocation: { "@type": "Place", name: author.office },
-          knowsLanguage: author.languages,
-          knowsAbout: author.focus,
+          workLocation: { "@type": "Place", name: person.office },
+          knowsLanguage: person.languages,
+          knowsAbout: person.focus,
           url: abs("/brokers"),
         }
       : { "@id": ORG_ID },

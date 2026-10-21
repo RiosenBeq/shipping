@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { siteConfig } from "./site";
+import { publishedLegalName, siteConfig, twitterHandle } from "./site";
 import { LOCALES } from "./i18n";
 
 /**
@@ -32,10 +32,10 @@ export const rootMetadata: Metadata = {
   title: { default: defaultTitle, template: `%s — ${siteConfig.name}` },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  referrer: "origin-when-cross-origin",
-  authors: [{ name: siteConfig.legalEntity, url: siteConfig.url }],
-  creator: siteConfig.legalEntity,
-  publisher: siteConfig.legalEntity,
+  referrer: "strict-origin-when-cross-origin",
+  authors: [{ name: publishedLegalName(), url: siteConfig.url }],
+  creator: publishedLegalName(),
+  publisher: publishedLegalName(),
   category: "Maritime Shipping",
   formatDetection: { telephone: true, email: true, address: true },
   openGraph: {
@@ -50,16 +50,17 @@ export const rootMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: siteConfig.twitter,
+    site: twitterHandle(),
     title: defaultTitle,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
   },
+  // Previews and builds without a real origin are noindex (next.config.mjs).
   robots: {
-    index: true,
+    index: siteConfig.indexable,
     follow: true,
     googleBot: {
-      index: true,
+      index: siteConfig.indexable,
       follow: true,
       "max-video-preview": -1,
       "max-image-preview": "large",

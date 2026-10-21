@@ -72,7 +72,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       {
         kind: "callout",
         label: "Talk to the desk",
-        text: "If you have a Gulf-origin stem, or a ship that could be ordered into the area, send us the details. We will come back with available ships, the clauses owners are accepting and the costs they are quoting, within 60 minutes during business hours.",
+        text: "If you have a Gulf-origin stem, or a ship that could be ordered into the area, send us the details. A broker replies within 60 minutes during business hours, then comes back with available ships, the clauses owners are accepting and the costs they are quoting.",
         link: { href: "/compliance", label: "How we screen every fixture" },
       },
     ],
@@ -334,7 +334,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       {
         kind: "callout",
         label: "Before you fix",
-        text: "Send us the terminal names, parcel size and laycan. We will come back with suitable ships, realistic port days and a freight idea within 60 minutes during business hours.",
+        text: "Send us the terminal names, parcel size and laycan. A broker replies within 60 minutes during business hours, then comes back with suitable ships, realistic port days and a freight idea.",
       },
     ],
   },
@@ -374,16 +374,15 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     blocks: [
       {
         kind: "p",
-        text: "The Suezmax market entered Q2 with the kind of structural tightness that doesn't reverse on a single bearish week. CPC programme nominations through April have run within 3% of January's record schedule, and the Atlantic Basin position list — the running tally of available tonnage in the region — has not exceeded 26 ships at any point this month. For context, the Q4 2024 average was 41.",
+        text: "The Suezmax market entered Q2 with the kind of structural tightness that doesn't reverse on a single bearish week: a full CPC programme, and an Atlantic Basin position list — the running tally of available tonnage in the region — that stayed short through April.",
       },
       { kind: "h2", text: "What's driving the squeeze" },
       {
         kind: "ul",
         items: [
-          "CPC Blend exports recovering off the Q4 maintenance dip; April nominations imply ~5.0 m t for the month vs the 4.4 m t seasonal average.",
+          "CPC Blend exports recovering after the disruption earlier in the year, which keeps the Black Sea programme full.",
           "WAF programme staying full despite Nigerian crude differentials weakening — Atlantic-Atlantic ton-mile holding steady.",
-          "Eastward arbitrage thin: with Brent–Dubai spreads narrow, fewer Suezmax cargoes are being pulled to Asia, capping the West-of-Suez safety valve.",
-          "Order-book delivery pace into the segment has slowed — 18 deliveries scheduled for full year 2026 vs 27 in 2025.",
+          "The eastward arbitrage: the Brent–Dubai spread decides how far Atlantic crude travels. A wide spread keeps Suezmax cargoes in the Atlantic; a narrow one pulls them to Asia and takes ships off the West-of-Suez list.",
         ],
       },
       { kind: "h2", text: "TD20 base / bear / bull: what moves it" },
@@ -399,7 +398,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       { kind: "h2", text: "Where the call could break" },
       {
         kind: "p",
-        text: "Three watch items: (1) CPC infrastructure — any unscheduled maintenance at Yuzhnaya Ozereyevka pulls 200–300 k bbl/d off the schedule overnight; (2) Atlantic Basin newbuilding deliveries clustering in Q3 — the 18-ship 2026 figure is back-end-loaded; (3) US sanctions calibration on Russian crude — looser enforcement re-opens grey-market tonnage at the margin.",
+        text: "Three watch items: (1) CPC infrastructure — unscheduled maintenance or damage at the Yuzhnaya Ozereyevka terminal can take a large part of the programme offline at short notice; (2) newbuilding deliveries — a cluster of new Suezmaxes would lengthen the position list quickly; (3) US sanctions calibration on Russian crude — looser enforcement re-opens grey-market tonnage at the margin.",
       },
     ],
   },
@@ -426,7 +425,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
         items: [
           "Distance: 6,300 nm (Ras Tanura → Ningbo, via Strait of Malacca). Add ~600 nm if discharging at Caofeidian or QHD; subtract ~400 nm for Singapore.",
           "Sea time at 13.5 kn laden / 14.0 kn ballast: 19.5–21 days each way.",
-          "Bunker burn (typical scrubber-fitted VLCC): 70–75 mt/d VLSFO at sea, 5 mt/d in port.",
+          "Bunker burn (typical scrubber-fitted VLCC): 70–75 mt/d HSFO at sea, 5 mt/d in port.",
           "Port days: 3.0–3.5 at load (Ras Tanura), 3.5–4.0 at discharge (Ningbo, Qingdao, Caofeidian).",
           "Round trip including ballast: 47–52 days.",
         ],
@@ -459,33 +458,33 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       { kind: "h2", text: "What this does to ballast economics" },
       {
         kind: "p",
-        text: "TD15 (WAF → East) is now reliably running 70–80% of TD3C laden TCE — a ratio that would have looked rich in 2022. The implication for VLCC ballast strategy: the case for ballasting back to MEG after a WAF lift versus repositioning via Singapore is no longer a no-brainer. Owners with flexibility on the next stem are pricing the round-trip blended TCE, not the single-leg.",
+        text: "TD15 (WAF → East) now earns much closer to TD3C than it did in 2022. The implication for VLCC ballast strategy: the case for ballasting back to MEG after a WAF lift versus repositioning via Singapore is no longer a no-brainer. Owners with flexibility on the next stem are pricing the round-trip blended TCE, not the single-leg.",
       },
       { kind: "h2", text: "Three things to watch" },
       {
         kind: "ul",
         items: [
-          "Indian crude slate composition — the Reliance Jamnagar shift toward heavier crude is the single biggest demand pull for WAF in 2026.",
-          "Brent–Dubai differential — anything wider than $4 reopens the eastward arb decisively.",
-          "Cape route economics — TD15 routes via Cape (vs Suez) are weather-routed; Q2/Q3 Indian Ocean monsoon adds 1.5–2.5 days.",
+          "Indian crude slates — how much light sweet West African crude Indian refiners keep buying is the biggest swing factor for WAF–East demand.",
+          "Brent–Dubai differential — a narrower spread makes Atlantic Basin crude cheaper for Asian buyers and opens the eastward arbitrage; a wider one closes it.",
+          "Weather — TD15 runs round the Cape of Good Hope, where southern-winter storms (roughly June to August) slow ships and add days to the voyage.",
         ],
       },
     ],
   },
 
   "td7-nsea-cont-shorthaul-fast-turn-thin-margin": {
-    dek: "How Aframax desks build TCE on routes where you live or die on portage and weather windows.",
+    dek: "How Aframax desks build TCE on routes where you live or die on port time and weather windows.",
     blocks: [
       {
         kind: "p",
-        text: "TD7 — North Sea → Continent — looks unremarkable on paper: a 14-day round-trip Aframax run at Worldscale levels that rarely make headlines. But this is where short-haul Aframax desks earn their keep. The TCE differential between a smartly-fixed TD7 voyage and a clumsily-fixed one can be $8–12k/day, almost entirely on portage cost discipline and weather window selection.",
+        text: "TD7 — North Sea → Continent — looks unremarkable on paper: a short Aframax run of about a week round trip, at Worldscale levels that rarely make headlines. But this is where short-haul Aframax desks earn their keep. On a voyage this short, a few hours of port time or weather delay move the TCE noticeably, so the gap between a well-planned voyage and a clumsy one comes almost entirely from port-time discipline and weather-window selection.",
       },
       { kind: "h2", text: "Where the margin lives" },
       {
         kind: "ul",
         items: [
-          "Portage: Mongstad and Sture pilotage windows are tide-dependent. Missing the slot adds 8–14 hours.",
-          "Weather routing: the North Sea–English Channel transit takes 3–5% longer in Q4/Q1 with prevailing wind/sea against.",
+          "Port time: berthing windows at North Sea load terminals can be tight, and missing a slot costs hours a short voyage can't absorb.",
+          "Weather: winter gales in the North Sea slow passages and can stop berthing or loading, so Q4/Q1 voyages need more contingency.",
           "Discharge sequencing: Rotterdam vs Antwerp vs Wilhelmshaven — pilotage and tug pricing varies materially.",
           "Demurrage: short laytime regimes mean any port slip hits hard.",
         ],
@@ -493,7 +492,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       { kind: "h2", text: "The desk approach" },
       {
         kind: "p",
-        text: "We start every TD7 fix with the weather window question, not the WS quote. If the laycan straddles a major weather front, the 12 extra hours of contingency cost almost nothing on the freight idea but eliminate the demurrage exposure. Pair that with a tight discharge port nomination and the TCE/day comes out 10–15% above the published market average.",
+        text: "We start every TD7 fix with the weather window question, not the WS quote. If the laycan straddles a major weather front, the 12 extra hours of contingency cost almost nothing on the freight idea but eliminate the demurrage exposure. Pair that with a tight discharge port nomination and the voyage keeps more of its TCE.",
       },
     ],
   },
@@ -503,16 +502,16 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
     blocks: [
       {
         kind: "p",
-        text: "The G7 oil price cap regime — in force on Russian-origin crude since December 2022 and on petroleum products since February 2023 — has shifted from a high-level compliance topic to a deck-level workflow item. Every fixture our desk runs that touches Russian molecules requires a documented attestation chain. Here's what that chain looks like in practice.",
+        text: "The G7 oil price cap regime — in force on Russian-origin crude since December 2022 and on petroleum products since February 2023 — has shifted from a high-level compliance topic to a desk-level workflow item. Our policy is that every fixture touching Russian-origin oil needs a documented attestation chain. Here's what that chain looks like in practice.",
       },
       { kind: "h2", text: "What we collect, in order" },
       {
         kind: "ul",
         items: [
-          "Tier-1 attestation from the seller — confirming the cargo was acquired at or below the applicable cap.",
-          "Letter of attestation in the charter party — owner / disponent owner attests that no Russian-origin cargo above the cap will be carried.",
+          "Price evidence or an attestation, by tier: traders and refiners with access to price information keep the price evidence; parties without it, such as brokers, owners and insurers, obtain a signed attestation from their customer (normally the charterer) that the cargo was bought at or below the applicable cap.",
+          "Charter party clause in which the charterer warrants compliance with the price cap, backed by an attestation for each voyage.",
           "Bill of lading evidencing port of loading and crude grade.",
-          "Insurance binder confirming P&I and H&M cover is being provided by an OFAC/OFSI-authorised club / underwriter.",
+          "Insurance: confirmation that P&I and H&M cover is placed with reputable insurers whose sanctions clauses do not exclude the voyage.",
           "If price evidence is requested by the regulator: invoice or transfer documentation from the seller.",
         ],
       },
@@ -524,13 +523,13 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
       {
         kind: "callout",
         label: "Desk discipline",
-        text: "We don't act on inquiries that fail compliance review. Counterparty screening (OFAC, UK OFSI, EU consolidated, G7 cap eligibility) runs before a freight idea goes back to the charterer.",
+        text: "We don't act on inquiries that fail compliance review. Counterparty screening (OFAC, the UK Sanctions List, the EU consolidated list, G7 cap eligibility) runs before a freight idea goes back to the charterer.",
       },
       { kind: "h2", text: "What changed in 2025–2026" },
       {
         kind: "ul",
         items: [
-          "Cap levels now differ by jurisdiction. The EU and the UK moved to a lower crude cap with an automatic, dynamic mechanism that resets it periodically below the market average, while other G7 members kept their own levels. The attestation must refer to the cap of every regime that applies to the parties involved, at the date of loading.",
+          "Cap levels now differ by jurisdiction. The EU and the UK lowered their crude cap in February 2026 under a dynamic mechanism that sets it below the average market price, and in July 2026 the EU froze that level until 15 July 2027 instead of resetting it every six months. Other G7 members set their own levels. The attestation must refer to the cap of every regime that applies to the parties involved, at the date of loading.",
           "Transition periods matter. When a cap is lowered, contracts concluded before the change can usually be performed for a limited period. We record the contract date with the attestation so the right cap is applied.",
           "Refined products made from Russian crude are restricted further. From 21 January 2026 the EU also limits imports of products refined from Russian crude in third countries, so clean cargoes bound for Europe need origin evidence for the crude, not only the product.",
           "Shadow-fleet listings keep growing. Each new sanctions package designates more tankers, so we re-screen the ship, not only the counterparties, on the day of fixing.",
@@ -547,7 +546,7 @@ export const REPORT_BODIES: Record<string, ReportBody> = {
 
   // Gated reports — summary only on the site; full report on request.
   "eu-ets-phase-2-cargo-allocation-who-actually-pays": {
-    dek: "With 70% phasing in 2026, the contractual fight has begun. Standard clauses, charterer pushback, and what a fair split looks like.",
+    dek: "With 100% of 2026 emissions in scope, plus methane and nitrous oxide, the contractual fight has begun. Standard clauses, charterer pushback, and what a fair split looks like.",
     summary:
       "Full report covering the post-phase-2 contractual landscape: BIMCO ETS clause adoption, the three main allocation models (charterer-pays, owner-pays-with-pass-through, time-weighted split), real-world charterer pushback patterns, and our framework for what a defensible split actually looks like for spot, TC, and COA structures.",
     blocks: [

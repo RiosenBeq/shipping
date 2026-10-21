@@ -10,6 +10,8 @@ export type LpgClassData = {
   slug: string;
   name: string;
   longName: string;
+  /** Search title when "{name} Chartering — {longName}" runs past snippet length. */
+  seoTitle?: string;
   /** Noun phrase with its article for running copy: "Looking for an MGC?". */
   ctaNoun: string;
   capacity: string;
@@ -34,7 +36,8 @@ export const LPG_CLASSES: LpgClassData[] = [
     longName: "Very Large Gas Carrier",
     ctaNoun: "a VLGC",
     capacity: "70,000 cbm and above — modern ships mostly 78,000–93,000 cbm",
-    containment: "Fully refrigerated, prismatic tanks, atmospheric pressure (~−50 °C)",
+    containment:
+      "Fully refrigerated, prismatic tanks at atmospheric pressure (propane carried at about −42 °C)",
     typicalCargo: "≈ 44,000–46,000 mt fully refrigerated propane/butane",
     cargoes: ["Propane", "Butane", "Propane/butane splits", "Ammonia (ammonia-capable VLGC/VLAC)"],
     intro:
@@ -219,6 +222,7 @@ export const LPG_CLASSES: LpgClassData[] = [
     slug: "pressurised",
     name: "Pressurised LPG",
     longName: "Pressurised & semi-ref coasters",
+    seoTitle: "Pressurised & Semi-ref LPG Coaster Chartering",
     ctaNoun: "a pressurised LPG carrier",
     capacity: "Coasters below 15,000 cbm — most fully pressurised ships are much smaller",
     containment:

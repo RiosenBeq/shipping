@@ -187,7 +187,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "regulatory",
     term: "EU ETS",
-    def: "EU Emissions Trading System. Vessels surrender EUAs (1 per t CO₂) for emissions on EEA-touching voyages. Phase-in: 40% (2024) → 70% (2025) → 100% (2026). CH₄ and N₂O included from 2026.",
+    def: "EU Emissions Trading System. Vessels surrender EUAs (1 per t CO₂e) for emissions on EEA-touching voyages. Phase-in: 40% (2024) → 70% (2025) → 100% (2026). CH₄ and N₂O included from 2026.",
   },
   {
     group: "regulatory",
@@ -207,12 +207,12 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "regulatory",
     term: "G7 price cap",
-    def: "Cap on the price of Russian-origin crude (since Dec 2022) and petroleum products (since Feb 2023). Service providers such as insurers, financiers and brokers may only support cargoes bought at or below the cap. The EU and UK now apply a lower crude cap that resets periodically, so the level differs by jurisdiction; check it on the day of fixing.",
+    def: "Cap on the price of Russian-origin crude (since Dec 2022) and petroleum products (since Feb 2023). Service providers such as insurers, financiers and brokers may only support cargoes bought at or below the cap. The EU and UK lowered their crude cap in February 2026 under a dynamic mechanism, and the EU has frozen that level until 15 July 2027, so the cap differs by jurisdiction; check it on the day of fixing.",
   },
   {
     group: "regulatory",
     term: "OFAC / OFSI",
-    def: "Office of Foreign Assets Control (US) and Office of Financial Sanctions Implementation (UK). Counterparty and vessel screening against their sanctions lists is standard practice on every fixture.",
+    def: "Office of Foreign Assets Control (US) and Office of Financial Sanctions Implementation (UK). Since 28 January 2026 all UK designations are published in one list, the UK Sanctions List. Counterparty and vessel screening against these lists is standard practice on every fixture.",
   },
   {
     group: "regulatory",
@@ -237,7 +237,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "regulatory",
     term: "JWC listed area",
-    def: "An area listed by the Joint War Committee of the London insurance market as high risk. Ships entering need to notify underwriters and usually pay additional war-risk premium. In 2026 the list includes the Gulf, the Strait of Hormuz and parts of the Black Sea.",
+    def: "An area listed by the Joint War Committee of the London insurance market as high risk. Ships entering need to notify underwriters and usually pay additional war-risk premium. In 2026 the list includes the Gulf, the Strait of Hormuz and, since 16 September 2026, almost all of the Black Sea outside the territorial waters of Türkiye, Bulgaria, Romania and Georgia.",
   },
   {
     group: "regulatory",
@@ -269,7 +269,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     group: "ports",
     term: "Strait of Malacca",
-    def: "Singapore / Indonesia / Malaysia. No transit fee; ~12 hours through. Carries ~1/4 of seaborne trade and most MEG → East crude.",
+    def: "Singapore / Indonesia / Malaysia. No transit fee; roughly 500 nm long, so about a day and a half to two days' steaming. Carries around a quarter of seaborne trade and most MEG → East crude.",
   },
   {
     group: "ports",

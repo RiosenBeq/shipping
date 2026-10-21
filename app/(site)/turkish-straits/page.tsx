@@ -227,7 +227,7 @@ export default function TurkishStraitsPage() {
 
       <CtaBand
         title="Fixing through the Straits?"
-        text="Send the cargo, ports and laycan. We will come back with ships, a freight idea and the transit time we have assumed, within 60 minutes during business hours."
+        text="Send the cargo, ports and laycan. A broker replies within 60 minutes during business hours, then comes back with ships, a freight idea and the transit time we have assumed."
         email={siteConfig.desks.tankers.email}
       />
     </>

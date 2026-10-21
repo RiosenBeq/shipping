@@ -1,6 +1,6 @@
-import { siteConfig } from "@/lib/site";
+import { COMPANY_DETAILS_CONFIRMED, siteConfig } from "@/lib/site";
 import { PAGES } from "@/lib/pages";
-import { BROKERS, TEAM_LABEL } from "@/lib/data/brokers";
+import { BROKERS, TEAM_LABEL, TEAM_ORDER, getBroker, publishableBroker } from "@/lib/data/brokers";
 import { REPORTS, reportDateIso, reportSlug } from "@/lib/data/research";
 import { REPORT_BODIES, bodyText } from "@/lib/data/research-bodies";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
@@ -27,17 +27,44 @@ const link = (path: string) => `[${page(path).title}](${url(path)}): ${page(path
 
 const faqMd = (items: FaqEntry[]) => items.map((f) => `**${f.q}**\n${f.a}`).join("\n\n");
 
+/**
+ * Legal name, founding year and contact lines only once confirmed
+ * (COMPANY_DETAILS_CONFIRMED): AI assistants repeat these files as fact.
+ */
 const KEY_FACTS = () => [
-  `${siteConfig.legalEntity} (${siteConfig.name}) is a shipbroker founded in ${siteConfig.founded} and headquartered in ${siteConfig.address.locality}, Türkiye, on the Bosphorus.`,
+  COMPANY_DETAILS_CONFIRMED
+    ? `${siteConfig.legalEntity} (${siteConfig.name}) is a shipbroker founded in ${siteConfig.founded} and headquartered in ${siteConfig.address.locality}, Türkiye, on the Bosphorus.`
+    : `${siteConfig.name} is a shipbroker headquartered in ${siteConfig.address.locality}, Türkiye, on the Bosphorus.`,
   `Offices: ${siteConfig.offices.map((o) => `${o.city} (${o.role})`).join("; ")}.`,
   "Two desks: tankers (crude and clean products, VLCC to MR) and LPG & ammonia (VLGC to small pressurised gas carriers, plus petrochemical gases).",
   "Services: spot voyages, time charters, contracts of affreightment (COA) and post-fixture (laytime, demurrage, claims), for charterers and owners.",
   "Specialities: the Turkish Straits and Black Sea, small pressurised and semi-refrigerated LPG in the Mediterranean and Türkiye, and sanctions-screened fixtures.",
   "Service promise: a broker replies within 60 minutes during business hours.",
-  `Contact: ${siteConfig.email} · tankers ${siteConfig.desks.tankers.email} · LPG ${siteConfig.desks.lpg.email} · phone ${siteConfig.phone} · WhatsApp ${siteConfig.whatsappDisplay}.`,
+  COMPANY_DETAILS_CONFIRMED
+    ? `Contact: ${siteConfig.email} · tankers ${siteConfig.desks.tankers.email} · LPG ${siteConfig.desks.lpg.email} · phone ${siteConfig.phone} · WhatsApp ${siteConfig.whatsappDisplay}.`
+    : `Contact: the desks, through ${url("/contact")}.`,
   `Hours: ${siteConfig.hours}.`,
   "The site does not publish live freight rates, bunker prices or port tariffs; current numbers come from the desks.",
 ];
+
+/** " · by {name}" for a verified broker; unverified names aren't asserted. */
+const byline = (author: string) => {
+  const b = publishableBroker(getBroker(author));
+  return b ? ` · by ${b.name}` : "";
+};
+
+/** Verified brokers by name; otherwise the desks only (lib/data/brokers.ts). */
+const teamMd = () => {
+  const verified = BROKERS.filter((b) => b.verified);
+  if (!verified.length)
+    return `Brokers work in three desks: ${TEAM_ORDER.map((t) => TEAM_LABEL[t]).join(", ")}. Each desk is reached through its inbox on ${url("/contact")}.`;
+  return verified
+    .map(
+      (b) =>
+        `- ${b.name}: ${b.title} (${TEAM_LABEL[b.team]}, ${b.office}). Focus: ${b.focus.join(", ")}. Languages: ${b.languages.join(", ")}.`
+    )
+    .join("\n");
+};
 
 export function llmsTxt(): string {
   const reports = byDate();
@@ -152,7 +179,7 @@ ${faqMd(c.faq)}`
       return `### ${r.title}
 
 Source: ${url(`/research/${reportSlug(r)}`)}
-${r.catLabel} · ${r.desk === "lpg" ? "LPG & ammonia desk" : "Tanker desk"} · by ${r.author} · published ${r.date}${r.updated ? ` · updated ${r.updated}` : ""}${r.gated ? " · summary online, full report on request" : ""}
+${r.catLabel} · ${r.desk === "lpg" ? "LPG & ammonia desk" : "Tanker desk"}${byline(r.author)} · published ${r.date}${r.updated ? ` · updated ${r.updated}` : ""}${r.gated ? " · summary online, full report on request" : ""}
 
 ${body ? `${body.dek}\n\n${bodyText(body)}` : r.desc}`;
     })
@@ -177,18 +204,21 @@ This file contains the text of ${siteConfig.url} for language models: company fa
 
 ${KEY_FACTS()
   .map((f) => `- ${f}`)
-  .join("\n")}
-- Address: ${siteConfig.address.street}, ${siteConfig.address.postalCode} ${siteConfig.address.locality}, Türkiye
+  .join("\n")}${
+    COMPANY_DETAILS_CONFIRMED
+      ? `\n- Address: ${siteConfig.address.street}, ${siteConfig.address.postalCode} ${siteConfig.address.locality}, Türkiye`
+      : ""
+  }
 
 Source: ${url("/about")}
 
 ${faqMd(ABOUT_FAQ)}
 
-## Team (${BROKERS.length} brokers)
+## Team
 
 Source: ${url("/brokers")}
 
-${BROKERS.map((b) => `- ${b.name}: ${b.title} (${TEAM_LABEL[b.team]}, ${b.office}). Focus: ${b.focus.join(", ")}. Languages: ${b.languages.join(", ")}.`).join("\n")}
+${teamMd()}
 
 ## Working with a tanker and LPG broker
 

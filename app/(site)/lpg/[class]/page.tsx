@@ -28,7 +28,7 @@ export function generateStaticParams() {
 function copy(slug: string) {
   const c = getLpgClassBySlug(slug)!;
   return {
-    title: `${c.name} Chartering — ${c.longName}`,
+    title: c.seoTitle ?? `${c.name} Chartering — ${c.longName}`,
     description: `${c.name} chartering from LEVANTER's LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
       .slice(0, 3)
       .join(", ")
