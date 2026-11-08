@@ -133,8 +133,8 @@ export default function LocalizedHome({ params }: Params) {
               {t.h1}
             </h1>
           </div>
-          <div className="voyage-scrim voyage-scrim--ink max-w-xl text-white">
-            <p className="text-lg leading-relaxed text-fog">{t.lead}</p>
+          <div className="voyage-scrim voyage-scrim--ink voyage-scrim--deep max-w-xl text-white">
+            <p className="text-lg leading-relaxed text-white/90">{t.lead}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/contact" hrefLang="en" className="uv-btn uv-btn--lg">
                 {t.ctaInquiry} <Forward />

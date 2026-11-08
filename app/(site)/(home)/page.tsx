@@ -199,8 +199,8 @@ export default function HomePage() {
               <span className="text-brass-ink">Bosphorus.</span>
             </h1>
           </div>
-          <div className="voyage-scrim voyage-scrim--ink max-w-xl text-white">
-            <p className="text-lg leading-relaxed text-fog">
+          <div className="voyage-scrim voyage-scrim--ink voyage-scrim--deep max-w-xl text-white">
+            <p className="text-lg leading-relaxed text-white/90">
               Crude, clean products, LPG and ammonia — spot, time charter and COA. Talk directly to
               the broker who fixes your trade, with a first reply inside 60 minutes.
             </p>

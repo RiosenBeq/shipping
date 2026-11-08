@@ -269,6 +269,16 @@
     rgba(5, 22, 36, 0)
   );
 }
+/* The hero's pitch on the water: a deeper ink pool under light text. */
+.voyage-scrim--deep::before {
+  inset: -30% -24% -34% -24%;
+  background: radial-gradient(
+    closest-side,
+    rgba(5, 22, 36, 0.74),
+    rgba(5, 22, 36, 0.5) 52%,
+    rgba(5, 22, 36, 0)
+  );
+}
 .voyage-band--paper {
   background: linear-gradient(
     rgba(243, 239, 228, 0),
