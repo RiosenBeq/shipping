@@ -3,10 +3,26 @@ import { VOYAGE_SCENES as SCENES } from "../types";
 import { BRAND, lin } from "./palette";
 import { clamp, lerp, smoothstep, type V3 } from "./math";
 
+/** Portrait (phone) framing of a keyframe. */
+export interface PortraitShot {
+  /** Horizontal FOV (deg) on a 390×844 phone. */
+  hfov: number;
+  /** Horizon position from the top (0..1). */
+  hz: number;
+  /** Yaw offset (deg) toward the subject. */
+  yaw: number;
+  /** Camera position offset (m): a phone can move toward the subject instead of only cropping. */
+  dx: number;
+  dy: number;
+  dz: number;
+}
+
 /**
  * Camera keyframe. Yaw 0 looks north (−z, up the Bosphorus), +90 looks east (+x).
- * The horizon is placed with a vertical lens shift so verticals stay vertical
- * (minarets, masts, bridge towers) - an illustrator's camera rather than a tilted one.
+ * Yaws are unwrapped: the sign of the difference between two keyframes is the
+ * direction the camera turns. The horizon is placed with a vertical lens shift
+ * so verticals stay vertical (minarets, masts, bridge towers) - an illustrator's
+ * camera rather than a tilted one.
  */
 export interface Shot {
   pos: V3;
@@ -16,76 +32,178 @@ export interface Shot {
   hfov: number;
   /** Horizon position from the top (0..1), landscape. */
   hz: number;
-  /** Portrait (phone) framing: horizontal FOV, horizon, yaw offset toward the subject. */
-  pHfov: number;
-  pHz: number;
-  pYaw: number;
-  /** Optional Bezier control point for the flight toward the NEXT keyframe (keeps it on water). */
-  via?: V3;
+  mob: PortraitShot;
+  /** Cubic Bezier control points of the flight toward the NEXT keyframe (kept over water). */
+  via?: readonly [V3, V3];
 }
 
+/*
+ * Framing measured on the real homepage (FRAMING.md). Copy columns sit on the
+ * left; every subject lives in the free zones: the right half and the horizon
+ * strip (hero), the top-right above the cards (desks), the top-right above the
+ * paper band (straits), the strip under the ink band (process) and the middle
+ * column (contact). The journey turns left once (hero → desks, so the dawn sun
+ * leaves to the right, away from the copy) and then drifts right.
+ */
 export const SHOTS: readonly Shot[] = [
-  // hero — the Bosphorus at first light, low over the strait looking north.
-  // Horizon at 60 % (52 % on phones): the headline sits on the sky, the pitch and buttons on the water.
+  // hero — the Bosphorus at first light, low in the strait's mouth looking north.
   {
     pos: [-60, 9, 700],
-    yaw: 3,
+    yaw: 4,
     pitch: 0,
     hfov: 56,
     hz: 0.6,
-    pHfov: 44,
-    pHz: 0.52,
-    pYaw: 9,
-    via: [120, 24, 2300],
+    mob: { hfov: 30, hz: 0.535, yaw: 5, dx: 80, dy: -3, dz: -180 },
+    via: [
+      [-120, 12, 1700],
+      [-260, 12, 3000],
+    ],
   },
-  // desks — open water in the Marmara, a little higher, looking south.
+  // desks — open water in the Marmara looking west, a tanker and a gas carrier on the right.
   {
-    pos: [300, 32, 3600],
-    yaw: 180,
-    pitch: -1.5,
-    hfov: 56,
-    hz: 0.41,
-    pHfov: 46,
-    pHz: 0.4,
-    pYaw: 6,
-    via: [-1100, 60, -600],
+    pos: [-420, 9, 4100],
+    yaw: -88,
+    pitch: 0,
+    hfov: 48,
+    hz: 0.35,
+    mob: { hfov: 27, hz: 0.43, yaw: 13, dx: 0, dy: 0, dz: 0 },
+    via: [
+      [-300, 30, 1900],
+      [-60, 40, -900],
+    ],
   },
-  // straits — golden hour under the Bosphorus Bridge, looking up the strait.
+  // straits — golden hour, the European tower of the bridge and its cable top-right.
   {
-    pos: [-150, 14, -3800],
-    yaw: 336,
-    pitch: 1,
-    hfov: 58,
-    hz: 0.6,
-    pHfov: 46,
-    pHz: 0.64,
-    pYaw: 2,
-    via: [-80, 40, 900],
-  },
-  // process — dusk on the Marmara, the old city's skyline on the horizon.
-  {
-    pos: [-900, 14, 3000],
-    yaw: 354,
+    pos: [60, 14, -3150],
+    yaw: -32,
     pitch: 0,
     hfov: 58,
-    hz: 0.74,
-    pHfov: 46,
-    pHz: 0.8,
-    pYaw: -2,
-    via: [-150, 12, 1500],
+    hz: 0.43,
+    // the phone keeps calm golden sky over its heading, the sun in the free top strip
+    mob: { hfov: 40, hz: 0.3, yaw: -12, dx: 0, dy: 0, dz: 0 },
+    via: [
+      [0, 30, -1200],
+      [-250, 14, 1500],
+    ],
   },
-  // contact — night watch by Maiden's Tower.
-  { pos: [130, 6, 120], yaw: 368, pitch: 1, hfov: 58, hz: 0.62, pHfov: 46, pHz: 0.66, pYaw: 12 },
+  // process — dusk on the Marmara, the old city's lit skyline on the horizon strip.
+  {
+    pos: [-600, 3, 3600],
+    yaw: -10,
+    pitch: 0,
+    hfov: 58,
+    hz: 0.81,
+    mob: { hfov: 44, hz: 0.3, yaw: 4, dx: 0, dy: 0, dz: 0 },
+    via: [
+      [-480, 4, 3000],
+      [-220, 6, 2200],
+    ],
+  },
+  // contact — night watch: Maiden's Tower lit on the moon path, open water to the left.
+  {
+    pos: [-100, 7, 1900],
+    yaw: 10,
+    pitch: 0,
+    hfov: 58,
+    hz: 0.75,
+    mob: { hfov: 40, hz: 0.685, yaw: 1, dx: 0, dy: 0, dz: 0 },
+  },
+];
+
+/**
+ * Copy-safe masks per keyframe, applied in the post pass by material class:
+ * `lift` pulls the sky (and, less, haze-dissolved land) behind the heading
+ * column toward paper so the 12 px brass eyebrow reaches 4.5:1; `pool` deepens
+ * and calms the water (or the night sky) under light text. Rects are
+ * [x0, y0, x1, y1] in viewport fractions from the top-left; `m` = portrait.
+ */
+interface CalmDef {
+  lift: readonly [number, number, number, number];
+  liftM: readonly [number, number, number, number];
+  liftS: number;
+  /** Feather (viewport heights) across and up/down. */
+  liftF: readonly [number, number];
+  pool: readonly [number, number, number, number];
+  poolM: readonly [number, number, number, number];
+  poolS: number;
+  poolF: readonly [number, number];
+  /** How much of the pool also applies to the sky and land (dark scenes: copy on the night sky). */
+  poolSky: number;
+}
+
+export const CALM: readonly CalmDef[] = [
+  {
+    lift: [0.04, 0.14, 0.57, 0.47],
+    liftM: [0, 0.11, 1, 0.42],
+    liftS: 1,
+    liftF: [0.42, 0.1],
+    pool: [0.03, 0.66, 0.5, 1.02],
+    poolM: [-0.02, 0.57, 1.02, 1.02],
+    poolS: 1,
+    poolF: [0.42, 0.08],
+    poolSky: 0,
+  },
+  {
+    lift: [0.04, 0.11, 0.5, 0.36],
+    liftM: [0, 0.11, 1, 0.42],
+    liftS: 1,
+    liftF: [0.4, 0.09],
+    pool: [0.03, 0.66, 0.5, 1.02],
+    poolM: [-0.02, 0.57, 1.02, 1.02],
+    poolS: 0,
+    poolF: [0.42, 0.08],
+    poolSky: 0,
+  },
+  {
+    lift: [0.04, 0.22, 0.52, 0.42],
+    liftM: [0, 0.13, 1, 0.3],
+    liftS: 1,
+    // a short vertical feather leaves the sun's disc above the heading untouched
+    liftF: [0.4, 0.06],
+    pool: [0.03, 0.25, 0.58, 0.45],
+    poolM: [-0.02, 0.12, 1.02, 0.3],
+    poolS: 0,
+    poolF: [0.3, 0.1],
+    poolSky: 0,
+  },
+  {
+    lift: [0.04, 0.26, 0.58, 0.44],
+    liftM: [0, 0.13, 1, 0.3],
+    liftS: 0,
+    liftF: [0.3, 0.1],
+    pool: [0.03, 0.25, 0.58, 0.45],
+    poolM: [-0.02, 0.12, 1.02, 0.3],
+    poolS: 0.55,
+    poolF: [0.3, 0.1],
+    poolSky: 1,
+  },
+  {
+    lift: [0.04, 0.26, 0.5, 0.68],
+    liftM: [0, 0.08, 1, 0.64],
+    liftS: 0,
+    liftF: [0.3, 0.1],
+    pool: [0.03, 0.27, 0.5, 0.66],
+    poolM: [-0.02, 0.08, 1.02, 0.58],
+    poolS: 0.55,
+    poolF: [0.3, 0.08],
+    poolSky: 1,
+  },
 ];
 
 /** Every scalar of a look; colours are interpolated in linear light. */
 const NUM_KEYS = [
   "sunAz",
   "sunEl",
+  /** Sun elevation on a portrait screen (lifted into the phone's free strip on straits). */
+  "sunElP",
   "sunI",
   "sunR",
   "moonAz",
+  /** Moon azimuth on a portrait screen (kept clear of the phone's copy). */
+  "moonAzP",
   "moonEl",
+  /** Moon elevation on a portrait screen (a low moon fits the phone's free strip). */
+  "moonElP",
   "moonI",
   "keyAz",
   "keyEl",
@@ -138,15 +256,23 @@ export type LookCol = (typeof COL_KEYS)[number];
 export type Look = Record<LookNum, number> & Record<LookCol, THREE.Color>;
 type LookDef = Record<LookNum, number> & Record<LookCol, number>;
 
+/*
+ * Azimuths are unwrapped like the camera yaws, so each light swings the short
+ * way: the dawn sun leaves the hero frame to the right, the golden-hour sun
+ * enters the straits frame over the top-right and settles above the heading.
+ */
 const DEFS: readonly LookDef[] = [
-  // hero — dawn: pale sand-blue sky, brass haze over the Asian hills.
+  // hero — dawn: pale sand-blue sky, brass haze over the Asian hills, a deep cool near sea.
   {
-    sunAz: 25,
+    sunAz: 27,
     sunEl: 3.4,
+    sunElP: 3.4,
     sunI: 1.3,
     sunR: 0.85,
     moonAz: 200,
+    moonAzP: 200,
     moonEl: -20,
+    moonElP: -20,
     moonI: 0,
     keyAz: 75,
     keyEl: 18,
@@ -168,13 +294,13 @@ const DEFS: readonly LookDef[] = [
     waveAmp: 0.85,
     ripple: 0.34,
     glitter: 1.0,
-    foam: 0.55,
+    foam: 0.5,
     stars: 0,
     lights: 0.06,
     smear: 1,
     vignette: 0.22,
-    zenith: 0x8fa6b6,
-    mid: 0xc3cdd0,
+    zenith: 0x9db1be,
+    mid: 0xc9d1d2,
     hor: 0xeee2c8,
     glow: 0xf2c27e,
     anti: 0xd3d0d2,
@@ -182,28 +308,31 @@ const DEFS: readonly LookDef[] = [
     sunDisc: 0xf9dda6,
     moonCol: 0x000000,
     cloudLit: 0xfbe6c2,
-    cloudShade: 0xaeb8be,
-    seaDeep: 0x0a2840,
-    seaBody: 0x165061,
-    seaSSS: 0x3d8e8a,
-    foamCol: 0xede6d4,
+    cloudShade: 0xb5bec3,
+    seaDeep: 0x071f33,
+    seaBody: 0x0f3b4c,
+    seaSSS: 0x2f7672,
+    foamCol: 0xe2dccb,
     keyCol: 0xffddb0,
     ambTop: 0xb0bfc9,
     ambLow: 0x345460,
     hazeTint: 0xe4e9ee,
   },
-  // desks — clear morning in the Marmara: cooler, crisper, more chop.
+  // desks — clear morning in the Marmara: the sun behind the camera's left shoulder, crisp chop.
   {
-    sunAz: 135,
-    sunEl: 22,
+    sunAz: 112,
+    sunEl: 24,
+    sunElP: 24,
     sunI: 1.15,
     sunR: 0.7,
     moonAz: 200,
+    moonAzP: 200,
     moonEl: -20,
+    moonElP: -20,
     moonI: 0,
-    keyAz: 125,
-    keyEl: 28,
-    keyI: 1.0,
+    keyAz: 140,
+    keyEl: 26,
+    keyI: 1.05,
     night: 0,
     exposure: 1.0,
     glowW: 3,
@@ -214,28 +343,28 @@ const DEFS: readonly LookDef[] = [
     fogH: 1 / 300,
     fogMax: 0.8,
     hazeEl: 0.03,
-    cloudCov: 0.5,
+    cloudCov: 0.52,
     cloudSoft: 0.3,
-    cloudAmt: 0.55,
+    cloudAmt: 0.5,
     cloudScale: 0.45,
-    waveAmp: 1.2,
+    waveAmp: 1.15,
     ripple: 0.4,
     glitter: 0.9,
-    foam: 0.9,
+    foam: 0.85,
     stars: 0,
     lights: 0,
     smear: 1,
     vignette: 0.2,
-    zenith: 0x7a95aa,
-    mid: 0xb6c5cc,
-    hor: 0xe2e3da,
+    zenith: 0x92aabb,
+    mid: 0xc1ced3,
+    hor: 0xe6e6dc,
     glow: 0xede2c6,
-    anti: 0xd2d8d8,
+    anti: 0xd8dddc,
     sunCol: 0xfff0d4,
     sunDisc: 0xfff6e2,
     moonCol: 0x000000,
-    cloudLit: 0xf6f1e6,
-    cloudShade: 0xa4b2bc,
+    cloudLit: 0xf8f4ea,
+    cloudShade: 0xb0bcc4,
     seaDeep: 0x082640,
     seaBody: 0x144a5c,
     seaSSS: 0x2e8a86,
@@ -245,16 +374,19 @@ const DEFS: readonly LookDef[] = [
     ambLow: 0x2f4e5a,
     hazeTint: 0xeef1f2,
   },
-  // straits — golden hour: warm low sun on the left, long glitter path.
+  // straits — golden hour: low sun upper-left above the heading, backlit hazy European hills.
   {
-    sunAz: 314,
-    sunEl: 5.5,
+    sunAz: -47,
+    sunEl: 9.5,
+    sunElP: 17,
     sunI: 1.5,
     sunR: 0.9,
     moonAz: 200,
+    moonAzP: 200,
     moonEl: -20,
+    moonElP: -20,
     moonI: 0,
-    keyAz: 300,
+    keyAz: -60,
     keyEl: 12,
     keyI: 1.0,
     night: 0,
@@ -263,13 +395,13 @@ const DEFS: readonly LookDef[] = [
     glowA: 0.92,
     antiA: 0.4,
     horSharp: 7,
-    fogD: 1 / 4800,
+    fogD: 1 / 4200,
     fogH: 1 / 240,
-    fogMax: 0.85,
+    fogMax: 0.86,
     hazeEl: 0.035,
-    cloudCov: 0.5,
+    cloudCov: 0.52,
     cloudSoft: 0.3,
-    cloudAmt: 0.55,
+    cloudAmt: 0.5,
     cloudScale: 0.5,
     waveAmp: 0.9,
     ripple: 0.34,
@@ -279,8 +411,8 @@ const DEFS: readonly LookDef[] = [
     lights: 0.12,
     smear: 1,
     vignette: 0.24,
-    zenith: 0x7f93a3,
-    mid: 0xc7ba9e,
+    zenith: 0x8d9fac,
+    mid: 0xcdbf9f,
     hor: 0xeec98e,
     glow: 0xf2a85a,
     anti: 0xb3b2b9,
@@ -288,7 +420,7 @@ const DEFS: readonly LookDef[] = [
     sunDisc: 0xfbd9a0,
     moonCol: 0x000000,
     cloudLit: 0xf7d3a0,
-    cloudShade: 0x8f95a0,
+    cloudShade: 0x9a9fa8,
     seaDeep: 0x0a2540,
     seaBody: 0x18404f,
     seaSSS: 0x6e7c5e,
@@ -300,14 +432,17 @@ const DEFS: readonly LookDef[] = [
   },
   // process — blue hour: navy sky, brass/rose afterglow low on the left, first stars.
   {
-    sunAz: 288,
+    sunAz: -73,
     sunEl: -4.5,
+    sunElP: -4.5,
     sunI: 0.55,
     sunR: 0.9,
-    moonAz: 60,
+    moonAz: 50,
+    moonAzP: 50,
     moonEl: 4,
+    moonElP: 4,
     moonI: 0.1,
-    keyAz: 285,
+    keyAz: -75,
     keyEl: 8,
     keyI: 0.35,
     night: 0.75,
@@ -334,13 +469,13 @@ const DEFS: readonly LookDef[] = [
     vignette: 0.3,
     zenith: 0x0a1f33,
     mid: 0x1c3752,
-    hor: 0x6a6574,
-    glow: 0xd0906a,
+    hor: 0x7a6a6c,
+    glow: 0xd49a68,
     anti: 0x2b3d52,
     sunCol: 0xe09068,
     sunDisc: 0x000000,
     moonCol: 0x9aa4ad,
-    cloudLit: 0xb07a78,
+    cloudLit: 0xb8827a,
     cloudShade: 0x18293c,
     seaDeep: 0x04121f,
     seaBody: 0x0b2236,
@@ -351,16 +486,19 @@ const DEFS: readonly LookDef[] = [
     ambLow: 0x0d1b29,
     hazeTint: 0xffffff,
   },
-  // contact — night watch: deep navy, moon glitter, Maiden's Tower lit.
+  // contact — night watch: deep navy, the moon over Maiden's Tower, its path on the water.
   {
-    sunAz: 280,
+    sunAz: -80,
     sunEl: -24,
+    sunElP: -24,
     sunI: 0,
     sunR: 0.9,
-    moonAz: 18,
-    moonEl: 15,
+    moonAz: 11,
+    moonAzP: 19,
+    moonEl: 22,
+    moonElP: 3.2,
     moonI: 1.0,
-    keyAz: 25,
+    keyAz: 10,
     keyEl: 20,
     keyI: 0.32,
     night: 1,
@@ -423,10 +561,21 @@ export interface CameraState {
   hz: number;
 }
 
+/** Evaluated copy-safe masks (see CALM): rects in viewport fractions, y from the top. */
+export interface CalmState {
+  lift: THREE.Vector4;
+  pool: THREE.Vector4;
+  /** x lift strength, y pool strength, z pool share on sky/land, w unused. */
+  amount: THREE.Vector4;
+  /** Feathers (viewport heights): x/y lift across/vertical, z/w pool. */
+  feather: THREE.Vector4;
+}
+
 export interface FrameState {
   cam: CameraState;
   look: Look;
-  /** Index of the keyframe segment and its eased local parameter. */
+  calm: CalmState;
+  /** Index of the keyframe segment and its local parameter. */
   seg: number;
   t: number;
 }
@@ -451,10 +600,9 @@ export function locate(p: number): { seg: number; t: number } {
   return { seg: 0, t: 0 };
 }
 
-function shotParams(s: Shot, aspect: number): { hfov: number; hz: number; yawOff: number } {
-  // 0 → portrait phone framing, 1 → landscape desktop framing.
-  const k = smoothstep(0.7, 1.35, aspect);
-  return { hfov: lerp(s.pHfov, s.hfov, k), hz: lerp(s.pHz, s.hz, k), yawOff: lerp(s.pYaw, 0, k) };
+/** 0 → portrait phone framing, 1 → landscape desktop framing. */
+export function landscapeWeight(aspect: number): number {
+  return smoothstep(0.7, 1.35, aspect);
 }
 
 function vfovFor(hfovDeg: number, aspect: number): number {
@@ -466,39 +614,85 @@ function vfovFor(hfovDeg: number, aspect: number): number {
 const tmpA = new THREE.Vector3();
 const tmpB = new THREE.Vector3();
 const tmpC = new THREE.Vector3();
+const tmpD = new THREE.Vector3();
+
+/** Camera position on segment `seg` at local t for a landscape weight k (no ambient sway). */
+export function flightPoint(seg: number, t: number, k: number, out: THREE.Vector3): THREE.Vector3 {
+  const A = SHOTS[seg];
+  const B = SHOTS[Math.min(seg + 1, SHOTS.length - 1)];
+  const e = clamp(t, 0, 1);
+  const u = 1 - e;
+  tmpA.set(A.pos[0], A.pos[1], A.pos[2]);
+  tmpB.set(B.pos[0], B.pos[1], B.pos[2]);
+  if (A.via && B !== A) {
+    tmpC.set(A.via[0][0], A.via[0][1], A.via[0][2]);
+    tmpD.set(A.via[1][0], A.via[1][1], A.via[1][2]);
+    out
+      .set(0, 0, 0)
+      .addScaledVector(tmpA, u * u * u)
+      .addScaledVector(tmpC, 3 * u * u * e)
+      .addScaledVector(tmpD, 3 * u * e * e)
+      .addScaledVector(tmpB, e * e * e);
+  } else {
+    out.copy(tmpA).lerp(tmpB, e);
+  }
+  // the phone offsets ride on top of the flight, blended like every other parameter
+  const p = 1 - k;
+  out.x += p * lerp(A.mob.dx, B.mob.dx, e);
+  out.y += p * lerp(A.mob.dy, B.mob.dy, e);
+  out.z += p * lerp(A.mob.dz, B.mob.dz, e);
+  return out;
+}
+
+const r4 = (r: readonly number[], m: readonly number[], k: number, out: THREE.Vector4) =>
+  out.set(lerp(m[0], r[0], k), lerp(m[1], r[1], k), lerp(m[2], r[2], k), lerp(m[3], r[3], k));
+const calmA = new THREE.Vector4();
+const calmB = new THREE.Vector4();
 
 export function evaluate(p: number, aspect: number, out: FrameState): FrameState {
   const { seg, t } = locate(p);
   const e = easeSegment(t);
   const A = SHOTS[seg];
   const B = SHOTS[seg + 1];
-  const pa = shotParams(A, aspect);
-  const pb = shotParams(B, aspect);
+  const k = landscapeWeight(aspect);
 
-  // Position: quadratic Bezier through the segment's "via" control point.
-  tmpA.set(A.pos[0], A.pos[1], A.pos[2]);
-  tmpB.set(B.pos[0], B.pos[1], B.pos[2]);
-  if (A.via) {
-    tmpC.set(A.via[0], A.via[1], A.via[2]);
-    const u = 1 - e;
-    out.cam.pos
-      .set(0, 0, 0)
-      .addScaledVector(tmpA, u * u)
-      .addScaledVector(tmpC, 2 * u * e)
-      .addScaledVector(tmpB, e * e);
-  } else {
-    out.cam.pos.copy(tmpA).lerp(tmpB, e);
-  }
+  flightPoint(seg, e, k, out.cam.pos);
   const d2r = Math.PI / 180;
-  out.cam.yaw = lerp(A.yaw + pa.yawOff, B.yaw + pb.yawOff, e) * d2r;
+  const yawA = A.yaw + (1 - k) * A.mob.yaw;
+  const yawB = B.yaw + (1 - k) * B.mob.yaw;
+  out.cam.yaw = lerp(yawA, yawB, e) * d2r;
   out.cam.pitch = lerp(A.pitch, B.pitch, e) * d2r;
-  out.cam.vfov = lerp(vfovFor(pa.hfov, aspect), vfovFor(pb.hfov, aspect), e);
-  out.cam.hz = lerp(pa.hz, pb.hz, e);
+  out.cam.vfov = lerp(
+    vfovFor(lerp(A.mob.hfov, A.hfov, k), aspect),
+    vfovFor(lerp(B.mob.hfov, B.hfov, k), aspect),
+    e
+  );
+  out.cam.hz = lerp(lerp(A.mob.hz, A.hz, k), lerp(B.mob.hz, B.hz, k), e);
 
   const la = LOOKS[seg];
   const lb = LOOKS[seg + 1];
-  for (const k of NUM_KEYS) out.look[k] = lerp(la[k], lb[k], e);
-  for (const k of COL_KEYS) out.look[k].copy(la[k]).lerp(lb[k], e);
+  for (const key of NUM_KEYS) out.look[key] = lerp(la[key], lb[key], e);
+  for (const key of COL_KEYS) out.look[key].copy(la[key]).lerp(lb[key], e);
+
+  const ca = CALM[seg];
+  const cb = CALM[seg + 1];
+  out.calm.lift.copy(r4(ca.lift, ca.liftM, k, calmA)).lerp(r4(cb.lift, cb.liftM, k, calmB), e);
+  out.calm.pool.copy(r4(ca.pool, ca.poolM, k, calmA)).lerp(r4(cb.pool, cb.poolM, k, calmB), e);
+  // copy only sits still near a keyframe; mid-flight it scrolls past, so the masks
+  // relax instead of hazing whatever land the camera passes
+  const relax = 1 - 0.8 * smoothstep(0.12, 0.4, e) * (1 - smoothstep(0.6, 0.88, e));
+  out.calm.amount.set(
+    lerp(ca.liftS, cb.liftS, e) * relax,
+    lerp(ca.poolS, cb.poolS, e) * relax,
+    lerp(ca.poolSky, cb.poolSky, e),
+    0
+  );
+  out.calm.feather.set(
+    lerp(ca.liftF[0], cb.liftF[0], e),
+    lerp(ca.liftF[1], cb.liftF[1], e),
+    lerp(ca.poolF[0], cb.poolF[0], e),
+    lerp(ca.poolF[1], cb.poolF[1], e)
+  );
   out.seg = seg;
   out.t = e;
   return out;
@@ -511,9 +705,38 @@ export function createFrameState(): FrameState {
   return {
     cam: { pos: new THREE.Vector3(), yaw: 0, pitch: 0, vfov: 0.6, hz: 0.6 },
     look,
+    calm: {
+      lift: new THREE.Vector4(),
+      pool: new THREE.Vector4(),
+      amount: new THREE.Vector4(),
+      feather: new THREE.Vector4(),
+    },
     seg: 0,
     t: 0,
   };
+}
+
+/**
+ * Off-axis perspective: the horizon lands at `hz` from the top while the view
+ * stays level, so verticals stay vertical. Shared by the engine and the tools
+ * that check compositions.
+ */
+export function setLens(
+  camera: THREE.PerspectiveCamera,
+  c: CameraState,
+  aspect: number,
+  near: number,
+  far: number
+): void {
+  const tv = Math.tan(c.vfov / 2);
+  const p12 = -(1 - 2 * c.hz) - Math.tan(c.pitch) / tv;
+  const top = near * tv * (1 + p12);
+  const bottom = -near * tv * (1 - p12);
+  const right = near * tv * aspect;
+  camera.projectionMatrix.makePerspective(-right, right, top, bottom, near, far);
+  camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+  camera.fov = (c.vfov * 180) / Math.PI;
+  camera.aspect = aspect;
 }
 
 /** Brand colours the post pass compresses toward (kept here so the grade lives with the timeline). */

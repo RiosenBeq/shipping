@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { rng, type V3 } from "./math";
 import { lin } from "./palette";
-import { SHORE_LIST, SITES, ground } from "./world";
+import { MAIDEN, SHORE_LIST, SITES, ground } from "./world";
 import { MAX_SHIPS, type ShipState } from "./ships";
 import { MAIDEN_SCALE, maidenBeacon } from "./landmarks";
 
@@ -18,22 +18,31 @@ interface Lamp {
 const VERT = /* glsl */ `
 attribute vec3 iPos;
 attribute vec3 iCol;
-attribute vec4 iP;
+attribute vec4 iP;      // x size (px), y ship index (-1: none), z kind, w switch-on level
 attribute float iRefl;
 uniform mat4 uShipM[${MAX_SHIPS}];
 uniform float uLights;
 uniform float uTime;
 uniform vec2 uRes;
 uniform float uStreak;
+uniform float uPixAng;
 varying vec2 vQ;
 varying vec3 vC;
 varying float vRefl;
 varying float vSeed;
+varying float vLen;
+varying float vHalfW;
 varying float vMir;
 void main() {
   vec3 P = iPos;
-  if (iP.y > -0.5) P = (uShipM[int(iP.y + 0.5)] * vec4(P, 1.0)).xyz;
-  float on = smoothstep(iP.w, iP.w + 0.12, uLights);
+  float alive = 1.0;
+  if (iP.y > -0.5) {
+    mat4 M = uShipM[int(iP.y + 0.5)];
+    // a ship that is not in the journey right now has a zero matrix: its lamps stay dark
+    alive = step(1e-6, dot(M[0].xyz, M[0].xyz));
+    P = (M * vec4(P, 1.0)).xyz;
+  }
+  float on = smoothstep(iP.w, iP.w + 0.12, uLights) * alive;
   float k = iP.z;
   float blink = 1.0;
   if (k > 1.5 && k < 2.5) blink = 0.12 + 0.88 * pow(max(sin(uTime * 1.3), 0.0), 10.0);
@@ -41,33 +50,50 @@ void main() {
   float dist = length(P - cameraPosition);
   float size = iP.x * clamp(520.0 / dist, 0.5, 2.0);
   float inten = on * blink * clamp(1600.0 / dist, 0.3, 1.0);
-  vec2 ext = vec2(size);
-  vMir = 0.5;
+  vSeed = fract(iPos.x * 0.0137 + iPos.z * 0.0091 + iPos.y * 0.071);
+  vQ = position.xy;
+  vRefl = iRefl;
+  vLen = 1.0;
+  vHalfW = 1.0;
+  vMir = 0.3;
   vec4 c;
   if (iRefl > 0.5) {
-    // the streak runs from the water under the light down past its mirror image
-    float t = cameraPosition.y / (cameraPosition.y + max(P.y, 0.5));
-    vec3 M = cameraPosition + (vec3(P.x, -P.y, P.z) - cameraPosition) * t;
-    M.y = 0.4;
-    vec4 cm = projectionMatrix * viewMatrix * vec4(M, 1.0);
-    vec4 cb = projectionMatrix * viewMatrix * vec4(P.x, 0.4, P.z, 1.0);
-    float ym = cm.y / cm.w;
-    float yb = max(cb.y / cb.w, ym + 2.0 * size / uRes.y);
-    float yl = ym - (yb - ym) * uStreak * 0.25 - 3.0 * size / uRes.y;
-    float y = mix(yl, yb, position.y * 0.5 + 0.5);
-    vMir = (ym - yl) / max(yb - yl, 1e-5);
-    vec2 ndc = vec2(cm.x / cm.w + position.x * size * 0.8 / uRes.x, y);
-    c = vec4(ndc * cm.w, cm.z, cm.w);
-    inten *= 0.55;
+    // A short broken streak on the water: from just above the lamp's mirror image (never
+    // above the water under the lamp) down toward the viewer. Both ends are real points
+    // on the sea, so each carries its own depth and a hull in front hides the streak.
+    float h = max(cameraPosition.y, 0.5);
+    vec2 toW = P.xz - cameraPosition.xz;
+    float dW = max(length(toW), 1.0);
+    vec2 dirH = toW / dW;
+    float phiW = atan(h / dW);
+    float phiM = atan((h + max(P.y, 0.3)) / dW);
+    float hi = max(iCol.r, max(iCol.g, iCol.b));
+    float chroma = (hi - min(iCol.r, min(iCol.g, iCol.b))) / max(hi, 1e-3);
+    // navigation and aviation lamps (red/green): faint, short reflections
+    float nav = smoothstep(0.55, 0.8, chroma);
+    float len = uStreak * clamp(size * 9.0, 26.0, 90.0) * mix(1.0, 0.45, nav);
+    float phiT = max(phiW, phiM - len * 0.6 * uPixAng);
+    float phiB = min(phiM + len * uPixAng, 1.3);
+    float dT = h / tan(phiT);
+    float dB = h / tan(phiB);
+    vec3 E = position.y > 0.0
+      ? vec3(cameraPosition.x + dirH.x * dT, 0.0, cameraPosition.z + dirH.y * dT)
+      : vec3(cameraPosition.x + dirH.x * dB, 0.0, cameraPosition.z + dirH.y * dB);
+    c = projectionMatrix * viewMatrix * vec4(E, 1.0);
+    vHalfW = 2.4 + size * 0.12;
+    c.x += position.x * vHalfW * 2.0 / uRes.x * c.w;
+    vLen = max((phiB - phiT) / uPixAng, 1.0);
+    vMir = clamp((phiM - phiT) / max(phiB - phiT, 1e-5), 0.0, 0.9);
+    // mostly warm white, whatever the lamp's own colour
+    float lum = dot(iCol, vec3(0.2126, 0.7152, 0.0722));
+    vec3 rc = mix(iCol, vec3(1.0, 0.86, 0.66) * lum * 1.5, 0.6 * (1.0 - nav));
+    vC = rc * inten * mix(0.55, 0.14, nav);
   } else {
     c = projectionMatrix * viewMatrix * vec4(P, 1.0);
-    c.xy += position.xy * ext / uRes * c.w;
+    c.xy += position.xy * size / uRes * c.w;
+    vC = iCol * inten;
   }
-  if (c.w <= 0.0) inten = 0.0;
-  vQ = position.xy;
-  vC = iCol * inten;
-  vRefl = iRefl;
-  vSeed = fract(iPos.x * 0.0137 + iPos.z * 0.0091);
+  if (c.w <= 0.0) vC = vec3(0.0);
   gl_Position = c;
 }
 `;
@@ -78,30 +104,54 @@ varying vec2 vQ;
 varying vec3 vC;
 varying float vRefl;
 varying float vSeed;
+varying float vLen;
+varying float vHalfW;
 varying float vMir;
 float h11(float p) { p = fract(p * 0.1031); p *= p + 33.33; p *= p + p; return fract(p); }
 void main() {
-  vec2 q = vQ;
   float a;
   if (vRefl > 0.5) {
-    float y = q.y * 0.5 + 0.5;
-    float band = floor((1.0 - y) * 14.0);
-    float dash = 0.25 + 0.75 * step(0.32, h11(band * 7.1 + vSeed * 91.0 + floor(uTime * 2.5 + vSeed * 5.0) * 13.0));
-    float wob = sin(band * 2.3 + vSeed * 40.0 + uTime * 1.7) * 0.25;
-    float w = exp(-(q.x - wob) * (q.x - wob) * 4.0);
-    float prof = y < vMir ? smoothstep(0.0, vMir, y) : 1.0 - 0.55 * smoothstep(vMir, 1.0, y);
-    a = w * dash * prof * 0.85;
+    // 0 at the source end, 1 at the far end; rows of wave facets ~2 px apart
+    float s = 0.5 - 0.5 * vQ.y;
+    float yPx = s * vLen;
+    float row = floor(yPx / 2.2);
+    float flick = floor(uTime * 2.4 + vSeed * 7.0);
+    float on = step(0.36 + 0.36 * s, h11(row * 7.13 + vSeed * 91.0 + flick * 13.7));
+    float wob = (h11(row * 3.71 + vSeed * 17.0 + flick * 5.3) - 0.5) * (0.6 + 1.6 * s);
+    float xPx = vQ.x * vHalfW - wob;
+    float wid = 0.55 + 0.9 * (1.0 - s);
+    float w = exp(-xPx * xPx / (wid * wid));
+    // brightest at the mirror image, thinning toward the base and toward the viewer
+    float prof = s < vMir
+      ? mix(0.3, 1.0, smoothstep(0.0, vMir, s)) * smoothstep(0.0, 0.05, s)
+      : pow(1.0 - (s - vMir) / (1.0 - vMir), 1.6);
+    a = w * prof * (on * 1.25 + 0.12);
   } else {
-    float r2 = dot(q, q);
+    float r2 = dot(vQ, vQ);
     a = exp(-r2 * 10.0) + exp(-r2 * 2.6) * 0.16;
   }
-  gl_FragColor = vec4(vC * a, 0.0);
+  vec3 rgb = vC * a;
+  // alpha marks lamp-lit pixels (+2) so the post pass keeps them crisp instead of smearing them
+  gl_FragColor = vec4(rgb, 2.0 * step(0.01, max(rgb.r, max(rgb.g, rgb.b))));
 }
 `;
+
+function lightUniforms(shipMatrices: THREE.Matrix4[]) {
+  return {
+    uShipM: { value: shipMatrices },
+    uLights: { value: 0 },
+    uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uStreak: { value: 1 },
+    uPixAng: { value: 0.0007 },
+  };
+}
+export type LightUniforms = ReturnType<typeof lightUniforms>;
 
 export interface Lights {
   mesh: THREE.Mesh;
   material: THREE.ShaderMaterial;
+  uniforms: LightUniforms;
 }
 
 export function createLights(
@@ -115,7 +165,9 @@ export function createLights(
   const warm = (k: number): THREE.Color => lin(0xffb866, k);
   const white = (k: number): THREE.Color => lin(0xf3eee2, k);
 
-  // waterfront promenades
+  // waterfront promenades (held back behind Maiden's Tower so it stays the brightest thing)
+  const dimX = SITES.maiden[0] + MAIDEN.dimOffset[0];
+  const dimZ = SITES.maiden[1] + MAIDEN.dimOffset[1];
   for (const sh of SHORE_LIST) {
     for (let s = 0; s < sh.total; s += 30 + r() * 14) {
       const p = sh.at(s);
@@ -126,9 +178,10 @@ export function createLights(
       const x = p.x + nx * 7;
       const z = p.z + nz * 7;
       const y = Math.max(2, ground(x, z).h) + 5.5;
+      const dim = Math.hypot(x - dimX, z - dimZ) < MAIDEN.dimRadius ? 0.45 : 1;
       lamps.push({
         p: [x, y, z],
-        c: r() < 0.72 ? warm(2.2) : white(1.8),
+        c: (r() < 0.72 ? warm(2.2) : white(1.8)).multiplyScalar(dim),
         size: 3.2,
         ship: -1,
         kind: 0,
@@ -167,7 +220,7 @@ export function createLights(
         onAt: 0.3,
       });
   // Maiden's Tower: lighthouse flash and warm windows
-  lamps.push({ p: maidenBeacon(), c: lin(0xffe0a8, 5), size: 11, ship: -1, kind: 2, onAt: 0.35 });
+  lamps.push({ p: maidenBeacon(), c: lin(0xffe0a8, 6), size: 12, ship: -1, kind: 2, onAt: 0.35 });
   const [mx, mz] = SITES.maiden;
   const k = MAIDEN_SCALE;
   for (let i = 0; i < 8; i++) {
@@ -175,8 +228,8 @@ export function createLights(
     const y = 4.6 + (i % 2 === 0 ? 8 : 16) * k;
     lamps.push({
       p: [mx - 4 * k + Math.cos(a) * 6.2 * k, y, mz - 2 * k + Math.sin(a) * 6.2 * k],
-      c: warm(2.6),
-      size: 3.6,
+      c: warm(3.2),
+      size: 3.8,
       ship: -1,
       kind: 0,
       onAt: 0.25,
@@ -236,28 +289,23 @@ export function createLights(
   geo.setAttribute("iP", new THREE.InstancedBufferAttribute(iP, 4));
   geo.setAttribute("iRefl", new THREE.InstancedBufferAttribute(iRefl, 1));
   geo.instanceCount = n;
+  const uniforms = lightUniforms(shipMatrices);
   const material = new THREE.ShaderMaterial({
     name: "voyage-lights",
     vertexShader: VERT,
     fragmentShader: FRAG,
-    uniforms: {
-      uShipM: { value: shipMatrices },
-      uLights: { value: 0 },
-      uTime: { value: 0 },
-      uRes: { value: new THREE.Vector2(1, 1) },
-      uStreak: { value: 7 },
-    },
+    uniforms,
     transparent: true,
     depthWrite: false,
     blending: THREE.CustomBlending,
     blendEquation: THREE.AddEquation,
     blendSrc: THREE.OneFactor,
     blendDst: THREE.OneFactor,
-    blendSrcAlpha: THREE.ZeroFactor,
+    blendSrcAlpha: THREE.OneFactor,
     blendDstAlpha: THREE.OneFactor,
   });
   const mesh = new THREE.Mesh(geo, material);
   mesh.frustumCulled = false;
   mesh.renderOrder = 20;
-  return { mesh, material };
+  return { mesh, material, uniforms };
 }

@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { COMMON, type SharedUniforms } from "./glsl";
+import { glslColor } from "./land";
 import { DEG } from "./math";
+import { MAIDEN, SITES } from "./world";
 
 /** Directional swell + chop. Propagation is mostly northward so crests run parallel to the main views' horizon. */
 interface Wave {
@@ -52,8 +54,17 @@ export function sampleSwell(x: number, z: number, t: number, ampScale: number): 
   return h;
 }
 
+/** Maiden's Tower as two vertical cylinders (tower; base buildings) for its reflection. */
+const [TX, TZ] = SITES.maiden;
+const TK = MAIDEN.scale;
+const TOWER_GLSL = /* glsl */ `
+const vec2 T_AXIS = vec2(${(TX - 4 * TK).toFixed(1)}, ${(TZ - 2 * TK).toFixed(1)});
+const vec2 T_BASE = vec2(${(TX + 1 * TK).toFixed(1)}, ${(TZ + 5 * TK).toFixed(1)});
+const vec4 T_DIM = vec4(${(6.2 * TK).toFixed(2)}, ${(4.6 + 30 * TK).toFixed(1)}, ${(15 * TK).toFixed(2)}, ${(3.4 + 7 * TK).toFixed(1)});
+`;
+
 const VERT = /* glsl */ `
-uniform float uTime;
+${COMMON}
 uniform vec4 uWaveA[8];
 uniform vec4 uWaveB[8];
 uniform float uWaveAmp;
@@ -62,6 +73,7 @@ uniform vec4 uGrid;
 uniform vec2 uGridRes;
 varying vec2 vP0;
 varying vec3 vPos;
+varying vec3 vHaze;
 void main() {
   float th = uGrid.x + position.x * uGrid.y;
   float a = mix(uGrid.z, uGrid.w, position.y);
@@ -83,12 +95,15 @@ void main() {
   }
   vP0 = p0;
   vPos = vec3(p0.x + disp.x, disp.y, p0.y + disp.z);
+  // the air in front of the sea only depends on azimuth: one sky evaluation per vertex
+  vHaze = hazeColor(normalize(vPos - cameraPosition)) * 0.955;
   gl_Position = projectionMatrix * viewMatrix * vec4(vPos, 1.0);
 }
 `;
 
 const FRAG = /* glsl */ `
 ${COMMON}
+${TOWER_GLSL}
 uniform vec4 uWaveA[8];
 uniform vec4 uWaveB[8];
 uniform float uWaveAmp;
@@ -99,47 +114,122 @@ uniform vec3 uSeaBody;
 uniform vec3 uSeaSSS;
 uniform vec3 uFoamCol;
 uniform vec4 uShipA[${MAX_WAKES}];   // x, z, heading, length
-uniform vec4 uShipB[${MAX_WAKES}];   // beam, flow speed, wake strength, freeboard
+uniform vec4 uShipB[${MAX_WAKES}];   // beam, speed (m/s), wake strength, freeboard
 uniform int uShipN;
 varying vec2 vP0;
 varying vec3 vPos;
+varying vec3 vHaze;
 
-float wakeFoam(vec2 p, out float shade) {
-  float wake = 0.0;
+/**
+ * Ship wakes in ship-local coordinates: bow foam, a broken wash along the hull, a short
+ * turbulent stern wash, a smooth slick, and Kelvin arms at 19.5° made of short diverging
+ * crests. Foam breaks up and is gone within ~2-3 ship lengths. Returns foam; adds the wake
+ * waves' slope to 'slope' and the slick to 'slick'.
+ */
+float wakes(vec2 p, inout vec2 slope, out float slick, out float shade) {
+  float foam = 0.0;
+  slick = 0.0;
   shade = 0.0;
-  for (int i = 0; i < ${MAX_WAKES}; i++) {
+  for (int i = 0; i < WAKES; i++) {
     if (i >= uShipN) break;
     vec4 SA = uShipA[i];
     vec4 SB = uShipB[i];
     vec2 d = p - SA.xy;
     vec2 f = vec2(sin(SA.z), -cos(SA.z));
-    vec2 rt = vec2(cos(SA.z), sin(SA.z));
     float lx = dot(d, f);
-    float ly = dot(d, rt);
     float L = SA.w;
-    float Bm = SB.x;
     float halfL = 0.5 * L;
-    if (lx < -L * 6.0 || lx > halfL + 60.0 || abs(ly) > L * 2.2) continue;
-    float flow = uTime * SB.y;
-    float behind = -lx - halfL;
-    float w = Bm * 0.5 + max(behind, 0.0) * 0.075;
-    float centre = step(0.0, behind) * exp(-max(behind, 0.0) / (L * 1.8)) * (1.0 - smoothstep(w * 0.35, w, abs(ly)));
-    float fromBow = halfL - lx;
-    float armY = 0.36 * fromBow + Bm * 0.35;
-    float armW = 1.8 + fromBow * 0.035;
-    float arms = step(0.0, fromBow) * exp(-pow((abs(ly) - armY) / armW, 2.0)) * exp(-fromBow / (L * 2.4));
-    float side = 1.0 - smoothstep(Bm * 0.5 + 0.5, Bm * 0.5 + 7.0, abs(ly));
-    float along = smoothstep(-halfL - 6.0, -halfL + 8.0, lx) * (1.0 - smoothstep(halfL - 3.0, halfL + 5.0, lx));
-    float hull = side * along;
-    float bow = hull * smoothstep(halfL - L * 0.22, halfL, lx);
-    vec2 wq = vec2(lx + flow, ly);
-    float bn = noise1(vec2(wq.x * 0.06, wq.y * 0.22)) * 0.55 + noise1(wq * 0.25 + 9.0) * 0.45;
-    float wk = max(centre, max(arms * 0.75, max(bow * 1.1, hull * 0.4)));
-    wake = max(wake, smoothstep(0.32, 0.72, wk * (0.5 + bn * 1.0)) * SB.z);
+    if (lx < -L * 2.6 || lx > halfL + 40.0) continue;
+    vec2 rt = vec2(cos(SA.z), sin(SA.z));
+    float ly = dot(d, rt);
+    float ay = abs(ly);
+    float Bm = SB.x;
+    float fromBow = halfL - lx;                     // > 0 aft of the stem
+    float fb = max(fromBow, 0.0);
+    // nothing outside the Kelvin wedge (plus the water right along the hull)
+    if (ay > 0.4 * fb + Bm * 0.5 + 16.0) continue;
+    float U = SB.y;
+    float way = smoothstep(1.2, 3.0, U);           // under way vs. anchored in a current
+    float behind = -lx - halfL;                     // > 0 astern
+
     // the hull's own dark reflection / shadow on the water right beside it
+    float side = 1.0 - smoothstep(Bm * 0.5 + 0.5, Bm * 0.5 + 7.0, ay);
+    float along = smoothstep(-halfL - 6.0, -halfL + 8.0, lx) * (1.0 - smoothstep(halfL - 3.0, halfL + 5.0, lx));
     shade = max(shade, side * along * 0.5 * SB.z);
+
+    // bow wave: a crescent of white water at the stem, sliding back along both sides
+    float bowZone = smoothstep(-6.0, 2.0, lx - (halfL - L * 0.14)) * (1.0 - smoothstep(halfL + 2.0, halfL + 9.0, lx));
+    float bow = bowZone * (1.0 - smoothstep(Bm * 0.5 + 2.0, Bm * 0.5 + 9.0 + fb * 0.12, ay)) * way;
+    float sideWash = along * (1.0 - smoothstep(Bm * 0.5 + 0.5, Bm * 0.5 + 3.5, ay)) * smoothstep(Bm * 0.5 - 2.0, Bm * 0.5 + 0.3, ay);
+    sideWash *= mix(0.35, 0.8, smoothstep(halfL - L * 0.35, halfL, lx)) * mix(0.25, 1.0, way);
+
+    // stern wash: turbulent and patchy, about the beam wide, dying away within a ship length
+    float wW = Bm * 0.5 + max(behind, 0.0) * 0.05;
+    float aft = step(0.0, behind + 4.0);
+    float wash = aft * exp(-max(behind, 0.0) / (L * 0.3)) * (1.0 - smoothstep(wW * 0.45, wW, ay));
+    wash = max(wash, aft * exp(-max(behind, 0.0) / (L * 0.5)) * (1.0 - smoothstep(wW * 0.15, wW * 0.45, ay)) * 0.85);
+    wash *= way;
+    // the slick: slightly smoother water astern (kept subtle: a bright mirror band reads as a road)
+    slick = max(slick, step(0.0, behind) * exp(-behind / (L * 0.8)) * (1.0 - smoothstep(wW * 0.5, wW * 1.1, ay)) * way * SB.z);
+
+    // Kelvin arms: cusp line at 19.5°, short crests whose normals lean 35° off the track;
+    // the crest spacing wanders (no dotted line)
+    float armY = 0.354 * fb + Bm * 0.45;
+    float aw = (ay - armY) / (3.0 + fb * 0.05);
+    float arm = step(0.0, fromBow) * exp(-aw * aw) * way;
+    float env = arm * exp(-fb / (L * 1.6));
+    float lam = max(6.28318 * U * U / 9.81 * 0.67, 3.0);
+    float ph = 6.28318 / lam * (fb * 0.819 + ay * 0.574) + 2.2 * sin(fb * 0.023 + ay * 0.051 + float(i)) - uTime * 1.3;
+    float crest = sin(ph);
+    // inside the V: faint transverse waves
+    float inV = step(0.0, fromBow) * (1.0 - smoothstep(armY * 0.85, armY, ay)) * exp(-fb / (L * 0.8)) * way;
+    float pht = 6.28318 / max(6.28318 * U * U / 9.81, 4.0) * fb - uTime * 1.1;
+    vec2 kdir = f * -0.819 + rt * (0.574 * sign(ly));
+    slope += (kdir * (env * 0.3 * cos(ph)) - f * (inV * 0.1 * cos(pht))) * SB.z;
+    // whitecaps on the arms break up and are gone by ~1.5 lengths; the waves fade by ~2.5
+    float armFoam = arm * (0.55 + 0.6 * smoothstep(-0.3, 0.9, crest)) * pow(clamp(1.0 - fb / (L * 2.3), 0.0, 1.0), 1.6) * 1.4;
+
+    float wk = max(max(bow * 1.2, wash), max(armFoam, sideWash));
+    if (wk < 0.2) continue;                         // nothing can foam here: skip the noise
+    float flow = uTime * max(U, 0.4);
+    vec2 wq = vec2(lx + flow, ly);
+    float nCoarse = noise1(wq * vec2(0.045, 0.09) + float(i) * 7.1);
+    float brk = nCoarse * 0.6 + noise1(wq * 0.37 + 3.0) * 0.4;   // ragged edges, foam in patches
+    // some stretches of each arm stay unbroken
+    armFoam *= mix(0.45, 1.0, smoothstep(0.38, 0.62, nCoarse));
+    // foam only where the churn beats the noise: it breaks into clumps as it decays
+    float washFoam = smoothstep(0.3, 0.7, wash * (0.12 + brk * 1.4));
+    float armF = smoothstep(0.32, 0.7, armFoam * (0.3 + brk * 1.2));
+    float hullF = smoothstep(0.32, 0.7, max(bow * 1.2, sideWash) * (0.35 + brk * 1.1));
+    foam = max(foam, max(washFoam, max(armF, hullF)) * SB.z);
   }
-  return wake;
+  return foam;
+}
+
+// Reflected ray from the sea against Maiden's Tower (tower shaft, then its base buildings).
+// 'spread' is the unresolved slope (radians): ripples smear the reflection toward the viewer,
+// so the hit is stretched vertically (and a touch sideways) with distance.
+// Returns (normal.xz, height, weight).
+vec4 towerReflection(vec3 P, vec3 R, float spread) {
+  for (int k = 0; k < 2; k++) {
+    vec2 c = k == 0 ? T_AXIS : T_BASE;
+    float top = k == 0 ? T_DIM.y : T_DIM.w;
+    vec2 o = P.xz - c;
+    float a = dot(R.xz, R.xz);
+    float b = dot(o, R.xz);
+    float t0 = -b / max(a, 1e-6);
+    float rad = (k == 0 ? T_DIM.x : T_DIM.z) + max(t0, 0.0) * spread * 0.04;
+    float cc = dot(o, o) - rad * rad;
+    float disc = b * b - a * cc;
+    if (disc > 0.0 && a > 1e-6) {
+      float t = (-b - sqrt(disc)) / a;
+      float y = P.y + t * R.y;
+      float dy = 1.0 + t * spread * 0.7;
+      float w = smoothstep(-dy, 0.0, y) * (1.0 - smoothstep(top - dy * 0.3, top + dy, y));
+      if (t > 0.0 && w > 0.0) return vec4(normalize(o + R.xz * t), y, w);
+    }
+  }
+  return vec4(0.0);
 }
 
 void main() {
@@ -176,24 +266,48 @@ void main() {
   vec2 wd = uWaveA[0].xy;
   vec2 wp = vec2(dot(p, wd), dot(p, vec2(-wd.y, wd.x)));
   vec4 r1 = texture2D(uRipple, wp * (1.0 / 27.0) + vec2(uTime * 0.03, 0.0));
-  vec4 r2 = texture2D(uRipple, wp * (1.0 / 7.7) + vec2(uTime * 0.06 + 0.37, uTime * 0.011 + 0.21));
   vec2 s1 = r1.xy * 2.0 - 1.0;
-  vec2 s2 = r2.xy * 2.0 - 1.0;
   vec2 v1 = max(r1.zw - s1 * s1, 0.0);
-  vec2 v2 = max(r2.zw - s2 * s2, 0.0);
   float ra = uSea.x * (0.55 + 0.45 * uWaveAmp);
+#if QUALITY > 0
+  vec4 r2 = texture2D(uRipple, wp * (1.0 / 7.7) + vec2(uTime * 0.06 + 0.37, uTime * 0.011 + 0.21));
+  vec2 s2 = r2.xy * 2.0 - 1.0;
+  vec2 v2 = max(r2.zw - s2 * s2, 0.0);
   vec2 sl = (s1 * 0.62 + s2 * 0.42) * ra;
-  vec2 slope = sl.x * wd + sl.y * vec2(-wd.y, wd.x);
   float rvar = ((v1.x + v1.y) * 0.38 + (v2.x + v2.y) * 0.18) * ra * ra;
+#else
+  vec2 sl = s1 * 0.75 * ra;
+  float rvar = (v1.x + v1.y) * 0.5 * ra * ra;
+#endif
+
+  // wakes: foam, wave slope and the smooth slick astern
+  vec2 wslope = vec2(0.0);
+  float slick;
+  float shipShade;
+  float wake = wakes(p, wslope, slick, shipShade);
+  vec2 slope = (sl.x * wd + sl.y * vec2(-wd.y, wd.x)) * (1.0 - slick * 0.4) + wslope;
   n = normalize(vec3(n.x - slope.x, n.y, n.z - slope.y));
-  float m2 = 0.0018 + lost + rvar;
+  float m2 = 0.0018 + lost + rvar * (1.0 - slick * 0.3);
 
   float ndv = max(dot(n, V), 0.02);
   float F = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
   vec3 R = reflect(-V, n);
   R.y = abs(R.y) + sqrt(m2) * 0.25 + 0.01;
+  R = normalize(R);
   // painters keep the near sea dark: the sky reflection gains weight with distance
-  vec3 refl = skyColor(normalize(R)) * mix(0.6, 1.0, smoothstep(120.0, 2200.0, dist));
+  vec3 refl = skyColor(R) * mix(0.6, 1.0, smoothstep(120.0, 2200.0, dist));
+
+  // Maiden's Tower in the water: lit stone by day, warm windows and floodlight at night
+  vec4 th = towerReflection(vec3(p.x, 0.0, p.y), R, min(sqrt(m2), 0.05));
+  if (th.w > 0.0) {
+    vec3 tn = vec3(th.x, 0.0, th.y);
+    float lit = smoothstep(-0.1, 0.45, dot(tn, uKeyDir));
+    vec3 stone = ${glslColor(0xe6dfcf)} * (mix(uAmbLow, uAmbTop, 0.5) + uKeyCol * lit);
+    float rows = step(0.5, fract(th.z / 5.2 + 0.25)) * step(0.3, fract(atan(th.y, th.x) * 1.27));
+    vec3 night = ${glslColor(0xffd296)} * 0.5 + ${glslColor(0xffb45c)} * rows * 1.6;
+    vec3 tc = stone + night * uNight;
+    refl = mix(refl, tc, 0.9 * th.w);
+  }
 
   // body colour: deep navy in the troughs, teal toward crests, light through crests toward the sun
   float up = clamp(height / max(uWaveAmp, 0.15) * 0.55 + 0.5, 0.0, 1.0);
@@ -204,26 +318,29 @@ void main() {
   float sss = pow(toward, 2.5) * clamp(height * 1.4 + 0.1, 0.0, 1.0) * clamp(uSunDir.y * 3.0 + 0.4, 0.0, 1.0);
   body += uSeaSSS * sss * 0.8;
 
-  float shipShade;
-  float wake = wakeFoam(p, shipShade);
   vec3 col = mix(body, refl, F * (1.0 - shipShade * 0.8));
   col *= 1.0 - shipShade * 0.45;
 
   // sun + moon glitter: Beckmann lobe on the resolved normal, widened by the unresolved slopes
-  vec3 H = normalize(uSunDir + V);
-  float ndh = max(dot(n, H), 1e-3);
-  float c2 = ndh * ndh;
-  float D = exp(-(1.0 - c2) / (c2 * m2)) / (PI * m2 * c2 * c2);
-  float Fs = 0.02 + 0.98 * pow(1.0 - max(dot(V, H), 0.0), 5.0);
-  float spec = D * Fs / (4.0 * ndv + 0.35) * smoothstep(-0.015, 0.03, uSunDir.y);
-  vec3 Hm = normalize(uMoonDir + V);
-  float ndhm = max(dot(n, Hm), 1e-3);
-  float cm2 = ndhm * ndhm;
-  float mm2 = m2 + 0.002;
-  float Dm = exp(-(1.0 - cm2) / (cm2 * mm2)) / (PI * mm2 * cm2 * cm2);
-  float specM = Dm * 0.05 / (4.0 * ndv + 0.35) * smoothstep(-0.015, 0.03, uMoonDir.y);
-  vec3 glint = uSunCol * spec + uMoonCol * specM;
-  col += glint * uSea.y;
+  // (uniform branches: the moon lobe costs nothing by day, the sun lobe nothing at night)
+  vec3 glint = vec3(0.0);
+  if (uSunDir.y > -0.015 && dot(uSunCol, uSunCol) > 1e-6) {
+    vec3 H = normalize(uSunDir + V);
+    float ndh = max(dot(n, H), 1e-3);
+    float c2 = ndh * ndh;
+    float D = exp(-(1.0 - c2) / (c2 * m2)) / (PI * m2 * c2 * c2);
+    float Fs = 0.02 + 0.98 * pow(1.0 - max(dot(V, H), 0.0), 5.0);
+    glint += uSunCol * D * Fs / (4.0 * ndv + 0.35) * smoothstep(-0.015, 0.03, uSunDir.y);
+  }
+  if (uMoonDir.y > -0.015 && dot(uMoonCol, uMoonCol) > 1e-6) {
+    vec3 Hm = normalize(uMoonDir + V);
+    float ndhm = max(dot(n, Hm), 1e-3);
+    float cm2 = ndhm * ndhm;
+    float mm2 = m2 + 0.002;
+    float Dm = exp(-(1.0 - cm2) / (cm2 * mm2)) / (PI * mm2 * cm2 * cm2);
+    glint += uMoonCol * Dm * 0.05 / (4.0 * ndv + 0.35) * smoothstep(-0.015, 0.03, uMoonDir.y);
+  }
+  col += glint * uSea.y * (1.0 - wake);
 
   // crest foam: painterly strokes elongated along the crests
   float crestN = crest / 0.24;
@@ -231,13 +348,15 @@ void main() {
   float fn = noise1(fq + vec2(uTime * 0.07, 0.0)) * 0.65 + noise1(p * 0.21 + 3.0) * 0.35;
   float foam = smoothstep(0.52, 0.78, crestN * 0.55 + fn * 0.75 - 0.18) * uSea.z;
   foam *= 1.0 - smoothstep(0.8, 4.0, foot) * 0.7;
-  float foamAll = clamp(max(foam * 0.85, wake), 0.0, 1.0);
+  // wake foam thins out where it is sub-pixel instead of averaging into a pale band
+  float wakeF = wake * (1.0 - smoothstep(1.5, 6.0, foot) * 0.6);
+  float foamAll = clamp(max(foam * 0.85, wakeF), 0.0, 1.0);
   vec3 foamLit = uFoamCol * (0.78 + 0.3 * max(dot(n, uKeyDir), 0.0));
   col = mix(col, foamLit, foamAll);
 
   // aerial perspective; keep the sea a touch darker than the sky so the horizon reads as a line
   float fog = fogAmount(dist, 0.0);
-  col = mix(col, hazeColor(-V) * 0.955, fog);
+  col = mix(col, vHaze, fog);
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -248,12 +367,18 @@ export interface Ocean {
   update(camPos: THREE.Vector3, yaw: number, halfAngle: number, alphaMax: number): void;
 }
 
+/**
+ * @param fragWaves waves resolved per pixel (the tier's budget); `quality` (0 low .. 2 high)
+ * defaults from it, and low drops to four per-pixel waves, one ripple fetch and the two
+ * nearest wakes.
+ */
 export function createOcean(
   shared: SharedUniforms,
   ripple: THREE.Texture,
   cols: number,
   rows: number,
-  fragWaves: number
+  fragWaves: number,
+  quality = fragWaves >= 8 ? 2 : fragWaves >= 7 ? 1 : 0
 ): Ocean {
   const verts = new Float32Array((cols + 1) * (rows + 1) * 3);
   let o = 0;
@@ -282,7 +407,13 @@ export function createOcean(
     name: "voyage-ocean",
     vertexShader: VERT,
     fragmentShader: FRAG,
-    defines: { NWV: 5, NWF: fragWaves },
+    defines: {
+      NWV: 5,
+      NWF: quality > 0 ? fragWaves : Math.min(fragWaves, 4),
+      // wakes resolved per pixel (the uniform arrays stay MAX_WAKES long; nearest first)
+      WAKES: quality > 0 ? MAX_WAKES : 2,
+      QUALITY: quality,
+    },
     uniforms: {
       ...shared,
       uWaveA: { value: wu.a },

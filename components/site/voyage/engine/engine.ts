@@ -2,7 +2,14 @@ import * as THREE from "three";
 import type { Voyage, VoyageInfo, VoyageOptions, VoyageQuality } from "../types";
 import { createSharedUniforms } from "./glsl";
 import { makeNoiseTexture, makeRippleTexture } from "./noise";
-import { createFrameState, evaluate, type FrameState } from "./timeline";
+import {
+  SHOTS,
+  createFrameState,
+  evaluate,
+  flightPoint,
+  setLens,
+  type FrameState,
+} from "./timeline";
 import { createSky } from "./sky";
 import { createOcean, MAX_WAKES, SEA_RADIUS } from "./ocean";
 import { createLand } from "./land";
@@ -12,7 +19,9 @@ import { createFleet } from "./ships";
 import { createLights } from "./lights";
 import { createBirds } from "./birds";
 import { createPost } from "./post";
-import { DEG, clamp } from "./math";
+import { ground } from "./world";
+import { DEG, clamp, lerp } from "./math";
+import { lin } from "./palette";
 
 interface Tier {
   q: number;
@@ -66,6 +75,43 @@ const TIERS: Record<VoyageQuality, Tier> = {
 const NEAR = 1.5;
 const FAR = 220000;
 
+/** Development builds only (Next inlines NODE_ENV; elsewhere `process` may not exist). */
+const DEV = ((): boolean => {
+  try {
+    return process.env.NODE_ENV !== "production";
+  } catch {
+    return false;
+  }
+})();
+
+/**
+ * Every flight must stay over water: sample each segment's Bezier (landscape and
+ * portrait offsets) and report any point closer than `margin` to a shore.
+ */
+function checkFlightsOverWater(samples = 96, margin = 120): void {
+  const p = new THREE.Vector3();
+  for (let seg = 0; seg < SHOTS.length - 1; seg++) {
+    for (const k of [0, 1]) {
+      let worst = Infinity;
+      let at = 0;
+      for (let i = 0; i <= samples; i++) {
+        flightPoint(seg, i / samples, k, p);
+        const clearance = -ground(p.x, p.z).d;
+        if (clearance < worst) {
+          worst = clearance;
+          at = i / samples;
+        }
+      }
+      if (worst < margin)
+        console.error(
+          `[voyage] flight ${seg}→${seg + 1} (${k ? "landscape" : "portrait"}) passes ${Math.round(
+            worst
+          )} m from a shore at t=${at.toFixed(2)} (needs ≥ ${margin} m over water)`
+        );
+    }
+  }
+}
+
 const dirFromAzEl = (az: number, el: number, out: THREE.Vector3): THREE.Vector3 =>
   out.set(
     Math.sin(az * DEG) * Math.cos(el * DEG),
@@ -73,11 +119,16 @@ const dirFromAzEl = (az: number, el: number, out: THREE.Vector3): THREE.Vector3 
     -Math.cos(az * DEG) * Math.cos(el * DEG)
   );
 
+/** Gull flock target on screen (fractions from the top-left): the free upper-right sky. */
+const FLOCK_LAND = new THREE.Vector2(0.8, 0.2);
+const FLOCK_PORTRAIT = new THREE.Vector2(0.72, 0.075);
+
 export function createEngine(opts: VoyageOptions): Voyage {
   const quality: VoyageQuality = opts.quality ?? "high";
   const tier = TIERS[quality];
   const reduced = opts.reducedMotion === true;
   const canvas = opts.canvas;
+  if (DEV) checkFlightsOverWater();
 
   // AA is spent where it matters: MSAA on the scene target (high tier). The canvas
   // only ever receives the full-screen post triangle, so it needs neither AA nor depth.
@@ -113,12 +164,8 @@ export function createEngine(opts: VoyageOptions): Voyage {
   const land = createLand(shared, tier.q);
   const marks = createLandmarks(shared, tier.q);
   const wires = createWires(marks.wires, shared);
-  const fleet = createFleet(shared);
-  const shipMatrices =
-    fleet.mesh.material instanceof THREE.ShaderMaterial
-      ? (fleet.mesh.material.uniforms.uShipM.value as THREE.Matrix4[])
-      : [];
-  const lights = createLights(fleet.ships, shipMatrices, marks.towerTops, tier.q);
+  const fleet = createFleet(shared, tier.q);
+  const lights = createLights(fleet.ships, fleet.matrices, marks.towerTops, tier.q);
   const birds = createBirds(shared, tier.birds);
   scene.add(
     sky.mesh,
@@ -131,6 +178,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
     birds.mesh
   );
   const post = createPost(noise, tier.taps);
+  const pu = post.uniforms;
 
   let cssW = 1;
   let cssH = 1;
@@ -144,10 +192,15 @@ export function createEngine(opts: VoyageOptions): Voyage {
   let lost = false;
   let resumeAfterRestore = false;
   let disposed = false;
+  /** Something changed since the last frame (only consulted with reduced motion). */
+  let dirty = true;
   const state: FrameState = createFrameState();
 
-  const makeRT = (): THREE.WebGLRenderTarget =>
-    new THREE.WebGLRenderTarget(
+  // Without float targets the scene is stored in 8 bits: keep it sRGB-encoded
+  // (hardware SRGB8_ALPHA8, decoded to linear on sampling) so navy gradients
+  // keep their steps below the eye's threshold instead of banding in linear.
+  const makeRT = (): THREE.WebGLRenderTarget => {
+    const rt = new THREE.WebGLRenderTarget(
       Math.max(1, Math.round(cssW * dpr)),
       Math.max(1, Math.round(cssH * dpr)),
       {
@@ -157,11 +210,16 @@ export function createEngine(opts: VoyageOptions): Voyage {
         stencilBuffer: false,
       }
     );
+    if (!floatOK) rt.texture.colorSpace = THREE.SRGBColorSpace;
+    return rt;
+  };
   let rt = makeRT();
-  post.material.uniforms.tScene.value = rt.texture;
+  pu.tScene.value = rt.texture;
 
   const tmpV = new THREE.Vector3();
   const sunDir = shared.uSunDir.value;
+  const poolDay = lin(0x14384c);
+  const poolNight = lin(0x071a2b);
 
   function applyCamera(): void {
     const c = state.cam;
@@ -172,21 +230,24 @@ export function createEngine(opts: VoyageOptions): Voyage {
     const pitch = c.pitch + sway * 0.0006 * Math.sin(time * 0.33 + 1);
     camera.rotation.set(pitch, -yaw, 0, "YXZ");
     camera.updateMatrixWorld();
-    // vertical lens shift: horizon lands at c.hz from the top while verticals stay vertical
     const aspect = cssW / cssH;
+    setLens(camera, c, aspect, NEAR, FAR);
+    shared.uPixAng.value = c.vfov / cssH;
     const tv = Math.tan(c.vfov / 2);
     const p12 = -(1 - 2 * c.hz) - Math.tan(c.pitch) / tv;
-    const top = NEAR * tv * (1 + p12);
-    const bottom = -NEAR * tv * (1 - p12);
-    const right = NEAR * tv * aspect;
-    camera.projectionMatrix.makePerspective(-right, right, top, bottom, NEAR, FAR);
-    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
-    camera.fov = (c.vfov * 180) / Math.PI;
-    camera.aspect = aspect;
-    shared.uPixAng.value = c.vfov / cssH;
     const alphaMax = clamp(Math.atan(tv * (1 - p12)) - c.pitch + 7 * DEG, 10 * DEG, 88 * DEG);
     const half = Math.atan(tv * aspect) + 9 * DEG;
     ocean.update(camera.position, yaw, half, alphaMax);
+  }
+
+  /** World point `dist` metres along the view ray through a screen point (fractions, y down). */
+  function alongRay(sx: number, sy: number, dist: number, out: THREE.Vector3): THREE.Vector3 {
+    out
+      .set(sx * 2 - 1, 1 - sy * 2, 0.5)
+      .unproject(camera)
+      .sub(camera.position)
+      .normalize();
+    return out.multiplyScalar(dist).add(camera.position);
   }
 
   function applyLook(): void {
@@ -194,9 +255,14 @@ export function createEngine(opts: VoyageOptions): Voyage {
     const u = shared;
     u.uTime.value = time;
     u.uNight.value = L.night;
-    dirFromAzEl(L.sunAz, L.sunEl, sunDir);
+    const kLand = clamp((cssW / cssH - 0.7) / 0.65, 0, 1);
+    dirFromAzEl(L.sunAz, lerp(L.sunElP, L.sunEl, kLand), sunDir);
     u.uSunCol.value.copy(L.sunCol).multiplyScalar(L.sunI);
-    dirFromAzEl(L.moonAz, L.moonEl, u.uMoonDir.value);
+    dirFromAzEl(
+      lerp(L.moonAzP, L.moonAz, kLand),
+      lerp(L.moonElP, L.moonEl, kLand),
+      u.uMoonDir.value
+    );
     u.uMoonCol.value.copy(L.moonCol).multiplyScalar(L.moonI);
     u.uZenith.value.copy(L.zenith);
     u.uSkyMid.value.copy(L.mid);
@@ -211,13 +277,13 @@ export function createEngine(opts: VoyageOptions): Voyage {
     u.uAmbTop.value.copy(L.ambTop);
     u.uAmbLow.value.copy(L.ambLow);
 
-    const su = sky.material.uniforms;
-    (su.uCloud.value as THREE.Vector4).set(L.cloudCov, L.cloudSoft, L.cloudAmt, L.cloudScale);
-    (su.uCloudLit.value as THREE.Color).copy(L.cloudLit);
-    (su.uCloudShade.value as THREE.Color).copy(L.cloudShade);
-    (su.uSunDisc.value as THREE.Vector4).set(L.sunR * DEG, 1, 0, 0);
-    (su.uSunDiscCol.value as THREE.Color).copy(L.sunDisc).multiplyScalar(2.4);
-    (su.uMoonDisc.value as THREE.Vector4).set(0.55 * DEG, Math.min(1, L.moonI * 1.5), 0, 0);
+    const su = sky.uniforms;
+    su.uCloud.value.set(L.cloudCov, L.cloudSoft, L.cloudAmt, L.cloudScale);
+    su.uCloudLit.value.copy(L.cloudLit);
+    su.uCloudShade.value.copy(L.cloudShade);
+    su.uSunDisc.value.set(L.sunR * DEG, 1, 0, 0);
+    su.uSunDiscCol.value.copy(L.sunDisc).multiplyScalar(2.4);
+    su.uMoonDisc.value.set(0.55 * DEG, Math.min(1, L.moonI * 1.5), 0, 0);
     su.uStars.value = L.stars;
 
     const ou = ocean.material.uniforms;
@@ -228,52 +294,52 @@ export function createEngine(opts: VoyageOptions): Voyage {
     (ou.uSeaSSS.value as THREE.Color).copy(L.seaSSS);
     (ou.uFoamCol.value as THREE.Color).copy(L.foamCol);
 
-    const lu = lights.material.uniforms;
+    const lu = lights.uniforms;
     lu.uLights.value = L.lights;
     lu.uTime.value = time;
-    (lu.uRes.value as THREE.Vector2).set(cssW, cssH);
-    lu.uStreak.value = 5 + L.waveAmp * 5;
+    lu.uRes.value.set(cssW, cssH);
+    lu.uStreak.value = 0.6 + L.waveAmp * 0.5;
+    lu.uPixAng.value = state.cam.vfov / cssH;
     (wires.material.uniforms.uRes.value as THREE.Vector2).set(cssW, cssH);
 
-    // gulls by day, in the upper-right of the frame (away from the headline)
-    const bu = birds.material.uniforms;
+    // gulls by day, circling in the free upper-right sky (never over the copy)
+    const bu = birds.uniforms;
     bu.uBirds.value = clamp(1 - L.lights * 2.2, 0, 1);
-    const yaw = state.cam.yaw;
-    const fx = Math.sin(yaw);
-    const fz = -Math.cos(yaw);
-    const D = 150;
-    const side = Math.tan(state.cam.vfov / 2) * (cssW / cssH) * D * 0.42;
-    const up = Math.tan(state.cam.vfov / 2) * D * 0.55;
-    (bu.uFlock.value as THREE.Vector3).set(
-      camera.position.x + fx * D - fz * side,
-      camera.position.y + up,
-      camera.position.z + fz * D + fx * side
+    alongRay(
+      lerp(FLOCK_PORTRAIT.x, FLOCK_LAND.x, kLand),
+      lerp(FLOCK_PORTRAIT.y, FLOCK_LAND.y, kLand),
+      150,
+      bu.uFlock.value
     );
+    bu.uSpread.value = lerp(0.18, 0.32, kLand);
 
-    const pu = post.material.uniforms;
-    (pu.uFx.value as THREE.Vector4).set(L.smear, 0.075, 0.03, L.vignette);
-    (pu.uFx2.value as THREE.Vector4).set(0.32 + L.night * 0.25, 0.16, L.exposure, 0.92);
+    pu.uFx.value.set(L.smear, 0.045, 0.03, L.vignette);
+    pu.uFx2.value.set(0.32 + L.night * 0.25, 0.16, L.exposure, 0.92);
     pu.uGrainT.value = reduced ? 0 : time;
+    const c = state.calm;
+    pu.uLift.value.copy(c.lift);
+    pu.uPool.value.copy(c.pool);
+    pu.uCalm.value.copy(c.amount);
+    pu.uCalmF.value.copy(c.feather);
+    pu.uPoolCol.value
+      .copy(poolDay)
+      .lerp(poolNight, clamp(L.night, 0, 1))
+      .convertLinearToSRGB();
   }
 
   const wakeOrder: number[] = [];
+  const wakeDist: number[] = [];
   function applyShips(): void {
-    fleet.update(time, state.look.waveAmp);
+    fleet.update(time, state.look.waveAmp, progress);
     const ou = ocean.material.uniforms;
     const A = ou.uShipA.value as THREE.Vector4[];
     const B = ou.uShipB.value as THREE.Vector4[];
     wakeOrder.length = 0;
     fleet.ships.forEach((s, i) => {
-      if (Math.hypot(s.x - camera.position.x, s.z - camera.position.z) < 9000) wakeOrder.push(i);
+      wakeDist[i] = Math.hypot(s.x - camera.position.x, s.z - camera.position.z);
+      if (s.visible && wakeDist[i] < 9000) wakeOrder.push(i);
     });
-    wakeOrder.sort((a, b) => {
-      const sa = fleet.ships[a];
-      const sb = fleet.ships[b];
-      return (
-        Math.hypot(sa.x - camera.position.x, sa.z - camera.position.z) -
-        Math.hypot(sb.x - camera.position.x, sb.z - camera.position.z)
-      );
-    });
+    wakeOrder.sort((a, b) => wakeDist[a] - wakeDist[b]);
     let n = 0;
     for (const i of wakeOrder) {
       if (n >= MAX_WAKES) break;
@@ -317,6 +383,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
     renderer.render(scene, camera);
     renderer.setRenderTarget(null);
     renderer.render(post.scene, post.camera);
+    dirty = false;
     opts.onFrame?.({ horizonY: horizonY(), progress });
   }
 
@@ -324,7 +391,16 @@ export function createEngine(opts: VoyageOptions): Voyage {
     raf = requestAnimationFrame(tick);
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
-    if (!reduced) time += dt;
+    if (reduced) {
+      // still frames: no clock, no easing, and no draw unless something changed
+      if (progress !== target) {
+        progress = target;
+        dirty = true;
+      }
+      if (dirty) render();
+      return;
+    }
+    time += dt;
     // critically damped follow of the scroll position
     const k = 1 - Math.exp(-dt * 5.5);
     progress += (target - progress) * k;
@@ -340,9 +416,10 @@ export function createEngine(opts: VoyageOptions): Voyage {
   };
   const onRestored = (): void => {
     lost = false;
+    dirty = true;
     rt.dispose();
     rt = makeRT();
-    post.material.uniforms.tScene.value = rt.texture;
+    pu.tScene.value = rt.texture;
     noise.needsUpdate = true;
     ripple.texture.needsUpdate = true;
     if (resumeAfterRestore) startLoop();
@@ -354,6 +431,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
   function startLoop(): void {
     if (running || lost || disposed) return;
     running = true;
+    dirty = true;
     last = performance.now();
     raf = requestAnimationFrame(tick);
   }
@@ -364,7 +442,9 @@ export function createEngine(opts: VoyageOptions): Voyage {
 
   return {
     setProgress(p: number) {
-      target = clamp(Number.isFinite(p) ? p : 0, 0, 1);
+      const next = clamp(Number.isFinite(p) ? p : 0, 0, 1);
+      if (next !== target) dirty = true;
+      target = next;
       if (!running) progress = target;
     },
     setSize(w: number, h: number, ratio: number) {
@@ -375,15 +455,14 @@ export function createEngine(opts: VoyageOptions): Voyage {
       renderer.setSize(cssW, cssH, false);
       rt.dispose();
       rt = makeRT();
-      post.material.uniforms.tScene.value = rt.texture;
-      (post.material.uniforms.uRes.value as THREE.Vector2).set(
-        Math.round(cssW * dpr),
-        Math.round(cssH * dpr)
-      );
-      post.material.uniforms.uDpr.value = dpr;
+      pu.tScene.value = rt.texture;
+      pu.uRes.value.set(Math.round(cssW * dpr), Math.round(cssH * dpr));
+      pu.uDpr.value = dpr;
+      dirty = true;
     },
     setTime(seconds: number) {
       time = Number.isFinite(seconds) ? seconds : 12;
+      dirty = true;
     },
     start: startLoop,
     stop: stopLoop,

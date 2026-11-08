@@ -92,48 +92,60 @@ void main() {
   vec3 mc = uMoonCol * (1.25 - smoothstep(0.45, 0.72, mare) * 0.3);
   col = mix(col, mc * 1.6, mdisc * uMoonDisc.y);
 
-  gl_FragColor = vec4(col, 0.1 + cov * 0.25);
+  // alpha = material class for the post pass: sky stays below 0.2 (clouds smear a little more)
+  gl_FragColor = vec4(col, 0.06 + cov * 0.12);
 }
 `;
+
+function skyUniforms() {
+  return {
+    uInvViewProj: { value: new THREE.Matrix4() },
+    uCloud: { value: new THREE.Vector4(0.5, 0.25, 0.5, 0.5) },
+    uCloudLit: { value: new THREE.Color() },
+    uCloudShade: { value: new THREE.Color() },
+    uSunDisc: { value: new THREE.Vector4(0.009, 1, 0, 0) },
+    uSunDiscCol: { value: new THREE.Color() },
+    uMoonDisc: { value: new THREE.Vector4(0.008, 0, 0, 0) },
+    uStars: { value: 0 },
+  };
+}
+export type SkyUniforms = ReturnType<typeof skyUniforms>;
 
 export interface Sky {
   mesh: THREE.Mesh;
   material: THREE.ShaderMaterial;
+  uniforms: SkyUniforms;
   update(cam: THREE.PerspectiveCamera): void;
 }
 
+/**
+ * Full-screen sky drawn AFTER the opaque world at the far plane (z = w) with the
+ * depth test on, so early-Z skips every pixel already covered by sea, land or
+ * ships instead of shading the sky under them.
+ */
 export function createSky(shared: SharedUniforms, octaves: number): Sky {
+  const uniforms = skyUniforms();
   const material = new THREE.ShaderMaterial({
     name: "voyage-sky",
     vertexShader: VERT,
     fragmentShader: FRAG,
     defines: { CLOUD_OCT: octaves },
-    uniforms: {
-      ...shared,
-      uInvViewProj: { value: new THREE.Matrix4() },
-      uCloud: { value: new THREE.Vector4(0.5, 0.25, 0.5, 0.5) },
-      uCloudLit: { value: new THREE.Color() },
-      uCloudShade: { value: new THREE.Color() },
-      uSunDisc: { value: new THREE.Vector4(0.009, 1, 0, 0) },
-      uSunDiscCol: { value: new THREE.Color() },
-      uMoonDisc: { value: new THREE.Vector4(0.008, 0, 0, 0) },
-      uStars: { value: 0 },
-    },
-    depthTest: false,
+    uniforms: { ...shared, ...uniforms },
+    depthTest: true,
     depthWrite: false,
   });
   const mesh = new THREE.Mesh(fullscreenTriangle(), material);
   mesh.frustumCulled = false;
-  mesh.renderOrder = -100;
+  mesh.renderOrder = 1;
   const rot = new THREE.Matrix4();
   return {
     mesh,
     material,
+    uniforms,
     update(cam) {
       // inverse(P · Vrot): unprojects NDC to a world direction (camera at the origin).
       rot.extractRotation(cam.matrixWorldInverse);
-      const m = material.uniforms.uInvViewProj.value as THREE.Matrix4;
-      m.multiplyMatrices(cam.projectionMatrix, rot).invert();
+      uniforms.uInvViewProj.value.multiplyMatrices(cam.projectionMatrix, rot).invert();
     },
   };
 }

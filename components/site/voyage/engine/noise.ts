@@ -2,21 +2,87 @@ import * as THREE from "three";
 import { rng } from "./math";
 
 /**
+ * Jump-ahead tables for the LCG behind `rng()` (s' = s·A + C mod 2³²): entry k
+ * holds the affine map of 2^k steps, so the n-th draw of any seed costs one
+ * multiply-add per set bit of n instead of n draws (or a stored table).
+ */
+const LCG_A = 1664525;
+const LCG_C = 1013904223;
+const JUMP_A = new Uint32Array(32);
+const JUMP_C = new Uint32Array(32);
+{
+  let a = LCG_A;
+  let c = LCG_C;
+  for (let k = 0; k < 32; k++) {
+    JUMP_A[k] = a;
+    JUMP_C[k] = c;
+    // f∘f: s → a(a·s + c) + c
+    c = (Math.imul(a, c) + c) >>> 0;
+    a = Math.imul(a, a) >>> 0;
+  }
+}
+
+/** State of `rng(seed)` after `n` draws (n < 2³²). */
+function lcgState(seed: number, n: number): number {
+  let s = seed >>> 0;
+  for (let k = 0, m = n >>> 0; m !== 0; k++, m >>>= 1) {
+    if (m & 1) s = (Math.imul(JUMP_A[k], s) + JUMP_C[k]) >>> 0;
+  }
+  return s;
+}
+
+/** Lattice gradients up to this many cells are tabulated; larger lattices are computed on demand. */
+const TABLE_MAX = 256 * 256;
+
+/**
  * Periodic 2D gradient noise (Perlin) with `period` lattice cells per tile.
  * Output is roughly in [-1, 1]. Used on the CPU for terrain and for baking textures.
+ *
+ * Gradient i is the (i+1)-th draw of `rng(seed)` (as a Float32 unit vector), so the
+ * field is identical whether the lattice is tabulated (small periods) or evaluated
+ * lazily through the LCG jump-ahead (large periods: no period² allocation at import).
  */
 export function perlin2(seed: number, period: number): (x: number, y: number) => number {
-  const r = rng(seed);
   const n = period * period;
-  const gx = new Float32Array(n);
-  const gy = new Float32Array(n);
-  for (let i = 0; i < n; i++) {
-    const a = r() * Math.PI * 2;
-    gx[i] = Math.cos(a);
-    gy[i] = Math.sin(a);
+  let gradX: (i: number) => number;
+  let gradY: (i: number) => number;
+  let prime: (i: number) => void;
+  if (n <= TABLE_MAX) {
+    const r = rng(seed);
+    const gx = new Float32Array(n);
+    const gy = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const a = r() * Math.PI * 2;
+      gx[i] = Math.cos(a);
+      gy[i] = Math.sin(a);
+    }
+    prime = () => undefined;
+    gradX = (i) => gx[i];
+    gradY = (i) => gy[i];
+  } else {
+    // Direct-mapped cache: neighbouring lookups share lattice corners.
+    const SIZE = 4096;
+    const keys = new Int32Array(SIZE).fill(-1);
+    const cx = new Float64Array(SIZE);
+    const cy = new Float64Array(SIZE);
+    let slot = 0;
+    prime = (i) => {
+      slot = (i ^ (i >>> 12)) & (SIZE - 1);
+      if (keys[slot] === i) return;
+      const a = (lcgState(seed, i + 1) / 4294967296) * Math.PI * 2;
+      keys[slot] = i;
+      cx[slot] = Math.fround(Math.cos(a));
+      cy[slot] = Math.fround(Math.sin(a));
+    };
+    gradX = () => cx[slot];
+    gradY = () => cy[slot];
   }
   const wrap = (i: number): number => ((i % period) + period) % period;
   const fade = (t: number): number => t * t * t * (t * (t * 6 - 15) + 10);
+  const dot = (i: number, dx: number, dy: number): number => {
+    prime(i);
+    return gradX(i) * dx + gradY(i) * dy;
+  };
   return (x, y) => {
     const x0 = Math.floor(x);
     const y0 = Math.floor(y);
@@ -26,10 +92,10 @@ export function perlin2(seed: number, period: number): (x: number, y: number) =>
     const xb = wrap(x0 + 1);
     const ya = wrap(y0) * period;
     const yb = wrap(y0 + 1) * period;
-    const n00 = gx[ya + xa] * fx + gy[ya + xa] * fy;
-    const n10 = gx[ya + xb] * (fx - 1) + gy[ya + xb] * fy;
-    const n01 = gx[yb + xa] * fx + gy[yb + xa] * (fy - 1);
-    const n11 = gx[yb + xb] * (fx - 1) + gy[yb + xb] * (fy - 1);
+    const n00 = dot(ya + xa, fx, fy);
+    const n10 = dot(ya + xb, fx - 1, fy);
+    const n01 = dot(yb + xa, fx, fy - 1);
+    const n11 = dot(yb + xb, fx - 1, fy - 1);
     const u = fade(fx);
     const v = fade(fy);
     const a = n00 + (n10 - n00) * u;

@@ -13,6 +13,7 @@ attribute vec3 aA;
 attribute vec3 aB;
 attribute vec2 aT;
 attribute float aW;
+attribute float aMinA;
 uniform vec2 uRes;
 uniform float uPixAng;
 varying float vAlpha;
@@ -31,7 +32,8 @@ void main() {
   float dist = length(P - cameraPosition);
   float wpx = aW / max(dist * uPixAng, 1e-5);
   float draw = max(wpx, 1.2);
-  vAlpha = clamp(wpx / 1.2, 0.18, 1.0);
+  // coverage as opacity, with a per-wire floor so cables and hangers stay legible far away
+  vAlpha = clamp(wpx / 1.2, aMinA, 1.0);
   c.xy += nrm * aT.y * draw / uRes * c.w;
   vPos = P;
   gl_Position = c;
@@ -67,6 +69,7 @@ export function createWires(segs: WireSeg[], shared: SharedUniforms): Wires {
   const b = new Float32Array(n * 4 * 3);
   const t = new Float32Array(n * 4 * 2);
   const w = new Float32Array(n * 4);
+  const minA = new Float32Array(n * 4);
   const pos = new Float32Array(n * 4 * 3);
   const idx: number[] = [];
   const corners: readonly [number, number][] = [
@@ -82,6 +85,7 @@ export function createWires(segs: WireSeg[], shared: SharedUniforms): Wires {
       b.set(s.b, v * 3);
       t.set(corners[k], v * 2);
       w[v] = s.w;
+      minA[v] = s.minA ?? 0.18;
       const f = corners[k][0];
       pos.set(
         [
@@ -101,6 +105,7 @@ export function createWires(segs: WireSeg[], shared: SharedUniforms): Wires {
   geo.setAttribute("aB", new THREE.BufferAttribute(b, 3));
   geo.setAttribute("aT", new THREE.BufferAttribute(t, 2));
   geo.setAttribute("aW", new THREE.BufferAttribute(w, 1));
+  geo.setAttribute("aMinA", new THREE.BufferAttribute(minA, 1));
   geo.setIndex(idx);
   const material = new THREE.ShaderMaterial({
     name: "voyage-wires",

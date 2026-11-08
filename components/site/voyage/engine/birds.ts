@@ -3,7 +3,8 @@ import { COMMON, type SharedUniforms } from "./glsl";
 import { rng } from "./math";
 
 /**
- * A loose flock of gulls circling in the upper part of the frame (by day only).
+ * A loose flock of gulls circling in the free upper-right sky of the frame (by day only),
+ * never over the heading column.
  * One instanced draw; wings flap in the vertex shader (frozen with the clock).
  */
 const VERT = /* glsl */ `
@@ -13,9 +14,12 @@ attribute vec4 iRnd;
 uniform float uTime;
 uniform vec3 uFlock;
 uniform float uBirds;
+uniform float uSpread;
 varying vec3 vPos;
 varying float vTop;
+varying float vSeg;
 void main() {
+  vSeg = aSeg;
   float ph = uTime * (4.2 + iRnd.x * 1.6) + iRnd.x * 40.0;
   float glide = step(0.55, fract(uTime * 0.06 + iRnd.y));
   float flap = mix(sin(ph) * 0.62, 0.12, glide);
@@ -34,10 +38,17 @@ void main() {
   // circle slowly around the instance anchor
   float w = 0.05 + iRnd.z * 0.05;
   float ang = uTime * w + iRnd.w * 6.2831;
-  float R = 14.0 + iRnd.y * 26.0;
-  vec3 c = uFlock + iOff + vec3(cos(ang) * R, sin(ang * 1.7) * 3.0, sin(ang) * R * 0.6);
+  // the flock stays inside its free patch of sky (uSpread shrinks it on narrow screens)
+  float R = (14.0 + iRnd.y * 26.0) * uSpread;
+  vec3 c = uFlock + iOff * uSpread + vec3(cos(ang) * R, sin(ang * 1.7) * 3.0 * uSpread, sin(ang) * R * 0.6);
   vec2 fw = normalize(vec2(-sin(ang) * R, cos(ang) * R * 0.6));
-  float s = (1.15 + iRnd.x * 0.5) * uBirds;
+  // circling gulls bank into the turn: the wings tilt toward a low viewer instead of
+  // being seen edge-on (a calligraphic "M" rather than a hairline)
+  float bank = 0.8 + 0.25 * sin(uTime * 0.4 + iRnd.w * 9.0);
+  float cb = cos(bank);
+  float sb = sin(bank);
+  p = vec3(p.x, p.y * cb - p.z * sb, p.y * sb + p.z * cb);
+  float s = (1.25 + iRnd.x * 0.5) * uBirds;
   vec3 wp = c + vec3(p.x * fw.x - p.z * fw.y, p.y, p.x * fw.y + p.z * fw.x) * s;
   vTop = 0.5 + 0.5 * sin(flap);
   vPos = wp;
@@ -50,24 +61,32 @@ const FRAG = /* glsl */ `
 ${COMMON}
 varying vec3 vPos;
 varying float vTop;
+varying float vSeg;
 void main() {
   vec3 toCam = cameraPosition - vPos;
   float dist = length(toCam);
   vec3 V = toCam / dist;
-  // seen from below the wings are in their own shade
+  // seen from below against a bright sky a gull reads as a soft grey shape with dark tips
   float under = step(cameraPosition.y, vPos.y);
   vec3 white = vec3(0.86, 0.85, 0.82);
-  vec3 grey = vec3(0.34, 0.37, 0.4);
-  vec3 alb = mix(white, grey, under * 0.55 * (1.0 - vTop * 0.4));
+  vec3 grey = vec3(0.21, 0.23, 0.26);
+  vec3 alb = mix(white, grey, under * (0.85 - vTop * 0.25));
+  alb *= mix(1.0, 0.4, step(1.5, vSeg));
   vec3 col = alb * (uAmbTop + uKeyCol * 0.7);
   col = mix(col, hazeColor(-V), fogAmount(dist, vPos.y));
-  gl_FragColor = vec4(col, 0.2);
+  gl_FragColor = vec4(col, 0.26);
 }
 `;
+
+function birdUniforms() {
+  return { uFlock: { value: new THREE.Vector3() }, uBirds: { value: 0 }, uSpread: { value: 0.35 } };
+}
+export type BirdUniforms = ReturnType<typeof birdUniforms>;
 
 export interface Birds {
   mesh: THREE.Mesh;
   material: THREE.ShaderMaterial;
+  uniforms: BirdUniforms;
 }
 
 export function createBirds(shared: SharedUniforms, count: number): Birds {
@@ -97,15 +116,16 @@ export function createBirds(shared: SharedUniforms, count: number): Birds {
   geo.setAttribute("iOff", new THREE.InstancedBufferAttribute(off, 3));
   geo.setAttribute("iRnd", new THREE.InstancedBufferAttribute(rnd, 4));
   geo.instanceCount = count;
+  const uniforms = birdUniforms();
   const material = new THREE.ShaderMaterial({
     name: "voyage-gulls",
     vertexShader: VERT,
     fragmentShader: FRAG,
-    uniforms: { ...shared, uFlock: { value: new THREE.Vector3() }, uBirds: { value: 0 } },
+    uniforms: { ...shared, ...uniforms },
     side: THREE.DoubleSide,
   });
   const mesh = new THREE.Mesh(geo, material);
   mesh.frustumCulled = false;
   mesh.renderOrder = 5;
-  return { mesh, material };
+  return { mesh, material, uniforms };
 }

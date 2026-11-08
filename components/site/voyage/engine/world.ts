@@ -1,6 +1,5 @@
 import { perlin2, fbm2 } from "./noise";
-import { clamp, lerp, smoothstep, DEG, type V2 } from "./math";
-import { SHOTS } from "./timeline";
+import { clamp, lerp, smoothstep, type V2 } from "./math";
 
 /**
  * Stylised Istanbul, top view: x = east, z = south (north is −z, up the strait).
@@ -303,23 +302,47 @@ export function ground(x: number, z: number): { h: number; d: number; shore: Sho
   return best ?? { h: 0, d: -1000, shore: SHORES.eu };
 }
 
+/**
+ * Maiden's Tower: drawing scale, and the patch of Üsküdar behind it (seen from the
+ * contact view, which looks north-east past the tower) whose night lights are held back.
+ */
+export const MAIDEN = {
+  scale: 1.45,
+  dimOffset: [220, -430] as V2,
+  dimRadius: 900,
+} as const;
+
+/**
+ * Wooded parks that read as dark masses on the hills: the grove on the Üsküdar slope
+ * behind Maiden's Tower (it gives the white tower a dark backdrop), Gülhane / Topkapı
+ * gardens on Sarayburnu, and Yıldız above Beşiktaş. x, z, radius (m).
+ */
+export const PARKS: readonly (readonly [number, number, number])[] = [
+  [600, -560, 340],
+  [-900, 120, 260],
+  [-900, -2350, 300],
+];
+
 /** Landmarks (world x, z). Heights come from `ground`. */
 export const SITES = {
   maiden: [300, -170] as V2,
   galata: [-770, -1430] as V2,
   bridge: { z: -4800, eu: -625, as: 625 },
   palace: { a: [-420, -1690] as V2, b: [-610, -1315] as V2 },
-  ortakoy: [-628, -4655] as V2,
+  // on the European waterline right beside the bridge pier, as the real one stands
+  ortakoy: [-608, -4712] as V2,
 };
 
 export type MosqueKind = "two" | "four" | "six" | "ortakoy" | "hagia";
 export const MOSQUES: readonly { at: V2; kind: MosqueKind; scale: number; yaw: number }[] = [
   { at: [-650, -870], kind: "two", scale: 0.9, yaw: 10 },
   { at: [-1000, -2300], kind: "four", scale: 1.0, yaw: 0 },
-  { at: SITES.ortakoy, kind: "ortakoy", scale: 1.0, yaw: 80 },
-  { at: [520, -700], kind: "two", scale: 0.95, yaw: -10 },
-  { at: [545, -420], kind: "four", scale: 0.85, yaw: 5 },
-  { at: [1450, -3000], kind: "six", scale: 1.35, yaw: 0 },
+  { at: SITES.ortakoy, kind: "ortakoy", scale: 1.3, yaw: 80 },
+  // Üsküdar and the Çamlıca ridge sit north of Maiden's Tower so that, from the hero
+  // cameras, they frame it from the left instead of rising behind it
+  { at: [520, -1600], kind: "two", scale: 0.95, yaw: -10 },
+  { at: [560, -2100], kind: "four", scale: 0.85, yaw: 5 },
+  { at: [1250, -4800], kind: "six", scale: 1.35, yaw: 0 },
   { at: [-1250, 650], kind: "six", scale: 1.1, yaw: 20 },
   { at: [-1050, 300], kind: "hagia", scale: 1.1, yaw: 20 },
   { at: [-2300, -60], kind: "four", scale: 1.15, yaw: 0 },
@@ -340,46 +363,5 @@ export const TOWERS: readonly {
   { at: [-5200, -2600], count: 6, spread: 600, maxH: 120, seed: 12 },
 ];
 
+/** Ship types the fleet can stage (ships.ts places them per keyframe). */
 export type ShipKind = "tanker" | "gas" | "ferry";
-export interface ShipPlacement {
-  kind: ShipKind;
-  x: number;
-  z: number;
-  /** Heading in radians (0 = north, +π/2 = east). */
-  heading: number;
-  /** Visual speed through the water (m/s) - drives the wake, not the position. */
-  speed: number;
-  anchored: boolean;
-  scale: number;
-}
-
-function relToShot(shot: number, relYawDeg: number, dist: number): V2 {
-  const s = SHOTS[shot];
-  const a = (s.yaw + relYawDeg) * DEG;
-  return [s.pos[0] + Math.sin(a) * dist, s.pos[2] - Math.cos(a) * dist];
-}
-
-function place(
-  kind: ShipKind,
-  shot: number,
-  relYaw: number,
-  dist: number,
-  headingDeg: number,
-  speed: number,
-  scale = 1
-): ShipPlacement {
-  const [x, z] = relToShot(shot, relYaw, dist);
-  return { kind, x, z, heading: headingDeg * DEG, speed, anchored: speed === 0, scale };
-}
-
-export const SHIPS: readonly ShipPlacement[] = [
-  place("tanker", 0, 8, 800, -124, 3.2),
-  place("tanker", 1, 10, 480, 300, 4.5),
-  place("gas", 1, -17, 1900, 282, 4),
-  place("gas", 2, 16, 1050, 160, 3),
-  place("tanker", 3, -17, 900, 40, 0, 0.85),
-  place("gas", 3, 7, 1250, 40, 0),
-  place("tanker", 3, 21, 760, 40, 0, 0.8),
-  place("tanker", 4, -9, 1500, 196, 0, 0.95),
-  place("ferry", 0, -4, 1500, 70, 4),
-];
