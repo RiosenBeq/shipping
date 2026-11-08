@@ -6,6 +6,7 @@ Marketing site and free tools for an Istanbul-based tanker and LPG chartering br
 - **Tool:** an LPG cbm ↔ tonnes converter on `/lpg` (physical densities and a filling limit; reads `84,000`, `84.000` and `84.000,5` alike). No live market data, rate boards or estimators — anything that needs current freight, bunker or tariff data was retired.
 - **Languages:** English site under `app/(site)/` (`<html lang="en">`), plus localized landing pages at `/zh /ja /ko /el /no /da /sv /de /es /ar` with their own root layout in `app/[lang]/` (correct `lang`, and `dir="rtl"` for Arabic), hreflang-linked.
 - **UI kit:** Uiverse.io components (MIT) adapted to the navy & brass palette in `app/uiverse.css` — buttons, cards, fields, segmented controls, accordion, loader, skeleton, toast, tooltip, FAB. Credits in [`docs/UIVERSE-CREDITS.md`](docs/UIVERSE-CREDITS.md).
+- **Homepage stage:** a fixed three.js "voyage" behind the English and localized homepages — the Bosphorus at first light → open water → under the bridge at golden hour → dusk on the Marmara → night by Maiden's Tower — that follows the scroll, adapted from the gnbshipbrokers.com scroll stage to the navy & brass brand. Lazy-loaded after the page is idle, paused when hidden or covered, a static painted backdrop for software WebGL / save-data / 2G, still frames under reduced motion. Code in `components/site/voyage/`; see [`docs/REDESIGN.md`](docs/REDESIGN.md) §11.
 - **SEO:** one `h1` per page, per-page metadata and share card (`/og/…`), JSON-LD (Organization, Article with person authors, FAQ, breadcrumbs, glossary), sitemap with hreflang, `robots.txt` open to search and AI crawlers, `llms.txt` + `llms-full.txt`, full-text RSS at `/research/feed.xml`, real HTTP 404s. Guarded by `lib/seo.test.ts`.
 
 See [`docs/REDESIGN.md`](docs/REDESIGN.md) for the market research, design decisions and before/after screenshots, and [`docs/SEO-2026.md`](docs/SEO-2026.md) for the October 2026 SEO, AI-search and content update.
@@ -28,6 +29,7 @@ See [`docs/REDESIGN.md`](docs/REDESIGN.md) for the market research, design decis
 | English pages | `app/(site)/…` (e.g. `app/(site)/(home)/page.tsx`, `app/(site)/lpg/(hub)/page.tsx`) |
 | Page catalogue for sitemap / llms.txt | `lib/pages.ts` |
 | UI kit styles | `app/uiverse.css` (loads after Tailwind; use `!` to override) |
+| Homepage 3D stage: scenes, camera framing, colours | `components/site/voyage/engine/timeline.ts` (`SHOTS`, looks); backdrop, frame and rail styles in `app/voyage.css` |
 | Redirects, security headers | `next.config.mjs` |
 
 ## Develop

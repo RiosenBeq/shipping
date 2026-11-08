@@ -224,7 +224,44 @@ Masaüstü 1440 px tam sayfa, mobil 390 × 844 ilk ekran.
 | العربية | ![](screenshots/after/ar-desktop.webp) | ![](screenshots/after/ar-mobile.webp) |
 | 404 | ![](screenshots/after/not-found-desktop.webp) | ![](screenshots/after/not-found-mobile.webp) |
 
-## 11. Yayından önce yapılması gerekenler
+## 11. Voyage: three.js sahne arka planı (Kasım 2026)
+
+Ana sayfa ve 10 dildeki açılış sayfaları artık sabit, kaydırmaya bağlı bir three.js sahnesinin önünde akıyor. Fikir [gnbshipbrokers.com](https://gnbshipbrokers.com/) (Green & Black Shipbrokers) sitesinden uyarlandı. O sitede sabit bir "sahne" var; sayfa kaydıkça kamera boyalı deniz manzaralarında ilerliyor; üstte kâğıt/keten dokusu, ince harita çerçevesi çizgileri, "+" işaretleri, sahneyle hareket eden bir ufuk çizgisi ve solda küçük gemili bir ilerleme çubuğu var.
+
+**LEVANTER uyarlaması.** Görseller video ya da yapay zekâ resmi değil; tarayıcıda canlı çiziliyor (harici görsel yok, CSP ile uyumlu). Lacivert, pirinç ve kum paletinde beş sahne bir günü anlatıyor:
+
+| Sahne | Bölüm | An |
+| --- | --- | --- |
+| `hero` | Giriş | Boğaz'da şafak: Avrupa ve Asya yakası siluetleri, Galata benzeri kule, camiler, Boğaz Köprüsü, Kız Kulesi, geçen bir tanker |
+| `desks` | İki masa | Marmara'da açık deniz: tanker ve basınçlı LPG gemisi |
+| `straits` | Neden LEVANTER | Köprünün altında altın saat |
+| `process` | Çalışma şeklimiz | Marmara'da alacakaranlık, şehir ışıkları, demirli gemiler |
+| `contact` | İletişim | Kız Kulesi'nde gece: ay, yakamoz, ışıklı kule |
+
+**Seçim süreci.** İki sanat yönü prototiplendi: "Oil on linen" (yağlı boya / keten) ve "Engraved chart" (gravür / harita). Üç ayrı jüri değerlendirdi: sanat yönetimi, okunabilirlik (gerçek piksellerde WCAG kontrastı) ve mühendislik (performans, bellek, mobil risk). Referansın havasına en yakın ve metin altında en okunaklı olan "Oil on linen" seçildi. Mühendislik jürisinin bulguları (ör. modül yüklenirken 256 MB ayıran gürültü tablosu) seçilen motorda düzeltildi.
+
+**Mimari** (`components/site/voyage/`):
+
+- `types.ts`: motor sözleşmesi ve beş sahne (`VOYAGE_SCENES`).
+- `progress.ts`: kaydırma → yolculuk ilerlemesi. Her "pencere" bölüm (`data-voyage-scene`) bir sahneye çapalanır; çapa civarında kamera durur, aralarda yumuşakça uçar. Testleri `progress.test.ts`'te.
+- `quality.ts`: cihaz ipuçlarından kalite kademesi (high / medium / low) ve piksel bütçesine göre DPR. Veri tasarrufu, 2G ve çok düşük bellek → statik arka plan. Testleri `quality.test.ts`'te.
+- `VoyageStage.tsx`: sahnenin React sarmalayıcısı. Motoru sayfa boşa çıkınca dinamik olarak yükler; sekme gizliyken ya da hiçbir pencere bölüm ekranda değilken çizimi durdurur; yazılım WebGL'de (performans uyarısı) statik arka planda kalır; "hareketi azalt" tercihinde sahne başına durağan kare gösterir; ufuk çizgisini her karede motorun hesapladığı ufka taşır.
+- `VoyageRail.tsx`: geniş ekranlarda soldaki bölüm çubuğu (küçük tanker ilerliyor, bölüm adı hover/odakta).
+- `engine/`: three.js motoru. Kamera kareleri, ışık ve renkler `engine/timeline.ts`'te (`SHOTS`, `DEFS`); ufuk konumu sahne başına `hz` (masaüstü) ve `pHz` (telefon) ile ayarlanır.
+- `app/voyage.css`: statik "boyalı" arka plan (sunucu çıktısı ve yedek), harita çerçevesi, ufuk çizgisi, okunabilirlik scrim'leri ve bantları, bölüm çubuğu, baskı kuralları.
+
+**Sayfa yapısı.** Giriş, iki masa, neden LEVANTER, çalışma şeklimiz ve kapanıştaki iletişim bölümü saydam pencerelerdir; ekip, araştırma ve SSS opak "sayfa"lar olarak sahnenin üstünden geçer. Girişte başlık gökyüzünde, açıklama ve butonlar suyun üstünde durur (referanstaki gibi). "Doğrudan masa hatları" kartı gece sahnesindeki iletişim bölümüne taşındı. Header giriş bölümünün üstünde saydamdır.
+
+**Performans ve erişilebilirlik.**
+
+- three.js yalnızca ana sayfalarda, sayfa yüklendikten sonra ayrı bir parça olarak iner. İlk yükleme JS'i değişmedi.
+- Görünmezken çizim yapılmaz.
+- Metin bloklarının arkasında motor "sakin bölge" uygular: başlık arkasında gökyüzü kâğıda açılır, girişteki açıklamanın altında su koyulaşır ve parıltı söner. Böylece kontrast WCAG AA'yı karşılar.
+- Baskıda sahne gizlenir ve metin koyu basılır.
+
+**Test bayrakları.** `?voyage=1` canlı sahneyi zorlar (ör. yazılım WebGL kullanan headless tarayıcıda), `?voyage=0` statik arka planı zorlar.
+
+## 12. Yayından önce yapılması gerekenler
 
 1. **Alan adı:** Vercel'de `NEXT_PUBLIC_SITE_URL` ortam değişkenine gerçek alan adını girin. Şu an `https://levanter.example`. Canonical, sitemap, robots, llms.txt ve JSON-LD bu değeri kullanır.
 2. **İletişim bilgileri:** Telefon, WhatsApp, masa e-postaları, adres, koordinatlar, ofisler ve sosyal hesaplar `lib/site.ts`'te. Şu an yer tutucu değerler var.
