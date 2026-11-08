@@ -47,6 +47,8 @@ export type Dictionary = {
   fab: string;
   /** Under the hero buttons: the inquiry form itself is English-only. */
   formNote: string;
+  /** Section rail on the homepage stage: its accessible name and two waypoint labels. */
+  rail: { label: string; overview: string; contact: string };
 };
 
 export type Locale = {
@@ -142,6 +144,7 @@ export const LOCALES: Locale[] = [
       newTab: "（在新标签页中打开）",
       fab: "通过WhatsApp联系经纪人",
       formNote: "询盘表格为英文。",
+      rail: { label: "本页内容", overview: "概览", contact: "联系我们" },
     },
   },
   {
@@ -239,6 +242,7 @@ export const LOCALES: Locale[] = [
       newTab: "（新しいタブで開きます）",
       fab: "WhatsAppでブローカーに相談",
       formNote: "引き合いフォームは英語です。",
+      rail: { label: "このページの内容", overview: "概要", contact: "お問い合わせ" },
     },
   },
   {
@@ -330,6 +334,7 @@ export const LOCALES: Locale[] = [
       newTab: "(새 탭에서 열림)",
       fab: "WhatsApp으로 브로커와 상담",
       formNote: "문의 양식은 영어로 되어 있습니다.",
+      rail: { label: "이 페이지의 내용", overview: "개요", contact: "문의" },
     },
   },
   {
@@ -431,6 +436,7 @@ export const LOCALES: Locale[] = [
       newTab: "(ανοίγει σε νέα καρτέλα)",
       fab: "Μιλήστε με μεσίτη στο WhatsApp",
       formNote: "Η φόρμα ερωτήματος είναι στα αγγλικά.",
+      rail: { label: "Σε αυτή τη σελίδα", overview: "Επισκόπηση", contact: "Επικοινωνία" },
     },
   },
   {
@@ -532,6 +538,7 @@ export const LOCALES: Locale[] = [
       newTab: "(åpnes i ny fane)",
       fab: "Kontakt en megler på WhatsApp",
       formNote: "Forespørselsskjemaet er på engelsk.",
+      rail: { label: "På denne siden", overview: "Oversikt", contact: "Kontakt" },
     },
   },
   {
@@ -624,6 +631,7 @@ export const LOCALES: Locale[] = [
       newTab: "(åbner i en ny fane)",
       fab: "Skriv til en mægler på WhatsApp",
       formNote: "Forespørgselsformularen er på engelsk.",
+      rail: { label: "På denne side", overview: "Oversigt", contact: "Kontakt" },
     },
   },
   {
@@ -727,6 +735,7 @@ export const LOCALES: Locale[] = [
       newTab: "(öppnas i en ny flik)",
       fab: "Kontakta en mäklare på WhatsApp",
       formNote: "Förfrågningsformuläret är på engelska.",
+      rail: { label: "På den här sidan", overview: "Översikt", contact: "Kontakt" },
     },
   },
   {
@@ -832,6 +841,7 @@ export const LOCALES: Locale[] = [
       newTab: "(öffnet in einem neuen Tab)",
       fab: "Makler per WhatsApp kontaktieren",
       formNote: "Das Anfrageformular ist auf Englisch.",
+      rail: { label: "Auf dieser Seite", overview: "Überblick", contact: "Kontakt" },
     },
   },
   {
@@ -934,6 +944,7 @@ export const LOCALES: Locale[] = [
       newTab: "(se abre en una pestaña nueva)",
       fab: "Escriba a un corredor por WhatsApp",
       formNote: "El formulario de consulta está en inglés.",
+      rail: { label: "En esta página", overview: "Resumen", contact: "Contacto" },
     },
   },
   {
@@ -1030,6 +1041,7 @@ export const LOCALES: Locale[] = [
       newTab: "(يفتح في علامة تبويب جديدة)",
       fab: "راسل وسيطًا عبر واتساب",
       formNote: "نموذج الطلب باللغة الإنجليزية.",
+      rail: { label: "في هذه الصفحة", overview: "نظرة عامة", contact: "اتصل بنا" },
     },
   },
 ];

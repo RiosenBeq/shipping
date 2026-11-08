@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import "../uiverse.css";
+import "../voyage.css";
 import { SiteShell } from "@/components/site/SiteShell";
 import { rootMetadata, rootViewport } from "@/lib/root-metadata";
 

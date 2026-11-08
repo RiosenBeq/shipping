@@ -21,6 +21,8 @@ import { ReportCard } from "@/components/site/ReportCard";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
 import { GasCarrierArt, TankerArt } from "@/components/site/VesselArt";
+import { VoyageStage } from "@/components/site/voyage/VoyageStage";
+import { VoyageRail } from "@/components/site/voyage/VoyageRail";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { BROKERS } from "@/lib/data/brokers";
@@ -113,6 +115,18 @@ const STEPS = [
   { n: "04", title: "Post-fixture", text: "Voyage follow-up, laytime, demurrage and claims." },
 ];
 
+/** Waypoints of the progress rail: every section of the page, top to bottom. */
+const RAIL = [
+  { id: "overview", label: "Overview" },
+  { id: "desks", label: "Two desks" },
+  { id: "why", label: "Why LEVANTER" },
+  { id: "process", label: "How we work" },
+  { id: "team", label: "The team" },
+  { id: "research", label: "Research" },
+  { id: "faq", label: "FAQ" },
+  { id: "contact", label: "Contact" },
+];
+
 const desks = [
   {
     id: "desk-tankers",
@@ -172,25 +186,25 @@ export default function HomePage() {
         ]}
       />
 
-      {/* Hero — chart graticule behind, brass glow low right */}
-      <section className="relative isolate overflow-hidden bg-navy text-white">
-        <div className="uv-hero-pattern" aria-hidden="true" />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-48 -right-40 h-[560px] w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(184,137,58,0.22),transparent)]"
-        />
-        <div className="container relative z-[1] grid gap-12 pb-16 pt-12 md:pb-24 md:pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] lg:items-center lg:gap-16 xl:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] xl:pb-28 xl:pt-24">
-          <div>
-            <Eyebrow dark>Istanbul · Tanker &amp; LPG Shipbrokers</Eyebrow>
+      {/* The voyage stage: fixed behind the page, framed by each window section below. */}
+      <VoyageStage />
+
+      {/* Hero — headline on the dawn sky over the Bosphorus, the pitch and buttons on the water. */}
+      <section id="overview" data-voyage-scene="hero" className="relative isolate overflow-x-clip">
+        <div className="container relative z-[1] flex min-h-[calc(100svh-4rem)] flex-col justify-between gap-14 pb-10 pt-12 md:pb-14 md:pt-20 xl:pt-24">
+          <div className="voyage-scrim max-w-[46rem] text-navy">
+            <Eyebrow>Istanbul · Tanker &amp; LPG Shipbrokers</Eyebrow>
             <h1 className="mt-6 font-display text-[40px] font-normal leading-[1.04] tracking-[-0.02em] sm:text-[52px] lg:text-[60px] xl:text-[68px]">
               Tanker and LPG chartering, brokered from the{" "}
-              <span className="text-brass-light">Bosphorus.</span>
+              <span className="text-brass-ink">Bosphorus.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-fog">
+          </div>
+          <div className="voyage-scrim voyage-scrim--ink max-w-xl text-white">
+            <p className="text-lg leading-relaxed text-fog">
               Crude, clean products, LPG and ammonia — spot, time charter and COA. Talk directly to
               the broker who fixes your trade, with a first reply inside 60 minutes.
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/contact" className="uv-btn uv-btn--lg">
                 Send an inquiry <ArrowRight aria-hidden="true" />
               </Link>
@@ -206,7 +220,7 @@ export default function HomePage() {
                 </span>
               </a>
             </div>
-            <p className="mt-10 flex flex-wrap items-center gap-2 font-mono text-xs tracking-wide text-fog">
+            <p className="mt-8 flex flex-wrap items-center gap-2 font-mono text-xs tracking-wide text-fog">
               <MapPin className="h-3.5 w-3.5 text-brass-light" aria-hidden="true" />
               <span>{POSITION}</span>
               <span aria-hidden="true" className="text-white/25">
@@ -215,32 +229,37 @@ export default function HomePage() {
               <span>Beşiktaş, Istanbul</span>
             </p>
           </div>
-          <DeskCard />
         </div>
-      </section>
 
-      {/* Proof strip */}
-      <section aria-label="At a glance" className="border-b border-line bg-white">
-        <ul className="container grid gap-x-8 gap-y-7 py-10 sm:grid-cols-2 lg:py-12 xl:grid-cols-4">
-          {PROOF.map(({ Icon, title, text }) => (
-            <li
-              key={title}
-              className="flex gap-4 xl:border-s xl:border-line xl:ps-8 xl:first:border-s-0 xl:first:ps-0"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-sand/60 text-brass-ink">
-                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="font-semibold text-navy">{title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate">{text}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/* Proof strip on the water */}
+        <div className="voyage-band--ink relative z-[1] text-white">
+          <ul
+            aria-label="At a glance"
+            className="container grid gap-x-8 gap-y-7 pb-12 pt-16 sm:grid-cols-2 lg:pb-14 lg:pt-20 xl:grid-cols-4"
+          >
+            {PROOF.map(({ Icon, title, text }) => (
+              <li
+                key={title}
+                className="flex gap-4 xl:border-s xl:border-white/15 xl:ps-8 xl:first:border-s-0 xl:first:ps-0"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brass-light/45 bg-navy/40 text-brass-light">
+                  <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-semibold text-white">{title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-fog">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {/* Desks */}
       <Section
+        id="desks"
+        scene="desks"
+        className="overflow-x-clip pt-24 md:pt-36"
         eyebrow="Two desks, one focus"
         title="Liquid cargoes. Nothing else."
         intro="We stay narrow on purpose: tankers and gas carriers are all we broker, so every desk knows its ships, terminals and charterers in depth."
@@ -301,8 +320,14 @@ export default function HomePage() {
       </Section>
 
       {/* Why */}
-      <Section tone="sand" eyebrow="Why LEVANTER" title="A boutique desk with local depth.">
-        <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <Section
+        id="why"
+        scene="straits"
+        className="overflow-x-clip pb-0 pt-28 md:pb-0 md:pt-44"
+        eyebrow="Why LEVANTER"
+        title="A boutique desk with local depth."
+      >
+        <ul className="voyage-bleed voyage-bleed--paper grid gap-x-10 gap-y-10 pb-16 pt-14 sm:grid-cols-2 md:pb-24 lg:grid-cols-4">
           {WHY.map(({ Icon, title, text, link }) => (
             <li
               key={title}
@@ -328,8 +353,14 @@ export default function HomePage() {
       </Section>
 
       {/* Process — numbered timeline (vertical on mobile, horizontal from lg) */}
-      <Section tone="dark" eyebrow="How we work" title="Four steps, one broker throughout.">
-        <ol className="grid lg:grid-cols-4 lg:gap-8">
+      <Section
+        id="process"
+        scene="process"
+        className="overflow-x-clip pt-28 md:pt-44"
+        eyebrow="How we work"
+        title="Four steps, one broker throughout."
+      >
+        <ol className="voyage-bleed voyage-bleed--ink grid py-12 lg:grid-cols-4 lg:gap-8 lg:py-16">
           {STEPS.map((s, i) => (
             <li key={s.n} className="relative flex gap-5 pb-10 last:pb-0 lg:block lg:pb-0">
               {i < STEPS.length - 1 && (
@@ -355,6 +386,8 @@ export default function HomePage() {
 
       {/* Team */}
       <Section
+        id="team"
+        className="bg-background"
         eyebrow="The team"
         title="Speak to the broker, not a switchboard."
         action={
@@ -372,6 +405,7 @@ export default function HomePage() {
 
       {/* Research */}
       <Section
+        id="research"
         tone="sand"
         eyebrow="Research"
         title="Practical notes from the desk."
@@ -389,11 +423,18 @@ export default function HomePage() {
       </Section>
 
       {/* FAQ */}
-      <Section eyebrow="FAQ" title="Working with a tanker & LPG broker.">
+      <Section
+        id="faq"
+        className="bg-background"
+        eyebrow="FAQ"
+        title="Working with a tanker & LPG broker."
+      >
         <Faq items={HOME_FAQ} />
       </Section>
 
-      <CtaBand />
+      <CtaBand id="contact" onStage aside={<DeskCard />} />
+
+      <VoyageRail items={RAIL} label="On this page" />
     </>
   );
 }

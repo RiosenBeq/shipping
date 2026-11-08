@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { voyageScene, type VoyageSceneId } from "./voyage/types";
 
 type Props = {
   id?: string;
@@ -13,6 +14,12 @@ type Props = {
   pattern?: boolean;
   /** Center the heading block (no action slot alignment). */
   align?: "start" | "center";
+  /**
+   * Homepages: a transparent "window" onto the voyage stage, framed as this
+   * scene. Overrides `tone`: the copy follows the scene (navy on the light
+   * scenes, white on dusk and night) and the heading sits on a soft scrim.
+   */
+  scene?: VoyageSceneId;
   children: React.ReactNode;
 };
 
@@ -69,23 +76,29 @@ export function Section({
   action,
   pattern = true,
   align = "start",
+  scene,
   children,
 }: Props) {
-  const dark = tone === "dark";
+  const stage = scene ? voyageScene(scene) : null;
+  const dark = stage ? stage.tone === "dark" : tone === "dark";
   const center = align === "center";
   const hasHead = Boolean(eyebrow || title || intro || action);
 
   return (
     <section
       id={id}
+      data-voyage-scene={scene}
       className={cn(
         "relative isolate py-16 md:py-24",
-        tone === "sand" && "border-y border-line/70 bg-sand",
-        dark && "bg-navy text-white",
+        stage
+          ? dark
+            ? "text-white"
+            : "text-navy"
+          : [tone === "sand" && "border-y border-line/70 bg-sand", dark && "bg-navy text-white"],
         className
       )}
     >
-      {dark && pattern && <div className="uv-hero-pattern" aria-hidden="true" />}
+      {!stage && dark && pattern && <div className="uv-hero-pattern" aria-hidden="true" />}
       <div className="container relative z-[1]">
         {hasHead && (
           <div
@@ -96,7 +109,13 @@ export function Section({
                 : "md:flex-row md:items-end md:justify-between md:gap-10"
             )}
           >
-            <div className={cn("max-w-2xl", center && "flex flex-col items-center")}>
+            <div
+              className={cn(
+                "max-w-2xl",
+                center && "flex flex-col items-center",
+                stage && (dark ? "voyage-scrim voyage-scrim--ink" : "voyage-scrim")
+              )}
+            >
               {eyebrow && (
                 <Eyebrow dark={dark} className="mb-4">
                   {eyebrow}

@@ -17,6 +17,8 @@ import { Faq } from "@/components/site/Faq";
 import { initialsColor } from "@/components/site/BrokerCard";
 import { CtaBand } from "@/components/site/CtaBand";
 import { GasCarrierArt, TankerArt } from "@/components/site/VesselArt";
+import { VoyageStage } from "@/components/site/voyage/VoyageStage";
+import { VoyageRail } from "@/components/site/voyage/VoyageRail";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { BROKERS } from "@/lib/data/brokers";
@@ -119,21 +121,21 @@ export default function LocalizedHome({ params }: Params) {
         ]}
       />
 
-      {/* Hero — chart graticule behind, brass glow low on the far side */}
-      <section className="relative isolate overflow-hidden bg-navy text-white">
-        <div className="uv-hero-pattern" aria-hidden="true" />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-48 -end-40 h-[560px] w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(184,137,58,0.22),transparent)]"
-        />
-        <div className="container relative z-[1] grid gap-12 pb-16 pt-12 md:pb-24 md:pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] lg:items-center lg:gap-16 xl:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] xl:pb-28 xl:pt-24">
-          <div>
-            <Eyebrow dark>{t.eyebrow}</Eyebrow>
+      {/* The voyage stage: fixed behind the page, framed by each window section below. */}
+      <VoyageStage />
+
+      {/* Hero — headline on the dawn sky over the Bosphorus, the pitch and buttons on the water. */}
+      <section id="overview" data-voyage-scene="hero" className="relative isolate overflow-x-clip">
+        <div className="container relative z-[1] flex min-h-[calc(100svh-4rem)] flex-col justify-between gap-14 pb-12 pt-12 md:pb-16 md:pt-20 xl:pt-24">
+          <div className="voyage-scrim max-w-[46rem] text-navy">
+            <Eyebrow>{t.eyebrow}</Eyebrow>
             <h1 className="mt-6 break-words font-display text-[36px] font-normal leading-[1.12] tracking-[-0.015em] [hyphens:auto] sm:text-[48px] lg:text-[54px] xl:text-[60px]">
               {t.h1}
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-fog">{t.lead}</p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          </div>
+          <div className="voyage-scrim voyage-scrim--ink max-w-xl text-white">
+            <p className="text-lg leading-relaxed text-fog">{t.lead}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href="/contact" hrefLang="en" className="uv-btn uv-btn--lg">
                 {t.ctaInquiry} <Forward />
               </Link>
@@ -192,29 +194,18 @@ export default function LocalizedHome({ params }: Params) {
               <span>Istanbul</span>
             </p>
           </div>
-          <DeskCard
-            title={t.deskLinesTitle}
-            note={t.deskNote}
-            whatsappText={t.whatsappGreeting}
-            newTab={t.newTab}
-            lines={[
-              {
-                label: t.tankerDesk.eyebrow,
-                value: siteConfig.desks.tankers.email,
-                href: `mailto:${siteConfig.desks.tankers.email}`,
-              },
-              {
-                label: t.lpgDesk.eyebrow,
-                value: siteConfig.desks.lpg.email,
-                href: `mailto:${siteConfig.desks.lpg.email}`,
-              },
-            ]}
-          />
         </div>
       </section>
 
       {/* Desks — each card links to the English desk page */}
-      <Section eyebrow={t.desksEyebrow} title={t.desksTitle} intro={t.desksIntro}>
+      <Section
+        id="desks"
+        scene="desks"
+        className="overflow-x-clip pt-24 md:pt-36"
+        eyebrow={t.desksEyebrow}
+        title={t.desksTitle}
+        intro={t.desksIntro}
+      >
         <div className="grid gap-6 lg:grid-cols-2">
           {desks.map(({ Art, ...d }) => (
             // Hover driven by the title link (see the English home), so hovering
@@ -275,8 +266,14 @@ export default function LocalizedHome({ params }: Params) {
         </div>
       </Section>
 
-      <Section tone="sand" eyebrow={t.whyEyebrow} title={t.whyTitle}>
-        <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <Section
+        id="why"
+        scene="straits"
+        className="overflow-x-clip pb-0 pt-28 md:pb-0 md:pt-44"
+        eyebrow={t.whyEyebrow}
+        title={t.whyTitle}
+      >
+        <ul className="voyage-bleed voyage-bleed--paper grid gap-x-10 gap-y-10 pb-16 pt-14 sm:grid-cols-2 md:pb-24 lg:grid-cols-4">
           {t.why.map((w, i) => {
             const Icon = WHY_ICONS[i % WHY_ICONS.length];
             return (
@@ -300,8 +297,14 @@ export default function LocalizedHome({ params }: Params) {
       </Section>
 
       {/* Process — numbered timeline (vertical on mobile, horizontal from lg) */}
-      <Section tone="dark" eyebrow={t.stepsEyebrow} title={t.stepsTitle}>
-        <ol className="grid lg:grid-cols-4 lg:gap-8">
+      <Section
+        id="process"
+        scene="process"
+        className="overflow-x-clip pt-28 md:pt-44"
+        eyebrow={t.stepsEyebrow}
+        title={t.stepsTitle}
+      >
+        <ol className="voyage-bleed voyage-bleed--ink grid py-12 lg:grid-cols-4 lg:gap-8 lg:py-16">
           {t.steps.map((s, i) => (
             <li key={s.title} className="relative flex gap-5 pb-10 last:pb-0 lg:block lg:pb-0">
               {i < t.steps.length - 1 && (
@@ -325,7 +328,7 @@ export default function LocalizedHome({ params }: Params) {
         </ol>
       </Section>
 
-      <Section eyebrow={t.faqEyebrow} title={t.faqTitle}>
+      <Section id="faq" className="bg-background" eyebrow={t.faqEyebrow} title={t.faqTitle}>
         <Faq items={t.faq} />
       </Section>
 
@@ -337,6 +340,40 @@ export default function LocalizedHome({ params }: Params) {
         whatsappText={t.whatsappGreeting}
         // same warning as under the hero's button: the form is English-only
         note={t.formNote}
+        id="contact"
+        onStage
+        aside={
+          <DeskCard
+            title={t.deskLinesTitle}
+            note={t.deskNote}
+            whatsappText={t.whatsappGreeting}
+            newTab={t.newTab}
+            lines={[
+              {
+                label: t.tankerDesk.eyebrow,
+                value: siteConfig.desks.tankers.email,
+                href: `mailto:${siteConfig.desks.tankers.email}`,
+              },
+              {
+                label: t.lpgDesk.eyebrow,
+                value: siteConfig.desks.lpg.email,
+                href: `mailto:${siteConfig.desks.lpg.email}`,
+              },
+            ]}
+          />
+        }
+      />
+
+      <VoyageRail
+        label={t.rail.label}
+        items={[
+          { id: "overview", label: t.rail.overview },
+          { id: "desks", label: t.desksEyebrow },
+          { id: "why", label: t.whyEyebrow },
+          { id: "process", label: t.stepsEyebrow },
+          { id: "faq", label: t.faqEyebrow },
+          { id: "contact", label: t.rail.contact },
+        ]}
       />
     </>
   );

@@ -1,0 +1,500 @@
+/* ==========================================================================
+   Voyage — the homepages' fixed three.js stage and its chart frame
+   (components/site/voyage). Loaded after Tailwind and the Uiverse kit.
+
+   Layers, back to front: static painted backdrop (server render and
+   fallback) → live canvas (fades in on its first frame) → grain → chart
+   hairlines with "+" marks → horizon hairline (tracks the 3D horizon).
+   Window sections are transparent and show the stage; sheets cover it.
+   ========================================================================== */
+
+.voyage-stage {
+  /* Inline edge of the content column: the kit's .container (1240px, 1.25rem/2rem gutters). */
+  --voyage-edge: max(1.25rem, calc((100% - 1240px) / 2 + 1.25rem));
+  --voyage-top: 64px; /* header height */
+  --voyage-hair: rgba(10, 31, 51, 0.18);
+  --voyage-mark: rgba(10, 31, 51, 0.5);
+  --voyage-hz: 64%;
+  --voyage-hero-hz: 52%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--navy);
+  contain: strict;
+}
+@media (min-width: 768px) {
+  .voyage-stage {
+    --voyage-edge: max(2rem, calc((100% - 1240px) / 2 + 2rem));
+    --voyage-hero-hz: 60%;
+  }
+}
+.voyage-stage[data-tone="dark"] {
+  --voyage-hair: rgba(243, 239, 228, 0.2);
+  --voyage-mark: rgba(243, 239, 228, 0.55);
+}
+.voyage-stage[data-scene="hero"] {
+  --voyage-hz: var(--voyage-hero-hz);
+}
+.voyage-stage[data-scene="desks"] {
+  --voyage-hz: 42%;
+}
+.voyage-stage[data-scene="straits"] {
+  --voyage-hz: 58%;
+}
+.voyage-stage[data-scene="process"] {
+  --voyage-hz: 60%;
+}
+.voyage-stage[data-scene="contact"] {
+  --voyage-hz: 62%;
+}
+
+/* ---- Static painted backdrop: one layer per scene, cross-faded ---------- */
+.voyage-backdrop,
+.voyage-backdrop > i {
+  position: absolute;
+  inset: 0;
+}
+.voyage-backdrop > i {
+  opacity: 0;
+}
+.voyage-stage[data-scene="hero"] [data-for="hero"],
+.voyage-stage[data-scene="desks"] [data-for="desks"],
+.voyage-stage[data-scene="straits"] [data-for="straits"],
+.voyage-stage[data-scene="process"] [data-for="process"],
+.voyage-stage[data-scene="contact"] [data-for="contact"] {
+  opacity: 1;
+}
+/* Dawn on the Bosphorus: paper sky, brass haze low on the right, navy water. */
+[data-for="hero"] {
+  background: radial-gradient(
+      42% 26% at 78% var(--voyage-hero-hz),
+      rgba(217, 176, 113, 0.55),
+      rgba(217, 176, 113, 0) 72%
+    ),
+    linear-gradient(
+      #e6e0d2 0%,
+      #efe9dc 32%,
+      #ecdcc0 calc(var(--voyage-hero-hz) - 0.4%),
+      #34505e var(--voyage-hero-hz),
+      #1c3949 calc(var(--voyage-hero-hz) + 12%),
+      #0a1f33 100%
+    );
+}
+/* Open water: high horizon, morning light. */
+[data-for="desks"] {
+  background: radial-gradient(
+      34% 22% at 64% 40%,
+      rgba(243, 239, 228, 0.7),
+      rgba(243, 239, 228, 0) 72%
+    ),
+    linear-gradient(#e3e3dc 0%, #ece9df 28%, #e2dac6 41.6%, #3a5866 42%, #1e3c4e 62%, #0a1f33 100%);
+}
+/* Golden hour under the bridge: low sun on the left. */
+[data-for="straits"] {
+  background: radial-gradient(
+      36% 26% at 24% 58%,
+      rgba(226, 168, 88, 0.6),
+      rgba(226, 168, 88, 0) 72%
+    ),
+    linear-gradient(#e9dfca 0%, #eed7ae 44%, #e1b273 57.6%, #4c4d4a 58%, #2b3b45 72%, #0e2233 100%);
+}
+/* Dusk on the Marmara: blue hour above a brass afterglow. */
+[data-for="process"] {
+  background: radial-gradient(
+      60% 22% at 50% 60%,
+      rgba(192, 128, 92, 0.42),
+      rgba(192, 128, 92, 0) 72%
+    ),
+    linear-gradient(
+      #0a1a2b 0%,
+      #172a43 34%,
+      #4a4258 50%,
+      #b98256 59.6%,
+      #10202f 60%,
+      #081624 80%,
+      #051624 100%
+    );
+}
+/* Night watch: moon high on the right, dark water. */
+[data-for="contact"] {
+  background: radial-gradient(
+      5% 8% at 78% 26%,
+      rgba(243, 239, 228, 0.55),
+      rgba(243, 239, 228, 0) 70%
+    ),
+    radial-gradient(30% 30% at 78% 26%, rgba(169, 182, 191, 0.14), rgba(169, 182, 191, 0) 70%),
+    linear-gradient(#03101b 0%, #071a2b 48%, #0f2a40 61.6%, #061522 62%, #030d17 100%);
+}
+
+/* ---- Live canvas -------------------------------------------------------- */
+.voyage-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.voyage-stage[data-state="live"] .voyage-canvas {
+  opacity: 1;
+}
+.voyage-stage[data-state="live"] .voyage-backdrop {
+  visibility: hidden;
+  transition: visibility 0s 1s;
+}
+
+/* ---- Grain (static backdrop only; the live engine grains in its post pass) */
+.voyage-grain {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.9'/></svg>");
+}
+.voyage-stage[data-state="live"] .voyage-grain {
+  display: none;
+}
+
+/* ---- Chart frame: hairlines along the header and the content column ----- */
+.voyage-chart {
+  position: absolute;
+  inset: 0;
+}
+.voyage-chart > i,
+.voyage-horizon {
+  position: absolute;
+  background: var(--voyage-hair);
+}
+.voyage-chart__top {
+  top: var(--voyage-top);
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.voyage-chart__start {
+  top: 0;
+  bottom: 0;
+  left: var(--voyage-edge);
+  width: 1px;
+}
+.voyage-chart__end {
+  top: var(--voyage-top);
+  bottom: 0;
+  right: var(--voyage-edge);
+  width: 1px;
+}
+.voyage-plus {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  margin: -6px 0 0 -6px;
+  color: var(--voyage-mark);
+}
+.voyage-plus::before,
+.voyage-plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.voyage-plus::before {
+  top: 0;
+  left: 6px;
+  width: 1px;
+  height: 13px;
+}
+.voyage-plus::after {
+  top: 6px;
+  left: 0;
+  width: 13px;
+  height: 1px;
+}
+.voyage-plus--top-start,
+.voyage-plus--top-end {
+  top: var(--voyage-top);
+}
+.voyage-plus--top-start,
+.voyage-plus--start {
+  left: var(--voyage-edge);
+}
+.voyage-plus--top-end,
+.voyage-plus--end {
+  left: calc(100% - var(--voyage-edge));
+}
+
+/* Horizon hairline: CSS position per scene on the static backdrop; the live
+   engine moves it every frame (inline transform) onto the rendered horizon. */
+.voyage-horizon {
+  top: var(--voyage-hz);
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.voyage-horizon .voyage-plus {
+  top: 0;
+}
+.voyage-stage[data-state="live"] .voyage-horizon {
+  top: 0;
+  will-change: transform;
+}
+
+/* ---- Copy on the stage: soft scrims and bands (light and dark scenes) --- */
+.voyage-scrim {
+  position: relative;
+  isolation: isolate;
+}
+.voyage-scrim::before {
+  content: "";
+  position: absolute;
+  inset: -26% -18% -30% -18%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    rgba(243, 239, 228, 0.7),
+    rgba(243, 239, 228, 0.38) 55%,
+    rgba(243, 239, 228, 0)
+  );
+}
+.voyage-scrim--ink::before {
+  background: radial-gradient(
+    closest-side,
+    rgba(5, 22, 36, 0.62),
+    rgba(5, 22, 36, 0.34) 55%,
+    rgba(5, 22, 36, 0)
+  );
+}
+.voyage-band--paper {
+  background: linear-gradient(
+    rgba(243, 239, 228, 0),
+    rgba(243, 239, 228, 0.86) 3rem,
+    rgba(243, 239, 228, 0.9) calc(100% - 3rem),
+    rgba(243, 239, 228, 0)
+  );
+}
+.voyage-band--ink {
+  background: linear-gradient(
+    rgba(5, 22, 36, 0),
+    rgba(5, 22, 36, 0.74) 3rem,
+    rgba(5, 22, 36, 0.8) calc(100% - 3rem),
+    rgba(5, 22, 36, 0)
+  );
+}
+
+/* ---- Rail -------------------------------------------------------------- */
+.voyage-rail {
+  --rail-p: 0;
+  position: fixed;
+  z-index: 30;
+  top: calc(64px + 52px);
+  bottom: 14vh;
+  inset-inline-start: 0;
+  display: none;
+  width: max(2rem, calc((100% - 1240px) / 2 + 2rem));
+  color: var(--navy);
+  pointer-events: none;
+}
+@media (min-width: 1280px) {
+  .voyage-rail {
+    display: block;
+  }
+}
+.voyage-rail[data-tone="dark"] {
+  color: var(--sand);
+}
+.voyage-rail[data-away="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.voyage-rail ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.voyage-rail__course,
+.voyage-rail__done {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 50%;
+  width: 1px;
+}
+.voyage-rail__course {
+  bottom: 0;
+  opacity: 0.5;
+  background: linear-gradient(currentColor 50%, transparent 0) 0 0 / 1px 4px repeat-y;
+}
+.voyage-rail__done {
+  height: calc(var(--rail-p) * 100%);
+  opacity: 0.85;
+  background: currentColor;
+}
+.voyage-rail__ship {
+  position: absolute;
+  top: calc(var(--rail-p) * 100%);
+  inset-inline-start: 50%;
+  width: 22px;
+  height: 11px;
+  margin: -11px 0 0 -11px;
+}
+.voyage-rail__ship svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+[dir="rtl"] .voyage-rail__ship svg {
+  transform: scaleX(-1);
+}
+.voyage-rail__wp {
+  position: absolute;
+  top: calc(var(--rail-t) * 100%);
+  inset-inline-start: 50%;
+}
+.voyage-rail__wp a {
+  position: absolute;
+  top: -12px;
+  inset-inline-start: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: inherit;
+  pointer-events: auto;
+}
+.voyage-rail__wp i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+.voyage-rail__wp a[data-past] i {
+  opacity: 0.85;
+}
+.voyage-rail__wp a[aria-current] i {
+  opacity: 0;
+}
+.voyage-rail__wp span {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 24px;
+  translate: 0 -50%;
+  padding: 5px 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font:
+    600 12px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--navy);
+  background: rgba(243, 239, 228, 0.92);
+  box-shadow: 0 6px 18px -10px rgba(10, 31, 51, 0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+.voyage-rail__wp a:is(:hover, :focus-visible) span {
+  opacity: 1;
+}
+.voyage-rail__wp a:is(:hover, :focus-visible) i {
+  opacity: 1;
+}
+.voyage-rail__wp a:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .voyage-backdrop > i {
+    transition: opacity 0.9s ease;
+  }
+  .voyage-canvas {
+    transition: opacity 1s ease;
+  }
+  .voyage-chart > i,
+  .voyage-horizon,
+  .voyage-plus {
+    transition:
+      background-color 0.6s ease,
+      color 0.6s ease;
+  }
+  .voyage-stage[data-state="static"] .voyage-horizon {
+    transition:
+      top 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+      background-color 0.6s ease;
+  }
+  .voyage-rail {
+    transition:
+      color 0.6s ease,
+      opacity 0.35s ease,
+      visibility 0.35s;
+  }
+  .voyage-rail__wp span,
+  .voyage-rail__wp i {
+    transition: opacity 0.2s ease;
+  }
+}
+
+/* Print: the stage and rail drop out, and copy written for the dark water or
+   the dusk/night scenes prints as dark text on paper (backgrounds are usually
+   off, so light text would vanish). */
+@media print {
+  .voyage-stage,
+  .voyage-rail {
+    display: none !important;
+  }
+  [data-voyage-scene] {
+    color: var(--navy) !important;
+  }
+  [data-voyage-scene] :is(.text-white, .text-fog) {
+    color: var(--slate) !important;
+  }
+  [data-voyage-scene] .text-brass-light {
+    color: var(--brass-ink) !important;
+  }
+  .voyage-scrim::before,
+  .voyage-bleed::before {
+    display: none;
+  }
+  .voyage-band--ink,
+  .voyage-band--paper {
+    background: none !important;
+  }
+}
+
+/* ---- Full-bleed bands behind a block inside the content column ---------- */
+.voyage-bleed {
+  position: relative;
+  isolation: isolate;
+}
+.voyage-bleed::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  z-index: -1;
+  width: 100vw;
+  translate: -50% 0;
+  pointer-events: none;
+}
+.voyage-bleed--paper::before {
+  background: linear-gradient(
+    rgba(243, 239, 228, 0),
+    rgba(243, 239, 228, 0.86) 2.5rem,
+    rgba(243, 239, 228, 0.9) calc(100% - 2.5rem),
+    rgba(243, 239, 228, 0)
+  );
+}
+.voyage-bleed--ink::before {
+  background: linear-gradient(
+    rgba(5, 22, 36, 0),
+    rgba(5, 22, 36, 0.72) 2.5rem,
+    rgba(5, 22, 36, 0.78) calc(100% - 2.5rem),
+    rgba(5, 22, 36, 0)
+  );
+}

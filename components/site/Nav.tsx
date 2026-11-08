@@ -128,6 +128,10 @@ export function Nav() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const first = pathname.split("/")[1] ?? "";
   const current = LOCALES.some((l) => l.code === first) ? first : "en";
+  // Homepages (English and localized) open on the voyage stage: the header is
+  // clear over the hero's sky, like a chart frame, and turns solid below it.
+  const stagePage = pathname === "/" || LOCALES.some((l) => pathname === `/${l.code}`);
+  const [overHero, setOverHero] = useState(stagePage);
   // "Send inquiry" keeps the page's context: tanker and LPG class pages
   // preselect their segment and ship size; the hubs (which span crude/clean,
   // and LPG/ammonia) leave the cargo for the visitor to pick.
@@ -157,23 +161,30 @@ export function Nav() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Hairline shadow once the page has scrolled under the header.
+  // Hairline shadow once the page has scrolled under the header; on the
+  // homepages, clear while the hero is still under it.
   useEffect(() => {
     let frame = 0;
     const update = () => {
       frame = 0;
       setScrolled(window.scrollY > 4);
+      const hero = stagePage
+        ? document.querySelector<HTMLElement>('[data-voyage-scene="hero"]')
+        : null;
+      setOverHero(hero ? hero.getBoundingClientRect().bottom > 72 : false);
     };
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [stagePage]);
 
   // Close the drawer if the viewport grows to the desktop layout.
   useEffect(() => {
@@ -226,17 +237,21 @@ export function Nav() {
   }, [open]);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const clear = overHero && !open;
 
   return (
     <header
       // English chrome inside localized documents.
       lang="en"
       dir="ltr"
+      data-clear={clear ? "" : undefined}
       className={cn(
         "site-chrome sticky top-0 z-50 border-b motion-safe:transition-[box-shadow,border-color] motion-safe:duration-300 print:hidden",
-        scrolled || open
-          ? "border-line shadow-[0_10px_30px_-20px_rgba(10,31,51,0.4)]"
-          : "border-line/70 shadow-none"
+        clear
+          ? "border-transparent shadow-none"
+          : scrolled || open
+            ? "border-line shadow-[0_10px_30px_-20px_rgba(10,31,51,0.4)]"
+            : "border-line/70 shadow-none"
       )}
     >
       {/* Near-opaque backdrop on its own layer: a backdrop-filter on <header>
@@ -247,10 +262,11 @@ export function Nav() {
       <div
         aria-hidden="true"
         className={cn(
-          "absolute inset-0 -z-10",
+          "absolute inset-0 -z-10 motion-safe:transition-opacity motion-safe:duration-300",
           open
             ? "bg-background"
-            : "bg-background/[0.97] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/[0.94]"
+            : "bg-background/[0.97] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/[0.94]",
+          clear && "opacity-0"
         )}
       />
 
