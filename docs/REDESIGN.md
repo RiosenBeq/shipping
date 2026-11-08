@@ -134,7 +134,7 @@ Arayüz parçaları [Uiverse.io](https://uiverse.io)'daki açık kaynak (MIT) ö
 | Sınıf | Kullanım yeri |
 | --- | --- |
 | `uv-btn`, `uv-btn-outline`, `uv-btn-ghost-light` | Nav, CTA bantları, form, 404/hata ekranları; koyu kahramanlarda ikincil buton (`ghost-light`); meşgul durumda küçük loader |
-| `uv-card` (`--dark`, `--hover`) | `DeskCard`, `CoverageCard`, `BrokerCard`, `ReportCard`, `NotFoundView` |
+| `uv-card` (`--dark`, `--hover`) | `BrokerCard`, `NotFoundView` (V1'in `DeskCard`, `CoverageCard`, `ReportCard` bileşenleri V2'de kaldırıldı) |
 | `uv-field` | İletişim formu ve LPG dönüştürücü: kayan etiketli alanlar, ortadan açılan odak çizgisi |
 | `uv-segmented` | Dönüştürücüde yön ve kargo seçimi; formda kanal, masa, kiralama tipi |
 | `uv-chip` | Sınıf etiketleri, sözlük/araştırma/broker sayfalarında sayfa içi gezinme |
@@ -143,7 +143,7 @@ Arayüz parçaları [Uiverse.io](https://uiverse.io)'daki açık kaynak (MIT) ö
 | `uv-loader`, `uv-skeleton` | `PageSkeleton` (route yükleniyor ekranı), meşgul butonlar, hata ekranı |
 | `uv-toast`, `uv-tooltip` | Form gönderim bildirimi; iletişim bilgilerinde "kopyalandı" ipucu |
 | `uv-fab` | `FloatingContact`: kaydırınca beliren "broker ile konuş" düğmesi; footer ve CTA bantlarında gizlenir, `/contact`'ta hiç görünmez |
-| `uv-hero-pattern` | `PageHeader`, `CtaBand`, `Section`, `LightGraticule`: deniz haritası ızgarası deseni |
+| `uv-hero-pattern` | `PageHeader`, `CtaBand`, `Section`: deniz haritası ızgarası deseni |
 
 **Yeniden tasarlanan bileşenler ve durumlar**
 
@@ -224,46 +224,62 @@ Masaüstü 1440 px tam sayfa, mobil 390 × 844 ilk ekran.
 | العربية | ![](screenshots/after/ar-desktop.webp) | ![](screenshots/after/ar-mobile.webp) |
 | 404 | ![](screenshots/after/not-found-desktop.webp) | ![](screenshots/after/not-found-mobile.webp) |
 
-## 11. Voyage: three.js sahne arka planı (Kasım 2026)
+## 11. V2: tek sahne, kartlar ve pencereler — ana sayfa ve site kabuğu (Kasım 2026)
 
-Ana sayfa ve 10 dildeki açılış sayfaları artık sabit, kaydırmaya bağlı bir three.js sahnesinin önünde akıyor. Fikir [gnbshipbrokers.com](https://gnbshipbrokers.com/) (Green & Black Shipbrokers) sitesinden uyarlandı. O sitede sabit bir "sahne" var; sayfa kaydıkça kamera boyalı deniz manzaralarında ilerliyor; üstte kâğıt/keten dokusu, ince harita çerçevesi çizgileri, "+" işaretleri, sahneyle hareket eden bir ufuk çizgisi ve solda küçük gemili bir ilerleme çubuğu var.
+V2 yönü (`DESIGN-V2`): yapı ve deneyim için [gnbshipbrokers.com](https://gnbshipbrokers.com/), bölümler ve video hero için seacon.gr, koyu ve "premium" three.js bitişi için pentayazilim.com örnek alındı; üstüne müşterinin istediği Blog eklendi. Üç referanstan **yalnız fikirler** alındı: görselleri, videoları, metinleri, logoları ve kodu kullanılmadı. Marka, metin ve lisanslı görüntüler LEVANTER'in kendisi (`public/media/`, kaynaklar `docs/MEDIA-CREDITS.md`).
 
-**LEVANTER uyarlaması.** Görseller video ya da yapay zekâ resmi değil; tarayıcıda canlı çiziliyor (harici görsel yok, CSP ile uyumlu). Lacivert, pirinç ve kum paletinde beş sahne bir günü anlatıyor:
+**Boyalı (procedural) voyage sahnesi emekliye ayrıldı.** Fotoğraf/video ile boyalı sahne aynı sayfada iki ayrı site gibi duruyordu; artık tüm görsel dil lisanslı çekimler ve tek bir "lens" (renk derecelendirmesi, gren, vinyet, metin altında sakin bölgeler). Motorun altyapısı (`progress.ts`, `quality.ts`, yaşam döngüsü, rail) `components/site/stage/` altında yeni sahneye taşındı; sözleşmesi `docs/STAGE.md`'de. Eski motor git geçmişinde (`voyage-painted-v1` etiketi lider tarafından atılacak).
 
-| Sahne | Bölüm | An |
-| --- | --- | --- |
-| `hero` | Giriş | Boğaz'da şafak: Avrupa ve Asya yakası siluetleri, Galata benzeri kule, camiler, Boğaz Köprüsü, Kız Kulesi, geçen bir tanker |
-| `desks` | İki masa | Marmara'da açık deniz: tanker ve basınçlı LPG gemisi |
-| `straits` | Neden LEVANTER | Köprünün altında altın saat |
-| `process` | Çalışma şeklimiz | Marmara'da alacakaranlık, şehir ışıkları, demirli gemiler |
-| `contact` | İletişim | Kız Kulesi'nde gece: ay, yakamoz, ışıklı kule |
+**Sayfanın grameri.** Sayfanın arkasında tek sabit sahne (WebGL tuvali; JS veya WebGL yoksa derecelendirilmiş poster). Üstündeki her şey ya **pencere** (sahne görünür, metin "sakin bölge" üstünde) ya **kart** (kâğıt veya gece rengi, 28 px köşe, 12 px kenar payı; telefonda 22/8) ya da **açıklık** (kart içindeki yuvarlak pencere; tam ekrana büyüyebilir). Her bölümde `data-ground="dark|light"`; header, rail ve odak halkası rengini buradan alır.
 
-**Seçim süreci.** İki sanat yönü prototiplendi: "Oil on linen" (yağlı boya / keten) ve "Engraved chart" (gravür / harita). Üç ayrı jüri değerlendirdi: sanat yönetimi, okunabilirlik (gerçek piksellerde WCAG kontrastı) ve mühendislik (performans, bellek, mobil risk). Referansın havasına en yakın ve metin altında en okunaklı olan "Oil on linen" seçildi. Mühendislik jürisinin bulguları (ör. modül yüklenirken 256 MB ayıran gürültü tablosu) seçilen motorda düzeltildi.
+**Ana sayfa akışı** (`components/site/home/`, §7). Aşağıdaki varsayılan sıradır: hero her zaman ilk, footer her zaman son; aradaki sekiz bölümün **sırası, görünürlüğü ve metni panelden** değişir (aşağıda "İçerik yönetimi"). Rail, sahne numaraları ("02 / 09"), plaka listesi ve 10 dilin sayfaları bu sırayı izler.
 
-**Mimari** (`components/site/voyage/`):
+| # | Rail | Bölüm | Zemin | Tür |
+| --- | --- | --- | --- | --- |
+| 1 | Departure | Hero — "Tankers & gas, / brokered from / the **Bosphorus.**" | `V-hero` (şafak) | açıklık penceresi, 100svh |
+| 2 | Local depth | Biz kimiz — kaydırdıkça dolan cümle + 4 madde | `P-bathy` (batimetri) | pencere, masaüstünde 160vh sabit |
+| 3 | Desks | Masalar ve hizmetler — numaralı 4 satır, harf harf dolan başlıklar; altında **"Estimate a voyage."** navlun hesaplayıcı kartı | kâğıt | kart |
+| 4 | Ships | "From VLCC to pressurised LPG." — 9 sınıf kartı (sınıf rehberi + **o sınıf seçili hesaplayıcı** bağlantısı), 3B hat planı | `P-lines` | pencere |
+| 5 | How we work | Dört adım — kâğıttan tam ekrana büyüyen reel | kâğıt → `V-reel` (alacakaranlık) | açıklık, 220vh sabit |
+| 6 | Reach | Üç ofis / tek masa — noktalı harita, canlı saatler, sayaçlar, 6 rota | kâğıt | kart |
+| 7 | Team | "Speak to the broker, not a switchboard." — yana kayan portre şeridi | gece + parıltı | kart, 240vh sabit |
+| 8 | Notes | Blog şeridi ("Notes from the desk.") + kategori çipleri + SSS | kâğıt | kart |
+| 9 | Contact | Mektup + damga, masa hatları, mesai dışı nöbetçi broker | `V-night` | pencere |
+| — | — | Footer: dev menü, sınıflar, diller, kıç aynası ad levhası | `V-ocean` (derin) | kart biçimli pencere |
 
-- `types.ts`: motor sözleşmesi ve beş sahne (`VOYAGE_SCENES`).
-- `progress.ts`: kaydırma → yolculuk ilerlemesi. Her "pencere" bölüm (`data-voyage-scene`) bir sahneye çapalanır; çapa civarında kamera durur, aralarda yumuşakça uçar. Testleri `progress.test.ts`'te.
-- `quality.ts`: cihaz ipuçlarından kalite kademesi (high / medium / low) ve piksel bütçesine göre DPR. Veri tasarrufu, 2G ve çok düşük bellek → statik arka plan. Testleri `quality.test.ts`'te.
-- `VoyageStage.tsx`: sahnenin React sarmalayıcısı. Motoru sayfa boşa çıkınca dinamik olarak yükler; sekme gizliyken ya da hiçbir pencere bölüm ekranda değilken çizimi durdurur; yazılım WebGL'de (performans uyarısı) statik arka planda kalır; "hareketi azalt" tercihinde sahne başına durağan kare gösterir; ufuk çizgisini her karede motorun hesapladığı ufka taşır.
-- `VoyageRail.tsx`: geniş ekranlarda soldaki bölüm çubuğu (küçük tanker ilerliyor, bölüm adı hover/odakta).
-- `engine/`: three.js motoru. Kamera kareleri, ışık ve renkler `engine/timeline.ts`'te (`SHOTS`, `DEFS`); ufuk konumu sahne başına `hz` (masaüstü) ve `pHz` (telefon) ile ayarlanır.
-- `app/voyage.css`: statik "boyalı" arka plan (sunucu çıktısı ve yedek), harita çerçevesi, ufuk çizgisi, okunabilirlik scrim'leri ve bantları, bölüm çubuğu, baskı kuralları.
+Telefonda (§7.10) aynı sıra: sabitleme yok, pencereler `scroll-snap` ile durur, kartlar serbest kayar; gemiler kaydırmalı kartlar (her kartta SVG gemi çizimi), reel kartı %88'den tam genişliğe açılır, ekip ve rotalar yatay kaydırma, harita Akdeniz–Karadeniz–Körfez'e kırpılır ve ofisler altında listelenir.
 
-**Sayfa yapısı.** Giriş, iki masa, neden LEVANTER, çalışma şeklimiz ve kapanıştaki iletişim bölümü saydam pencerelerdir; ekip, araştırma ve SSS opak "sayfa"lar olarak sahnenin üstünden geçer. Girişte başlık gökyüzünde, açıklama ve butonlar suyun üstünde durur (referanstaki gibi). "Doğrudan masa hatları" kartı gece sahnesindeki iletişim bölümüne taşındı. Header giriş bölümünün üstünde saydamdır.
+**Tasarım belirteçleri** (`app/globals.css`, §4 — iç sayfalar da bunları kullanır): renkler `--navy-deep #051624`, `--navy #0A1F33`, `--navy-2`, `--brass #B8893A` (yalnız dolgu/çizgi), `--brass-light #D9B071` (gecede vurgu), `--brass-ink #8A6420` (kâğıtta vurgu metni), `--sand`, `--paper`, `--slate`, `--mist`, `--fog`, `--tide` (yalnız parıltı). Zemin değişkenleri `--ink / --ink-2 / --ink-3 / --ink-accent / --hair / --focus` `[data-ground]` ile değişir. Tipografi sınıfları `.t-hero .t-display .t-statement .t-h3 .t-card .t-sub .t-lead .t-label .t-data .t-counter .t-letter .t-quote .t-menu .t-word`; aralıklar `--edge` (72/24 px), `--inset`, `--r-card`, `--r-media`, `--sec-pad`; hareket `--ease-tide / --ease-swell / --ease-quick` ve 180·420·640·900·1200 ms. Butonlar `.lv-btn` (+ `--cta` pirinç, lacivert ok rozeti; `--ghost`; `--ink`; `--sm`), `.lv-link`, `.lv-chip`, `.lv-pill`, `.lv-glow--brass/--tide`.
 
-**Performans ve erişilebilirlik.**
+**Yazı tipleri.** Inter Tight (başlık) + **Inter** (gövde; Manrope kaldırıldı — aynı iskelet, 14–17 px'te daha iyi, Yunanca kapsamı) + Source Serif 4 (mektup, makale gövdesi, alıntı; `opsz` ekseniyle) + IBM Plex Mono (koordinat, tarih, sayı). Arapça başlıklar için yalnız `/ar`'da inen IBM Plex Sans Arabic. Alt kümeler latin, latin-ext ve (varsa) greek.
 
-- three.js yalnızca ana sayfalarda, sayfa yüklendikten sonra ayrı bir parça olarak iner. İlk yükleme JS'i değişmedi.
-- Görünmezken çizim yapılmaz.
-- Metin bloklarının arkasında motor "sakin bölge" uygular: başlık arkasında gökyüzü kâğıda açılır, girişteki açıklamanın altında su koyulaşır ve parıltı söner. Böylece kontrast WCAG AA'yı karşılar.
-- Baskıda sahne gizlenir ve metin koyu basılır.
+**Hareket: "gelgit".** Her şey bir su çizgisinden yukarı doğru girer. Hero harfleri maske içinde yükselir (22 ms arayla, en fazla 40 harf; Arapçada kelime kelime, CJK'da en fazla 24 karakter), başlıklar satır satır, masa başlıkları harf harf dolar (≤ 700 ms), "Biz kimiz" cümlesi kaydırmaya bağlı olarak %40'tan %100 kuma dolar, sayaçlar 0'dan sayar, mektup oturur ve damga basılır. Hepsi ilerleyici iyileştirme: içerik JS'siz görünür; gizli durumlar yalnız `html[data-home-motion="on"]` sonrası ve ekran dışındaki öğelere uygulanır; yalnız transform/opacity/clip-path hareket eder (CLS 0). Sabitlemeler yalnız masaüstünde ve en fazla üç (Who 160vh, Process 220vh, Team 240vh); hepsi `position: sticky` + doğal kaydırma, ilerleme sahnenin yazdığı `--stage-in / --stage-pin` değişkenlerinden CSS ile okunur. "Hareketi azalt" tercihinde hiçbir şey gizlenmez, sabitlemeler normal akışa döner, cümle dolu gelir, sayaçlar son değerinde, ekip şeridi sarılan bir ızgara olur, sahne posterlere geçer.
 
-**Test bayrakları.** `?voyage=1` canlı sahneyi zorlar (ör. yazılım WebGL kullanan headless tarayıcıda), `?voyage=0` statik arka planı zorlar.
+**Header** (`components/site/Nav.tsx`, §8). Her sayfada sabit: köşede işaret + aralıklı LEVANTER, ortada cam "hap" içinde Tankers · LPG & Ammonia · Turkish Straits · Team · Blog · **Calculator** (`/freight-calculator`; geçerli sayfa pirinç çizgi; 1024 px'te de sığar), dil hapı (11 dil, "yalnız ana sayfa sizin dilinizde" notu), pirinç "Send inquiry". Rengini header'ın orta çizgisinin altındaki bölümün `data-ground` değerinden alır: koyuda yarı saydam lacivert cam + kum metin, açıkta kâğıt cam + lacivert metin. İlk sahneden sonra aşağı kaydırınca gizlenir, yukarı kaydırınca döner; odak veya dil menüsü içindeyken asla gizlenmez. Hero'nun üst bandında, aperture'ın içinde lacivert bir **perde** var: hangi video seçilirse seçilsin (gökyüzü, kıyı çizgisi gibi parlak üst kısımlar) cam hap, wordmark ve dil hapı AA kontrastta kalır. 1024 px altında 44 px pirinç kare ok + dört noktalı menü (Calculator dahil); menü tam ekran gece zemini (%6 batimetri, bir pirinç parıltı), mono numaralı büyük bağlantılar, ofis blokları, e-posta, 44 px sosyal kareler, dil satırı; aşağıdan yukarı perde açılışı, bağlantılar 40 ms arayla yükselir; odak tuzağı, Escape, arka sayfa `inert`, odak düğmeye döner.
+
+**Sayfa sözleşmesi.** `<main>` header bandı kadar (`--hdr-h`: 104 px masaüstü, 76 px telefon) üst boşluk alır; sayfanın ilk sahnesi header'ın altından geçecekse o öğeye `data-header-overlay` konur ve kendi üst boşluğunu verir (ana sayfa hero'su, iç sayfa başlıkları, blog başlığı).
+
+**Footer** (`components/site/Footer.tsx`, §9). Tüm sayfalarda `V-ocean` plakası üstünde kart biçimli pencere (derin derecelendirme, perde, hafif bulanıklık, tide parıltısı). Solda marka, tek satır ve üç ofis; sağda 66 px dev menü (hover'da pirinç + ↗); altta sınıflar (9), **Tools** (Freight calculator, cbm ↔ tonnes), okumalar, diller (11), yasal satır (© · Privacy · Terms · RSS · Pause motion); en altta kıç aynasına yazılmış gibi "LEVANTER / ISTANBUL" ad levhası (%8,5 kum, `aria-hidden`). Sahnesi olmayan sayfalarda footer okyanus posterini kendisi gösterir.
+
+**İçerik yönetimi: genel, panelden yönetilen sistem.** Müşteri "genel bir sistem" istedi; ana sayfa ve sahnedeki tüm görüntüler koddan çıkıp panele taşındı (ayrıntılar `docs/CMS.md` §3.2–3.3):
+
+- `/keystatic` → Pages → **Homepage** (`content/home.json`): hero (her zaman ilk) ve sürükle-bırak ile sıralanan **bölüm blokları** (Who, Desks + hesaplayıcı kartı, Ships, How we work, Reach, Team, Notes + SSS, Letter). Her bölümün "Show" kutusu metni kaybetmeden gizler; bir bölüm listeden silinirse sayfadan da kalkar; her bölüm en fazla bir kez kullanılır. Bölüm içinde: rail adı, alt satır, başlık, giriş, plaka seçimi (hero, reel ve mektup için altı video plakasından biri), 4 madde, 4 masa satırı (sınıf çipleri, fotoğraf, alt yazı), hesaplayıcı kartı, 4 sayaç, 6 rota, 4 adım, mektup, blog/SSS adetleri. Yerel ana sayfalar sırayı ve görünürlüğü buradan alır.
+- `/keystatic` → Media → **Media library** (`content/media.json`): altı video plakası (V-hero, V-gas, V-reel, V-strait, V-night, V-ocean) ve dokuz fotoğraf için ayrı kayıt. Her plaka: **video yükle** (`public/media/uploads/`) **veya başka bir sitedeki .mp4/.webm dosyasının https bağlantısını yapıştır**, isteğe bağlı telefon (dikey) videosu, poster (yükleme veya bağlantı), derecelendirme (dawn/day/dusk/night/deep), odak noktası (masaüstü + telefon, %), aynalama, ufuk çizgisi yüksekliği, kaynak/lisans. Alanlar boşsa lisanslı, sitede gelen dosya oynar. `lib/media.ts` kayıtları sevkiyat manifestosunun üstüne uygular; sahne (`components/site/stage/plates.ts`) bunları okur.
+- **Başka sitedeki videolar ve CORS.** WebGL bir videoyu ancak o site izin verirse (`Access-Control-Allow-Origin`) doku olarak çizebilir. Sahne bağlantıları yüklemeden önce sorar (`fetch`, yalnız başlıklar): izin varsa video lensten (derecelendirme, sakin bölgeler, gren) geçer; yoksa ya da dosya açılamazsa sahne poster moduna geçer ve videoyu **düz bir `<video>` olarak aynı derecelendirmenin SVG filtresiyle** oynatır (`html[data-stage-why="remote-media"]`); o da açılamazsa poster (veya zemin rengi) kalır — **asla siyah ekran yok**. Posteri olmayan yeni bir video, hareket kapalıyken ilk karesiyle görünür. Derecelendirilmemiş her görsel (yükleme, bağlantı, yeniden derecelendirilen sevkiyat dosyası) `#lv-grade-<ön ayar>` işaretini taşır ve `components/site/stage/GradeFilters.tsx`'teki SVG filtresiyle gösterilir (lens matematiğiyle aynı; test edildi); ham görüntü yayınlanmaz.
+- Doğrulama (§13): hero başlığı ≤ 48 karakter ve ≤ 3 satır, cümle ≤ 220, satır girişi ≤ 140, sayaç alt yazısı ≤ 48 ve **para birimi, oran, yüzde yok** (bayat fiyat olmasın; hesaplayıcı kartında da), vurgu kelimesi başlıkta geçmeli, tüm bağlantılar var olan sayfalara gitmeli, bölüm tekrarı yok; medya bağlantıları https ve doğrudan video/görsel dosyası (YouTube/Vimeo sayfası değil), yükleme ile bağlantı aynı anda yok, yüklenen dosyalar `public/` altında mevcut, yeni fotoğrafta alt metin zorunlu. Panel her kaydı Keystatic'in biçiminde yazar (bir alanı değiştirmek yalnız o satırı değiştirir; denendi).
+- Site ayarlarına mesai dışı **nöbetçi hattı** (başlık, WhatsApp, görünen numara, saatler) ve her ofis için **saat dilimi** (IANA; canlı ofis saatleri) eklendi.
+
+**Yerel ana sayfalar ve sağdan sola** (§12). 10 dil aynı akışı ve plakaları kullanır; metinler `lib/i18n.ts` → `home` (hero satırları ve vurgusu, alt satırlar, sahne etiketleri, cümle, madde bağlantıları, masa satırları, gemi bölümü, sayaç alt yazıları, ekip, blog, mektup, nöbetçi hattı, rail adları). Hero her dilde 390 px telefonda 46 px ile en fazla üç satır (`de` ve `el` dahil); hero sütun düzeninde olduğu için uzun bir başlık (Arapçada satır yüksekliği 1,25) alttaki metnin üstüne binmez, gerekirse pencere uzar. Hesaplayıcı kartı ve sınıf kartlarındaki "Estimate a voyage" bağlantısı da 10 dilde (sayfası İngilizce olduğu belirtilerek). `/ar`: mantıksal özellikler, rail sağda, mono sayılar (`01 / 09`, tonaj aralıkları) `dir="ltr"` ile yalıtılır, şerit ve kaydırıcılar ters, mektup +3°, oklar aynalı; **plakalar aynalanmaz**. Arapçada harf bölme yok, harf aralığı 0, satır yüksekliği 1,25. CJK'da harf aralığı 0, başlık satırı 1,2, gövde 1,8; Yunancada negatif aralık en fazla −0,03em. Ekip, sınıf ve blog bağlantıları İngilizce sayfalara gider (`hrefLang="en"`).
+
+**SEO ve erişilebilirlik** (§14). Tek `h1` (hero; erişilebilir metni tam cümle), bölüm başlıkları `h2`, satır/kartlar `h3`; ana sayfadan tüm masalara, 9 sınıfa, Boğazlar rehberine, blog yazılarına, **blog kategorilerine**, rotalara ve **navlun hesaplayıcısına** (genel ve 9 sınıf için) taranabilir `<a>` bağlantılar; JSON-LD (WebPage, LocalBusiness/ProfessionalService, Service, FAQPage yalnız görünen sorulardan) korundu. Video plakalar dekoratif. Pause motion düğmesi hero, mektup ve footer'da. Kaydırıcı ve şeritte klavye yolu (oklar, Home/End, görünür odak; odaklanan ekip kartı görünür yere kaydırılır). Kontrast, metni gizleyip **gerçek piksel** üzerinde ölçüldü (poster modu, masaüstü, telefon ve `/ar`; header dahil): tüm metinler WCAG AA'yı geçiyor. **CLS 0:** kaydırmayla şekil değiştiren açıklıklar (hero çıkışı, reel) kutularını hiç oynatmaz; zemin renginde bir kenarlık büyür, sahne açıklığı kenarlığın içinden okur (önce masaüstünde kaydırma boyunca 0,27 olan CLS 0,0003'e indi). LCP öğesi hero metni.
+
+**Testler.** `components/site/home/home.test.ts`: içerik doğrulama sınırları (başlık, para birimi, uzunluklar, vurgu, bağlantılar), bölüm sırası/gizleme/tekrar, sıraya göre plaka listesi ve rail, 9 sınıf bağlantısı ve hesaplayıcı bağlantıları, her dilde aynı akış, çevrilmiş hesaplayıcı metinleri ve ≤ 3 satır hero, harita koordinatları. `lib/media.test.ts`: medya kütüphanesi şeması (https, dosya uzantısı, yükleme/bağlantı çakışması, odak, alt metin), eksik yüklemeler, kayıtların plakalara ve fotoğraflara uygulanması, varsayılan dosyada hiçbir şeyin değişmemesi, SVG derecelendirmenin lens derecelendirmesine yakınlığı (< 0,02). Harita verisi `scripts/build-reach-map.ts` ile Natural Earth 1:50m (kamu malı) kara verisinden üretilir.
+
+**Bilinçli sapmalar.** (1) Masa satırları ekranın ortasındaki satıra göre açılır ama satırlar sabit yükseklikte bir kutu içinde transform ile yer değiştirir; hiçbir şey kaymaz (CLS 0). Ziyaretçi bir satıra tıklarsa satırlar onun bıraktığı gibi kalır. (2) Hover'da fotoğraf üstünde WebGL dalgalanması ve kart yığınında üst kartın derinlik efekti yalnız Reach → Team arasında var. (3) Ana sayfada yüzen WhatsApp düğmesi yok (CTA'lar header'da, hero'da ve mektupta). (4) Dalga/rota döşemeleri, sınıf kartları ve kategori çipleri İngilizce (sayfaları İngilizce). (5) Referans sitelerin videoları depoya indirilmedi ve eklenmedi; test için bağlantıları panelden yapıştırılabilir (CORS izni yoksa düz `<video>` yolu devreye girer). (6) Yerel ana sayfalar, panelde eklenecek İngilizce dışı metin alanları olmadığı için bölüm metinlerini `lib/i18n.ts`'ten alır; sıra ve görünürlük paneldendir.
 
 ## 12. Yayından önce yapılması gerekenler
 
 1. **Alan adı:** Vercel'de `NEXT_PUBLIC_SITE_URL` ortam değişkenine gerçek alan adını girin. Şu an `https://levanter.example`. Canonical, sitemap, robots, llms.txt ve JSON-LD bu değeri kullanır.
-2. **İletişim bilgileri:** Telefon, WhatsApp, masa e-postaları, adres, koordinatlar, ofisler ve sosyal hesaplar `lib/site.ts`'te. Şu an yer tutucu değerler var.
+2. **İletişim bilgileri:** Telefon, WhatsApp, nöbetçi hattı, masa e-postaları, adres, koordinatlar, ofisler (saat dilimleriyle) ve sosyal hesaplar `/keystatic` → Site settings'te (`content/site.json`). Şu an yer tutucu değerler var.
 3. **Ekip:** İsim, unvan, dil ve iletişim satırları `lib/data/brokers.ts`'te. Şu an örnek kişiler var; gerçek ekiple değiştirin.
 4. **Çeviriler:** `lib/i18n.ts`'teki 10 dilin metnini ana dili o dil olan birer kişiye kontrol ettirin (özellikle denizcilik terimleri).

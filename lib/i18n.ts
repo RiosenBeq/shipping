@@ -49,6 +49,101 @@ export type Dictionary = {
   formNote: string;
   /** Section rail on the homepage stage: its accessible name and two waypoint labels. */
   rail: { label: string; overview: string; contact: string };
+  /**
+   * The V2 homepage (DESIGN-V2 §7, §12): the strings it adds to the ones above.
+   * The other sections reuse them (why → the four facts, tankerDesk/lpgDesk →
+   * desk rows 1–2, steps → how we work, faq → the FAQ, cta → the letter).
+   */
+  home: {
+    /** Hero headline, at most three lines at 46px on a 390px phone (§12). */
+    heroLines: string[];
+    /** One word or phrase of the headline set in brass. */
+    heroAccent?: string;
+    heroSub: string;
+    /** The ghost button next to the inquiry button. */
+    whatsapp: string;
+    /** Mono scene labels: hero ("Dawn · outbound") and who. */
+    sceneHero: string;
+    sceneWho: string;
+    pause: { pause: string; play: string };
+    /** Rail waypoint names, in section order. */
+    rail: {
+      hero: string;
+      who: string;
+      desks: string;
+      ships: string;
+      process: string;
+      reach: string;
+      team: string;
+      notes: string;
+      letter: string;
+    };
+    /** "— sub" lines (how we work uses `stepsEyebrow`). */
+    subs: {
+      who: string;
+      desks: string;
+      ships: string;
+      reach: string;
+      team: string;
+      notes: string;
+      contact: string;
+    };
+    /** The Who statement (h2), filled word by word. */
+    statement: string;
+    about: string;
+    /** Next to the sonar ping, after the coordinates. */
+    pin: string;
+    /** Link labels of the four facts (`why`). */
+    factLinks: string[];
+    desksLines: string[];
+    desksLead: string;
+    howWeWork: string;
+    /** Desk row 3. */
+    straits: { title: string; text: string };
+    /** Desk row 4. */
+    postTitle: string;
+    postText: string;
+    /** Link labels and still captions of the four desk rows. */
+    rowLinks: string[];
+    captions: string[];
+    ships: {
+      title: string;
+      tanker: string;
+      gas: string;
+      classGuide: string;
+      prev: string;
+      next: string;
+      /** Accessible name of the Tankers | Gas control. */
+      family: string;
+    };
+    reachLines: string[];
+    /** Captions of the four counters (60, 9, 3, 2): evergreen facts, no prices or rates. */
+    counters: string[];
+    localTime: string;
+    mapLabel: string;
+    lanesLabel: string;
+    teamLines: string[];
+    teamLead: string;
+    /** Button to the (English) team page. */
+    teamCta: string;
+    /** "Email {name}" on a team card. */
+    email: string;
+    notesTitle: string;
+    allPosts: string;
+    askDesk: string;
+    /** The letter's label ("From the Bosphorus"); its headline and line are ctaTitle/ctaText. */
+    letterLabel: string;
+    dutyTitle: string;
+    /** `{number}` is replaced with the duty WhatsApp number. */
+    dutyText: string;
+    /** "Phone · Istanbul" in the contact column. */
+    phone: string;
+    /**
+     * The freight calculator's entry points: the card under the desk rows and
+     * the second link on each class card (the calculator page is in English).
+     */
+    calc: { label: string; title: string; text: string; cta: string; estimate: string };
+  };
 };
 
 export type Locale = {
@@ -145,6 +240,92 @@ export const LOCALES: Locale[] = [
       fab: "通过WhatsApp联系经纪人",
       formNote: "询盘表格为英文。",
       rail: { label: "本页内容", overview: "概览", contact: "联系我们" },
+      home: {
+        heroLines: ["油轮与气体船，", "立足博斯普鲁斯", "专业经纪。"],
+        heroAccent: "博斯普鲁斯",
+        heroSub: "伊斯坦布尔油轮与LPG船舶经纪",
+        whatsapp: "WhatsApp联系业务部",
+        sceneHero: "黎明 · 出港",
+        sceneWho: "本地深度 · 博斯普鲁斯测深",
+        pause: {
+          pause: "暂停动画",
+          play: "播放动画",
+        },
+        rail: {
+          hero: "启航",
+          who: "本地深度",
+          desks: "业务部门",
+          ships: "船型",
+          process: "工作方式",
+          reach: "覆盖范围",
+          team: "团队",
+          notes: "研究笔记",
+          letter: "联系",
+        },
+        subs: {
+          who: "我们是谁",
+          desks: "业务与服务",
+          ships: "我们经纪的船型",
+          reach: "我们的业务范围",
+          team: "我们的团队",
+          notes: "来自业务一线",
+          contact: "联系我们",
+        },
+        statement:
+          "只做液货，别无其他。我们在博斯普鲁斯海峡旁经纪油轮和气体运输船，因此每位经纪人都深入了解船舶、码头和海峡。",
+        about: "关于LEVANTER（英文）",
+        pin: "伊斯坦布尔业务部",
+        factLinks: ["土耳其海峡指南", "压力式LPG船指南", "认识团队", "Worldscale与TCE详解"],
+        desksLines: ["两个业务部门，", "同一个标准。"],
+        desksLead:
+          "我们刻意保持专注：只经纪油轮和气体运输船——航次租船、期租和COA，直至装卸时间和索赔。",
+        howWeWork: "工作方式",
+        straits: {
+          title: "土耳其海峡",
+          text: "过峡时间、等待和海峡规则，计入我们报出的每一笔黑海租船。",
+        },
+        postTitle: "成交后服务",
+        postText: "航次跟踪、装卸时间、滞期费和索赔，由完成成交的同一位经纪人负责。",
+        rowLinks: ["油轮部", "LPG与氨部", "土耳其海峡指南", "装卸时间与滞期费指南"],
+        captions: ["油轮部 · 伊斯坦布尔", "LPG与氨部", "博斯普鲁斯 · 卡拉柯伊", "卸货港 · 黄昏"],
+        ships: {
+          title: "从VLCC到压力式LPG船。",
+          tanker: "油轮",
+          gas: "气体船",
+          classGuide: "船型指南",
+          prev: "上一船型",
+          next: "下一船型",
+          family: "船舶类别",
+        },
+        reachLines: ["三个办公室，", "一个团队。"],
+        counters: [
+          "分钟内首次回复（工作时间）",
+          "种船型，从VLCC到压力式LPG船",
+          "个办公室，横跨三个时区",
+          "个业务部门：油轮、LPG与氨",
+        ],
+        localTime: "当地时间",
+        mapLabel: "从欧洲到新加坡的业务地图，标出从伊斯坦布尔出发的航线和我们的三个办公室",
+        lanesLabel: "我们的航线",
+        teamLines: ["直接对话经纪人，", "而不是总机。"],
+        teamLead: "两个业务部门的九位经纪人，每一位都可以通过电子邮件或WhatsApp直接联系。",
+        teamCta: "认识团队（英文）",
+        email: "给{name}发邮件",
+        notesTitle: "来自业务一线的笔记。",
+        allPosts: "全部文章（英文）",
+        askDesk: "咨询业务部",
+        letterLabel: "来自博斯普鲁斯",
+        dutyTitle: "非工作时间有实时成交？",
+        dutyText: "通过WhatsApp联系值班经纪人——{number}。晚间和周末均有人回复。",
+        phone: "电话 · 伊斯坦布尔",
+        calc: {
+          label: "运费计算器",
+          title: "估算一个航次。",
+          text: "输入港口、船型和货物，即可得到航程、航行天数和航次费用的初步估算——联系经纪人之前先心中有数。",
+          cta: "打开计算器（英文）",
+          estimate: "估算航次",
+        },
+      },
     },
   },
   {
@@ -243,6 +424,109 @@ export const LOCALES: Locale[] = [
       fab: "WhatsAppでブローカーに相談",
       formNote: "引き合いフォームは英語です。",
       rail: { label: "このページの内容", overview: "概要", contact: "お問い合わせ" },
+      home: {
+        heroLines: ["ボスポラスの", "タンカー・", "ガス船仲介。"],
+        heroAccent: "ボスポラス",
+        heroSub: "イスタンブールのタンカー＆LPGシップブローカー",
+        whatsapp: "WhatsAppでデスクへ",
+        sceneHero: "夜明け · 出港",
+        sceneWho: "地元の深さ · ボスポラスの測深",
+        pause: {
+          pause: "動きを停止",
+          play: "動きを再生",
+        },
+        rail: {
+          hero: "出航",
+          who: "地元の深さ",
+          desks: "デスク",
+          ships: "船型",
+          process: "進め方",
+          reach: "拠点",
+          team: "チーム",
+          notes: "ノート",
+          letter: "お問い合わせ",
+        },
+        subs: {
+          who: "私たちについて",
+          desks: "デスクとサービス",
+          ships: "扱う船型",
+          reach: "活動エリア",
+          team: "チーム",
+          notes: "デスクから",
+          contact: "お問い合わせ",
+        },
+        statement:
+          "扱うのは液体貨物だけ。ボスポラス海峡のデスクからタンカーとガス船を仲介するため、どのブローカーも船、ターミナル、海峡を深く理解しています。",
+        about: "LEVANTERについて（英語）",
+        pin: "イスタンブール・デスク",
+        factLinks: [
+          "トルコ海峡ガイド",
+          "加圧式LPG船ガイド",
+          "チームを見る",
+          "WorldscaleとTCEの解説",
+        ],
+        desksLines: ["2つのデスク、", "1つの基準。"],
+        desksLead:
+          "あえて専門を絞っています。扱うのはタンカーとガス船だけ。スポット、定期傭船、COAから、レイタイムやクレームまで対応します。",
+        howWeWork: "進め方",
+        straits: {
+          title: "トルコ海峡",
+          text: "通航時間、待機、海峡の規則を、黒海のすべての見積りに織り込みます。",
+        },
+        postTitle: "成約後の対応",
+        postText:
+          "航海のフォロー、レイタイム、デマレージ、クレームを、成約したブローカー本人が担当します。",
+        rowLinks: [
+          "タンカーデスク",
+          "LPG・アンモニアデスク",
+          "トルコ海峡ガイド",
+          "レイタイムとデマレージのガイド",
+        ],
+        captions: [
+          "タンカーデスク · イスタンブール",
+          "LPG・アンモニアデスク",
+          "ボスポラス · カラキョイ",
+          "揚げ地 · 夕暮れ",
+        ],
+        ships: {
+          title: "VLCCから加圧式LPG船まで。",
+          tanker: "タンカー",
+          gas: "ガス船",
+          classGuide: "船型ガイド",
+          prev: "前の船型",
+          next: "次の船型",
+          family: "船の種類",
+        },
+        reachLines: ["3つの拠点、", "1つのデスク。"],
+        counters: [
+          "分以内に初回返信（営業時間内）",
+          "の船型、VLCCから加圧式LPG船まで",
+          "つの拠点、3つのタイムゾーン",
+          "つのデスク：タンカー、LPG・アンモニア",
+        ],
+        localTime: "現地時間",
+        mapLabel:
+          "ヨーロッパからシンガポールまでの活動エリアの地図。イスタンブールからの航路と3つの拠点を示しています",
+        lanesLabel: "主な航路",
+        teamLines: ["交換台ではなく、", "ブローカーと直接。"],
+        teamLead: "2つのデスクの9人のブローカー。全員にメールやWhatsAppで直接連絡できます。",
+        teamCta: "チームを見る（英語）",
+        email: "{name}にメール",
+        notesTitle: "デスクからのノート。",
+        allPosts: "すべての記事（英語）",
+        askDesk: "デスクに質問",
+        letterLabel: "ボスポラスから",
+        dutyTitle: "営業時間外の成約案件ですか？",
+        dutyText: "当番ブローカーにWhatsAppで——{number}。夜間・週末も対応します。",
+        phone: "電話 · イスタンブール",
+        calc: {
+          label: "運賃計算ツール",
+          title: "航海を見積もる。",
+          text: "港・船型・貨物を入力すると、距離、航海日数、航海費用の目安がわかります。デスクに相談する前の最初の目安に。",
+          cta: "計算ツールを開く（英語）",
+          estimate: "航海を見積もる",
+        },
+      },
     },
   },
   {
@@ -335,6 +619,104 @@ export const LOCALES: Locale[] = [
       fab: "WhatsApp으로 브로커와 상담",
       formNote: "문의 양식은 영어로 되어 있습니다.",
       rail: { label: "이 페이지의 내용", overview: "개요", contact: "문의" },
+      home: {
+        heroLines: ["보스포루스의", "유조선·가스선", "중개."],
+        heroAccent: "보스포루스의",
+        heroSub: "이스탄불 유조선 & LPG 선박 중개",
+        whatsapp: "WhatsApp으로 데스크 연락",
+        sceneHero: "새벽 · 출항",
+        sceneWho: "현지의 깊이 · 보스포루스 수심",
+        pause: {
+          pause: "움직임 일시정지",
+          play: "움직임 재생",
+        },
+        rail: {
+          hero: "출항",
+          who: "현지의 깊이",
+          desks: "데스크",
+          ships: "선형",
+          process: "진행 방식",
+          reach: "사무소",
+          team: "팀",
+          notes: "노트",
+          letter: "문의",
+        },
+        subs: {
+          who: "회사 소개",
+          desks: "데스크와 서비스",
+          ships: "중개하는 선형",
+          reach: "활동 지역",
+          team: "팀",
+          notes: "데스크에서",
+          contact: "문의",
+        },
+        statement:
+          "액체 화물만, 그 외에는 없습니다. 보스포루스의 데스크에서 유조선과 가스선을 중개하기에 모든 브로커가 선박, 터미널, 해협을 깊이 압니다.",
+        about: "LEVANTER 소개 (영문)",
+        pin: "이스탄불 데스크",
+        factLinks: ["터키 해협 가이드", "가압식 LPG선 가이드", "팀 소개", "Worldscale과 TCE 설명"],
+        desksLines: ["두 개의 데스크,", "하나의 기준."],
+        desksLead:
+          "일부러 좁게 집중합니다. 유조선과 가스선만 중개합니다. 스팟, 정기용선, COA부터 정박 기간과 클레임까지.",
+        howWeWork: "진행 방식",
+        straits: {
+          title: "터키 해협",
+          text: "통항 시간, 대기, 해협 규정을 모든 흑해 견적에 반영합니다.",
+        },
+        postTitle: "성약 이후",
+        postText: "항해 관리, 정박 기간, 체선료, 클레임까지 성약한 브로커가 직접 처리합니다.",
+        rowLinks: [
+          "유조선 데스크",
+          "LPG·암모니아 데스크",
+          "터키 해협 가이드",
+          "정박 기간과 체선료 가이드",
+        ],
+        captions: [
+          "유조선 데스크 · 이스탄불",
+          "LPG·암모니아 데스크",
+          "보스포루스 · 카라쾨이",
+          "양하항 · 해 질 녘",
+        ],
+        ships: {
+          title: "VLCC부터 가압식 LPG선까지.",
+          tanker: "유조선",
+          gas: "가스선",
+          classGuide: "선형 가이드",
+          prev: "이전 선형",
+          next: "다음 선형",
+          family: "선박 종류",
+        },
+        reachLines: ["세 개의 사무소,", "하나의 데스크."],
+        counters: [
+          "분 이내 첫 회신 (영업시간)",
+          "개 선형, VLCC부터 가압식 LPG선까지",
+          "개 사무소, 세 개의 시간대",
+          "개 데스크: 유조선, LPG·암모니아",
+        ],
+        localTime: "현지 시각",
+        mapLabel:
+          "유럽에서 싱가포르까지의 활동 지역 지도. 이스탄불에서 출발하는 항로와 세 사무소를 표시합니다",
+        lanesLabel: "주요 항로",
+        teamLines: ["교환대가 아닌", "브로커와 직접."],
+        teamLead:
+          "두 데스크의 브로커 아홉 명, 모두 이메일이나 WhatsApp으로 직접 연락할 수 있습니다.",
+        teamCta: "팀 소개 (영문)",
+        email: "{name}에게 이메일",
+        notesTitle: "데스크에서 온 노트.",
+        allPosts: "모든 글 (영문)",
+        askDesk: "데스크에 문의",
+        letterLabel: "보스포루스에서",
+        dutyTitle: "영업시간 외 진행 중인 성약?",
+        dutyText: "당직 브로커에게 WhatsApp — {number}. 저녁과 주말에도 응답합니다.",
+        phone: "전화 · 이스탄불",
+        calc: {
+          label: "운임 계산기",
+          title: "항차를 견적해 보세요.",
+          text: "항구, 선형, 화물을 입력하면 거리, 항해 일수, 항차 비용의 대략적인 견적이 나옵니다. 데스크에 문의하기 전 첫 감을 잡아 보세요.",
+          cta: "계산기 열기 (영문)",
+          estimate: "항차 견적",
+        },
+      },
     },
   },
   {
@@ -437,6 +819,110 @@ export const LOCALES: Locale[] = [
       fab: "Μιλήστε με μεσίτη στο WhatsApp",
       formNote: "Η φόρμα ερωτήματος είναι στα αγγλικά.",
       rail: { label: "Σε αυτή τη σελίδα", overview: "Επισκόπηση", contact: "Επικοινωνία" },
+      home: {
+        heroLines: ["Δεξαμενόπλοια", "& αέρια, από", "τον Βόσπορο."],
+        heroAccent: "Βόσπορο.",
+        heroSub: "Ναυλομεσίτες δεξαμενόπλοιων & LPG, Κωνσταντινούπολη",
+        whatsapp: "WhatsApp στο γραφείο",
+        sceneHero: "Αυγή · απόπλους",
+        sceneWho: "Τοπικό βάθος · βυθομετρήσεις Βοσπόρου",
+        pause: {
+          pause: "Παύση κίνησης",
+          play: "Αναπαραγωγή κίνησης",
+        },
+        rail: {
+          hero: "Απόπλους",
+          who: "Τοπικό βάθος",
+          desks: "Τμήματα",
+          ships: "Πλοία",
+          process: "Πώς δουλεύουμε",
+          reach: "Εμβέλεια",
+          team: "Ομάδα",
+          notes: "Σημειώσεις",
+          letter: "Επικοινωνία",
+        },
+        subs: {
+          who: "Ποιοι είμαστε",
+          desks: "Τμήματα & υπηρεσίες",
+          ships: "Τα πλοία μας",
+          reach: "Πού δουλεύουμε",
+          team: "Η ομάδα μας",
+          notes: "Από το γραφείο",
+          contact: "Επικοινωνία",
+        },
+        statement:
+          "Υγρά φορτία, τίποτε άλλο. Ναυλώνουμε δεξαμενόπλοια και υγραεριοφόρα από ένα γραφείο στον Βόσπορο, ώστε κάθε μεσίτης να γνωρίζει σε βάθος τα πλοία, τους τερματικούς σταθμούς και τα Στενά.",
+        about: "Σχετικά με τη LEVANTER (αγγλικά)",
+        pin: "Γραφείο Κωνσταντινούπολης",
+        factLinks: [
+          "Οδηγός Τουρκικών Στενών",
+          "Οδηγός LPG υπό πίεση",
+          "Η ομάδα",
+          "Worldscale & TCE",
+        ],
+        desksLines: ["Δύο τμήματα.", "Ένα πρότυπο."],
+        desksLead:
+          "Μένουμε εστιασμένοι σκόπιμα: μόνο δεξαμενόπλοια και υγραεριοφόρα — spot, χρονοναυλώσεις και COA, μέχρι το laytime και τις απαιτήσεις.",
+        howWeWork: "Πώς δουλεύουμε",
+        straits: {
+          title: "Τουρκικά Στενά",
+          text: "Χρόνος διέλευσης, αναμονή και κανόνες των Στενών, σε κάθε ναύλωση Μαύρης Θάλασσας που προτείνουμε.",
+        },
+        postTitle: "Μετά το κλείσιμο",
+        postText:
+          "Παρακολούθηση ταξιδιού, laytime, επισταλίες και απαιτήσεις, από τον μεσίτη που έκλεισε το πλοίο.",
+        rowLinks: [
+          "Τμήμα δεξαμενόπλοιων",
+          "Τμήμα LPG & αμμωνίας",
+          "Οδηγός Τουρκικών Στενών",
+          "Οδηγός laytime & επισταλιών",
+        ],
+        captions: [
+          "Δεξαμενόπλοια · Κωνσταντινούπολη",
+          "Τμήμα LPG & αμμωνίας",
+          "Βόσπορος · Καράκιοϊ",
+          "Λιμάνι εκφόρτωσης · σούρουπο",
+        ],
+        ships: {
+          title: "Από VLCC έως LPG υπό πίεση.",
+          tanker: "Δεξαμενόπλοια",
+          gas: "Αέρια",
+          classGuide: "Οδηγός τύπου",
+          prev: "Προηγούμενος τύπος",
+          next: "Επόμενος τύπος",
+          family: "Κατηγορία πλοίου",
+        },
+        reachLines: ["Τρία γραφεία.", "Ένα τμήμα."],
+        counters: [
+          "λεπτά για πρώτη απάντηση, τις εργάσιμες ώρες",
+          "τύποι πλοίων, από VLCC έως LPG υπό πίεση",
+          "γραφεία σε τρεις ζώνες ώρας",
+          "τμήματα — δεξαμενόπλοια, LPG & αμμωνία",
+        ],
+        localTime: "τοπική ώρα",
+        mapLabel:
+          "Χάρτης της περιοχής μας από την Ευρώπη έως τη Σιγκαπούρη, με τα δρομολόγια από την Κωνσταντινούπολη και τα τρία γραφεία μας",
+        lanesLabel: "Δρομολόγια που δουλεύουμε",
+        teamLines: ["Μιλήστε με τον μεσίτη,", "όχι με τηλεφωνικό κέντρο."],
+        teamLead:
+          "Εννέα μεσίτες σε δύο τμήματα, ο καθένας προσβάσιμος απευθείας με email ή WhatsApp.",
+        teamCta: "Η ομάδα (στα αγγλικά)",
+        email: "Email στον/στην {name}",
+        notesTitle: "Σημειώσεις από το γραφείο.",
+        allPosts: "Όλα τα άρθρα (αγγλικά)",
+        askDesk: "Ρωτήστε το γραφείο",
+        letterLabel: "Από τον Βόσπορο",
+        dutyTitle: "Ζωντανή ναύλωση εκτός ωραρίου;",
+        dutyText: "WhatsApp στον μεσίτη υπηρεσίας — {number}. Απαντά βράδια και Σαββατοκύριακα.",
+        phone: "Τηλέφωνο · Κωνσταντινούπολη",
+        calc: {
+          label: "Υπολογιστής ναύλου",
+          title: "Εκτιμήστε ένα ταξίδι.",
+          text: "Λιμάνια, πλοίο και φορτίο — απόσταση, ημέρες στη θάλασσα και μια ενδεικτική εκτίμηση του ταξιδιού, πριν ρωτήσετε το γραφείο.",
+          cta: "Ο υπολογιστής (στα αγγλικά)",
+          estimate: "Εκτίμηση ταξιδιού",
+        },
+      },
     },
   },
   {
@@ -539,6 +1025,109 @@ export const LOCALES: Locale[] = [
       fab: "Kontakt en megler på WhatsApp",
       formNote: "Forespørselsskjemaet er på engelsk.",
       rail: { label: "På denne siden", overview: "Oversikt", contact: "Kontakt" },
+      home: {
+        heroLines: ["Tank og gass,", "meglet fra", "Bosporos."],
+        heroAccent: "Bosporos.",
+        heroSub: "Skipsmeglere for tank og LPG, Istanbul",
+        whatsapp: "WhatsApp desken",
+        sceneHero: "Daggry · utgående",
+        sceneWho: "Lokal dybde · lodding i Bosporos",
+        pause: {
+          pause: "Stopp bevegelse",
+          play: "Spill av bevegelse",
+        },
+        rail: {
+          hero: "Avgang",
+          who: "Lokal dybde",
+          desks: "Desker",
+          ships: "Skip",
+          process: "Slik jobber vi",
+          reach: "Rekkevidde",
+          team: "Team",
+          notes: "Notater",
+          letter: "Kontakt",
+        },
+        subs: {
+          who: "Hvem vi er",
+          desks: "Desker og tjenester",
+          ships: "Skip vi slutter",
+          reach: "Hvor vi jobber",
+          team: "Teamet vårt",
+          notes: "Fra desken",
+          contact: "Kontakt",
+        },
+        statement:
+          "Flytende last, ikke noe annet. Vi megler tankskip og gasskip fra en desk ved Bosporos, så hver megler kjenner skipene, terminalene og stredene i dybden.",
+        about: "Om LEVANTER (engelsk)",
+        pin: "Istanbul-desken",
+        factLinks: [
+          "Guide til De tyrkiske stredene",
+          "Guide til trykksatte LPG-skip",
+          "Møt teamet",
+          "Worldscale og TCE forklart",
+        ],
+        desksLines: ["To desker.", "Én standard."],
+        desksLead:
+          "Vi holder oss smale med vilje: tankskip og gasskip er alt vi megler — spot, timecharter og COA, helt til liggetid og krav.",
+        howWeWork: "Slik jobber vi",
+        straits: {
+          title: "De tyrkiske stredene",
+          text: "Transittid, venting og stredenes regler regnes inn i hver Svartehavs-fiksering vi gir tall på.",
+        },
+        postTitle: "Etter slutning",
+        postText:
+          "Reiseoppfølging, liggetid, overliggedager og krav, håndtert av megleren som sluttet skipet.",
+        rowLinks: [
+          "Tankdesken",
+          "LPG- og ammoniakkdesken",
+          "Guide til De tyrkiske stredene",
+          "Guide til liggetid og overligg",
+        ],
+        captions: [
+          "Tankdesk · Istanbul",
+          "LPG- og ammoniakkdesk",
+          "Bosporos · Karaköy",
+          "Lossehavn · skumring",
+        ],
+        ships: {
+          title: "Fra VLCC til trykksatt LPG.",
+          tanker: "Tank",
+          gas: "Gass",
+          classGuide: "Klasseguide",
+          prev: "Forrige klasse",
+          next: "Neste klasse",
+          family: "Skipstype",
+        },
+        reachLines: ["Tre kontorer.", "Én desk."],
+        counters: [
+          "minutter til første svar, i arbeidstiden",
+          "skipsklasser, fra VLCC til trykksatt LPG",
+          "kontorer i tre tidssoner",
+          "desker — tank, og LPG og ammoniakk",
+        ],
+        localTime: "lokal tid",
+        mapLabel:
+          "Kart over området vårt fra Europa til Singapore, med ruter fra Istanbul og våre tre kontorer",
+        lanesLabel: "Ruter vi jobber med",
+        teamLines: ["Snakk med megleren,", "ikke et sentralbord."],
+        teamLead: "Ni meglere på to desker, alle direkte tilgjengelige på e-post eller WhatsApp.",
+        teamCta: "Møt teamet (engelsk)",
+        email: "E-post til {name}",
+        notesTitle: "Notater fra desken.",
+        allPosts: "Alle innlegg (engelsk)",
+        askDesk: "Spør desken",
+        letterLabel: "Fra Bosporos",
+        dutyTitle: "Levende slutning etter arbeidstid?",
+        dutyText: "WhatsApp vaktmegleren — {number}. Besvares kvelder og helger.",
+        phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fraktkalkulator",
+          title: "Beregn en reise.",
+          text: "Havner, skip og last inn — distanse, dager i sjøen og et veiledende reiseestimat ut. En første pekepinn før du spør desken.",
+          cta: "Åpne kalkulatoren (engelsk)",
+          estimate: "Beregn en reise",
+        },
+      },
     },
   },
   {
@@ -632,6 +1221,109 @@ export const LOCALES: Locale[] = [
       fab: "Skriv til en mægler på WhatsApp",
       formNote: "Forespørgselsformularen er på engelsk.",
       rail: { label: "På denne side", overview: "Oversigt", contact: "Kontakt" },
+      home: {
+        heroLines: ["Tank og gas,", "mæglet fra", "Bosporus."],
+        heroAccent: "Bosporus.",
+        heroSub: "Skibsmæglere for tank og LPG, Istanbul",
+        whatsapp: "WhatsApp desken",
+        sceneHero: "Daggry · udgående",
+        sceneWho: "Lokal dybde · lodskud i Bosporus",
+        pause: {
+          pause: "Stop bevægelse",
+          play: "Afspil bevægelse",
+        },
+        rail: {
+          hero: "Afgang",
+          who: "Lokal dybde",
+          desks: "Desks",
+          ships: "Skibe",
+          process: "Sådan arbejder vi",
+          reach: "Rækkevidde",
+          team: "Team",
+          notes: "Noter",
+          letter: "Kontakt",
+        },
+        subs: {
+          who: "Hvem vi er",
+          desks: "Desks og ydelser",
+          ships: "Skibe vi lukker",
+          reach: "Hvor vi arbejder",
+          team: "Vores team",
+          notes: "Fra desken",
+          contact: "Kontakt",
+        },
+        statement:
+          "Flydende last, intet andet. Vi mægler tankskibe og gastankskibe fra en desk ved Bosporus, så hver mægler kender skibene, terminalerne og strædet i dybden.",
+        about: "Om LEVANTER (engelsk)",
+        pin: "Istanbul-desken",
+        factLinks: [
+          "Guide til De Tyrkiske Stræder",
+          "Guide til LPG-trykskibe",
+          "Mød teamet",
+          "Worldscale og TCE forklaret",
+        ],
+        desksLines: ["To desks.", "Én standard."],
+        desksLead:
+          "Vi holder os smalle med vilje: tankskibe og gastankskibe er alt, vi mægler — spot, tidsbefragtning og COA, helt til liggetid og krav.",
+        howWeWork: "Sådan arbejder vi",
+        straits: {
+          title: "De tyrkiske stræder",
+          text: "Transittid, ventetid og strædernes regler indgår i hver befragtning i Sortehavet, vi regner på.",
+        },
+        postTitle: "Efter lukning",
+        postText:
+          "Rejseopfølgning, liggetid, overliggetid og krav, håndteret af mægleren, der lukkede skibet.",
+        rowLinks: [
+          "Tankdesken",
+          "LPG- og ammoniakdesken",
+          "Guide til De Tyrkiske Stræder",
+          "Guide til liggetid og overliggetid",
+        ],
+        captions: [
+          "Tankdesk · Istanbul",
+          "LPG- og ammoniakdesk",
+          "Bosporus · Karaköy",
+          "Lossehavn · skumring",
+        ],
+        ships: {
+          title: "Fra VLCC til tryk-LPG.",
+          tanker: "Tank",
+          gas: "Gas",
+          classGuide: "Klasseguide",
+          prev: "Forrige klasse",
+          next: "Næste klasse",
+          family: "Skibstype",
+        },
+        reachLines: ["Tre kontorer.", "Én desk."],
+        counters: [
+          "minutter til første svar, i arbejdstiden",
+          "skibsklasser, fra VLCC til tryk-LPG",
+          "kontorer i tre tidszoner",
+          "desks — tank, og LPG og ammoniak",
+        ],
+        localTime: "lokal tid",
+        mapLabel:
+          "Kort over vores område fra Europa til Singapore, med ruter fra Istanbul og vores tre kontorer",
+        lanesLabel: "Ruter vi arbejder med",
+        teamLines: ["Tal med mægleren,", "ikke et omstillingsbord."],
+        teamLead: "Ni mæglere på to desks, alle direkte tilgængelige på e-mail eller WhatsApp.",
+        teamCta: "Mød teamet (engelsk)",
+        email: "E-mail til {name}",
+        notesTitle: "Noter fra desken.",
+        allPosts: "Alle indlæg (engelsk)",
+        askDesk: "Spørg desken",
+        letterLabel: "Fra Bosporus",
+        dutyTitle: "Aktiv befragtning uden for arbejdstid?",
+        dutyText: "WhatsApp vagtmægleren — {number}. Besvares aftener og weekender.",
+        phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fragtberegner",
+          title: "Beregn en rejse.",
+          text: "Havne, skib og last ind — distance, dage til søs og et vejledende rejseestimat ud. Et første bud, før du spørger desken.",
+          cta: "Åbn beregneren (engelsk)",
+          estimate: "Beregn en rejse",
+        },
+      },
     },
   },
   {
@@ -736,6 +1428,109 @@ export const LOCALES: Locale[] = [
       fab: "Kontakta en mäklare på WhatsApp",
       formNote: "Förfrågningsformuläret är på engelska.",
       rail: { label: "På den här sidan", overview: "Översikt", contact: "Kontakt" },
+      home: {
+        heroLines: ["Tank och gas,", "mäklat från", "Bosporen."],
+        heroAccent: "Bosporen.",
+        heroSub: "Skeppsmäklare för tank och LPG, Istanbul",
+        whatsapp: "WhatsApp desken",
+        sceneHero: "Gryning · utgående",
+        sceneWho: "Lokalt djup · lodningar i Bosporen",
+        pause: {
+          pause: "Pausa rörelse",
+          play: "Spela rörelse",
+        },
+        rail: {
+          hero: "Avgång",
+          who: "Lokalt djup",
+          desks: "Desker",
+          ships: "Fartyg",
+          process: "Så arbetar vi",
+          reach: "Räckvidd",
+          team: "Team",
+          notes: "Anteckningar",
+          letter: "Kontakt",
+        },
+        subs: {
+          who: "Vilka vi är",
+          desks: "Desker och tjänster",
+          ships: "Fartyg vi avslutar",
+          reach: "Var vi arbetar",
+          team: "Vårt team",
+          notes: "Från desken",
+          contact: "Kontakt",
+        },
+        statement:
+          "Flytande last, inget annat. Vi mäklar tankfartyg och gastankfartyg från en desk vid Bosporen, så varje mäklare känner fartygen, terminalerna och sunden på djupet.",
+        about: "Om LEVANTER (engelska)",
+        pin: "Istanbul-desken",
+        factLinks: [
+          "Guide till Turkiska sunden",
+          "Guide till trycksatt LPG",
+          "Möt teamet",
+          "Worldscale och TCE förklarat",
+        ],
+        desksLines: ["Två desker.", "En standard."],
+        desksLead:
+          "Vi håller oss smala med avsikt: tankfartyg och gastankfartyg är allt vi mäklar — spot, tidsbefraktning och COA, ända till liggetid och krav.",
+        howWeWork: "Så arbetar vi",
+        straits: {
+          title: "Turkiska sunden",
+          text: "Transittid, väntan och sundens regler räknas in i varje befraktning i Svarta havet som vi offererar.",
+        },
+        postTitle: "Efter avslut",
+        postText:
+          "Resuppföljning, liggetid, överliggetid och krav, hanterade av mäklaren som avslutade fartyget.",
+        rowLinks: [
+          "Tankdesken",
+          "LPG- och ammoniakdesken",
+          "Guide till Turkiska sunden",
+          "Guide till liggetid och överliggetid",
+        ],
+        captions: [
+          "Tankdesk · Istanbul",
+          "LPG- och ammoniakdesk",
+          "Bosporen · Karaköy",
+          "Lossningshamn · skymning",
+        ],
+        ships: {
+          title: "Från VLCC till trycksatt LPG.",
+          tanker: "Tank",
+          gas: "Gas",
+          classGuide: "Klassguide",
+          prev: "Föregående klass",
+          next: "Nästa klass",
+          family: "Fartygstyp",
+        },
+        reachLines: ["Tre kontor.", "En desk."],
+        counters: [
+          "minuter till första svar, under arbetstid",
+          "fartygsklasser, från VLCC till trycksatt LPG",
+          "kontor i tre tidszoner",
+          "desker — tank, och LPG och ammoniak",
+        ],
+        localTime: "lokal tid",
+        mapLabel:
+          "Karta över vårt område från Europa till Singapore, med rutter från Istanbul och våra tre kontor",
+        lanesLabel: "Rutter vi arbetar med",
+        teamLines: ["Tala med mäklaren,", "inte en växel."],
+        teamLead: "Nio mäklare på två desker, alla nåbara direkt via e-post eller WhatsApp.",
+        teamCta: "Möt teamet (engelska)",
+        email: "E-post till {name}",
+        notesTitle: "Anteckningar från desken.",
+        allPosts: "Alla inlägg (engelska)",
+        askDesk: "Fråga desken",
+        letterLabel: "Från Bosporen",
+        dutyTitle: "Pågående avslut efter arbetstid?",
+        dutyText: "WhatsApp jourmäklaren — {number}. Besvaras kvällar och helger.",
+        phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fraktkalkylator",
+          title: "Uppskatta en resa.",
+          text: "Hamnar, fartyg och last in — distans, dagar till sjöss och en vägledande reseuppskattning ut, innan du frågar desken.",
+          cta: "Öppna kalkylatorn (engelska)",
+          estimate: "Uppskatta en resa",
+        },
+      },
     },
   },
   {
@@ -842,6 +1637,110 @@ export const LOCALES: Locale[] = [
       fab: "Makler per WhatsApp kontaktieren",
       formNote: "Das Anfrageformular ist auf Englisch.",
       rail: { label: "Auf dieser Seite", overview: "Überblick", contact: "Kontakt" },
+      home: {
+        heroLines: ["Tanker & Gas,", "vermittelt", "vom Bosporus."],
+        heroAccent: "Bosporus.",
+        heroSub: "Schiffsmakler für Tanker & LPG, Istanbul",
+        whatsapp: "Desk per WhatsApp",
+        sceneHero: "Morgengrauen · auslaufend",
+        sceneWho: "Lokale Tiefe · Lotungen im Bosporus",
+        pause: {
+          pause: "Bewegung anhalten",
+          play: "Bewegung abspielen",
+        },
+        rail: {
+          hero: "Abfahrt",
+          who: "Lokale Tiefe",
+          desks: "Desks",
+          ships: "Schiffe",
+          process: "So arbeiten wir",
+          reach: "Reichweite",
+          team: "Team",
+          notes: "Notizen",
+          letter: "Kontakt",
+        },
+        subs: {
+          who: "Wer wir sind",
+          desks: "Desks & Leistungen",
+          ships: "Schiffe, die wir befrachten",
+          reach: "Wo wir arbeiten",
+          team: "Unser Team",
+          notes: "Vom Desk",
+          contact: "Kontakt",
+        },
+        statement:
+          "Flüssige Ladung, nichts anderes. Wir vermitteln Tanker und Gastanker von einem Desk am Bosporus aus – so kennt jeder Makler die Schiffe, die Terminals und die Meerengen im Detail.",
+        about: "Über LEVANTER (Englisch)",
+        pin: "Desk Istanbul",
+        factLinks: [
+          "Leitfaden Türkische Meerengen",
+          "Leitfaden Druckgastanker",
+          "Das Team",
+          "Worldscale & TCE erklärt",
+        ],
+        desksLines: ["Zwei Desks.", "Ein Standard."],
+        desksLead:
+          "Wir bleiben bewusst schmal: Tanker und Gastanker sind alles, was wir vermitteln – Spot, Zeitcharter und COA, bis zu Liegezeit und Claims.",
+        howWeWork: "So arbeiten wir",
+        straits: {
+          title: "Türkische Meerengen",
+          text: "Transitzeiten, Wartezeiten und die Regeln der Meerengen fließen in jede Schwarzmeer-Befrachtung ein, die wir anbieten.",
+        },
+        postTitle: "Nach dem Abschluss",
+        postText:
+          "Reisebegleitung, Liegezeit, Liegegeld und Claims – vom Makler, der das Schiff befrachtet hat.",
+        rowLinks: [
+          "Tanker-Desk",
+          "LPG- & Ammoniak-Desk",
+          "Leitfaden Türkische Meerengen",
+          "Leitfaden Liegezeit & Liegegeld",
+        ],
+        captions: [
+          "Tanker-Desk · Istanbul",
+          "LPG- & Ammoniak-Desk",
+          "Bosporus · Karaköy",
+          "Löschhafen · Abenddämmerung",
+        ],
+        ships: {
+          title: "Vom VLCC bis zum Druckgastanker.",
+          tanker: "Tanker",
+          gas: "Gas",
+          classGuide: "Klassenleitfaden",
+          prev: "Vorige Klasse",
+          next: "Nächste Klasse",
+          family: "Schiffstyp",
+        },
+        reachLines: ["Drei Büros.", "Ein Desk."],
+        counters: [
+          "Minuten bis zur ersten Antwort, zu Bürozeiten",
+          "Schiffsklassen, vom VLCC bis zum Druckgastanker",
+          "Büros in drei Zeitzonen",
+          "Desks — Tanker sowie LPG & Ammoniak",
+        ],
+        localTime: "Ortszeit",
+        mapLabel:
+          "Karte unseres Fahrtgebiets von Europa bis Singapur, mit Routen ab Istanbul und unseren drei Büros",
+        lanesLabel: "Routen, die wir bedienen",
+        teamLines: ["Sprechen Sie mit dem Makler,", "nicht mit der Zentrale."],
+        teamLead: "Neun Makler an zwei Desks, jeder direkt per E-Mail oder WhatsApp erreichbar.",
+        teamCta: "Das Team (Englisch)",
+        email: "E-Mail an {name}",
+        notesTitle: "Notizen vom Desk.",
+        allPosts: "Alle Beiträge (Englisch)",
+        askDesk: "Den Desk fragen",
+        letterLabel: "Vom Bosporus",
+        dutyTitle: "Laufender Abschluss nach Feierabend?",
+        dutyText:
+          "WhatsApp an den diensthabenden Makler — {number}. Abends und am Wochenende erreichbar.",
+        phone: "Telefon · Istanbul",
+        calc: {
+          label: "Frachtrechner",
+          title: "Eine Reise abschätzen.",
+          text: "Häfen, Schiff und Ladung rein — Distanz, Seetage und eine unverbindliche Reiseschätzung raus, bevor Sie den Desk fragen.",
+          cta: "Zum Rechner (Englisch)",
+          estimate: "Reise schätzen",
+        },
+      },
     },
   },
   {
@@ -945,6 +1844,110 @@ export const LOCALES: Locale[] = [
       fab: "Escriba a un corredor por WhatsApp",
       formNote: "El formulario de consulta está en inglés.",
       rail: { label: "En esta página", overview: "Resumen", contact: "Contacto" },
+      home: {
+        heroLines: ["Petroleros y", "gaseros, desde", "el Bósforo."],
+        heroAccent: "Bósforo.",
+        heroSub: "Corredores de petroleros y GLP, Estambul",
+        whatsapp: "WhatsApp a la mesa",
+        sceneHero: "Amanecer · zarpando",
+        sceneWho: "Profundidad local · sondeos del Bósforo",
+        pause: {
+          pause: "Pausar movimiento",
+          play: "Reanudar movimiento",
+        },
+        rail: {
+          hero: "Salida",
+          who: "Profundidad local",
+          desks: "Mesas",
+          ships: "Buques",
+          process: "Cómo trabajamos",
+          reach: "Alcance",
+          team: "Equipo",
+          notes: "Notas",
+          letter: "Contacto",
+        },
+        subs: {
+          who: "Quiénes somos",
+          desks: "Mesas y servicios",
+          ships: "Buques que fletamos",
+          reach: "Dónde trabajamos",
+          team: "Nuestro equipo",
+          notes: "Desde la mesa",
+          contact: "Contacto",
+        },
+        statement:
+          "Cargas líquidas, nada más. Fletamos petroleros y gaseros desde una mesa en el Bósforo, así que cada corredor conoce a fondo los buques, las terminales y los Estrechos.",
+        about: "Sobre LEVANTER (en inglés)",
+        pin: "Mesa de Estambul",
+        factLinks: [
+          "Guía de los Estrechos turcos",
+          "Guía de GLP presurizado",
+          "Conozca al equipo",
+          "Worldscale y TCE explicados",
+        ],
+        desksLines: ["Dos mesas.", "Un mismo estándar."],
+        desksLead:
+          "Nos mantenemos enfocados a propósito: solo petroleros y gaseros — spot, time charter y COA, hasta las estadías y las reclamaciones.",
+        howWeWork: "Cómo trabajamos",
+        straits: {
+          title: "Estrechos turcos",
+          text: "Tiempos de tránsito, esperas y normas de los estrechos, incluidos en cada fletamento del mar Negro que cotizamos.",
+        },
+        postTitle: "Posfijación",
+        postText:
+          "Seguimiento del viaje, estadías, sobrestadías y reclamaciones, a cargo del corredor que fijó el buque.",
+        rowLinks: [
+          "Mesa de petroleros",
+          "Mesa de GLP y amoníaco",
+          "Guía de los Estrechos turcos",
+          "Guía de estadías y sobrestadías",
+        ],
+        captions: [
+          "Mesa de petroleros · Estambul",
+          "Mesa de GLP y amoníaco",
+          "El Bósforo · Karaköy",
+          "Puerto de descarga · anochecer",
+        ],
+        ships: {
+          title: "Del VLCC al GLP presurizado.",
+          tanker: "Petroleros",
+          gas: "Gaseros",
+          classGuide: "Guía del tipo",
+          prev: "Tipo anterior",
+          next: "Tipo siguiente",
+          family: "Tipo de buque",
+        },
+        reachLines: ["Tres oficinas.", "Una mesa."],
+        counters: [
+          "minutos hasta la primera respuesta, en horario laboral",
+          "tipos de buque, del VLCC al GLP presurizado",
+          "oficinas en tres husos horarios",
+          "mesas: petroleros, y GLP y amoníaco",
+        ],
+        localTime: "hora local",
+        mapLabel:
+          "Mapa de nuestra zona de Europa a Singapur, con rutas desde Estambul y nuestras tres oficinas",
+        lanesLabel: "Rutas que trabajamos",
+        teamLines: ["Hable con el corredor,", "no con una centralita."],
+        teamLead:
+          "Nueve corredores en dos mesas, todos localizables directamente por correo o WhatsApp.",
+        teamCta: "Conozca al equipo (en inglés)",
+        email: "Correo a {name}",
+        notesTitle: "Notas desde la mesa.",
+        allPosts: "Todas las notas (en inglés)",
+        askDesk: "Pregunte a la mesa",
+        letterLabel: "Desde el Bósforo",
+        dutyTitle: "¿Fijación en curso fuera de horario?",
+        dutyText: "WhatsApp al corredor de guardia — {number}. Atiende tardes y fines de semana.",
+        phone: "Teléfono · Estambul",
+        calc: {
+          label: "Calculadora de fletes",
+          title: "Estime un viaje.",
+          text: "Puertos, buque y carga: distancia, días de mar y una estimación orientativa del viaje, antes de consultar a la mesa.",
+          cta: "Abrir la calculadora (en inglés)",
+          estimate: "Estimar un viaje",
+        },
+      },
     },
   },
   {
@@ -1042,6 +2045,110 @@ export const LOCALES: Locale[] = [
       fab: "راسل وسيطًا عبر واتساب",
       formNote: "نموذج الطلب باللغة الإنجليزية.",
       rail: { label: "في هذه الصفحة", overview: "نظرة عامة", contact: "اتصل بنا" },
+      home: {
+        heroLines: ["النفط والغاز،", "بوساطة من", "البوسفور."],
+        heroAccent: "البوسفور.",
+        heroSub: "وساطة ناقلات النفط والغاز المسال، إسطنبول",
+        whatsapp: "واتساب القسم",
+        sceneHero: "الفجر · إبحار",
+        sceneWho: "عمق محلي · أعماق البوسفور",
+        pause: {
+          pause: "إيقاف الحركة",
+          play: "تشغيل الحركة",
+        },
+        rail: {
+          hero: "الإبحار",
+          who: "عمق محلي",
+          desks: "الأقسام",
+          ships: "السفن",
+          process: "طريقة عملنا",
+          reach: "النطاق",
+          team: "الفريق",
+          notes: "مقالات",
+          letter: "اتصل بنا",
+        },
+        subs: {
+          who: "من نحن",
+          desks: "الأقسام والخدمات",
+          ships: "السفن التي نؤجرها",
+          reach: "أين نعمل",
+          team: "فريقنا",
+          notes: "من المكتب",
+          contact: "اتصل بنا",
+        },
+        statement:
+          "الشحنات السائلة فقط، ولا شيء غيرها. نتوسط في تأجير ناقلات النفط والغاز من مكتب على البوسفور، لذا يعرف كل وسيط السفن والمحطات والمضائق معرفةً عميقة.",
+        about: "عن LEVANTER (بالإنجليزية)",
+        pin: "مكتب إسطنبول",
+        factLinks: [
+          "دليل المضائق التركية",
+          "دليل ناقلات الغاز المضغوط",
+          "تعرّف على الفريق",
+          "شرح Worldscale وTCE",
+        ],
+        desksLines: ["قسمان.", "ومعيار واحد."],
+        desksLead:
+          "نبقى متخصصين عن قصد: ناقلات النفط والغاز فقط — الرحلة الفورية والتأجير الزمني وعقود COA، حتى زمن الرسو والمطالبات.",
+        howWeWork: "طريقة عملنا",
+        straits: {
+          title: "المضائق التركية",
+          text: "نُدرج زمن العبور والانتظار وقواعد المضائق في كل عرض تأجير نقدمه في البحر الأسود.",
+        },
+        postTitle: "ما بعد الإبرام",
+        postText:
+          "متابعة الرحلة وزمن الرسو وغرامات التأخير والمطالبات، يتولاها الوسيط الذي أبرم الصفقة.",
+        rowLinks: [
+          "قسم ناقلات النفط",
+          "قسم الغاز المسال والأمونيا",
+          "دليل المضائق التركية",
+          "دليل زمن الرسو وغرامات التأخير",
+        ],
+        captions: [
+          "قسم ناقلات النفط · إسطنبول",
+          "قسم الغاز المسال والأمونيا",
+          "البوسفور · كاراكوي",
+          "ميناء التفريغ · الغسق",
+        ],
+        ships: {
+          title: "من VLCC إلى ناقلات الغاز المضغوط.",
+          tanker: "ناقلات النفط",
+          gas: "ناقلات الغاز",
+          classGuide: "دليل الفئة",
+          prev: "الفئة السابقة",
+          next: "الفئة التالية",
+          family: "نوع السفينة",
+        },
+        reachLines: ["ثلاثة مكاتب.", "وقسم واحد."],
+        counters: [
+          "دقيقة حتى أول رد، في ساعات العمل",
+          "فئات سفن، من VLCC إلى الغاز المضغوط",
+          "مكاتب في ثلاث مناطق زمنية",
+          "قسمان: ناقلات النفط، والغاز المسال والأمونيا",
+        ],
+        localTime: "التوقيت المحلي",
+        mapLabel:
+          "خريطة منطقة عملنا من أوروبا إلى سنغافورة، مع المسارات من إسطنبول ومكاتبنا الثلاثة",
+        lanesLabel: "المسارات التي نعمل عليها",
+        teamLines: ["تحدث إلى الوسيط،", "لا إلى مقسم هاتف."],
+        teamLead:
+          "تسعة وسطاء في قسمين، يمكن التواصل مع كل منهم مباشرة عبر البريد الإلكتروني أو واتساب.",
+        teamCta: "تعرّف على الفريق (بالإنجليزية)",
+        email: "راسل {name}",
+        notesTitle: "مقالات من المكتب.",
+        allPosts: "كل المقالات (بالإنجليزية)",
+        askDesk: "اسأل القسم",
+        letterLabel: "من البوسفور",
+        dutyTitle: "صفقة جارية خارج ساعات العمل؟",
+        dutyText: "راسل الوسيط المناوب عبر واتساب — {number}. نرد في المساء وعطلات نهاية الأسبوع.",
+        phone: "الهاتف · إسطنبول",
+        calc: {
+          label: "حاسبة أجرة الشحن",
+          title: "قدِّر رحلة بحرية.",
+          text: "أدخل الموانئ والسفينة والشحنة، واحصل على المسافة وأيام الإبحار وتقديرٍ استرشادي للرحلة قبل أن تسأل المكتب.",
+          cta: "افتح الحاسبة (بالإنجليزية)",
+          estimate: "قدِّر رحلة",
+        },
+      },
     },
   },
 ];

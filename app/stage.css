@@ -1,0 +1,665 @@
+/* ==========================================================================
+   Stage — the fixed layer behind every page that uses it (DESIGN-V2 §2, §6;
+   contract: docs/STAGE.md; code: components/site/stage). Loaded after
+   Tailwind and the Uiverse kit by both root layouts.
+
+   z order: stage (plates, canvas, calm, vignette, grain, tide) → chart frame
+   and horizon → page content (windows are transparent, cards opaque) → rail
+   → header. The stage and frame sit at z-index −1 so in-flow content paints
+   over them without any z-index of its own.
+
+   Poster mode (server render, low tier, before the compositor is live):
+   graded posters per plate, the tide wipe as a clip, calm zones as navy
+   overlays, CSS vignette and grain. Live mode: the canvas fades in over the
+   poster (400 ms) once it has a decoded frame, and the CSS stand-ins hide.
+   ========================================================================== */
+
+:root {
+  --stage-inset: 12px;
+  --stage-radius: 28px;
+  --stage-navy-deep: #051624;
+  --stage-navy: #0a1f33;
+  --stage-sand: #f3efe4;
+  --stage-brass-light: #d9b071;
+  /* "The tide" (§5): enters, scrubbed transforms, hover. */
+  --stage-ease-tide: cubic-bezier(0.22, 1, 0.36, 1);
+  --stage-ease-swell: cubic-bezier(0.65, 0, 0.35, 1);
+  --stage-ease-quick: cubic-bezier(0.33, 1, 0.68, 1);
+  --stage-edge: var(--edge, 72px);
+  --stage-frame-top: var(--hdr-h, 92px);
+}
+@media (max-width: 767px) {
+  :root {
+    --stage-inset: 8px;
+    --stage-radius: 22px;
+  }
+}
+
+/* ---- The fixed stage ----------------------------------------------------- */
+.stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  /* Decorative and positioned from the top-left in JS (calm zones, tide line). In an RTL
+     document a box's layout-shift origin is its top-right corner, so resizing a calm zone would
+     count as a shift (CLS); RTL framing is done in JS (focalFor), never by mirroring. */
+  direction: ltr;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--stage-navy-deep);
+  contain: strict;
+}
+/* A window with no plate shows its own ground. */
+.stage[data-ground="light"] {
+  background: var(--stage-sand);
+}
+.stage__posters,
+.stage__layer {
+  position: absolute;
+  inset: 0;
+}
+.stage__layer {
+  --zoom: 1;
+  --dim: 0;
+  display: none;
+}
+.stage__layer:is([data-state="a"], [data-state="b"]) {
+  display: block;
+}
+.stage__layer[data-state="b"] {
+  z-index: 1;
+}
+/* Warm the next poster: laid out (so its lazy image loads), not painted. */
+.stage__layer[data-state="near"] {
+  display: block;
+  visibility: hidden;
+}
+.stage__layer img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fx) var(--fy);
+  transform: scale(var(--zoom));
+  transform-origin: var(--fx) var(--fy);
+  filter: brightness(calc(1 - var(--dim)));
+}
+@media (max-aspect-ratio: 4/5) {
+  .stage__layer img {
+    object-position: var(--fx-phone) var(--fy-phone);
+    transform-origin: var(--fx-phone) var(--fy-phone);
+  }
+}
+/* P-lines has no picture: night ground; the hull is DOM (ShipLines) or WebGL. */
+.stage__layer[data-stage-layer="P-lines"] {
+  background: radial-gradient(60% 50% at 50% 46%, rgba(13, 39, 64, 0.9), transparent 70%),
+    var(--stage-navy-deep);
+}
+.stage__layer[data-kind="none"] {
+  background: transparent;
+}
+
+.stage__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.stage[data-mode="live"] .stage__canvas {
+  opacity: 1;
+  transition: opacity 0.4s var(--stage-ease-tide);
+}
+.stage[data-mode="live"]
+  :is(.stage__posters, .stage__calm, .stage__vignette, .stage__grain, .stage__tide) {
+  visibility: hidden;
+  transition: visibility 0s 0.45s;
+}
+
+/* Calm zones in poster mode: navy-deep at the zone's strength, feathered like the lens
+   (calm.ts CALM_FEATHER, 96px). The shadow is as wide as it is blurred (spread 48 = blur 48,
+   σ 24px): ~98% at the zone's edge, half at 48px, gone by 96px — no step anywhere, so a zone
+   reads as shade, never as a box over a bright plate. */
+.stage__calm > i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border-radius: 16px;
+  background: var(--stage-navy-deep);
+  box-shadow: 0 0 48px 48px var(--stage-navy-deep);
+  will-change: transform;
+}
+.stage__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 75% 80% at 50% 50%, transparent 55%, rgba(2, 10, 18, 0.32));
+}
+.stage__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.9'/></svg>");
+}
+/* The tide's waterline in poster mode (the shader draws its own, ragged). */
+.stage__tide {
+  position: absolute;
+  z-index: 2;
+  top: -3px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  opacity: 0;
+  background: linear-gradient(transparent, rgba(217, 176, 113, 0.35) 50%, transparent);
+  will-change: transform;
+}
+/* Media library (lib/media.ts, content/media.json): posters the build did not grade carry
+   #lv-grade-<preset>; footage from another site that WebGL may not draw (no CORS consent)
+   plays in a plain <video> the runtime adds to the layer. Both go through the grade's SVG
+   filter (components/site/stage/GradeFilters.tsx), never raw. */
+.stage__layer img[src$="#lv-grade-dawn"],
+.stage__layer[data-grade="dawn"] > video {
+  filter: url(#lv-grade-dawn) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-day"],
+.stage__layer[data-grade="day"] > video {
+  filter: url(#lv-grade-day) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-dusk"],
+.stage__layer[data-grade="dusk"] > video {
+  filter: url(#lv-grade-dusk) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-night"],
+.stage__layer[data-grade="night"] > video {
+  filter: url(#lv-grade-night) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-deep"],
+.stage__layer[data-grade="deep"] > video {
+  filter: url(#lv-grade-deep) brightness(calc(1 - var(--dim)));
+}
+.stage__layer > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fx) var(--fy);
+  transform: scale(var(--zoom));
+  transform-origin: var(--fx) var(--fy);
+  opacity: 0;
+  transition: opacity 0.4s var(--stage-ease-tide);
+}
+.stage__layer > video[data-ready] {
+  opacity: 1;
+}
+.stage__layer[data-flip] > video {
+  object-position: calc(100% - var(--fx)) var(--fy);
+  transform: scale(var(--zoom)) scaleX(-1);
+}
+@media (max-aspect-ratio: 4/5) {
+  .stage__layer > video {
+    object-position: var(--fx-phone) var(--fy-phone);
+    transform-origin: var(--fx-phone) var(--fy-phone);
+  }
+}
+/* A new clip without a poster: the ground until its first frame arrives. */
+.stage__layer[data-no-poster] {
+  background: var(--stage-navy-deep);
+}
+
+/* Off-screen decoders for the compositor's <video> elements (never display:none:
+   some browsers stop decoding hidden video). */
+.stage__decoders {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  overflow: hidden;
+  opacity: 0;
+}
+.stage__decoders video {
+  width: 2px;
+  height: 2px;
+}
+
+/* ---- Chart frame and horizon (GNB): DOM hairlines over the stage --------- */
+.stage-frame {
+  --frame-hair: rgba(243, 239, 228, 0.14);
+  --frame-mark: rgba(243, 239, 228, 0.42);
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: none;
+  pointer-events: none;
+}
+.stage[data-ground="light"] + .stage-frame {
+  --frame-hair: rgba(10, 31, 51, 0.16);
+  --frame-mark: rgba(10, 31, 51, 0.45);
+}
+@media (min-width: 1024px) {
+  .stage-frame {
+    display: block;
+  }
+}
+.stage-frame > i,
+.stage-frame__horizon {
+  position: absolute;
+  background: var(--frame-hair);
+  transition: background-color 0.6s ease;
+}
+.stage-frame__top {
+  top: var(--stage-frame-top);
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.stage-frame__start,
+.stage-frame__end {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.stage-frame__start {
+  inset-inline-start: var(--stage-edge);
+}
+.stage-frame__end {
+  inset-inline-end: var(--stage-edge);
+}
+.stage-frame__horizon {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  opacity: 0;
+  will-change: transform;
+}
+.stage-plus {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  margin-top: -6px;
+  margin-inline-start: -6px;
+  color: var(--frame-mark);
+}
+.stage-plus::before,
+.stage-plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.stage-plus::before {
+  top: 0;
+  left: 6px;
+  width: 1px;
+  height: 13px;
+}
+.stage-plus::after {
+  top: 6px;
+  left: 0;
+  width: 13px;
+  height: 1px;
+}
+.stage-plus--top-start,
+.stage-plus--top-end {
+  top: var(--stage-frame-top);
+}
+.stage-plus--top-start,
+.stage-plus--start {
+  inset-inline-start: var(--stage-edge);
+}
+.stage-plus--top-end,
+.stage-plus--end {
+  inset-inline-start: calc(100% - var(--stage-edge));
+}
+.stage-frame__horizon .stage-plus {
+  top: 0;
+}
+
+/* ---- Windows, apertures, cards ------------------------------------------- */
+.stage-window {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+/* The aperture's ground is a huge box-shadow: clip it to the window. `clip`
+   (unlike `hidden`) keeps sticky children (pinned scenes) working. */
+.stage-window:has(.stage-aperture) {
+  overflow: clip;
+}
+@supports not (overflow: clip) {
+  .stage-window:has(.stage-aperture) {
+    clip-path: inset(0);
+  }
+}
+.stage-aperture {
+  --ap-inset: var(--stage-inset);
+  --ap-radius: var(--stage-radius);
+  --ap-ground: var(--stage-navy-deep);
+  position: absolute;
+  z-index: -1;
+  inset: var(--ap-inset);
+  border-radius: var(--ap-radius);
+  box-shadow: 0 0 0 200vmax var(--ap-ground);
+  pointer-events: none;
+}
+.stage-aperture[data-aperture-ground="light"] {
+  --ap-ground: var(--stage-sand);
+}
+
+.stage-card {
+  position: relative;
+  margin-inline: var(--stage-inset);
+  border-radius: var(--stage-radius);
+  background: var(--stage-sand);
+  color: var(--stage-navy);
+}
+.stage-card + .stage-card {
+  margin-top: var(--stage-inset);
+}
+.stage-card--night {
+  background: var(--stage-navy-deep);
+  color: var(--stage-sand);
+}
+@media (max-width: 767px) {
+  .stage-card {
+    border-radius: var(--stage-radius) var(--stage-radius) 0 0;
+  }
+}
+/* settle (§5): rises 64px and scales .985 → 1 as it enters. Scroll-driven
+   CSS only; content is in place without it. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .stage-card {
+      animation: stage-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+@keyframes stage-settle {
+  from {
+    transform: translate3d(0, 64px, 0) scale(0.985);
+  }
+}
+
+/* ---- Ship lines: the WebGL hull's slot, and its SVG stand-in ------------- */
+.stage-lines {
+  position: relative;
+  min-height: 160px;
+}
+.stage-lines__svg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(243, 239, 228, 0.82);
+  transition: opacity 0.4s var(--stage-ease-tide);
+}
+html[data-stage="live"][data-stage-lines="3d"] .stage-lines__svg {
+  opacity: 0;
+}
+.stage-lines__art,
+.stage-lines__ribbon {
+  grid-area: 1 / 1;
+  width: 100%;
+  max-height: 100%;
+}
+.stage-lines__ribbon path {
+  stroke: #f6e3b4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 16 84;
+  filter: drop-shadow(0 0 2.5px rgba(217, 176, 113, 0.9));
+  animation: stage-ribbon 1.6s linear infinite;
+}
+@keyframes stage-ribbon {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+html[data-motion="paused"] .stage-lines__ribbon path {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-lines__ribbon path {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 0.45;
+  }
+}
+
+/* ---- Pause motion --------------------------------------------------------- */
+.stage-pause {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  font:
+    500 12.5px/1 var(--font-body, system-ui),
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+  color: var(--stage-sand);
+  background: rgba(5, 22, 36, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.18);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.18s var(--stage-ease-quick);
+}
+.stage-pause:hover {
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.42);
+}
+.stage-pause:focus-visible {
+  outline: 2px solid var(--stage-brass-light);
+  outline-offset: 2px;
+}
+.stage-pause svg {
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
+[data-ground="light"] .stage-pause {
+  color: var(--stage-navy);
+  background: rgba(251, 250, 247, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(10, 31, 51, 0.16);
+}
+[data-ground="light"] .stage-pause:focus-visible {
+  outline-color: #8a6420;
+}
+
+/* ---- Rail (GNB): the page's waypoints in the gutter ------------------------ */
+.stage-rail {
+  --rail-p: 0;
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--stage-frame-top) + 44px);
+  bottom: 12vh;
+  inset-inline-start: 0;
+  display: none;
+  width: var(--stage-edge);
+  color: var(--stage-sand);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .stage-rail {
+    display: block;
+  }
+}
+.stage-rail[data-ground="light"] {
+  color: var(--stage-navy);
+}
+.stage-rail[data-away="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.stage-rail ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stage-rail__ahead,
+.stage-rail__done {
+  position: absolute;
+  inset-inline-start: 50%;
+  width: 1px;
+}
+/* dotted course ahead of the ship, solid course behind it */
+.stage-rail__ahead {
+  top: calc(var(--rail-p) * 100%);
+  bottom: 0;
+  opacity: 0.62;
+  background: linear-gradient(currentColor 1px, transparent 0) 0 0 / 1px 4.5px repeat-y;
+}
+.stage-rail__done {
+  top: 0;
+  height: calc(var(--rail-p) * 100%);
+  opacity: 0.9;
+  background: currentColor;
+}
+.stage-rail__ship {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--rail-p) * 100%);
+  inset-inline-start: 50%;
+  width: 24px;
+  height: 12px;
+  margin-top: -11px;
+  margin-inline-start: -12px;
+}
+.stage-rail__ship svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+[dir="rtl"] .stage-rail__ship svg {
+  transform: scaleX(-1);
+}
+.stage-rail__wp {
+  position: absolute;
+  top: calc(var(--rail-t) * 100%);
+  inset-inline-start: 50%;
+}
+.stage-rail__wp a {
+  position: absolute;
+  top: -12px;
+  inset-inline-start: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: inherit;
+  pointer-events: auto;
+}
+.stage-rail__wp i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+.stage-rail__wp a[data-past] i {
+  opacity: 0.9;
+}
+.stage-rail__wp a[data-under] i {
+  opacity: 0;
+}
+.stage-rail__wp span {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 22px;
+  translate: 0 -50%;
+  padding: 5px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font:
+    500 12px/1 var(--font-body, system-ui),
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.004em;
+  color: var(--stage-sand);
+  background: rgba(5, 22, 36, 0.88);
+  opacity: 0;
+  pointer-events: none;
+}
+.stage-rail[data-ground="light"] .stage-rail__wp span {
+  color: var(--stage-navy);
+  background: rgba(243, 239, 228, 0.94);
+}
+.stage-rail__wp a[aria-current] span {
+  font-weight: 600;
+}
+.stage-rail__wp a:is(:hover, :focus-visible) span,
+.stage-rail__wp a:is(:hover, :focus-visible) i {
+  opacity: 1;
+}
+.stage-rail__wp a:focus-visible {
+  outline: 2px solid var(--stage-brass-light);
+  outline-offset: -4px;
+}
+.stage-rail[data-ground="light"] .stage-rail__wp a:focus-visible {
+  outline-color: #8a6420;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .stage-rail {
+    transition:
+      color 0.6s var(--stage-ease-tide),
+      opacity 0.35s ease,
+      visibility 0.35s;
+  }
+  .stage-rail__wp span,
+  .stage-rail__wp i {
+    transition: opacity 0.2s var(--stage-ease-tide);
+  }
+}
+
+/* ---- Print: the stage drops out, cards flatten to white, text navy ------- */
+@media print {
+  .stage,
+  .stage-frame,
+  .stage-rail,
+  .stage-pause,
+  .stage-aperture,
+  .stage-lines__ribbon {
+    display: none !important;
+  }
+  .stage-card,
+  .stage-card--night,
+  .stage-window {
+    margin: 0;
+    border-radius: 0;
+    background: #fff !important;
+    color: var(--stage-navy) !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .stage-lines__svg {
+    position: static;
+    color: var(--stage-navy);
+  }
+}
+
+/* ---- /stage-lab (development only) ---------------------------------------- */
+/* The reel's opening: 62% wide on paper, then full bleed over the first 45% of the pin. */
+.lab-reel__ap {
+  --k: min(1, calc(var(--stage-pin, 0) / 0.45));
+  inset: calc(32% * (1 - var(--k))) calc(19% * (1 - var(--k))) calc(6% * (1 - var(--k)));
+  border-radius: calc(var(--stage-radius) * (1 - var(--k)));
+}

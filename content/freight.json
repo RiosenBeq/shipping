@@ -1,0 +1,2860 @@
+{
+  "notice": "Example values, not live market prices.",
+  "sources": "Sea distances: great-circle legs between standard sea-lane waypoints (traffic separation schemes, capes, straits, canal ends), computed by LEVANTER and rounded to 5 nm; on benchmark lanes they agree with commonly quoted port-to-port distances within about 2%. Where a charter party names a distance, use that. ECA share: the part of each route inside SOx Emission Control Areas (the Mediterranean from 1 May 2025, the North Sea and English Channel, North America). Port and passage costs are for an Aframax-size ship; each class scales them by its size factor.",
+  "staleAfterDays": 30,
+  "fuels": {
+    "vlsfo": {
+      "price": 565,
+      "asOf": "2026-11-06"
+    },
+    "mgo": {
+      "price": 755,
+      "asOf": "2026-11-06"
+    },
+    "hsfo": {
+      "price": 455,
+      "asOf": "2026-11-06"
+    }
+  },
+  "ets": {
+    "euaPrice": 72.5,
+    "euaAsOf": "2026-11-06",
+    "eurUsd": 1.16,
+    "eurUsdAsOf": "2026-11-06",
+    "phaseIn": 100
+  },
+  "defaults": {
+    "class": "aframax",
+    "weatherMargin": 5,
+    "addressCommission": 2.5,
+    "brokerage": 1.25,
+    "extraHours": 12,
+    "fillLimit": 98,
+    "fillLimitPressurised": 88,
+    "etsScope": "auto"
+  },
+  "classes": [
+    {
+      "slug": "vlcc",
+      "label": "VLCC",
+      "dwt": 300000,
+      "capacity": 280000,
+      "loa": 330,
+      "gt": 160000,
+      "speedLaden": 13.5,
+      "speedBallast": 14,
+      "consLaden": 75,
+      "consBallast": 68,
+      "consPort": 35,
+      "consIdle": 6,
+      "fuel": "vlsfo",
+      "sizeFactor": 2.4,
+      "portDays": 2,
+      "cargoRate": 10000,
+      "demurrage": 55000,
+      "cargo": 270000,
+      "freight": 14,
+      "open": "ningbo",
+      "load": "ras-tanura",
+      "discharge": "ningbo"
+    },
+    {
+      "slug": "suezmax",
+      "label": "Suezmax",
+      "dwt": 158000,
+      "capacity": 145000,
+      "loa": 274,
+      "gt": 81000,
+      "speedLaden": 14,
+      "speedBallast": 14.5,
+      "consLaden": 46,
+      "consBallast": 42,
+      "consPort": 25,
+      "consIdle": 5,
+      "fuel": "vlsfo",
+      "sizeFactor": 1.45,
+      "portDays": 1.75,
+      "cargoRate": 7000,
+      "demurrage": 40000,
+      "cargo": 135000,
+      "freight": 10.75,
+      "open": "augusta",
+      "load": "cpc",
+      "discharge": "augusta"
+    },
+    {
+      "slug": "aframax",
+      "label": "Aframax / LR2",
+      "dwt": 115000,
+      "capacity": 100000,
+      "loa": 250,
+      "gt": 62000,
+      "speedLaden": 14.5,
+      "speedBallast": 15,
+      "consLaden": 35,
+      "consBallast": 32,
+      "consPort": 20,
+      "consIdle": 4,
+      "fuel": "vlsfo",
+      "sizeFactor": 1,
+      "portDays": 1.5,
+      "cargoRate": 5000,
+      "demurrage": 35000,
+      "cargo": 80000,
+      "freight": 13,
+      "open": "aliaga",
+      "load": "cpc",
+      "discharge": "trieste"
+    },
+    {
+      "slug": "lr1",
+      "label": "LR1",
+      "dwt": 75000,
+      "capacity": 65000,
+      "loa": 228,
+      "gt": 42000,
+      "speedLaden": 14,
+      "speedBallast": 14.5,
+      "consLaden": 28,
+      "consBallast": 26,
+      "consPort": 15,
+      "consIdle": 3.5,
+      "fuel": "vlsfo",
+      "sizeFactor": 0.7,
+      "portDays": 1.5,
+      "cargoRate": 3500,
+      "demurrage": 25000,
+      "cargo": 55000,
+      "freight": 21,
+      "open": "rotterdam",
+      "load": "aliaga",
+      "discharge": "rotterdam"
+    },
+    {
+      "slug": "mr",
+      "label": "MR",
+      "dwt": 50000,
+      "capacity": 45000,
+      "loa": 183,
+      "gt": 29000,
+      "speedLaden": 14,
+      "speedBallast": 14.5,
+      "consLaden": 24,
+      "consBallast": 22,
+      "consPort": 12,
+      "consIdle": 3,
+      "fuel": "vlsfo",
+      "sizeFactor": 0.55,
+      "portDays": 1.5,
+      "cargoRate": 2500,
+      "demurrage": 22000,
+      "cargo": 37000,
+      "freight": 16.25,
+      "open": "algeciras",
+      "load": "aliaga",
+      "discharge": "algeciras"
+    },
+    {
+      "slug": "vlgc",
+      "label": "VLGC",
+      "dwt": 55000,
+      "capacity": 84000,
+      "loa": 230,
+      "gt": 48000,
+      "speedLaden": 16,
+      "speedBallast": 16.5,
+      "consLaden": 38,
+      "consBallast": 35,
+      "consPort": 12,
+      "consIdle": 6,
+      "fuel": "vlsfo",
+      "sizeFactor": 0.8,
+      "portDays": 1.5,
+      "cargoRate": 800,
+      "demurrage": 45000,
+      "cargo": 44000,
+      "grade": "propane",
+      "freight": 58.5,
+      "open": "chiba",
+      "load": "ras-tanura",
+      "discharge": "chiba"
+    },
+    {
+      "slug": "mgc",
+      "label": "MGC",
+      "dwt": 30000,
+      "capacity": 38000,
+      "loa": 180,
+      "gt": 25000,
+      "speedLaden": 15.5,
+      "speedBallast": 16,
+      "consLaden": 27,
+      "consBallast": 25,
+      "consPort": 9,
+      "consIdle": 4,
+      "fuel": "vlsfo",
+      "sizeFactor": 0.5,
+      "portDays": 1.5,
+      "cargoRate": 500,
+      "demurrage": 28000,
+      "cargo": 21000,
+      "grade": "propane",
+      "freight": 37,
+      "open": "dortyol",
+      "load": "yanbu",
+      "discharge": "dortyol"
+    },
+    {
+      "slug": "handysize",
+      "label": "Handysize",
+      "dwt": 18000,
+      "capacity": 20000,
+      "loa": 159,
+      "gt": 14000,
+      "speedLaden": 14.5,
+      "speedBallast": 15,
+      "consLaden": 20,
+      "consBallast": 18,
+      "consPort": 7,
+      "consIdle": 3,
+      "fuel": "vlsfo",
+      "sizeFactor": 0.35,
+      "portDays": 1.5,
+      "cargoRate": 400,
+      "demurrage": 18000,
+      "cargo": 10000,
+      "grade": "propylene",
+      "freight": 35,
+      "open": "aliaga",
+      "load": "constanta",
+      "discharge": "aliaga"
+    },
+    {
+      "slug": "pressurised",
+      "label": "Pressurised LPG",
+      "dwt": 4500,
+      "capacity": 5000,
+      "loa": 99,
+      "gt": 3800,
+      "speedLaden": 12.5,
+      "speedBallast": 13,
+      "consLaden": 9,
+      "consBallast": 8,
+      "consPort": 3,
+      "consIdle": 1.5,
+      "fuel": "mgo",
+      "sizeFactor": 0.12,
+      "portDays": 1,
+      "cargoRate": 250,
+      "demurrage": 8000,
+      "cargo": 2200,
+      "grade": "propane",
+      "freight": 31.5,
+      "open": "marmara-eregli",
+      "load": "aliaga",
+      "discharge": "marmara-eregli"
+    }
+  ],
+  "ports": [
+    {
+      "id": "novorossiysk",
+      "name": "Novorossiysk",
+      "country": "RU",
+      "region": "black-sea",
+      "lat": 44.68,
+      "lon": 37.83,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 85000,
+      "note": "Russian port: price-cap and sanctions rules apply to the cargo and the voyage. Every fixture is screened before an offer."
+    },
+    {
+      "id": "cpc",
+      "name": "CPC Terminal (Novorossiysk)",
+      "country": "RU",
+      "region": "black-sea",
+      "lat": 44.61,
+      "lon": 37.66,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 70000,
+      "note": "CPC Blend is Kazakh-origin crude loaded in Russia: origin documents are checked before fixing."
+    },
+    {
+      "id": "tuapse",
+      "name": "Tuapse",
+      "country": "RU",
+      "region": "black-sea",
+      "lat": 44.09,
+      "lon": 39.07,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 75000,
+      "note": "Russian port: price-cap and sanctions rules apply to the cargo and the voyage. Every fixture is screened before an offer."
+    },
+    {
+      "id": "constanta",
+      "name": "Constanța",
+      "country": "RO",
+      "region": "black-sea",
+      "lat": 44.15,
+      "lon": 28.68,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 55000
+    },
+    {
+      "id": "marmara-eregli",
+      "name": "Marmara Ereğlisi",
+      "country": "TR",
+      "region": "east-med",
+      "lat": 40.96,
+      "lon": 27.97,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 40000
+    },
+    {
+      "id": "aliaga",
+      "name": "Aliağa",
+      "country": "TR",
+      "region": "east-med",
+      "lat": 38.8,
+      "lon": 26.93,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 45000
+    },
+    {
+      "id": "ceyhan",
+      "name": "Ceyhan",
+      "country": "TR",
+      "region": "east-med",
+      "lat": 36.87,
+      "lon": 35.93,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 50000
+    },
+    {
+      "id": "dortyol",
+      "name": "Dörtyol",
+      "country": "TR",
+      "region": "east-med",
+      "lat": 36.85,
+      "lon": 36.15,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 40000
+    },
+    {
+      "id": "sidi-kerir",
+      "name": "Sidi Kerir (SUMED)",
+      "country": "EG",
+      "region": "east-med",
+      "lat": 31.11,
+      "lon": 29.6,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 45000,
+      "note": "Mediterranean end of the SUMED pipeline."
+    },
+    {
+      "id": "augusta",
+      "name": "Augusta",
+      "country": "IT",
+      "region": "central-west-med",
+      "lat": 37.2,
+      "lon": 15.24,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 60000
+    },
+    {
+      "id": "trieste",
+      "name": "Trieste (SIOT)",
+      "country": "IT",
+      "region": "central-west-med",
+      "lat": 45.62,
+      "lon": 13.77,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 55000
+    },
+    {
+      "id": "algeciras",
+      "name": "Algeciras",
+      "country": "ES",
+      "region": "central-west-med",
+      "lat": 36.13,
+      "lon": -5.43,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 55000
+    },
+    {
+      "id": "gibraltar",
+      "name": "Gibraltar",
+      "country": "GI",
+      "region": "central-west-med",
+      "lat": 36.13,
+      "lon": -5.36,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 30000,
+      "note": "Outside the EU for the EU ETS."
+    },
+    {
+      "id": "rotterdam",
+      "name": "Rotterdam",
+      "country": "NL",
+      "region": "nw-europe",
+      "lat": 51.95,
+      "lon": 4.05,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 95000
+    },
+    {
+      "id": "antwerp",
+      "name": "Antwerp",
+      "country": "BE",
+      "region": "nw-europe",
+      "lat": 51.28,
+      "lon": 4.3,
+      "eu": true,
+      "mgoAtBerth": true,
+      "cost": 90000
+    },
+    {
+      "id": "houston",
+      "name": "Houston",
+      "country": "US",
+      "region": "americas",
+      "lat": 29.72,
+      "lon": -95.1,
+      "eu": false,
+      "mgoAtBerth": true,
+      "cost": 110000
+    },
+    {
+      "id": "yanbu",
+      "name": "Yanbu",
+      "country": "SA",
+      "region": "red-sea-gulf",
+      "lat": 24.08,
+      "lon": 38.05,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 40000
+    },
+    {
+      "id": "ain-sukhna",
+      "name": "Ain Sukhna (SUMED)",
+      "country": "EG",
+      "region": "red-sea-gulf",
+      "lat": 29.62,
+      "lon": 32.36,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 45000,
+      "note": "Red Sea end of the SUMED pipeline, where laden VLCCs too deep for Suez discharge or lighten."
+    },
+    {
+      "id": "ras-tanura",
+      "name": "Ras Tanura",
+      "country": "SA",
+      "region": "red-sea-gulf",
+      "lat": 26.65,
+      "lon": 50.17,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 40000,
+      "note": "Inside the Strait of Hormuz, where transits have been disrupted since March 2026: check war-risk cover and timing with the desk."
+    },
+    {
+      "id": "fujairah",
+      "name": "Fujairah",
+      "country": "AE",
+      "region": "red-sea-gulf",
+      "lat": 25.17,
+      "lon": 56.37,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 35000
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "country": "SG",
+      "region": "asia",
+      "lat": 1.25,
+      "lon": 103.8,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 50000
+    },
+    {
+      "id": "ningbo",
+      "name": "Ningbo-Zhoushan",
+      "country": "CN",
+      "region": "asia",
+      "lat": 29.93,
+      "lon": 122.05,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 60000
+    },
+    {
+      "id": "chiba",
+      "name": "Chiba",
+      "country": "JP",
+      "region": "asia",
+      "lat": 35.58,
+      "lon": 140.08,
+      "eu": false,
+      "mgoAtBerth": false,
+      "cost": 70000
+    }
+  ],
+  "passages": [
+    {
+      "id": "turkish-straits",
+      "name": "Turkish Straits (Bosphorus and Dardanelles)",
+      "costLaden": 110000,
+      "costBallast": 110000,
+      "days": 1.5,
+      "daysSmall": 0.25,
+      "note": "Light dues, pilotage, tugs and agency for a full transit; large laden tankers transit one way in daylight, so waiting is common."
+    },
+    {
+      "id": "bosphorus",
+      "name": "Bosphorus",
+      "costLaden": 70000,
+      "costBallast": 70000,
+      "days": 1,
+      "daysSmall": 0.15,
+      "note": "Between the Black Sea and Sea of Marmara ports."
+    },
+    {
+      "id": "dardanelles",
+      "name": "Dardanelles",
+      "costLaden": 70000,
+      "costBallast": 70000,
+      "days": 0.5,
+      "daysSmall": 0.1,
+      "note": "Between the Aegean and Sea of Marmara ports."
+    },
+    {
+      "id": "suez",
+      "name": "Suez Canal",
+      "costLaden": 330000,
+      "costBallast": 250000,
+      "days": 1,
+      "note": "Canal dues, agency, tugs and convoy waiting. Laden VLCCs are too deep: they lighten through SUMED or sail round the Cape."
+    },
+    {
+      "id": "panama",
+      "name": "Panama Canal",
+      "costLaden": 300000,
+      "costBallast": 220000,
+      "days": 2,
+      "note": "Neopanamax locks: tolls and agency. Slot auctions in congested periods come on top."
+    },
+    {
+      "id": "gibraltar",
+      "name": "Strait of Gibraltar",
+      "costLaden": 0,
+      "costBallast": 0,
+      "days": 0,
+      "note": "No dues; listed for the route."
+    },
+    {
+      "id": "bab-el-mandeb",
+      "name": "Bab el-Mandeb",
+      "costLaden": 0,
+      "costBallast": 0,
+      "days": 0,
+      "note": "War-risk area: enter the additional war-risk premium quoted for the voyage as the cost."
+    },
+    {
+      "id": "hormuz",
+      "name": "Strait of Hormuz",
+      "costLaden": 0,
+      "costBallast": 0,
+      "days": 0,
+      "note": "War-risk area: enter the additional war-risk premium quoted for the voyage as the cost."
+    }
+  ],
+  "distances": [
+    {
+      "from": "novorossiysk",
+      "to": "cpc",
+      "nm": 10,
+      "eca": 0
+    },
+    {
+      "from": "novorossiysk",
+      "to": "tuapse",
+      "nm": 65,
+      "eca": 0
+    },
+    {
+      "from": "novorossiysk",
+      "to": "constanta",
+      "nm": 395,
+      "eca": 0
+    },
+    {
+      "from": "novorossiysk",
+      "to": "marmara-eregli",
+      "nm": 500,
+      "via": "Bosphorus",
+      "passages": "bosphorus",
+      "eca": 11
+    },
+    {
+      "from": "novorossiysk",
+      "to": "aliaga",
+      "nm": 705,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 37
+    },
+    {
+      "from": "novorossiysk",
+      "to": "ceyhan",
+      "nm": 1310,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 66
+    },
+    {
+      "from": "novorossiysk",
+      "to": "dortyol",
+      "nm": 1315,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 66
+    },
+    {
+      "from": "novorossiysk",
+      "to": "sidi-kerir",
+      "nm": 1235,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 64
+    },
+    {
+      "from": "novorossiysk",
+      "to": "augusta",
+      "nm": 1260,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 65
+    },
+    {
+      "from": "novorossiysk",
+      "to": "trieste",
+      "nm": 1655,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 73
+    },
+    {
+      "from": "novorossiysk",
+      "to": "algeciras",
+      "nm": 2275,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 81
+    },
+    {
+      "from": "novorossiysk",
+      "to": "gibraltar",
+      "nm": 2275,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 81
+    },
+    {
+      "from": "novorossiysk",
+      "to": "rotterdam",
+      "nm": 3640,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 62
+    },
+    {
+      "from": "novorossiysk",
+      "to": "antwerp",
+      "nm": 3660,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 62
+    },
+    {
+      "from": "novorossiysk",
+      "to": "houston",
+      "nm": 7035,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 40
+    },
+    {
+      "from": "novorossiysk",
+      "to": "yanbu",
+      "nm": 1810,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 44
+    },
+    {
+      "from": "novorossiysk",
+      "to": "ain-sukhna",
+      "nm": 1370,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 59
+    },
+    {
+      "from": "novorossiysk",
+      "to": "ras-tanura",
+      "nm": 4450,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "turkish-straits, suez, bab-el-mandeb, hormuz",
+      "eca": 18
+    },
+    {
+      "from": "novorossiysk",
+      "to": "fujairah",
+      "nm": 4060,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 20
+    },
+    {
+      "from": "novorossiysk",
+      "to": "singapore",
+      "nm": 6345,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 13
+    },
+    {
+      "from": "novorossiysk",
+      "to": "ningbo",
+      "nm": 8435,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 10
+    },
+    {
+      "from": "novorossiysk",
+      "to": "ningbo",
+      "nm": 15010,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "novorossiysk",
+      "to": "chiba",
+      "nm": 9290,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "novorossiysk",
+      "to": "chiba",
+      "nm": 15870,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "cpc",
+      "to": "tuapse",
+      "nm": 70,
+      "eca": 0
+    },
+    {
+      "from": "cpc",
+      "to": "constanta",
+      "nm": 390,
+      "eca": 0
+    },
+    {
+      "from": "cpc",
+      "to": "marmara-eregli",
+      "nm": 490,
+      "via": "Bosphorus",
+      "passages": "bosphorus",
+      "eca": 11
+    },
+    {
+      "from": "cpc",
+      "to": "aliaga",
+      "nm": 700,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 38
+    },
+    {
+      "from": "cpc",
+      "to": "ceyhan",
+      "nm": 1300,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 67
+    },
+    {
+      "from": "cpc",
+      "to": "dortyol",
+      "nm": 1305,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 67
+    },
+    {
+      "from": "cpc",
+      "to": "sidi-kerir",
+      "nm": 1225,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 65
+    },
+    {
+      "from": "cpc",
+      "to": "augusta",
+      "nm": 1255,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 65
+    },
+    {
+      "from": "cpc",
+      "to": "trieste",
+      "nm": 1645,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 74
+    },
+    {
+      "from": "cpc",
+      "to": "algeciras",
+      "nm": 2270,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 81
+    },
+    {
+      "from": "cpc",
+      "to": "gibraltar",
+      "nm": 2270,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 81
+    },
+    {
+      "from": "cpc",
+      "to": "rotterdam",
+      "nm": 3635,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 62
+    },
+    {
+      "from": "cpc",
+      "to": "antwerp",
+      "nm": 3650,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 62
+    },
+    {
+      "from": "cpc",
+      "to": "houston",
+      "nm": 7030,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 40
+    },
+    {
+      "from": "cpc",
+      "to": "yanbu",
+      "nm": 1800,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 45
+    },
+    {
+      "from": "cpc",
+      "to": "ain-sukhna",
+      "nm": 1360,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 59
+    },
+    {
+      "from": "cpc",
+      "to": "ras-tanura",
+      "nm": 4440,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "turkish-straits, suez, bab-el-mandeb, hormuz",
+      "eca": 18
+    },
+    {
+      "from": "cpc",
+      "to": "fujairah",
+      "nm": 4055,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 20
+    },
+    {
+      "from": "cpc",
+      "to": "singapore",
+      "nm": 6335,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 13
+    },
+    {
+      "from": "cpc",
+      "to": "ningbo",
+      "nm": 8425,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 10
+    },
+    {
+      "from": "cpc",
+      "to": "ningbo",
+      "nm": 15000,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "cpc",
+      "to": "chiba",
+      "nm": 9285,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "cpc",
+      "to": "chiba",
+      "nm": 15860,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "tuapse",
+      "to": "constanta",
+      "nm": 450,
+      "eca": 0
+    },
+    {
+      "from": "tuapse",
+      "to": "marmara-eregli",
+      "nm": 535,
+      "via": "Bosphorus",
+      "passages": "bosphorus",
+      "eca": 10
+    },
+    {
+      "from": "tuapse",
+      "to": "aliaga",
+      "nm": 745,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 36
+    },
+    {
+      "from": "tuapse",
+      "to": "ceyhan",
+      "nm": 1345,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 64
+    },
+    {
+      "from": "tuapse",
+      "to": "dortyol",
+      "nm": 1350,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 65
+    },
+    {
+      "from": "tuapse",
+      "to": "sidi-kerir",
+      "nm": 1270,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 62
+    },
+    {
+      "from": "tuapse",
+      "to": "augusta",
+      "nm": 1300,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 63
+    },
+    {
+      "from": "tuapse",
+      "to": "trieste",
+      "nm": 1690,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 72
+    },
+    {
+      "from": "tuapse",
+      "to": "algeciras",
+      "nm": 2315,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 79
+    },
+    {
+      "from": "tuapse",
+      "to": "gibraltar",
+      "nm": 2315,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 79
+    },
+    {
+      "from": "tuapse",
+      "to": "rotterdam",
+      "nm": 3680,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 61
+    },
+    {
+      "from": "tuapse",
+      "to": "antwerp",
+      "nm": 3695,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 62
+    },
+    {
+      "from": "tuapse",
+      "to": "houston",
+      "nm": 7070,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 40
+    },
+    {
+      "from": "tuapse",
+      "to": "yanbu",
+      "nm": 1845,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 43
+    },
+    {
+      "from": "tuapse",
+      "to": "ain-sukhna",
+      "nm": 1405,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 57
+    },
+    {
+      "from": "tuapse",
+      "to": "ras-tanura",
+      "nm": 4485,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "turkish-straits, suez, bab-el-mandeb, hormuz",
+      "eca": 18
+    },
+    {
+      "from": "tuapse",
+      "to": "fujairah",
+      "nm": 4100,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 20
+    },
+    {
+      "from": "tuapse",
+      "to": "singapore",
+      "nm": 6380,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 13
+    },
+    {
+      "from": "tuapse",
+      "to": "ningbo",
+      "nm": 8470,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "tuapse",
+      "to": "ningbo",
+      "nm": 15045,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "tuapse",
+      "to": "chiba",
+      "nm": 9330,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "tuapse",
+      "to": "chiba",
+      "nm": 15905,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "constanta",
+      "to": "marmara-eregli",
+      "nm": 240,
+      "via": "Bosphorus",
+      "passages": "bosphorus",
+      "eca": 23
+    },
+    {
+      "from": "constanta",
+      "to": "aliaga",
+      "nm": 450,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 59
+    },
+    {
+      "from": "constanta",
+      "to": "ceyhan",
+      "nm": 1050,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 82
+    },
+    {
+      "from": "constanta",
+      "to": "dortyol",
+      "nm": 1055,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 83
+    },
+    {
+      "from": "constanta",
+      "to": "sidi-kerir",
+      "nm": 975,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 81
+    },
+    {
+      "from": "constanta",
+      "to": "augusta",
+      "nm": 1005,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 82
+    },
+    {
+      "from": "constanta",
+      "to": "trieste",
+      "nm": 1395,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 87
+    },
+    {
+      "from": "constanta",
+      "to": "algeciras",
+      "nm": 2020,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 91
+    },
+    {
+      "from": "constanta",
+      "to": "gibraltar",
+      "nm": 2020,
+      "via": "Turkish Straits",
+      "passages": "turkish-straits",
+      "eca": 91
+    },
+    {
+      "from": "constanta",
+      "to": "rotterdam",
+      "nm": 3380,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 67
+    },
+    {
+      "from": "constanta",
+      "to": "antwerp",
+      "nm": 3400,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 67
+    },
+    {
+      "from": "constanta",
+      "to": "houston",
+      "nm": 6775,
+      "via": "Turkish Straits · Gibraltar",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 41
+    },
+    {
+      "from": "constanta",
+      "to": "yanbu",
+      "nm": 1550,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 52
+    },
+    {
+      "from": "constanta",
+      "to": "ain-sukhna",
+      "nm": 1110,
+      "via": "Turkish Straits · Suez",
+      "passages": "turkish-straits, suez",
+      "eca": 72
+    },
+    {
+      "from": "constanta",
+      "to": "ras-tanura",
+      "nm": 4190,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "turkish-straits, suez, bab-el-mandeb, hormuz",
+      "eca": 19
+    },
+    {
+      "from": "constanta",
+      "to": "fujairah",
+      "nm": 3805,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "constanta",
+      "to": "singapore",
+      "nm": 6085,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 13
+    },
+    {
+      "from": "constanta",
+      "to": "ningbo",
+      "nm": 8175,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 10
+    },
+    {
+      "from": "constanta",
+      "to": "ningbo",
+      "nm": 14750,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "constanta",
+      "to": "chiba",
+      "nm": 9035,
+      "via": "Turkish Straits · Suez · Bab el-Mandeb · Malacca",
+      "passages": "turkish-straits, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "constanta",
+      "to": "chiba",
+      "nm": 15610,
+      "via": "Turkish Straits · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "turkish-straits, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "aliaga",
+      "nm": 210,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "ceyhan",
+      "nm": 815,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "dortyol",
+      "nm": 820,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "sidi-kerir",
+      "nm": 740,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "augusta",
+      "nm": 770,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "trieste",
+      "nm": 1160,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "algeciras",
+      "nm": 1780,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "gibraltar",
+      "nm": 1780,
+      "via": "Dardanelles",
+      "passages": "dardanelles",
+      "eca": 100
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "rotterdam",
+      "nm": 3145,
+      "via": "Dardanelles · Gibraltar",
+      "passages": "dardanelles, gibraltar",
+      "eca": 70
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "antwerp",
+      "nm": 3165,
+      "via": "Dardanelles · Gibraltar",
+      "passages": "dardanelles, gibraltar",
+      "eca": 70
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "houston",
+      "nm": 6540,
+      "via": "Dardanelles · Gibraltar",
+      "passages": "dardanelles, gibraltar",
+      "eca": 42
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "yanbu",
+      "nm": 1315,
+      "via": "Dardanelles · Suez",
+      "passages": "dardanelles, suez",
+      "eca": 57
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "ain-sukhna",
+      "nm": 875,
+      "via": "Dardanelles · Suez",
+      "passages": "dardanelles, suez",
+      "eca": 86
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "ras-tanura",
+      "nm": 3955,
+      "via": "Dardanelles · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "dardanelles, suez, bab-el-mandeb, hormuz",
+      "eca": 19
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "fujairah",
+      "nm": 3565,
+      "via": "Dardanelles · Suez · Bab el-Mandeb",
+      "passages": "dardanelles, suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "singapore",
+      "nm": 5850,
+      "via": "Dardanelles · Suez · Bab el-Mandeb · Malacca",
+      "passages": "dardanelles, suez, bab-el-mandeb",
+      "eca": 13
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "ningbo",
+      "nm": 7940,
+      "via": "Dardanelles · Suez · Bab el-Mandeb · Malacca",
+      "passages": "dardanelles, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "ningbo",
+      "nm": 14515,
+      "via": "Dardanelles · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "dardanelles, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "chiba",
+      "nm": 8795,
+      "via": "Dardanelles · Suez · Bab el-Mandeb · Malacca",
+      "passages": "dardanelles, suez, bab-el-mandeb",
+      "eca": 9
+    },
+    {
+      "from": "marmara-eregli",
+      "to": "chiba",
+      "nm": 15375,
+      "via": "Dardanelles · Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "dardanelles, gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "aliaga",
+      "to": "ceyhan",
+      "nm": 675,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "dortyol",
+      "nm": 685,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "sidi-kerir",
+      "nm": 605,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "augusta",
+      "nm": 650,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "trieste",
+      "nm": 1040,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "algeciras",
+      "nm": 1665,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "gibraltar",
+      "nm": 1665,
+      "eca": 100
+    },
+    {
+      "from": "aliaga",
+      "to": "rotterdam",
+      "nm": 3030,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 69
+    },
+    {
+      "from": "aliaga",
+      "to": "antwerp",
+      "nm": 3045,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 69
+    },
+    {
+      "from": "aliaga",
+      "to": "houston",
+      "nm": 6425,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 41
+    },
+    {
+      "from": "aliaga",
+      "to": "yanbu",
+      "nm": 1180,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 52
+    },
+    {
+      "from": "aliaga",
+      "to": "ain-sukhna",
+      "nm": 735,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 83
+    },
+    {
+      "from": "aliaga",
+      "to": "ras-tanura",
+      "nm": 3820,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 16
+    },
+    {
+      "from": "aliaga",
+      "to": "fujairah",
+      "nm": 3430,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 18
+    },
+    {
+      "from": "aliaga",
+      "to": "singapore",
+      "nm": 5715,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 11
+    },
+    {
+      "from": "aliaga",
+      "to": "ningbo",
+      "nm": 7800,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 8
+    },
+    {
+      "from": "aliaga",
+      "to": "ningbo",
+      "nm": 14400,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "aliaga",
+      "to": "chiba",
+      "nm": 8660,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 7
+    },
+    {
+      "from": "aliaga",
+      "to": "chiba",
+      "nm": 15255,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 11
+    },
+    {
+      "from": "ceyhan",
+      "to": "dortyol",
+      "nm": 10,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "sidi-kerir",
+      "nm": 530,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "augusta",
+      "nm": 1035,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "trieste",
+      "nm": 1430,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "algeciras",
+      "nm": 2050,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "gibraltar",
+      "nm": 2050,
+      "eca": 100
+    },
+    {
+      "from": "ceyhan",
+      "to": "rotterdam",
+      "nm": 3415,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 72
+    },
+    {
+      "from": "ceyhan",
+      "to": "antwerp",
+      "nm": 3435,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 73
+    },
+    {
+      "from": "ceyhan",
+      "to": "houston",
+      "nm": 6810,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 44
+    },
+    {
+      "from": "ceyhan",
+      "to": "yanbu",
+      "nm": 940,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 40
+    },
+    {
+      "from": "ceyhan",
+      "to": "ain-sukhna",
+      "nm": 500,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 75
+    },
+    {
+      "from": "ceyhan",
+      "to": "ras-tanura",
+      "nm": 3580,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 11
+    },
+    {
+      "from": "ceyhan",
+      "to": "fujairah",
+      "nm": 3195,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 12
+    },
+    {
+      "from": "ceyhan",
+      "to": "singapore",
+      "nm": 5475,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 7
+    },
+    {
+      "from": "ceyhan",
+      "to": "ningbo",
+      "nm": 7565,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 5
+    },
+    {
+      "from": "ceyhan",
+      "to": "chiba",
+      "nm": 8425,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 4
+    },
+    {
+      "from": "ceyhan",
+      "to": "chiba",
+      "nm": 15640,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 13
+    },
+    {
+      "from": "dortyol",
+      "to": "sidi-kerir",
+      "nm": 535,
+      "eca": 100
+    },
+    {
+      "from": "dortyol",
+      "to": "augusta",
+      "nm": 1040,
+      "eca": 100
+    },
+    {
+      "from": "dortyol",
+      "to": "trieste",
+      "nm": 1435,
+      "eca": 100
+    },
+    {
+      "from": "dortyol",
+      "to": "algeciras",
+      "nm": 2055,
+      "eca": 100
+    },
+    {
+      "from": "dortyol",
+      "to": "gibraltar",
+      "nm": 2055,
+      "eca": 100
+    },
+    {
+      "from": "dortyol",
+      "to": "rotterdam",
+      "nm": 3420,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 72
+    },
+    {
+      "from": "dortyol",
+      "to": "antwerp",
+      "nm": 3440,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 73
+    },
+    {
+      "from": "dortyol",
+      "to": "houston",
+      "nm": 6815,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 44
+    },
+    {
+      "from": "dortyol",
+      "to": "yanbu",
+      "nm": 950,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 40
+    },
+    {
+      "from": "dortyol",
+      "to": "ain-sukhna",
+      "nm": 505,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 76
+    },
+    {
+      "from": "dortyol",
+      "to": "ras-tanura",
+      "nm": 3590,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 11
+    },
+    {
+      "from": "dortyol",
+      "to": "fujairah",
+      "nm": 3200,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 12
+    },
+    {
+      "from": "dortyol",
+      "to": "singapore",
+      "nm": 5485,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 7
+    },
+    {
+      "from": "dortyol",
+      "to": "ningbo",
+      "nm": 7575,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 5
+    },
+    {
+      "from": "dortyol",
+      "to": "chiba",
+      "nm": 8430,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 5
+    },
+    {
+      "from": "dortyol",
+      "to": "chiba",
+      "nm": 15650,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 13
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "augusta",
+      "nm": 905,
+      "eca": 100
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "trieste",
+      "nm": 1305,
+      "eca": 100
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "algeciras",
+      "nm": 1885,
+      "eca": 100
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "gibraltar",
+      "nm": 1885,
+      "eca": 100
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "rotterdam",
+      "nm": 3250,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 71
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "antwerp",
+      "nm": 3265,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 71
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "houston",
+      "nm": 6645,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 43
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "yanbu",
+      "nm": 720,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 21
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "ain-sukhna",
+      "nm": 275,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 55
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "ras-tanura",
+      "nm": 3360,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 5
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "fujairah",
+      "nm": 2970,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 5
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "singapore",
+      "nm": 5250,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 3
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "ningbo",
+      "nm": 7340,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 2
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "chiba",
+      "nm": 8200,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 2
+    },
+    {
+      "from": "sidi-kerir",
+      "to": "chiba",
+      "nm": 15475,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "augusta",
+      "to": "trieste",
+      "nm": 755,
+      "eca": 100
+    },
+    {
+      "from": "augusta",
+      "to": "algeciras",
+      "nm": 1065,
+      "eca": 100
+    },
+    {
+      "from": "augusta",
+      "to": "gibraltar",
+      "nm": 1060,
+      "eca": 100
+    },
+    {
+      "from": "augusta",
+      "to": "rotterdam",
+      "nm": 2425,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 61
+    },
+    {
+      "from": "augusta",
+      "to": "antwerp",
+      "nm": 2445,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 61
+    },
+    {
+      "from": "augusta",
+      "to": "houston",
+      "nm": 5820,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 35
+    },
+    {
+      "from": "augusta",
+      "to": "yanbu",
+      "nm": 1500,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 62
+    },
+    {
+      "from": "augusta",
+      "to": "ain-sukhna",
+      "nm": 1060,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 88
+    },
+    {
+      "from": "augusta",
+      "to": "ras-tanura",
+      "nm": 4140,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 23
+    },
+    {
+      "from": "augusta",
+      "to": "fujairah",
+      "nm": 3755,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 25
+    },
+    {
+      "from": "augusta",
+      "to": "singapore",
+      "nm": 6035,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 16
+    },
+    {
+      "from": "augusta",
+      "to": "ningbo",
+      "nm": 8125,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 12
+    },
+    {
+      "from": "augusta",
+      "to": "ningbo",
+      "nm": 13795,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 8
+    },
+    {
+      "from": "augusta",
+      "to": "chiba",
+      "nm": 8985,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 10
+    },
+    {
+      "from": "augusta",
+      "to": "chiba",
+      "nm": 14655,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 7
+    },
+    {
+      "from": "trieste",
+      "to": "algeciras",
+      "nm": 1740,
+      "eca": 100
+    },
+    {
+      "from": "trieste",
+      "to": "gibraltar",
+      "nm": 1740,
+      "eca": 100
+    },
+    {
+      "from": "trieste",
+      "to": "rotterdam",
+      "nm": 3105,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 70
+    },
+    {
+      "from": "trieste",
+      "to": "antwerp",
+      "nm": 3125,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 70
+    },
+    {
+      "from": "trieste",
+      "to": "houston",
+      "nm": 6500,
+      "via": "Gibraltar",
+      "passages": "gibraltar",
+      "eca": 42
+    },
+    {
+      "from": "trieste",
+      "to": "yanbu",
+      "nm": 1895,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 70
+    },
+    {
+      "from": "trieste",
+      "to": "ain-sukhna",
+      "nm": 1450,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 92
+    },
+    {
+      "from": "trieste",
+      "to": "ras-tanura",
+      "nm": 4535,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 29
+    },
+    {
+      "from": "trieste",
+      "to": "fujairah",
+      "nm": 4145,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 32
+    },
+    {
+      "from": "trieste",
+      "to": "singapore",
+      "nm": 6430,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "trieste",
+      "to": "ningbo",
+      "nm": 8520,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 16
+    },
+    {
+      "from": "trieste",
+      "to": "ningbo",
+      "nm": 14475,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 12
+    },
+    {
+      "from": "trieste",
+      "to": "chiba",
+      "nm": 9375,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 14
+    },
+    {
+      "from": "trieste",
+      "to": "chiba",
+      "nm": 15330,
+      "via": "Gibraltar · Cape of Good Hope · Sunda",
+      "passages": "gibraltar",
+      "eca": 11
+    },
+    {
+      "from": "algeciras",
+      "to": "gibraltar",
+      "nm": 5,
+      "eca": 100
+    },
+    {
+      "from": "algeciras",
+      "to": "rotterdam",
+      "nm": 1375,
+      "eca": 32
+    },
+    {
+      "from": "algeciras",
+      "to": "antwerp",
+      "nm": 1390,
+      "eca": 32
+    },
+    {
+      "from": "algeciras",
+      "to": "houston",
+      "nm": 4770,
+      "eca": 21
+    },
+    {
+      "from": "algeciras",
+      "to": "yanbu",
+      "nm": 2485,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 77
+    },
+    {
+      "from": "algeciras",
+      "to": "ain-sukhna",
+      "nm": 2045,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 94
+    },
+    {
+      "from": "algeciras",
+      "to": "ras-tanura",
+      "nm": 5125,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 37
+    },
+    {
+      "from": "algeciras",
+      "to": "fujairah",
+      "nm": 4735,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 41
+    },
+    {
+      "from": "algeciras",
+      "to": "singapore",
+      "nm": 7020,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 27
+    },
+    {
+      "from": "algeciras",
+      "to": "singapore",
+      "nm": 10725,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "algeciras",
+      "to": "ningbo",
+      "nm": 9110,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "algeciras",
+      "to": "ningbo",
+      "nm": 12745,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "algeciras",
+      "to": "chiba",
+      "nm": 9965,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 19
+    },
+    {
+      "from": "algeciras",
+      "to": "chiba",
+      "nm": 13600,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "gibraltar",
+      "to": "rotterdam",
+      "nm": 1375,
+      "eca": 32
+    },
+    {
+      "from": "gibraltar",
+      "to": "antwerp",
+      "nm": 1390,
+      "eca": 32
+    },
+    {
+      "from": "gibraltar",
+      "to": "houston",
+      "nm": 4770,
+      "eca": 21
+    },
+    {
+      "from": "gibraltar",
+      "to": "yanbu",
+      "nm": 2485,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 77
+    },
+    {
+      "from": "gibraltar",
+      "to": "ain-sukhna",
+      "nm": 2040,
+      "via": "Suez",
+      "passages": "suez",
+      "eca": 94
+    },
+    {
+      "from": "gibraltar",
+      "to": "ras-tanura",
+      "nm": 5125,
+      "via": "Suez · Bab el-Mandeb · Hormuz",
+      "passages": "suez, bab-el-mandeb, hormuz",
+      "eca": 37
+    },
+    {
+      "from": "gibraltar",
+      "to": "fujairah",
+      "nm": 4735,
+      "via": "Suez · Bab el-Mandeb",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 41
+    },
+    {
+      "from": "gibraltar",
+      "to": "singapore",
+      "nm": 7020,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 27
+    },
+    {
+      "from": "gibraltar",
+      "to": "singapore",
+      "nm": 10725,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "gibraltar",
+      "to": "ningbo",
+      "nm": 9110,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "gibraltar",
+      "to": "ningbo",
+      "nm": 12745,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "gibraltar",
+      "to": "chiba",
+      "nm": 9965,
+      "via": "Suez · Bab el-Mandeb · Malacca",
+      "passages": "suez, bab-el-mandeb",
+      "eca": 19
+    },
+    {
+      "from": "gibraltar",
+      "to": "chiba",
+      "nm": 13600,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 0
+    },
+    {
+      "from": "rotterdam",
+      "to": "antwerp",
+      "nm": 105,
+      "eca": 100
+    },
+    {
+      "from": "rotterdam",
+      "to": "houston",
+      "nm": 5055,
+      "eca": 33
+    },
+    {
+      "from": "rotterdam",
+      "to": "yanbu",
+      "nm": 3850,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 61
+    },
+    {
+      "from": "rotterdam",
+      "to": "ain-sukhna",
+      "nm": 3405,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 69
+    },
+    {
+      "from": "rotterdam",
+      "to": "ras-tanura",
+      "nm": 6490,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "gibraltar, suez, bab-el-mandeb, hormuz",
+      "eca": 36
+    },
+    {
+      "from": "rotterdam",
+      "to": "ras-tanura",
+      "nm": 11200,
+      "via": "Cape of Good Hope · Hormuz",
+      "passages": "hormuz",
+      "eca": 4
+    },
+    {
+      "from": "rotterdam",
+      "to": "fujairah",
+      "nm": 6100,
+      "via": "Gibraltar · Suez · Bab el-Mandeb",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 38
+    },
+    {
+      "from": "rotterdam",
+      "to": "fujairah",
+      "nm": 10810,
+      "via": "Cape of Good Hope",
+      "eca": 4
+    },
+    {
+      "from": "rotterdam",
+      "to": "singapore",
+      "nm": 8385,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 28
+    },
+    {
+      "from": "rotterdam",
+      "to": "singapore",
+      "nm": 11830,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 4
+    },
+    {
+      "from": "rotterdam",
+      "to": "ningbo",
+      "nm": 10475,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 22
+    },
+    {
+      "from": "rotterdam",
+      "to": "ningbo",
+      "nm": 13845,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 3
+    },
+    {
+      "from": "rotterdam",
+      "to": "chiba",
+      "nm": 11330,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "rotterdam",
+      "to": "chiba",
+      "nm": 14010,
+      "via": "Panama",
+      "passages": "panama",
+      "eca": 13
+    },
+    {
+      "from": "rotterdam",
+      "to": "chiba",
+      "nm": 14705,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 3
+    },
+    {
+      "from": "antwerp",
+      "to": "houston",
+      "nm": 5070,
+      "eca": 34
+    },
+    {
+      "from": "antwerp",
+      "to": "yanbu",
+      "nm": 3865,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 61
+    },
+    {
+      "from": "antwerp",
+      "to": "ain-sukhna",
+      "nm": 3425,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 69
+    },
+    {
+      "from": "antwerp",
+      "to": "ras-tanura",
+      "nm": 6505,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "gibraltar, suez, bab-el-mandeb, hormuz",
+      "eca": 36
+    },
+    {
+      "from": "antwerp",
+      "to": "ras-tanura",
+      "nm": 11215,
+      "via": "Cape of Good Hope · Hormuz",
+      "passages": "hormuz",
+      "eca": 4
+    },
+    {
+      "from": "antwerp",
+      "to": "fujairah",
+      "nm": 6120,
+      "via": "Gibraltar · Suez · Bab el-Mandeb",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 39
+    },
+    {
+      "from": "antwerp",
+      "to": "fujairah",
+      "nm": 10830,
+      "via": "Cape of Good Hope",
+      "eca": 4
+    },
+    {
+      "from": "antwerp",
+      "to": "singapore",
+      "nm": 8400,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 28
+    },
+    {
+      "from": "antwerp",
+      "to": "singapore",
+      "nm": 11845,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 4
+    },
+    {
+      "from": "antwerp",
+      "to": "ningbo",
+      "nm": 10490,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 22
+    },
+    {
+      "from": "antwerp",
+      "to": "ningbo",
+      "nm": 13865,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 3
+    },
+    {
+      "from": "antwerp",
+      "to": "chiba",
+      "nm": 11350,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "antwerp",
+      "to": "chiba",
+      "nm": 14025,
+      "via": "Panama",
+      "passages": "panama",
+      "eca": 13
+    },
+    {
+      "from": "antwerp",
+      "to": "chiba",
+      "nm": 14720,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 3
+    },
+    {
+      "from": "houston",
+      "to": "yanbu",
+      "nm": 7245,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 40
+    },
+    {
+      "from": "houston",
+      "to": "ain-sukhna",
+      "nm": 6800,
+      "via": "Gibraltar · Suez",
+      "passages": "gibraltar, suez",
+      "eca": 42
+    },
+    {
+      "from": "houston",
+      "to": "ras-tanura",
+      "nm": 9885,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Hormuz",
+      "passages": "gibraltar, suez, bab-el-mandeb, hormuz",
+      "eca": 29
+    },
+    {
+      "from": "houston",
+      "to": "ras-tanura",
+      "nm": 12945,
+      "via": "Cape of Good Hope · Hormuz",
+      "passages": "hormuz",
+      "eca": 7
+    },
+    {
+      "from": "houston",
+      "to": "fujairah",
+      "nm": 9495,
+      "via": "Gibraltar · Suez · Bab el-Mandeb",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 30
+    },
+    {
+      "from": "houston",
+      "to": "fujairah",
+      "nm": 12555,
+      "via": "Cape of Good Hope",
+      "eca": 8
+    },
+    {
+      "from": "houston",
+      "to": "singapore",
+      "nm": 11780,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 25
+    },
+    {
+      "from": "houston",
+      "to": "singapore",
+      "nm": 11790,
+      "via": "Panama",
+      "passages": "panama",
+      "eca": 2
+    },
+    {
+      "from": "houston",
+      "to": "singapore",
+      "nm": 13575,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 7
+    },
+    {
+      "from": "houston",
+      "to": "ningbo",
+      "nm": 9980,
+      "via": "Panama",
+      "passages": "panama",
+      "eca": 3
+    },
+    {
+      "from": "houston",
+      "to": "ningbo",
+      "nm": 13870,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 21
+    },
+    {
+      "from": "houston",
+      "to": "ningbo",
+      "nm": 15590,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 6
+    },
+    {
+      "from": "houston",
+      "to": "chiba",
+      "nm": 9045,
+      "via": "Panama",
+      "passages": "panama",
+      "eca": 3
+    },
+    {
+      "from": "houston",
+      "to": "chiba",
+      "nm": 14725,
+      "via": "Gibraltar · Suez · Bab el-Mandeb · Malacca",
+      "passages": "gibraltar, suez, bab-el-mandeb",
+      "eca": 20
+    },
+    {
+      "from": "houston",
+      "to": "chiba",
+      "nm": 16450,
+      "via": "Cape of Good Hope · Sunda",
+      "eca": 6
+    },
+    {
+      "from": "yanbu",
+      "to": "ain-sukhna",
+      "nm": 455,
+      "eca": 0
+    },
+    {
+      "from": "yanbu",
+      "to": "ras-tanura",
+      "nm": 2670,
+      "via": "Bab el-Mandeb · Hormuz",
+      "passages": "bab-el-mandeb, hormuz",
+      "eca": 0
+    },
+    {
+      "from": "yanbu",
+      "to": "fujairah",
+      "nm": 2280,
+      "via": "Bab el-Mandeb",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "yanbu",
+      "to": "singapore",
+      "nm": 4565,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "yanbu",
+      "to": "ningbo",
+      "nm": 6655,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "yanbu",
+      "to": "chiba",
+      "nm": 7510,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "ain-sukhna",
+      "to": "ras-tanura",
+      "nm": 3095,
+      "via": "Bab el-Mandeb · Hormuz",
+      "passages": "bab-el-mandeb, hormuz",
+      "eca": 0
+    },
+    {
+      "from": "ain-sukhna",
+      "to": "fujairah",
+      "nm": 2705,
+      "via": "Bab el-Mandeb",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "ain-sukhna",
+      "to": "singapore",
+      "nm": 4990,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "ain-sukhna",
+      "to": "ningbo",
+      "nm": 7075,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "ain-sukhna",
+      "to": "chiba",
+      "nm": 7935,
+      "via": "Bab el-Mandeb · Malacca",
+      "passages": "bab-el-mandeb",
+      "eca": 0
+    },
+    {
+      "from": "ras-tanura",
+      "to": "fujairah",
+      "nm": 430,
+      "via": "Hormuz",
+      "passages": "hormuz",
+      "eca": 0
+    },
+    {
+      "from": "ras-tanura",
+      "to": "singapore",
+      "nm": 3720,
+      "via": "Hormuz · Malacca",
+      "passages": "hormuz",
+      "eca": 0
+    },
+    {
+      "from": "ras-tanura",
+      "to": "ningbo",
+      "nm": 5810,
+      "via": "Hormuz · Malacca",
+      "passages": "hormuz",
+      "eca": 0
+    },
+    {
+      "from": "ras-tanura",
+      "to": "chiba",
+      "nm": 6665,
+      "via": "Hormuz · Malacca",
+      "passages": "hormuz",
+      "eca": 0
+    },
+    {
+      "from": "fujairah",
+      "to": "singapore",
+      "nm": 3330,
+      "via": "Malacca",
+      "eca": 0
+    },
+    {
+      "from": "fujairah",
+      "to": "ningbo",
+      "nm": 5420,
+      "via": "Malacca",
+      "eca": 0
+    },
+    {
+      "from": "fujairah",
+      "to": "chiba",
+      "nm": 6280,
+      "via": "Malacca",
+      "eca": 0
+    },
+    {
+      "from": "singapore",
+      "to": "ningbo",
+      "nm": 2090,
+      "eca": 0
+    },
+    {
+      "from": "singapore",
+      "to": "chiba",
+      "nm": 2945,
+      "eca": 0
+    },
+    {
+      "from": "ningbo",
+      "to": "chiba",
+      "nm": 1200,
+      "eca": 0
+    }
+  ]
+}

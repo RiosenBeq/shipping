@@ -1,4 +1,3 @@
-import { REPORTS, reportSlug } from "@/lib/data/research";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 
@@ -25,11 +24,6 @@ export function shareCards(): Record<string, ShareCard> {
       eyebrow: "LPG & ammonia desk · VLGC to pressurised",
       title: "LPG and ammonia chartering, from VLGCs to pressurised coasters.",
       footer: "Propane · Butane · Ammonia · Petrochemical gases",
-    },
-    "/research": {
-      eyebrow: "Research",
-      title: "Route guides, market notes and risk briefs from the tanker and LPG desks.",
-      footer: "Guides · Outlooks · Regulatory",
     },
     "/turkish-straits": {
       eyebrow: "Guide · Bosphorus & Dardanelles",
@@ -61,6 +55,11 @@ export function shareCards(): Record<string, ShareCard> {
       title: "Tanker & LPG chartering glossary, in plain English.",
       footer: "Freight · Vessels · Gas · Regulation · Contracts",
     },
+    "/freight-calculator": {
+      eyebrow: "Tool · Voyage estimate",
+      title: "Freight calculator: from ballast leg to TCE, breakeven and EU ETS.",
+      footer: "Tankers · LPG · Turkish Straits · Suez · Worldscale",
+    },
   };
   for (const t of TANKER_CLASSES) {
     cards[`/tankers/${t.slug}`] = {
@@ -76,13 +75,7 @@ export function shareCards(): Record<string, ShareCard> {
       footer: c.capacity.split(" — ")[0],
     };
   }
-  for (const r of REPORTS) {
-    cards[`/research/${reportSlug(r)}`] = {
-      eyebrow: `${r.desk === "lpg" ? "LPG & ammonia" : "Tankers"} · ${r.catLabel}`,
-      title: r.title,
-      footer: `${r.date} · ${r.author}`,
-    };
-  }
+  // The blog (formerly /research) draws its own cards: /blog/og.png and /blog/<slug>/og.png.
   return cards;
 }
 

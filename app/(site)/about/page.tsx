@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Compass, ListChecks, ShieldCheck, UserCheck } from "lucide-react";
+import { Compass, ListChecks, ShieldCheck, UserCheck } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { PageHeader } from "@/components/site/PageHeader";
-import { Section } from "@/components/site/Section";
+import { Crumbs } from "@/components/site/PageHeader";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
+import { OfficeClocks } from "@/components/site/inner/OfficeClocks";
+import { BtnLabel, Glows, LinkArrow, SectionHead, Sub } from "@/components/site/inner/ui";
+import { Card, PauseMotion, StageProvider, StageWindow, calm } from "@/components/site/stage";
 import { BROKERS } from "@/lib/data/brokers";
 import { ABOUT_FAQ } from "@/lib/data/faqs";
 import { LOCALES } from "@/lib/i18n";
@@ -67,7 +69,7 @@ const PRINCIPLES = [
 
 export default function AboutPage() {
   return (
-    <>
+    <div className="ip-page">
       <JsonLd
         data={webPageLd({
           title: TITLE,
@@ -78,106 +80,180 @@ export default function AboutPage() {
           about: { "@id": `${siteConfig.url}#organization` },
         })}
       />
+      <StageProvider plates={["P-bathy", "V-ocean"]} />
 
-      <PageHeader
-        eyebrow="About LEVANTER"
-        title="A tanker and LPG broker, built on the Bosphorus."
-        lead="We started LEVANTER in Istanbul in 2024 because the Black Sea, the Mediterranean and the Turkish Straits deserve a desk that lives with them every day. Today two desks fix tankers and gas carriers worldwide from Istanbul, London and Singapore."
-        crumbs={[{ name: "About", path: PATH }]}
+      {/* "Local depth" (DESIGN-V2 §7.2, §10): the statement and the facts over the
+          bathymetry of the channel, the sonar pinging from the Istanbul desk. */}
+      <StageWindow
+        plate="P-bathy"
+        id="hero"
+        aria-labelledby="page-title"
+        data-header-overlay=""
+        className="ip-hero ip-hero--tall"
       >
-        <Link href="/brokers" className="uv-btn uv-btn--lg w-full sm:w-auto">
-          Meet the team <ArrowRight aria-hidden="true" />
-        </Link>
-        <Link href="/contact" className="uv-btn-outline uv-btn--lg w-full sm:w-auto">
-          Send an inquiry
-        </Link>
-      </PageHeader>
-
-      <section aria-label="Company facts" className="border-b border-line bg-white">
-        <dl className="container grid gap-x-8 gap-y-6 py-10 sm:grid-cols-2 lg:grid-cols-3 lg:py-12">
-          {FACTS.map((f) => (
-            <div key={f.k} className="border-s-2 border-brass ps-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate">
-                {f.k}
-              </dt>
-              <dd className="mt-1 text-lg text-navy">{f.v}</dd>
+        <Glows />
+        <div className="ip-wrap">
+          <Crumbs crumbs={[{ name: "About", path: PATH }]} className="ip-hero__crumbs" />
+          <div className="ip-about__grid">
+            <div {...calm(0.4)} className="ip-about__copy">
+              <Sub className="ip-rise">About LEVANTER</Sub>
+              <h1 id="page-title" className="t-display ip-display--long ip-rise ip-rise--2">
+                A tanker and LPG broker, <span className="ip-quiet">built on the Bosphorus.</span>
+              </h1>
+              <p className="t-lead ip-rise ip-rise--3 !mt-7">
+                We started LEVANTER in Istanbul in 2024 because the Black Sea, the Mediterranean and
+                the Turkish Straits deserve a desk that lives with them every day. Today two desks
+                fix tankers and gas carriers worldwide from Istanbul, London and Singapore.
+              </p>
+              <div className="ip-actions ip-actions--stack ip-rise ip-rise--4 !mt-8">
+                <Link href="/brokers" className="lv-btn lv-btn--cta">
+                  <BtnLabel>Meet the team</BtnLabel>
+                </Link>
+                <Link href="/contact" className="lv-btn lv-btn--ghost">
+                  Send an inquiry
+                </Link>
+              </div>
             </div>
-          ))}
-        </dl>
-      </section>
-
-      <Section eyebrow="Our story" title="Why a broker on the Straits.">
-        <div className="lv-prose">
-          <p>
-            Most of the world&apos;s large shipbrokers sit in London, Singapore, Houston or Oslo.
-            Yet some of the busiest and most complicated liquid trades run past our office window:
-            Black Sea crude and products through the Bosphorus, LPG into one of the world&apos;s
-            largest autogas markets, and small gas carriers distributing across the Mediterranean.
-          </p>
-          <p>
-            Those trades reward local knowledge. Transit queues, terminal limits and regional
-            charterers decide whether a voyage earns money, and they change by the day. We built
-            LEVANTER around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul, with
-            brokers in London for the Atlantic basin and in Singapore for business East of Suez.
-          </p>
-          <p>
-            We stay small and specialised. Clients talk to senior brokers, see the assumptions
-            behind every number, and get a first reply within 60 minutes during business hours.
-          </p>
+            <section {...calm(0.4)} aria-label="Company facts" className="ip-about__facts">
+              <dl className="ip-facts ip-facts--2">
+                {FACTS.map((f, i) => (
+                  <div key={f.k}>
+                    <dt>
+                      <span className="t-label">{f.k}</span>
+                      <span className="t-data" aria-hidden="true">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                    </dt>
+                    <dd>{f.v}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          </div>
+          <div className="ip-about__foot">
+            {/* The sonar ping starts here (data-stage-pin); the pin itself is DOM. */}
+            <p className="ip-pin t-data" data-stage-pin="">
+              <span className="ip-pin__dot" aria-hidden="true" />
+              41°02.6′N 029°00.5′E · Istanbul desk
+            </p>
+            <PauseMotion />
+          </div>
         </div>
-      </Section>
+      </StageWindow>
 
-      <Section tone="sand" eyebrow="How we work" title="Four principles on every fixture.">
-        <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {PRINCIPLES.map(({ Icon, title, text }) => (
-            <li
-              key={title}
-              className="relative border-t border-line pt-6 before:absolute before:-top-px before:start-0 before:h-0.5 before:w-12 before:bg-brass"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white/60 text-brass-ink"
-              >
-                <Icon className="h-[18px] w-[18px]" />
-              </span>
-              <h3 className="mt-4 text-lg font-semibold text-navy">{title}</h3>
-              <p className="mt-2 leading-relaxed text-slate">{text}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-10">
-          <Link href="/compliance" className="uv-link font-semibold text-navy">
-            How we screen every fixture
-          </Link>
-        </p>
-      </Section>
-
-      <Section eyebrow="Offices" title="Three time zones, one team.">
-        <ul className="grid gap-5 md:grid-cols-3">
-          {siteConfig.offices.map((o) => (
-            <li key={o.city} className="uv-card !p-6 sm:!p-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink">
-                {o.country}
+      <Card ground="paper" id="story" aria-labelledby="story-title" className="ip-card">
+        <div className="ip-wrap">
+          <div className="ip-story">
+            <div>
+              <Sub>Our story</Sub>
+              <h2 id="story-title" className="t-display">
+                Why a broker on the Straits.
+              </h2>
+            </div>
+            <div className="ip-prose">
+              <p>
+                Most of the world&apos;s large shipbrokers sit in London, Singapore, Houston or
+                Oslo. Yet some of the busiest and most complicated liquid trades run past our office
+                window: Black Sea crude and products through the Bosphorus, LPG into one of the
+                world&apos;s largest autogas markets, and small gas carriers distributing across the
+                Mediterranean.
               </p>
-              <h3 className="font-display text-[28px] leading-tight text-navy">{o.city}</h3>
-              <p className="leading-relaxed text-slate">{o.role}</p>
-              <p className="text-sm text-slate">
-                {BROKERS.filter((b) => b.office === o.city).length} brokers
+              <p>
+                Those trades reward local knowledge. Transit queues, terminal limits and regional
+                charterers decide whether a voyage earns money, and they change by the day. We built
+                LEVANTER around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul, with
+                brokers in London for the Atlantic basin and in Singapore for business East of Suez.
               </p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-8 max-w-2xl leading-relaxed text-slate">
-          Overview pages are available in {LOCALES.length} languages for clients in the main
-          shipping markets. Between us we speak {LANGUAGES.join(", ")}.
-        </p>
-      </Section>
+              <p>
+                We stay small and specialised. Clients talk to senior brokers, see the assumptions
+                behind every number, and get a first reply within 60 minutes during business hours.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
 
-      <Section tone="sand" eyebrow="FAQ" title="About LEVANTER.">
-        <Faq items={ABOUT_FAQ} onSand />
-      </Section>
+      <Card
+        ground="night"
+        id="principles"
+        aria-labelledby="principles-title"
+        className="ip-card ip-card--night"
+      >
+        <Glows />
+        <div className="ip-wrap">
+          <SectionHead
+            sub="How we work"
+            id="principles-title"
+            title="Four principles on every fixture."
+            action={
+              <Link href="/compliance" className="lv-link">
+                <span>How we screen every fixture</span>
+                <LinkArrow />
+              </Link>
+            }
+          />
+          <ul className="ip-services ip-services--4 ip-reveal">
+            {PRINCIPLES.map(({ Icon, title, text }, i) => (
+              <li key={title} className="ip-glass ip-service">
+                <div className="ip-service__top">
+                  <span className="ip-icon">
+                    <Icon aria-hidden="true" />
+                  </span>
+                  <span className="t-data" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="t-card">{title}</h3>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Card>
+
+      <Card ground="paper" id="offices" aria-labelledby="offices-title" className="ip-card">
+        <div className="ip-wrap">
+          <SectionHead
+            sub="Offices"
+            id="offices-title"
+            title="Three time zones, one team."
+            lead={`Overview pages are available in ${LOCALES.length} languages for clients in the main shipping markets. Between us we speak ${LANGUAGES.join(", ")}.`}
+          />
+          <ul className="ip-offices">
+            {siteConfig.offices.map((o) => (
+              <li key={o.city}>
+                <p className="t-label acc">{o.country}</p>
+                <h3 className="t-h3">{o.city}</h3>
+                <p className="text-slate">{o.role}</p>
+                <p className="t-data !mt-auto pt-6">
+                  {BROKERS.filter((b) => b.office === o.city).length} brokers
+                </p>
+                <OfficeClocks offices={[o]} />
+              </li>
+            ))}
+          </ul>
+
+          <section id="faq" aria-labelledby="faq-title" className="ip-block">
+            <div className="ip-faq-block">
+              <div className="ip-faq-block__head">
+                <div>
+                  <Sub>FAQ</Sub>
+                  <h2 id="faq-title" className="t-display">
+                    About LEVANTER.
+                  </h2>
+                </div>
+                <Link href="/contact" className="lv-link">
+                  <span>Ask us</span>
+                  <LinkArrow />
+                </Link>
+              </div>
+              <Faq items={ABOUT_FAQ} />
+            </div>
+          </section>
+        </div>
+      </Card>
 
       <CtaBand />
-    </>
+    </div>
   );
 }

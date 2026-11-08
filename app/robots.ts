@@ -4,15 +4,15 @@ import { AI_AGENTS } from "@/lib/crawlers";
 
 /**
  * Open to search engines and to AI search, assistant and training crawlers, so
- * the desks surface in AI answers. Only API routes are disallowed: `/_next/`
- * must stay crawlable, because Google renders pages with the CSS and JS
- * served from there.
+ * the desks surface in AI answers. Only API routes and the content admin
+ * (/keystatic, also noindex) are disallowed: `/_next/` must stay crawlable,
+ * because Google renders pages with the CSS and JS served from there.
  *
  * AI crawlers get their own group so the policy is explicit per bot (a bot
  * that finds a group naming it ignores the `*` group).
  */
 export default function robots(): MetadataRoute.Robots {
-  const disallow = ["/api/"];
+  const disallow = ["/api/", "/keystatic"];
 
   return {
     rules: [

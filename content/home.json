@@ -1,0 +1,258 @@
+{
+  "hero": {
+    "rail": "Departure",
+    "plate": "V-hero",
+    "headline": "Tankers & gas,\nbrokered from\nthe Bosphorus.",
+    "accent": "Bosphorus.",
+    "sub": "Tanker & LPG shipbrokers, Istanbul",
+    "lead": "Crude, clean products, LPG and ammonia — spot, time charter and COA. Talk directly to the broker who fixes your trade, with a first reply inside 60 minutes.",
+    "inquiry": "Send an inquiry",
+    "whatsapp": "WhatsApp the desk",
+    "scene": "Dawn · outbound"
+  },
+  "sections": [
+    {
+      "discriminant": "who",
+      "value": {
+        "show": true,
+        "rail": "Local depth",
+        "sub": "Who we are",
+        "statement": "Liquid cargoes, nothing else. We broker tankers and gas carriers from a desk on the Bosphorus, so every broker knows the ships, the terminals and the Straits in depth.",
+        "more": "About LEVANTER",
+        "pin": "Istanbul desk",
+        "scene": "Local depth · Bosphorus soundings",
+        "facts": [
+          {
+            "icon": "anchor",
+            "title": "On the Turkish Straits",
+            "text": "Transit timing, waiting and Straits rules go into every Black Sea estimate we send.",
+            "linkLabel": "Turkish Straits guide",
+            "href": "/turkish-straits"
+          },
+          {
+            "icon": "flame",
+            "title": "Small LPG specialists",
+            "text": "Pressurised and semi-refrigerated LPG in the Med, Black Sea and Türkiye.",
+            "linkLabel": "Pressurised LPG guide",
+            "href": "/lpg/pressurised"
+          },
+          {
+            "icon": "broker",
+            "title": "A senior broker on every deal",
+            "text": "You talk to the broker who works your cargo, from first idea to post-fixture.",
+            "linkLabel": "Meet the team",
+            "href": "/brokers"
+          },
+          {
+            "icon": "numbers",
+            "title": "Numbers you can check",
+            "text": "TCE, routing and port-time assumptions behind every idea, line by line.",
+            "linkLabel": "Worldscale & TCE explained",
+            "href": "/blog/worldscale-and-tce-explained-how-tanker-freight-is-quoted"
+          }
+        ],
+        "badge": "Every fixture screened against sanctions lists before main terms",
+        "badgeLink": "Compliance"
+      }
+    },
+    {
+      "discriminant": "desks",
+      "value": {
+        "show": true,
+        "rail": "Desks",
+        "sub": "Desks & services",
+        "headline": "Two desks.\nOne standard.",
+        "lead": "We stay narrow on purpose: tankers and gas carriers are all we broker — spot, time charter and COA, through to laytime and claims.",
+        "more": "How we work",
+        "rows": [
+          {
+            "title": "Crude & product tankers",
+            "text": "Black Sea and CPC Suezmaxes, cross-Med Aframaxes, VLCCs East and MRs across the Atlantic.",
+            "linkLabel": "Tanker desk",
+            "href": "/tankers",
+            "chips": "tankers",
+            "still": "tankerBow",
+            "caption": "Tanker desk · Istanbul"
+          },
+          {
+            "title": "LPG, ammonia & petchem gases",
+            "text": "VLGCs on the Baltic benchmarks, MGCs for ammonia, and small pressurised LPG into the Med and Türkiye.",
+            "linkLabel": "LPG & ammonia desk",
+            "href": "/lpg",
+            "chips": "lpg",
+            "still": "lpgDeck",
+            "caption": "LPG & ammonia desk"
+          },
+          {
+            "title": "Turkish Straits",
+            "text": "Transit timing, waiting and the rules that move a Black Sea estimate — built into every number we send.",
+            "linkLabel": "Turkish Straits guide",
+            "href": "/turkish-straits",
+            "chips": "none",
+            "still": "galata",
+            "caption": "The Bosphorus · Karaköy"
+          },
+          {
+            "title": "Post-fixture",
+            "text": "Voyage follow-up, laytime, demurrage and claims, handled by the broker who fixed the ship.",
+            "linkLabel": "Laytime & demurrage guide",
+            "href": "/blog/laytime-and-demurrage-a-practical-guide-for-tanker-and-lpg-charters",
+            "chips": "none",
+            "still": "portDusk",
+            "caption": "Discharge port · dusk"
+          }
+        ],
+        "calculator": {
+          "show": true,
+          "label": "Freight calculator",
+          "title": "Estimate a voyage.",
+          "text": "Ports, ship and cargo in; distance, days at sea and an indicative voyage estimate out — a first idea before you ask the desk.",
+          "cta": "Open the calculator"
+        }
+      }
+    },
+    {
+      "discriminant": "ships",
+      "value": {
+        "show": true,
+        "rail": "Ships",
+        "sub": "Ships we fix",
+        "headline": "From VLCC to pressurised LPG.",
+        "tankers": "Tankers",
+        "gas": "Gas",
+        "classGuide": "Class guide",
+        "estimate": "Estimate a voyage"
+      }
+    },
+    {
+      "discriminant": "process",
+      "value": {
+        "show": true,
+        "rail": "How we work",
+        "plate": "V-reel",
+        "sub": "How we work",
+        "headline": "Four steps, one broker throughout.",
+        "steps": [
+          {
+            "title": "Brief",
+            "text": "Cargo, ports, laycan — or your open ship and position."
+          },
+          {
+            "title": "Market",
+            "text": "We shortlist ships or cargoes, with compliance checks done."
+          },
+          {
+            "title": "Fix",
+            "text": "We negotiate main terms and the charter party to a clean fixture."
+          },
+          {
+            "title": "Post-fixture",
+            "text": "Voyage follow-up, laytime, demurrage and claims."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "reach",
+      "value": {
+        "show": true,
+        "rail": "Reach",
+        "sub": "Where we work",
+        "headline": "Three offices.\nOne desk.",
+        "counters": [
+          {
+            "value": 60,
+            "caption": "minutes to a first reply, in business hours"
+          },
+          {
+            "value": 9,
+            "caption": "ship classes, VLCC to pressurised LPG"
+          },
+          {
+            "value": 3,
+            "caption": "offices across three time zones"
+          },
+          {
+            "value": 2,
+            "caption": "desks — tankers, and LPG & ammonia"
+          }
+        ],
+        "lanes": [
+          {
+            "code": "Black Sea & CPC",
+            "lane": "Suezmax · Novorossiysk → Med",
+            "href": "/blog/suezmax-tightness-sustains-as-cpc-volumes-rebound",
+            "still": "tankerAtAnchor"
+          },
+          {
+            "code": "Cross-Med",
+            "lane": "Aframax · Ceyhan → Trieste",
+            "href": "/tankers/aframax",
+            "still": "openSea"
+          },
+          {
+            "code": "MEG–China",
+            "lane": "TD3C · VLCC",
+            "href": "/blog/td3c-demystified-meg-to-china-end-to-end",
+            "still": "tankerFleet"
+          },
+          {
+            "code": "US Gulf–Asia",
+            "lane": "VLGC · Panama or the Cape",
+            "href": "/blog/vlgc-routing-us-gulf-asia-panama-or-the-cape",
+            "still": "lpgDeck"
+          },
+          {
+            "code": "Small LPG",
+            "lane": "Med & Black Sea coasters",
+            "href": "/blog/chartering-small-lpg-ships-in-the-med-and-black-sea",
+            "still": "wakeTopdown"
+          },
+          {
+            "code": "North Sea–Cont",
+            "lane": "TD7 · Aframax short-haul",
+            "href": "/blog/td7-nsea-cont-shorthaul-fast-turn-thin-margin",
+            "still": "portDusk"
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "team",
+      "value": {
+        "show": true,
+        "rail": "Team",
+        "sub": "Our team",
+        "headline": "Speak to the broker,\nnot a switchboard.",
+        "lead": "Nine brokers across two desks, each one reachable directly by email or WhatsApp.",
+        "more": "Meet the team"
+      }
+    },
+    {
+      "discriminant": "notes",
+      "value": {
+        "show": true,
+        "rail": "Notes",
+        "sub": "From the desk",
+        "headline": "Notes from the desk.",
+        "count": 3,
+        "faqHeadline": "Questions charterers ask.",
+        "faqMore": "Ask the desk",
+        "faqCount": 5
+      }
+    },
+    {
+      "discriminant": "letter",
+      "value": {
+        "show": true,
+        "rail": "Contact",
+        "plate": "V-night",
+        "label": "From the Bosphorus",
+        "headline": "Have a cargo or a ship to fix?",
+        "line": "Send the cargo, ports and laycan. A broker replies within sixty minutes in business hours — no account needed.",
+        "sub": "Contact",
+        "inquiry": "Send an inquiry"
+      }
+    }
+  ]
+}

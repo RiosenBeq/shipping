@@ -1,8 +1,8 @@
 import { siteConfig } from "@/lib/site";
 import { PAGES } from "@/lib/pages";
 import { BROKERS, TEAM_LABEL } from "@/lib/data/brokers";
-import { REPORTS, reportDateIso, reportSlug } from "@/lib/data/research";
-import { REPORT_BODIES, bodyText } from "@/lib/data/research-bodies";
+import { getPosts, type Post } from "@/lib/blog/posts";
+import { BLOG_FEED_PATH, CATEGORY_INFO, categoryPath, formatPostDate } from "@/lib/blog/meta";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CARGO_DENSITY, LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { GLOSSARY_TERMS, GROUP_LABELS } from "@/lib/data/glossary";
@@ -10,6 +10,7 @@ import { ABOUT_FAQ, HOME_FAQ, LPG_FAQ, TANKERS_FAQ, type FaqEntry } from "@/lib/
 import { STRAITS_FACTS, STRAITS_FAQ, STRAITS_SECTIONS } from "@/lib/data/turkish-straits";
 import { COMPLIANCE_FAQ, COMPLIANCE_STEPS, SCREENING } from "@/lib/data/compliance";
 import { LOCALES } from "@/lib/i18n";
+import { freightCalculatorMd } from "@/lib/freight/llms";
 
 /**
  * Generators for /llms.txt (https://llmstxt.org/) and /llms-full.txt. Both are
@@ -19,11 +20,14 @@ import { LOCALES } from "@/lib/i18n";
 
 const url = (path: string) => new URL(path, siteConfig.url).toString();
 
-const byDate = () =>
-  [...REPORTS].sort((a, b) => reportDateIso(b.date).localeCompare(reportDateIso(a.date)));
+/** Guides (chartering and route guides) vs briefs and notes (everything else). */
+const isGuide = (p: Post) =>
+  p.category.slug === "chartering-guides" || p.category.slug === "route-guides";
 
 const page = (path: string) => PAGES.find((p) => p.path === path)!;
 const link = (path: string) => `[${page(path).title}](${url(path)}): ${page(path).summary}`;
+
+const formatDate = (iso: string) => formatPostDate(iso);
 
 const faqMd = (items: FaqEntry[]) => items.map((f) => `**${f.q}**\n${f.a}`).join("\n\n");
 
@@ -36,15 +40,15 @@ const KEY_FACTS = () => [
   "Service promise: a broker replies within 60 minutes during business hours.",
   `Contact: ${siteConfig.email} · tankers ${siteConfig.desks.tankers.email} · LPG ${siteConfig.desks.lpg.email} · phone ${siteConfig.phone} · WhatsApp ${siteConfig.whatsappDisplay}.`,
   `Hours: ${siteConfig.hours}.`,
-  "The site does not publish live freight rates, bunker prices or port tariffs; current numbers come from the desks.",
+  "The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator works from dated reference values, and current numbers come from the desks.",
 ];
 
 export function llmsTxt(): string {
-  const reports = byDate();
-  const guides = reports.filter((r) => r.cat === "guide" || r.cat === "route");
-  const briefs = reports.filter((r) => r.cat !== "guide" && r.cat !== "route");
-  const reportLine = (r: (typeof REPORTS)[number]) =>
-    `- [${r.title}](${url(`/research/${reportSlug(r)}`)}): ${r.desc} (${r.catLabel}, ${r.date})`;
+  const posts = getPosts();
+  const guides = posts.filter(isGuide);
+  const briefs = posts.filter((p) => !isGuide(p));
+  const postLine = (p: Post) =>
+    `- [${p.title}](${url(p.href)}): ${p.description} (${p.format}, ${p.dateLabel}${p.author ? `, by ${p.author.name}` : ""})`;
 
   return `# ${siteConfig.name}
 
@@ -54,13 +58,17 @@ ${KEY_FACTS()
   .map((f) => `- ${f}`)
   .join("\n")}
 
-When citing, link the page the fact comes from. Research notes carry their publication date; treat market commentary as of that date.
+When citing, link the page the fact comes from. Blog posts carry their publication date; treat market commentary as of that date.
 
 ## Desks
 
 - ${link("/tankers")}
 - ${link("/lpg")}
 - ${link("/contact")}
+
+## Tools
+
+- ${link("/freight-calculator")}
 
 ## Tanker classes
 
@@ -73,19 +81,25 @@ ${LPG_CLASSES.map((c) => `- [${c.name} chartering](${url(`/lpg/${c.slug}`)}): ${
 ## Guides
 
 - ${link("/turkish-straits")}
-${guides.map(reportLine).join("\n")}
+${guides.map(postLine).join("\n")}
 - ${link("/glossary")}
 
 ## Market and regulatory briefs
 
-${briefs.map(reportLine).join("\n")}
+${briefs.map(postLine).join("\n")}
 
 ## Company
 
 - ${link("/about")}
 - ${link("/brokers")}
 - ${link("/compliance")}
-- ${link("/research")}
+
+## Blog
+
+- ${link("/blog")}
+${Object.values(CATEGORY_INFO)
+  .map((c) => `- [${c.label}](${url(categoryPath(c.slug))}): ${c.description}`)
+  .join("\n")}
 
 ## Other languages
 
@@ -93,8 +107,8 @@ ${LOCALES.map((l) => `- [${l.label}](${url(`/${l.code}`)}): ${l.dict.metaTitle}`
 
 ## Optional
 
-- [Full site content in one file](${url("/llms-full.txt")}): every guide, research note, FAQ and glossary term as plain text
-- [Research RSS feed](${url("/research/feed.xml")})
+- [Full site content in one file](${url("/llms-full.txt")}): every guide, blog post, FAQ and glossary term as plain text
+- [Blog RSS feed](${url(BLOG_FEED_PATH)}): full text of every post
 - [Sitemap](${url("/sitemap.xml")})
 ${PAGES.filter((p) => p.group === "legal")
   .map((p) => `- [${p.title}](${url(p.path)}): ${p.summary}`)
@@ -103,8 +117,6 @@ ${PAGES.filter((p) => p.group === "legal")
 }
 
 export function llmsFullTxt(): string {
-  const reports = byDate();
-
   const tankers = TANKER_CLASSES.map(
     (t) => `### ${t.shortName}: ${t.longName}
 
@@ -146,16 +158,18 @@ ${c.watchpoints.map((w) => `- ${w.title}: ${w.body}`).join("\n")}
 ${faqMd(c.faq)}`
   ).join("\n\n");
 
-  const research = reports
-    .map((r) => {
-      const body = REPORT_BODIES[reportSlug(r)];
-      return `### ${r.title}
+  const posts = getPosts();
+  const blog = posts
+    .map(
+      (p) => `### ${p.title}
 
-Source: ${url(`/research/${reportSlug(r)}`)}
-${r.catLabel} · ${r.desk === "lpg" ? "LPG & ammonia desk" : "Tanker desk"} · by ${r.author} · published ${r.date}${r.updated ? ` · updated ${r.updated}` : ""}${r.gated ? " · summary online, full report on request" : ""}
+Source: ${url(p.href)}
+${p.format} · ${CATEGORY_INFO[p.category.slug].label} · ${p.desk === "lpg" ? "LPG & ammonia desk" : p.desk === "both" ? "Tanker and LPG desks" : "Tanker desk"}${p.author ? ` · by ${p.author.name}, ${p.author.title}` : ""} · published ${p.dateLabel}${p.updated ? ` · updated ${formatDate(p.updated)}` : ""}${p.gated ? " · summary online, full report on request" : ""}
 
-${body ? `${body.dek}\n\n${bodyText(body)}` : r.desc}`;
-    })
+${p.dek}
+${p.keyTakeaways.length ? `\nKey takeaways:\n${p.keyTakeaways.map((t) => `- ${t}`).join("\n")}\n` : ""}
+${p.text}${p.faq.length ? `\n\n${faqMd(p.faq)}` : ""}`
+    )
     .join("\n\n");
 
   const glossary = (Object.keys(GROUP_LABELS) as (keyof typeof GROUP_LABELS)[])
@@ -171,7 +185,7 @@ ${body ? `${body.dek}\n\n${bodyText(body)}` : r.desc}`;
 
 > ${siteConfig.tagline}. ${siteConfig.description}
 
-This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, compliance screening, all research notes, FAQs and the glossary. Each section names its source URL; please cite that URL.
+This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, compliance screening, all blog posts, FAQs and the glossary. Each section names its source URL; please cite that URL.
 
 ## Company
 
@@ -214,6 +228,8 @@ ${faqMd(LPG_FAQ)}
 
 ${gas}
 
+${freightCalculatorMd(url)}
+
 ## Turkish Straits transit guide
 
 Source: ${url("/turkish-straits")}
@@ -239,9 +255,11 @@ ${COMPLIANCE_STEPS.map((s, i) => `${i + 1}. ${s.title}: ${s.text}`).join("\n")}
 
 ${faqMd(COMPLIANCE_FAQ)}
 
-## Research notes (${REPORTS.length}, newest first)
+## Blog posts (${posts.length}, newest first)
 
-${research}
+Source: ${url("/blog")}
+
+${blog}
 
 ## Glossary (${GLOSSARY_TERMS.length} terms)
 
@@ -251,8 +269,8 @@ ${glossary}
 
 ## Notes
 
-- The site does not publish live freight rates, bunker prices or port tariffs; ask the desks for current numbers.
-- Research notes are dated; market commentary reflects conditions at publication.
+- The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator's reference prices carry their date. Ask the desks for current numbers.
+- Blog posts are dated; market commentary reflects conditions at publication.
 - Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages and the inquiry form are in English.
 `;
 }

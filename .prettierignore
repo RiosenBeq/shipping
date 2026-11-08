@@ -6,3 +6,7 @@ coverage
 package-lock.json
 public
 *.md
+.next-*
+# Written by the Keystatic admin (JSON.stringify, 2 spaces); Prettier would
+# reformat it and every admin save would then fail `format:check`.
+content

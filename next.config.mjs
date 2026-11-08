@@ -12,6 +12,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Lets two dev servers run side by side (NEXT_DIST_DIR=.next-alt next dev -p 3001).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
@@ -30,23 +32,29 @@ const nextConfig = {
       { source: "/offices/:city", destination: "/contact", permanent: true },
       { source: "/brokers/:slug", destination: "/brokers", permanent: true },
       { source: "/gas", destination: "/lpg", permanent: true },
-      // Retired: needed live freight, bunker and tariff data to stay accurate.
-      { source: "/voyage-estimator", destination: "/tankers", permanent: true },
+      // The old voyage estimator lives on as the freight calculator.
+      { source: "/voyage-estimator", destination: "/freight-calculator", permanent: true },
+      // Retired research notes: straight to the blog (no redirect chains).
       {
         source: "/research/aframax-5yearold-market-14-deals-3-themes",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
       {
         source: "/research/vlcc-newbuild-slot-pricing-the-slow-squeeze",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
       {
         source: "/research/the-crude-outlook-2026-annual-report",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
+      // Research became the blog (November 2026): same slugs, 308s keep links
+      // and search equity. The feed first, so it is not read as a slug.
+      { source: "/research/feed.xml", destination: "/blog/feed.xml", permanent: true },
+      { source: "/research", destination: "/blog", permanent: true },
+      { source: "/research/:slug", destination: "/blog/:slug", permanent: true },
     ];
   },
 };

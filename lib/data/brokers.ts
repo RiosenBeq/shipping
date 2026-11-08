@@ -1,10 +1,14 @@
 /**
  * The broking team, grouped by desk. Shown on /brokers and previewed on the
- * homepage and desk pages. Edit names, titles and contact lines here.
+ * homepage and desk pages. Edited in the admin (/keystatic → Brokers), stored
+ * in content/brokers.json.
  */
+import file from "@/content/brokers.json";
+import type { BrokersFile } from "@/lib/content/schemas";
+import type { OFFICE_NAMES, TEAM_KEYS } from "@/lib/content/options";
 
-export type Team = "crude" | "clean" | "lpg";
-export type Office = "Istanbul" | "London" | "Singapore";
+export type Team = (typeof TEAM_KEYS)[number];
+export type Office = (typeof OFFICE_NAMES)[number];
 
 export type Broker = {
   name: string;
@@ -16,112 +20,35 @@ export type Broker = {
   initials: string;
   /** Avatar fill: palette only — brass for desk heads, navy for everyone else. */
   color: AvatarColor;
+  /** Optional photo, a public URL under /images/brokers/. Initials are shown without one. */
+  photo?: string;
 };
 
 /** The two avatar fills, from the site palette (navy & brass). */
 export const AVATAR_COLOR = { head: "#B8893A", broker: "#0A1F33" } as const;
 export type AvatarColor = (typeof AVATAR_COLOR)[keyof typeof AVATAR_COLOR];
 
+const data = file as BrokersFile;
+
 export const TEAM_LABEL: Record<Team, string> = {
-  crude: "Crude tankers",
-  clean: "Clean products",
-  lpg: "LPG & ammonia",
+  crude: data.teamLabels.crude,
+  clean: data.teamLabels.clean,
+  lpg: data.teamLabels.lpg,
 };
 
 export const TEAM_ORDER: Team[] = ["lpg", "crude", "clean"];
 
-export const BROKERS: Broker[] = [
-  {
-    name: "Elif Kaya",
-    title: "Head of LPG & Ammonia",
-    team: "lpg",
-    office: "Istanbul",
-    focus: ["VLGC", "MGC", "East Med imports"],
-    languages: ["Turkish", "English"],
-    initials: "EK",
-    color: AVATAR_COLOR.head,
-  },
-  {
-    name: "Kerem Yılmaz",
-    title: "Broker — Handysize & Pressurised LPG",
-    team: "lpg",
-    office: "Istanbul",
-    focus: ["Pressurised", "Semi-ref", "Black Sea"],
-    languages: ["Turkish", "English", "Russian"],
-    initials: "KY",
-    color: AVATAR_COLOR.broker,
-  },
-  {
-    name: "Léa Martin",
-    title: "Broker — Petrochemical Gases",
-    team: "lpg",
-    office: "London",
-    focus: ["Propylene", "Butadiene", "NWE–Med"],
-    languages: ["French", "English"],
-    initials: "LM",
-    color: AVATAR_COLOR.broker,
-  },
-  {
-    name: "Hiroshi Tanaka",
-    title: "Broker — VLGC East",
-    team: "lpg",
-    office: "Singapore",
-    focus: ["BLPG1", "BLPG3", "Japan/Korea"],
-    languages: ["Japanese", "English"],
-    initials: "HT",
-    color: AVATAR_COLOR.broker,
-  },
-  {
-    name: "Mehmet Aydın",
-    title: "Head of Crude",
-    team: "crude",
-    office: "Istanbul",
-    focus: ["Suezmax", "CPC", "Black Sea"],
-    languages: ["Turkish", "English"],
-    initials: "MA",
-    color: AVATAR_COLOR.head,
-  },
-  {
-    name: "Søren Hansen",
-    title: "Broker — Suezmax & Aframax",
-    team: "crude",
-    office: "London",
-    focus: ["TD20", "Cross-Med", "North Sea"],
-    languages: ["Danish", "English"],
-    initials: "SH",
-    color: AVATAR_COLOR.broker,
-  },
-  {
-    name: "Wei Zhang",
-    title: "Broker — VLCC",
-    team: "crude",
-    office: "Singapore",
-    focus: ["TD3C", "TD15", "China"],
-    languages: ["Mandarin", "English"],
-    initials: "WZ",
-    color: AVATAR_COLOR.broker,
-  },
-  {
-    name: "Demetrios Pavlou",
-    title: "Head of Clean Tankers",
-    team: "clean",
-    office: "London",
-    focus: ["LR2", "LR1", "MR"],
-    languages: ["Greek", "English"],
-    initials: "DP",
-    color: AVATAR_COLOR.head,
-  },
-  {
-    name: "Ahmed El-Sayed",
-    title: "Broker — MR & Handy, Med",
-    team: "clean",
-    office: "Istanbul",
-    focus: ["Med", "Egypt", "Libya"],
-    languages: ["Arabic", "English", "Turkish"],
-    initials: "AE",
-    color: AVATAR_COLOR.broker,
-  },
-];
+export const BROKERS: Broker[] = data.brokers.map((b) => ({
+  name: b.name.name,
+  title: b.title,
+  team: b.team,
+  office: b.office,
+  focus: b.focus,
+  languages: b.languages,
+  initials: b.initials,
+  color: AVATAR_COLOR[b.avatar],
+  ...(b.photo ? { photo: b.photo } : {}),
+}));
 
 export function getBroker(name: string): Broker | undefined {
   return BROKERS.find((b) => b.name === name);

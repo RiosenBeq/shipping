@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "./site";
 import { LOCALES } from "./i18n";
+import { FEED_ALTERNATES } from "./seo";
 
 /**
  * Site-wide defaults shared by both root layouts: app/(site)/layout.tsx
@@ -73,9 +74,7 @@ export const rootMetadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   ...(Object.keys(verification).length ? { verification } : {}),
-  alternates: {
-    types: { "application/rss+xml": [{ url: "/research/feed.xml", title: "LEVANTER Research" }] },
-  },
+  alternates: { types: FEED_ALTERNATES },
 };
 
 export const rootViewport: Viewport = {

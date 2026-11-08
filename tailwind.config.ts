@@ -13,12 +13,16 @@ const config: Config = {
       colors: {
         // Core palette — hex values (not CSS vars) so opacity modifiers like
         // `bg-navy/5` work. Keep in sync with :root in globals.css.
-        navy: { DEFAULT: "#0A1F33", deep: "#051624", soft: "#13304A" },
+        // DESIGN-V2 §4.1. `tide` is for glow gradients only (never text or UI).
+        navy: { DEFAULT: "#0A1F33", deep: "#051624", soft: "#13304A", 2: "#0D2740" },
         brass: { DEFAULT: "#B8893A", ink: "#8A6420", light: "#D9B071" },
         sand: "#F3EFE4",
-        line: "#E4DDCC",
+        paper: "#FBFAF7",
+        line: { DEFAULT: "#E4DDCC", night: "rgba(243, 239, 228, 0.12)" },
         slate: "#4A5E6E",
+        mist: "#B7C2CA",
         fog: "#A9B6BF",
+        tide: "#5696A6",
         // Legacy tokens still used by the voyage estimator and shadcn primitives
         ink: {
           petrol: "var(--ink-deep-petrol)",
@@ -50,11 +54,24 @@ const config: Config = {
         card: { DEFAULT: "#ffffff", foreground: "var(--fg)" },
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
+        display: ["var(--font-display)", "Helvetica Neue", "Arial", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        arabic: ["var(--font-arabic)", "system-ui", "sans-serif"],
       },
-      borderRadius: { lg: "10px", md: "6px", sm: "4px" },
+      transitionTimingFunction: {
+        tide: "cubic-bezier(0.22, 1, 0.36, 1)",
+        swell: "cubic-bezier(0.65, 0, 0.35, 1)",
+        quick: "cubic-bezier(0.33, 1, 0.68, 1)",
+      },
+      borderRadius: {
+        lg: "10px",
+        md: "6px",
+        sm: "4px",
+        card: "var(--r-card)",
+        media: "var(--r-media)",
+      },
       // One fixed reading measure for the article column (≈68ch of the 17px
       // .lv-prose body). In rem, not ch, so cards, dividers and tag rows set
       // at 16px end on the same edge as the prose.

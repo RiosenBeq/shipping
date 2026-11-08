@@ -1,0 +1,69 @@
+{
+  "name": "LEVANTER",
+  "tagline": "Tanker & LPG Chartering Brokers",
+  "description": "LEVANTER is an Istanbul-based tanker and LPG shipbroker. Crude, clean and LPG/ammonia chartering — spot, time charter and COA — with direct broker access and a 60-minute first reply.",
+  "url": "https://levanter.example",
+  "legalEntity": "LEVANTER Shipbrokers A.Ş.",
+  "founded": "2024",
+  "contentUpdated": "2026-10-19",
+  "email": "desk@levanter.example",
+  "phone": "+90 212 000 0000",
+  "whatsapp": "+905330000000",
+  "whatsappDisplay": "+90 533 000 0000",
+  "hours": "Mon–Fri 08:00–19:00 (GMT+3) · outside these hours, WhatsApp the desk for live fixtures",
+  "duty": {
+    "label": "Live fixture after hours?",
+    "whatsapp": "+905330000000",
+    "display": "+90 533 000 0000",
+    "hours": "Answered evenings and weekends."
+  },
+  "desks": {
+    "tankers": {
+      "label": "Tanker desk",
+      "email": "tankers@levanter.example"
+    },
+    "lpg": {
+      "label": "LPG & ammonia desk",
+      "email": "lpg@levanter.example"
+    },
+    "research": {
+      "label": "Research",
+      "email": "research@levanter.example"
+    }
+  },
+  "address": {
+    "street": "Yıldız Caddesi 12, Beşiktaş",
+    "locality": "Istanbul",
+    "postalCode": "34349",
+    "country": "TR"
+  },
+  "geo": {
+    "latitude": 41.0428,
+    "longitude": 29.0075
+  },
+  "offices": [
+    {
+      "city": "Istanbul",
+      "country": "Türkiye",
+      "role": "Headquarters · Tankers & LPG",
+      "timeZone": "Europe/Istanbul"
+    },
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "role": "Atlantic basin",
+      "timeZone": "Europe/London"
+    },
+    {
+      "city": "Singapore",
+      "country": "Singapore",
+      "role": "East of Suez",
+      "timeZone": "Asia/Singapore"
+    }
+  ],
+  "twitter": "@levanter",
+  "socials": {
+    "linkedin": "https://www.linkedin.com/company/levanter",
+    "twitter": "https://twitter.com/levanter"
+  }
+}

@@ -3,6 +3,15 @@ import { siteConfig } from "./site";
 import { LOCALES } from "./i18n";
 import { BROKERS, type Broker } from "./data/brokers";
 import { shareImageFor } from "./og-cards";
+import { BLOG_FEED_PATH } from "./blog/meta";
+
+/**
+ * Feed autodiscovery. Next merges `alternates` shallowly, so every page that sets its own
+ * canonical (all of them, through buildPageMetadata) has to repeat it.
+ */
+export const FEED_ALTERNATES = {
+  "application/rss+xml": [{ url: BLOG_FEED_PATH, title: `${siteConfig.name} Blog` }],
+};
 
 type PageMetaInput = {
   title: string;
@@ -54,7 +63,7 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
     title: input.absoluteTitle ? { absolute: input.title } : input.title,
     description: input.description,
     keywords: input.keywords,
-    alternates: { canonical: url, languages },
+    alternates: { canonical: url, languages, types: FEED_ALTERNATES },
     openGraph: {
       type: input.article ? "article" : "website",
       url,
@@ -401,6 +410,128 @@ export function articleLd({
       : { "@id": ORG_ID },
     publisher: { "@id": ORG_ID },
     isPartOf: { "@id": `${siteConfig.url}#website` },
+    inLanguage: "en",
+  };
+}
+
+/* ====================== Blog ====================== */
+
+/** "2026-10-16" → "2026-10-16T00:00:00.000Z" (dates in JSON-LD and Open Graph). */
+export const isoDateTime = (date: string) => new Date(`${date}T00:00:00Z`).toISOString();
+
+/** A post's author as the page shows it (lib/blog/meta.ts → AuthorData). */
+export type LdAuthor = { id: string; name: string; title: string; photo?: string };
+
+/** The broker who wrote a post: a Person whose @id is their place on /brokers. */
+export function personLd(author: LdAuthor) {
+  const broker = BROKERS.find((b) => b.name === author.name);
+  return {
+    "@type": "Person",
+    "@id": `${abs("/brokers")}#${author.id}`,
+    name: author.name,
+    jobTitle: author.title,
+    url: abs(`/brokers#${author.id}`),
+    ...(author.photo ? { image: abs(author.photo) } : {}),
+    worksFor: { "@id": ORG_ID },
+    ...(broker
+      ? {
+          workLocation: { "@type": "Place", name: broker.office },
+          knowsLanguage: broker.languages,
+          knowsAbout: broker.focus,
+        }
+      : {}),
+  };
+}
+
+const BLOG_ID = () => `${abs("/blog")}#blog`;
+
+/**
+ * The blog itself (on /blog and its listing pages): a Blog published by the
+ * organisation, with the posts listed on the page.
+ */
+export function blogLd({
+  path,
+  name,
+  description,
+  posts,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  posts: { title: string; path: string; date: string; author?: LdAuthor }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": BLOG_ID(),
+    url: abs(path),
+    name,
+    description,
+    publisher: { "@id": ORG_ID },
+    isPartOf: { "@id": `${siteConfig.url}#website` },
+    inLanguage: "en",
+    blogPost: posts.map((p) => ({
+      "@type": "BlogPosting",
+      "@id": `${abs(p.path)}#article`,
+      headline: p.title,
+      url: abs(p.path),
+      datePublished: isoDateTime(p.date),
+      ...(p.author ? { author: { "@id": `${abs("/brokers")}#${p.author.id}` } } : {}),
+    })),
+  };
+}
+
+/** One post: BlogPosting with its author as a Person and the share card as image. */
+export function blogPostingLd({
+  title,
+  description,
+  path,
+  date,
+  updated,
+  section,
+  author,
+  keywords,
+  text,
+  image,
+  gated = false,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  /** YYYY-MM-DD */
+  date: string;
+  updated?: string;
+  /** The category label. */
+  section: string;
+  author?: LdAuthor;
+  keywords?: string[];
+  /** Plain text of the body, for wordCount. */
+  text?: string;
+  /** Share image path (1200 × 630). */
+  image: string;
+  /** Summary-only posts: the full report is sent on request. */
+  gated?: boolean;
+}) {
+  const url = abs(path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${url}#article`,
+    headline: title.length > 110 ? `${title.slice(0, 107)}…` : title,
+    description,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${url}#webpage`, url },
+    datePublished: isoDateTime(date),
+    dateModified: isoDateTime(updated ?? date),
+    articleSection: section,
+    ...(keywords?.length ? { keywords: keywords.join(", ") } : {}),
+    ...(text ? { wordCount: text.split(/\s+/).filter(Boolean).length } : {}),
+    isAccessibleForFree: true,
+    ...(gated ? { abstract: description } : {}),
+    image: { "@type": "ImageObject", url: abs(image), width: 1200, height: 630 },
+    author: author ? personLd(author) : { "@id": ORG_ID },
+    publisher: { "@id": ORG_ID },
+    isPartOf: { "@id": BLOG_ID() },
     inLanguage: "en",
   };
 }

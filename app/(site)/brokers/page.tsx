@@ -2,13 +2,18 @@ import type { Metadata } from "next";
 import { ArrowDown, Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
-import { Section } from "@/components/site/Section";
-import { BrokerCard } from "@/components/site/BrokerCard";
+import { BrokerCard, initialsColor } from "@/components/site/BrokerCard";
 import { CtaBand } from "@/components/site/CtaBand";
+import { Glows, Sub } from "@/components/site/inner/ui";
+import { Card } from "@/components/site/stage";
 import { BROKERS, TEAM_LABEL, TEAM_ORDER, brokersByTeam } from "@/lib/data/brokers";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import brokersFile from "@/content/brokers.json";
+
+/** name → slug (content/brokers.json): card anchors for the blog's /brokers#slug bylines. */
+const SLUG = new Map(brokersFile.brokers.map((b) => [b.name.name, b.name.slug]));
 
 const TITLE = "Our Brokers — Tanker & LPG Chartering Team";
 const DESCRIPTION =
@@ -43,12 +48,13 @@ export default function BrokersPage() {
         workLocation: { "@type": "Place", name: b.office },
         knowsLanguage: b.languages,
         knowsAbout: b.focus,
+        ...(b.photo ? { image: new URL(b.photo, siteConfig.url).toString() } : {}),
       },
     })),
   };
 
   return (
-    <>
+    <div className="ip-page ip-page--flat">
       <JsonLd
         data={[
           webPageLd({
@@ -62,70 +68,107 @@ export default function BrokersPage() {
       />
       <PageHeader
         eyebrow="The team"
+        long
         title="Talk directly to the broker who works your trade."
         lead="No switchboard and no account managers. Each desk is small, senior and reachable by email or WhatsApp — and a broker replies within 60 minutes during business hours."
         crumbs={[{ name: "Team", path: "/brokers" }]}
       >
         <nav aria-label="Desks">
-          <ul className="flex flex-wrap gap-2">
+          <ul className="ip-chips mb-8">
             {TEAM_ORDER.map((team) => (
               <li key={team}>
-                <a href={`#${team}`} className="uv-chip">
+                <a href={`#${team}`} className="ip-chip">
                   {TEAM_LABEL[team]}
-                  <span className="font-mono text-[11px] text-slate">
+                  <b>
                     {brokersByTeam(team).length}
                     <span className="sr-only"> brokers</span>
-                  </span>
-                  {/* in-page jump: the arrow says it's a link (static chips have no dot) */}
-                  <ArrowDown className="h-3 w-3 text-brass-ink" aria-hidden="true" />
+                  </b>
+                  {/* in-page jump: the arrow says it's a link */}
+                  <ArrowDown className="h-3 w-3 text-brass-light" aria-hidden="true" />
                 </a>
               </li>
             ))}
           </ul>
         </nav>
-      </PageHeader>
-
-      {TEAM_ORDER.map((team, i) => {
-        const desk = team === "lpg" ? siteConfig.desks.lpg : siteConfig.desks.tankers;
-        const people = brokersByTeam(team);
-        return (
-          <Section
-            key={team}
-            id={team}
-            tone={i % 2 === 1 ? "sand" : "plain"}
-            eyebrow={desk.label}
-            title={TEAM_LABEL[team]}
-            intro={TEAM_INTRO[team]}
-            action={
-              <a href={`mailto:${desk.email}`} className="uv-btn-outline">
-                <Mail aria-hidden="true" />
-                <span>
-                  Email the desk<span className="sr-only"> ({desk.email})</span>
+        {/* The team strip (GNB): every broker, a jump to their card below. */}
+        <ul className="ip-strip" aria-label="The team">
+          {TEAM_ORDER.flatMap((team) => brokersByTeam(team)).map((b) => (
+            <li key={b.name}>
+              <a href={`#${SLUG.get(b.name) ?? ""}`} className="ip-strip__item ip-glass">
+                <span
+                  className="ip-strip__av"
+                  aria-hidden="true"
+                  style={{ background: b.color, color: initialsColor(b.color) }}
+                >
+                  {b.initials}
+                </span>
+                <span className="min-w-0">
+                  <b>{b.name}</b>
+                  <small>{b.title}</small>
                 </span>
               </a>
-            }
-          >
-            {/* Columns by head count, so a short desk doesn't leave a hole in
-                the row: 4 brokers go 4-up from xl (at lg the cards are too
-                narrow for the name block and the two actions, as on the home
-                and /lpg pages); smaller desks use the 3-up grid of /tankers. */}
-            <ul
-              className={cn(
-                "grid gap-5 sm:grid-cols-2",
-                people.length === 4 ? "xl:grid-cols-4" : "lg:grid-cols-3"
-              )}
-            >
-              {people.map((b) => (
-                <li key={b.name}>
-                  <BrokerCard broker={b} />
-                </li>
-              ))}
-            </ul>
-          </Section>
-        );
-      })}
+            </li>
+          ))}
+        </ul>
+      </PageHeader>
+
+      {/* The desks on night glass (DESIGN-V2 §10: BrokerCard as glass portrait cards). */}
+      <Card
+        ground="night"
+        aria-label="Brokers by desk"
+        className="ip-card ip-card--night ip-card--over"
+      >
+        <Glows />
+        <div className="ip-wrap">
+          {TEAM_ORDER.map((team, i) => {
+            const desk = team === "lpg" ? siteConfig.desks.lpg : siteConfig.desks.tankers;
+            const people = brokersByTeam(team);
+            return (
+              <section
+                key={team}
+                id={team}
+                aria-labelledby={`${team}-title`}
+                className={
+                  i > 0
+                    ? "ip-block border-t border-[var(--hair)] pt-[clamp(56px,6vw,88px)]"
+                    : undefined
+                }
+              >
+                <div className="ip-head">
+                  <div>
+                    <Sub>{desk.label}</Sub>
+                    <h2 id={`${team}-title`} className="ip-h2">
+                      {TEAM_LABEL[team]}
+                    </h2>
+                  </div>
+                  <div className="ip-head__side">
+                    <p className="t-lead">{TEAM_INTRO[team]}</p>
+                    <a
+                      href={`mailto:${desk.email}`}
+                      className="lv-btn lv-btn--ghost lv-btn--sm gap-2.5"
+                    >
+                      <Mail aria-hidden="true" className="h-4 w-4" />
+                      <span>
+                        Email the desk<span className="sr-only"> ({desk.email})</span>
+                      </span>
+                    </a>
+                  </div>
+                </div>
+                {/* Columns by head count, so a short desk doesn't leave a hole in the row. */}
+                <ul className={cn("ip-team", people.length === 4 && "ip-team--4")}>
+                  {people.map((b) => (
+                    <li key={b.name}>
+                      <BrokerCard broker={b} id={SLUG.get(b.name)} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
+      </Card>
 
       <CtaBand />
-    </>
+    </div>
   );
 }

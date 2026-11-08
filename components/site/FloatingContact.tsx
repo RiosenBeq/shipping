@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getLocale } from "@/lib/i18n";
 import { whatsappUrl } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -49,9 +48,20 @@ const REVEAL_AT = 0.7;
  *   its CtaBand through the MutationObserver below.
  * - Localized: label, greeting and side (left on RTL) follow the landing page.
  */
-export function FloatingContact() {
+/** What the button says on a localized landing page (passed in, so the dictionaries stay on the server). */
+export type FabLocale = {
+  code: string;
+  hreflang: string;
+  dir: "ltr" | "rtl";
+  label: string;
+  greeting: string;
+  newTab: string;
+};
+
+export function FloatingContact({ locales = [] }: { locales?: FabLocale[] }) {
   const pathname = usePathname() || "/";
-  const locale = getLocale(pathname.split("/")[1] ?? "");
+  const first = pathname.split("/")[1] ?? "";
+  const locale = locales.find((l) => l.code === first);
   const hidden = pathname === "/contact" || pathname.startsWith("/contact/");
 
   const [shown, setShown] = useState(false);
@@ -132,8 +142,8 @@ export function FloatingContact() {
 
   if (hidden || !mounted) return null;
 
-  const label = locale?.dict.fab ?? "WhatsApp a broker";
-  const newTab = locale?.dict.newTab ?? "(opens in a new tab)";
+  const label = locale?.label ?? "WhatsApp a broker";
+  const newTab = locale?.newTab ?? "(opens in a new tab)";
   const rtl = locale?.dir === "rtl";
 
   return (
@@ -152,7 +162,7 @@ export function FloatingContact() {
       )}
     >
       <a
-        href={whatsappUrl(locale?.dict.whatsappGreeting)}
+        href={whatsappUrl(locale?.greeting)}
         target="_blank"
         rel="noopener"
         aria-label={`${label} ${newTab}`}

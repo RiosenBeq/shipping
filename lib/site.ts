@@ -1,47 +1,40 @@
 /**
  * Centralized site configuration. Used by metadata, sitemap, robots, and JSON-LD.
- * Edit contact details here — every page reads from this file.
+ *
+ * The values are edited in the admin (/keystatic → Site settings) and stored in
+ * content/site.json; this module only shapes them. Brand colours, the share
+ * image route and the locale stay in code. See docs/CMS.md.
  */
+import file from "@/content/site.json";
+import type { SiteFile } from "@/lib/content/schemas";
+
+const data = file as SiteFile;
+
 export const siteConfig = {
-  name: "LEVANTER",
-  tagline: "Tanker & LPG Chartering Brokers",
-  description:
-    "LEVANTER is an Istanbul-based tanker and LPG shipbroker. Crude, clean and LPG/ammonia chartering — spot, time charter and COA — with direct broker access and a 60-minute first reply.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://levanter.example",
+  name: data.name,
+  tagline: data.tagline,
+  description: data.description,
+  url: process.env.NEXT_PUBLIC_SITE_URL || data.url,
   ogImage: "/opengraph-image",
   locale: "en_US",
-  twitter: "@levanter",
-  legalEntity: "LEVANTER Shipbrokers A.Ş.",
-  founded: "2024",
+  twitter: data.twitter,
+  legalEntity: data.legalEntity,
+  founded: data.founded,
   /** Last material content update (ISO date): sitemap, humans.txt, ai.txt. */
-  contentUpdated: "2026-10-19",
-  email: "desk@levanter.example",
-  phone: "+90 212 000 0000",
-  whatsapp: "+905330000000", // E.164, no spaces — used to build wa.me links
-  whatsappDisplay: "+90 533 000 0000",
+  contentUpdated: data.contentUpdated,
+  email: data.email,
+  phone: data.phone,
+  whatsapp: data.whatsapp, // E.164, no spaces — used to build wa.me links
+  whatsappDisplay: data.whatsappDisplay,
   /** Per-desk inboxes. Shown on desk pages and the contact page. */
-  desks: {
-    tankers: { label: "Tanker desk", email: "tankers@levanter.example" },
-    lpg: { label: "LPG & ammonia desk", email: "lpg@levanter.example" },
-    research: { label: "Research", email: "research@levanter.example" },
-  },
-  address: {
-    street: "Yıldız Caddesi 12, Beşiktaş",
-    locality: "Istanbul",
-    postalCode: "34349",
-    country: "TR",
-  },
-  geo: { latitude: 41.0428, longitude: 29.0075 },
-  offices: [
-    { city: "Istanbul", country: "Türkiye", role: "Headquarters · Tankers & LPG" },
-    { city: "London", country: "United Kingdom", role: "Atlantic basin" },
-    { city: "Singapore", country: "Singapore", role: "East of Suez" },
-  ],
-  hours: "Mon–Fri 08:00–19:00 (GMT+3) · outside these hours, WhatsApp the desk for live fixtures",
-  socials: {
-    linkedin: "https://www.linkedin.com/company/levanter",
-    twitter: "https://twitter.com/levanter",
-  },
+  desks: data.desks,
+  address: data.address,
+  geo: data.geo,
+  offices: data.offices,
+  hours: data.hours,
+  /** After-hours duty line: title, WhatsApp (E.164), number as displayed, when it is answered. */
+  duty: data.duty,
+  socials: data.socials,
   themeColor: "#0A1F33",
   brassColor: "#B8893A",
 } as const;
@@ -50,5 +43,9 @@ export type SiteConfig = typeof siteConfig;
 
 export const whatsappUrl = (text = "Hi LEVANTER desk — I'd like to discuss a fixture.") =>
   `https://wa.me/${siteConfig.whatsapp.replace(/\+/g, "")}?text=${encodeURIComponent(text)}`;
+
+/** wa.me link to the after-hours duty broker. */
+export const dutyWhatsappUrl = (text = "Hi LEVANTER duty broker — live fixture: ") =>
+  `https://wa.me/${siteConfig.duty.whatsapp.replace(/\+/g, "")}?text=${encodeURIComponent(text)}`;
 
 export const telUrl = (phone: string = siteConfig.phone) => `tel:${phone.replace(/\s+/g, "")}`;

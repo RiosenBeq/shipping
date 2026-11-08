@@ -11,3 +11,4 @@ next-env.d.ts
 
 # stray Python wheels from tooling
 *.whl
+.next-*

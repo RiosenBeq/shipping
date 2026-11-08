@@ -7,7 +7,6 @@ import { LPG_CARGO_DENSITY, type LpgCargoKey } from "@/lib/data/lpg-classes";
 import { inquiryHref } from "@/lib/inquiry";
 import { parseLocaleNumber } from "@/lib/number";
 import { cn, FORCED_FOCUS, FORCED_SEGMENTED } from "@/lib/utils";
-import { Eyebrow } from "@/components/site/Section";
 
 type Mode = "cbm" | "mt";
 
@@ -158,8 +157,8 @@ export function LpgConverter() {
   };
 
   return (
-    // Kit card radius (10px); the navy result panel is inset 8px on every side.
-    <div className="rounded-[10px] border border-line bg-white p-2 shadow-[0_1px_2px_rgba(10,31,51,0.04)]">
+    // The paper "tool" card (DESIGN-V2 §10): inputs left, the result large on the right.
+    <div className="ip-tool">
       <div className="grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         {/* Inputs */}
         <div className="space-y-7 p-4 sm:p-6 md:p-8">
@@ -277,47 +276,39 @@ export function LpgConverter() {
         </div>
 
         {/* Result */}
-        <div className="relative isolate flex flex-col overflow-hidden rounded-md bg-navy p-6 text-white sm:p-8">
-          <div className="uv-hero-pattern" aria-hidden="true" />
-          <div className="relative z-[1] flex flex-1 flex-col">
-            <Eyebrow dark size="sm">
-              {heading}
-            </Eyebrow>
+        <div className="ip-tool__result">
+          <div className="flex flex-1 flex-col">
+            <p className="t-label acc">{heading}</p>
             {/* Visible figure updates instantly; the debounced sr-only line below is the announcement. */}
             <output
               htmlFor={`${id}-amount ${id}-fill`}
               aria-live="off"
               className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1"
             >
-              <span
-                className={cn(
-                  "tnum font-display text-[44px] leading-none tracking-tight sm:text-[56px]",
-                  !hasResult && "text-fog"
-                )}
-              >
+              <span className={cn("ip-tool__figure tnum", !hasResult && "text-slate")}>
                 {hasResult ? fmt(result) : "—"}
               </span>
-              <span className="font-mono text-lg text-brass-light">{outUnit}</span>
+              <span className="font-mono text-lg text-brass-ink">{outUnit}</span>
             </output>
             <p className="sr-only" role="status">
               {announce}
             </p>
 
             {/* figure and specs stay together; the CTA below anchors the bottom edge */}
-            <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 text-sm">
+            <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-[var(--hair)] pt-5 text-sm">
               <div>
-                <dt className="text-fog">Density</dt>
-                <dd className="tnum mt-0.5 font-mono text-white">{density} t/m³</dd>
+                <dt className="text-slate">Density</dt>
+                <dd className="tnum mt-0.5 font-mono text-navy">{density} t/m³</dd>
               </div>
               <div>
-                <dt className="text-fog">Filling limit</dt>
-                <dd className="tnum mt-0.5 font-mono text-white">
+                <dt className="text-slate">Filling limit</dt>
+                <dd className="tnum mt-0.5 font-mono text-navy">
                   {Number.isFinite(fillNum) && !fillError ? `${fmt(fillNum, 2)}%` : "—"}
                 </dd>
               </div>
             </dl>
             <p
-              className="tnum mt-4 font-mono text-[12px] leading-relaxed text-fog"
+              className="tnum mt-4 font-mono text-[12px] leading-relaxed text-slate"
               aria-hidden="true"
             >
               {hasResult
@@ -328,15 +319,9 @@ export function LpgConverter() {
             </p>
             {/* next step: take the sized parcel straight to an inquiry */}
             <p className="mt-auto pt-6">
-              <Link
-                href={findShipHref}
-                className="uv-link inline-flex items-center gap-1.5 text-sm font-semibold text-white"
-              >
-                Find a ship for this parcel
-                <ArrowRight
-                  className="h-4 w-4 text-brass-light rtl:rotate-180"
-                  aria-hidden="true"
-                />
+              <Link href={findShipHref} className="lv-link">
+                <span>Find a ship for this parcel</span>
+                <ArrowRight aria-hidden="true" />
               </Link>
             </p>
           </div>

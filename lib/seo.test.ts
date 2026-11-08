@@ -9,17 +9,36 @@ import { siteConfig } from "@/lib/site";
 import { BROKERS, getBroker } from "@/lib/data/brokers";
 import { GLOSSARY_TERMS } from "@/lib/data/glossary";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
-import { REPORTS, reportSlug } from "@/lib/data/research";
-import { REPORT_BODIES } from "@/lib/data/research-bodies";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
-import { articleLd, organizationLd } from "@/lib/seo";
+import { getPosts } from "@/lib/blog/posts";
+import { BLOG_CATEGORIES, categoryPath, shareImagePath } from "@/lib/blog/meta";
+import { bodyLinks } from "@/lib/blog/markdoc";
+import {
+  articleLd,
+  blogLd,
+  blogPostingLd,
+  breadcrumbsLd,
+  buildPageMetadata,
+  organizationLd,
+} from "@/lib/seo";
+import { rootMetadata } from "@/lib/root-metadata";
 
 const abs = (path: string) => new URL(path, siteConfig.url).toString();
-const reportPaths = REPORTS.map((r) => `/research/${reportSlug(r)}`);
+const POSTS = getPosts();
+const postPaths = POSTS.map((p) => p.href);
 const classPaths = [
   ...TANKER_CLASSES.map((t) => `/tankers/${t.slug}`),
   ...LPG_CLASSES.map((c) => `/lpg/${c.slug}`),
 ];
+
+describe("feed autodiscovery", () => {
+  it("every page's metadata and the root point to the blog feed", () => {
+    const feed = { url: "/blog/feed.xml", title: `${siteConfig.name} Blog` };
+    const page = buildPageMetadata({ title: "T", description: "D", path: "/tankers" });
+    expect(page.alternates?.types?.["application/rss+xml"]).toEqual([feed]);
+    expect(rootMetadata.alternates?.types?.["application/rss+xml"]).toEqual([feed]);
+  });
+});
 
 describe("robots.txt", () => {
   const r = robots();
@@ -53,35 +72,56 @@ describe("robots.txt", () => {
 describe("sitemap.xml", () => {
   const urls = sitemap().map((e) => e.url);
 
-  it("lists every page, class guide and research note once", () => {
-    for (const path of [...PAGES.map((p) => p.path), ...classPaths, ...reportPaths]) {
+  it("lists every page, class guide, blog post and category once", () => {
+    const categories = BLOG_CATEGORIES.filter((c) => POSTS.some((p) => p.category.slug === c));
+    for (const path of [
+      ...PAGES.map((p) => p.path),
+      ...classPaths,
+      ...postPaths,
+      ...categories.map(categoryPath),
+    ]) {
       expect(urls).toContain(abs(path));
     }
     expect(new Set(urls).size).toBe(urls.length);
+    expect(urls.some((u) => u.includes("/research"))).toBe(false);
+  });
+
+  it("dates each post by its last revision", () => {
+    const entries = sitemap();
+    for (const p of POSTS) {
+      const e = entries.find((x) => x.url === abs(p.href));
+      expect(e?.lastModified, p.slug).toEqual(new Date(`${p.updated ?? p.date}T00:00:00Z`));
+    }
   });
 });
 
-describe("research notes", () => {
+describe("blog posts", () => {
   it("have unique slugs, a body and a real author", () => {
-    expect(new Set(REPORTS.map((r) => r.slug)).size).toBe(REPORTS.length);
-    for (const r of REPORTS) {
-      expect(REPORT_BODIES[r.slug], r.slug).toBeDefined();
-      expect(getBroker(r.author), `${r.slug}: ${r.author}`).toBeDefined();
+    expect(new Set(POSTS.map((p) => p.slug)).size).toBe(POSTS.length);
+    for (const p of POSTS) {
+      expect(p.words, p.slug).toBeGreaterThan(50);
+      expect(getBroker(p.author?.name ?? ""), p.slug).toBeDefined();
     }
   });
 
   it("keep search titles and descriptions within snippet length", () => {
-    for (const r of REPORTS) {
-      expect((r.seoTitle ?? r.title).length, r.slug).toBeLessThanOrEqual(60);
-      expect(r.desc.length, r.slug).toBeLessThanOrEqual(160);
+    for (const p of POSTS) {
+      expect((p.seoTitle ?? p.title).length, p.slug).toBeLessThanOrEqual(60);
+      expect(p.description.length, p.slug).toBeLessThanOrEqual(160);
     }
   });
 
-  it("only link to pages that exist", () => {
-    const known = new Set([...PAGES.map((p) => p.path), ...classPaths, ...reportPaths]);
-    for (const [slug, body] of Object.entries(REPORT_BODIES)) {
-      for (const b of body.blocks) {
-        if (b.kind === "callout" && b.link) expect(known.has(b.link.href), slug).toBe(true);
+  it("only link to pages that exist (never to /research)", () => {
+    const known = new Set([
+      ...PAGES.map((p) => p.path),
+      ...classPaths,
+      ...postPaths,
+      ...BLOG_CATEGORIES.map(categoryPath),
+    ]);
+    for (const p of POSTS) {
+      for (const href of bodyLinks(p.ast)) {
+        if (href.startsWith("/"))
+          expect(known.has(href.split("#")[0]), `${p.slug} → ${href}`).toBe(true);
       }
     }
   });
@@ -91,11 +131,15 @@ describe("share images", () => {
   it("exist for every primary page, class guide and note", () => {
     const cards = shareCards();
     const primary = PAGES.filter((p) => p.group === "primary").map((p) => p.path);
-    for (const path of [...primary, ...classPaths, ...reportPaths]) {
+    for (const path of [...primary.filter((p) => p !== "/blog"), ...classPaths]) {
       expect(cards[path], path).toBeDefined();
     }
+    // Blog pages have their own type-set share cards (app/(site)/blog/**/og.png).
+    expect(shareImagePath("td7")).toBe("/blog/td7/og.png");
     expect(shareImageFor("/")).toBe("/og/home");
     expect(shareImageFor("/tankers/vlcc")).toBe("/og/tankers/vlcc");
+    // The retired /research cards are gone (the blog has its own).
+    expect(Object.keys(cards).some((k) => k.startsWith("/research"))).toBe(false);
   });
 });
 
@@ -106,20 +150,61 @@ describe("structured data", () => {
     expect(logo.height).toBeGreaterThanOrEqual(112);
   });
 
-  it("credits research notes to a person", () => {
-    const r = REPORTS[0];
-    const ld = articleLd({
-      title: r.title,
-      description: r.desc,
-      path: `/research/${r.slug}`,
-      datePublished: "2026-10-16",
-      section: r.catLabel,
-      author: getBroker(r.author),
+  it("credits blog posts to a person, with the post's share card as image", () => {
+    const p = POSTS[0];
+    const ld = blogPostingLd({
+      title: p.title,
+      description: p.description,
+      path: p.href,
+      date: p.date,
+      updated: p.updated,
+      section: p.category.label,
+      author: p.author,
       text: "one two three",
+      image: shareImagePath(p.slug),
     });
-    expect(ld.author).toMatchObject({ "@type": "Person", name: r.author });
+    expect(ld["@type"]).toBe("BlogPosting");
+    expect(ld.author).toMatchObject({
+      "@type": "Person",
+      name: p.author?.name,
+      "@id": abs(`/brokers#${p.author?.id}`),
+    });
     expect(ld.wordCount).toBe(3);
-    expect(ld.image.url).toBe(abs(`/og/research/${r.slug}`));
+    expect(ld.image.url).toBe(abs(`/blog/${p.slug}/og.png`));
+    expect(ld.datePublished).toBe(`${p.date}T00:00:00.000Z`);
+    expect(ld.isPartOf).toEqual({ "@id": abs("/blog#blog") });
+  });
+
+  it("describes the blog as a Blog listing its posts", () => {
+    const ld = blogLd({
+      path: "/blog",
+      name: "LEVANTER Blog",
+      description: "x",
+      posts: POSTS.slice(0, 2).map((p) => ({ title: p.title, path: p.href, date: p.date })),
+    });
+    expect(ld["@type"]).toBe("Blog");
+    expect(ld.blogPost).toHaveLength(2);
+    expect(ld.blogPost[0]).toMatchObject({ "@type": "BlogPosting", url: abs(POSTS[0].href) });
+  });
+
+  it("builds breadcrumbs with absolute URLs", () => {
+    const ld = breadcrumbsLd([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blog" },
+    ]);
+    expect(ld.itemListElement[1]).toMatchObject({ position: 2, item: abs("/blog") });
+  });
+
+  it("keeps articleLd for the long-read guides", () => {
+    const ld = articleLd({
+      title: "Turkish Straits",
+      description: "x",
+      path: "/turkish-straits",
+      datePublished: "2026-10-16",
+      section: "Guide",
+      author: getBroker(BROKERS[0].name),
+    });
+    expect(ld.author).toMatchObject({ "@type": "Person", name: BROKERS[0].name });
   });
 });
 
@@ -132,20 +217,25 @@ describe("llms.txt", () => {
     expect(lines[2].startsWith("> ")).toBe(true);
   });
 
-  it("links every primary page, class guide and note", () => {
+  it("links every primary page, class guide and blog post", () => {
     const primary = PAGES.filter((p) => p.group === "primary").map((p) => p.path);
-    for (const path of [...primary.filter((p) => p !== "/"), ...classPaths, ...reportPaths]) {
+    for (const path of [...primary.filter((p) => p !== "/"), ...classPaths, ...postPaths]) {
       expect(txt, path).toContain(`](${abs(path)})`);
     }
     expect(txt).toContain(abs("/llms-full.txt"));
+    expect(txt).toContain(abs("/blog/feed.xml"));
+    expect(txt).not.toContain("/research");
   });
 });
 
 describe("llms-full.txt", () => {
   const txt = llmsFullTxt();
 
-  it("contains every note, glossary term and broker", () => {
-    for (const r of REPORTS) expect(txt).toContain(`### ${r.title}`);
+  it("contains every post (full text), glossary term and broker", () => {
+    for (const p of POSTS) {
+      expect(txt).toContain(`### ${p.title}`);
+      expect(txt).toContain(p.text.slice(0, 200));
+    }
     for (const t of GLOSSARY_TERMS) expect(txt).toContain(`**${t.term}**`);
     for (const b of BROKERS) expect(txt).toContain(b.name);
   });
