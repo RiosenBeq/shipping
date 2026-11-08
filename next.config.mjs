@@ -12,6 +12,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Lets two dev servers run side by side (NEXT_DIST_DIR=.next-alt next dev -p 3001).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,

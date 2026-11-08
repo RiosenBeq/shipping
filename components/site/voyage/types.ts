@@ -5,6 +5,27 @@
  * it lazily and drives it from the page's scroll position.
  */
 
+/**
+ * The engine's composed camera keyframes (engine/timeline.ts SHOTS, in order):
+ * the moments it frames exactly. Page scenes (below) map onto this timeline
+ * by their `at` value and may sit on a keyframe or between two.
+ */
+export type VoyageKeyframeId = "hero" | "desks" | "straits" | "process" | "contact";
+
+export interface VoyageKeyframe {
+  id: VoyageKeyframeId;
+  at: number;
+}
+
+export const VOYAGE_KEYFRAMES: readonly VoyageKeyframe[] = [
+  { id: "hero", at: 0 },
+  { id: "desks", at: 0.28 },
+  { id: "straits", at: 0.52 },
+  { id: "process", at: 0.76 },
+  { id: "contact", at: 1 },
+];
+
+/** Page scenes: what a window section names in `data-voyage-scene`. */
 export type VoyageSceneId = "hero" | "desks" | "straits" | "process" | "contact";
 
 export type VoyageTone = "light" | "dark";

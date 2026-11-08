@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import { VOYAGE_SCENES, type VoyageSceneId } from "../types";
+import { VOYAGE_KEYFRAMES, type VoyageKeyframeId } from "../types";
 import { SEA_RADIUS } from "./ocean";
 import { FLEET, HULL_LENGTH, stagedPose } from "./ships";
 import {
@@ -26,7 +26,7 @@ type View = "desktop" | "phone";
 
 const SIZE: Record<View, readonly [number, number]> = { desktop: [1440, 900], phone: [390, 844] };
 
-const COPY: Record<View, Record<VoyageSceneId, readonly Rect[]>> = {
+const COPY: Record<View, Record<VoyageKeyframeId, readonly Rect[]>> = {
   desktop: {
     hero: [
       [0.08, 0.22, 0.59, 0.46],
@@ -146,7 +146,7 @@ function subjects(p: number, view: View): [string, number, number][] {
 
 describe("voyage camera path", () => {
   for (let seg = 0; seg < SHOTS.length - 1; seg++) {
-    it(`flight ${VOYAGE_SCENES[seg].id} → ${VOYAGE_SCENES[seg + 1].id} stays over open water`, () => {
+    it(`flight ${VOYAGE_KEYFRAMES[seg].id} → ${VOYAGE_KEYFRAMES[seg + 1].id} stays over open water`, () => {
       const p = new THREE.Vector3();
       let worst = Infinity;
       for (const k of [0, 1]) {
@@ -158,7 +158,7 @@ describe("voyage camera path", () => {
       expect(worst).toBeGreaterThanOrEqual(150);
     });
 
-    it(`flight ${VOYAGE_SCENES[seg].id} → ${VOYAGE_SCENES[seg + 1].id} turns at most 120°`, () => {
+    it(`flight ${VOYAGE_KEYFRAMES[seg].id} → ${VOYAGE_KEYFRAMES[seg + 1].id} turns at most 120°`, () => {
       const a = SHOTS[seg];
       const b = SHOTS[seg + 1];
       expect(Math.abs(b.yaw - a.yaw)).toBeLessThanOrEqual(120);
@@ -169,7 +169,7 @@ describe("voyage camera path", () => {
 
 describe("voyage keyframe framing", () => {
   for (const view of ["desktop", "phone"] as const) {
-    for (const scene of VOYAGE_SCENES) {
+    for (const scene of VOYAGE_KEYFRAMES) {
       it(`${scene.id} (${view}) puts the sea horizon where the page draws it`, () => {
         const st = frame(scene.at, view);
         const yaw = st.cam.yaw;
@@ -179,7 +179,7 @@ describe("voyage keyframe framing", () => {
           cam.position.z - Math.cos(yaw) * SEA_RADIUS
         );
         expect(s).not.toBeNull();
-        const shot = SHOTS[VOYAGE_SCENES.indexOf(scene)];
+        const shot = SHOTS[VOYAGE_KEYFRAMES.indexOf(scene)];
         const target = view === "desktop" ? shot.hz : shot.mob.hz;
         expect(Math.abs((s?.[1] ?? 0) - target) * SIZE[view][1]).toBeLessThan(0.75);
       });

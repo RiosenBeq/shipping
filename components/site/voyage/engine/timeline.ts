@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { VOYAGE_SCENES as SCENES } from "../types";
+import { VOYAGE_KEYFRAMES as SCENES } from "../types";
 import { BRAND, lin } from "./palette";
 import { clamp, lerp, smoothstep, type V3 } from "./math";
 
