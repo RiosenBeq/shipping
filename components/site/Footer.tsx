@@ -5,7 +5,8 @@ import { BLOG_FEED_PATH } from "@/lib/blog/meta";
 import { LOCALES } from "@/lib/i18n";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
-import { videos } from "@/lib/media";
+import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
+import { shippedVideos, videos } from "@/lib/media";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
 
@@ -24,6 +25,11 @@ const CLASSES = [
   ...LPG_CLASSES.map((c) => ({ href: `/lpg/${c.slug}`, label: c.name })),
 ];
 
+const TOOLS = [
+  { href: FREIGHT_CALCULATOR_PATH, label: "Freight calculator" },
+  { href: "/lpg#converter", label: "cbm ↔ tonnes" },
+];
+
 const READ = [
   { href: "/about", label: "About" },
   { href: "/glossary", label: "Glossary" },
@@ -35,8 +41,15 @@ const LANGUAGES = [
   ...LOCALES.map((l) => ({ href: `/${l.code}`, label: l.label, hreflang: l.hreflang })),
 ];
 
-// Every clip has its graded poster (lib/media.ts); the ocean's is the footer's fallback.
-const ocean = videos.ocean.graded!;
+// The ocean plate's poster is the footer's fallback (a new clip without a poster in the
+// Media library falls back to the shipped one; posters not graded at build time carry the
+// #lv-grade-* fragment that the CSS grade picks up).
+const ocean = videos.ocean.graded ?? shippedVideos.ocean.graded!;
+const srcset = (...c: [string | undefined, number | undefined][]) =>
+  c
+    .filter(([src]) => src)
+    .map(([src, w]) => (w ? `${src} ${w}w` : src))
+    .join(", ") || undefined;
 
 /** Office blocks: the head office's address and phone, the others' role and desk inbox. */
 function offices() {
@@ -85,10 +98,15 @@ export function Footer() {
       data-fab-hide=""
     >
       <picture className="ftr__poster">
-        <source media="(max-aspect-ratio: 4/5)" type="image/avif" srcSet={ocean.avifPortrait} />
+        {ocean.avifPortrait && (
+          <source media="(max-aspect-ratio: 4/5)" type="image/avif" srcSet={ocean.avifPortrait} />
+        )}
         <source
           type="image/avif"
-          srcSet={`${ocean.avifSmall} 800w, ${ocean.avif} 1600w`}
+          srcSet={srcset(
+            [ocean.avifSmall, ocean.smallWidth ?? 800],
+            [ocean.avif, ocean.avifSmall ? ocean.width : undefined]
+          )}
           sizes="100vw"
         />
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative graded poster */}
@@ -152,6 +170,16 @@ export function Footer() {
             <p className="t-label">Ship classes</p>
             <ul>
               {CLASSES.map((c) => (
+                <li key={c.href}>
+                  <Link href={c.href}>{c.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <nav aria-label="Tools" className="ftr__row">
+            <p className="t-label">Tools</p>
+            <ul>
+              {TOOLS.map((c) => (
                 <li key={c.href}>
                   <Link href={c.href}>{c.label}</Link>
                 </li>

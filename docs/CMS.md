@@ -1,6 +1,6 @@
 # LEVANTER: İçerik yönetim paneli (Keystatic)
 
-Sitedeki bütün liste ve metin verileri (şirket ve iletişim bilgileri, brokerlar, **blog yazıları**, SSS'ler, sözlük, tanker ve LPG sınıfları, LPG dönüştürücü yoğunlukları, uyum ve Türk Boğazları sayfaları) artık **`/keystatic`** adresindeki yönetim panelinden eklenip düzenlenebilir.
+Sitedeki bütün liste ve metin verileri (**ana sayfa — bölümlerin sırası dahil**, **medya kütüphanesi — videolar, posterler, fotoğraflar**, şirket ve iletişim bilgileri, brokerlar, **blog yazıları**, SSS'ler, sözlük, tanker ve LPG sınıfları, LPG dönüştürücü yoğunlukları, uyum ve Türk Boğazları sayfaları) artık **`/keystatic`** adresindeki yönetim panelinden eklenip düzenlenebilir.
 
 Panel [Keystatic](https://keystatic.com) ile kuruldu (`@keystatic/core` 0.6.9, `@keystatic/next` 5.0.5). Veritabanı ve ayrı bir sunucu yok: içerik depodaki dosyalarda durur (`content/*.json`; blog yazıları `content/blog/*.mdoc`), her kayıt bir Git değişikliğidir.
 
@@ -74,6 +74,8 @@ Bu değişkenler yokken `/keystatic` hata vermez; eksik değişkenlerin **adlar�
 
 | Paneldeki bölüm | Dosya | Sitede nerede görünür |
 | --- | --- | --- |
+| **Pages → Homepage** | `content/home.json` | İngilizce ana sayfa (`/`): hero ve altındaki bölümlerin **sırası**, görünürlüğü ve tüm metinleri; 10 dilin ana sayfaları sırayı ve görünürlüğü buradan alır. Ayrıntılar §3.2. |
+| **Media → Media library** | `content/media.json` | Sahnenin altı video plakası (ana sayfa, masa sayfaları, Boğazlar, iletişim, footer, 404) ve dokuz fotoğraf (masa satırları, rotalar, ofis pencereleri, iç sayfalar, blog kapakları): yükleme veya başka siteden bağlantı, derecelendirme, kadraj. Ayrıntılar §3.3. |
 | **Site settings** | `content/site.json` | Şirket adı, slogan, açıklama, site adresi, tüzel kişilik, kuruluş yılı, "içerik güncellendi" tarihi; ana e-posta, telefon, WhatsApp (wa.me bağlantısı için `+905…` biçiminde) ve görünen hali; çalışma saatleri; masa e-postaları (tanker, LPG, araştırma); adres ve harita konumu; ofisler; X/Twitter ve LinkedIn. Üst menü, alt bilgi, iletişim sayfası, yüzen iletişim düğmesi, hata sayfaları, JSON-LD, `llms.txt`, `humans.txt`, `ai.txt`, `security.txt`. |
 | **Brokers** | `content/brokers.json` | Her broker: ad, unvan, masa, ofis, uzmanlık etiketleri, diller, baş harfler, avatar rengi (masa şefi: pirinç, broker: lacivert) ve **isteğe bağlı fotoğraf**. Sıra, `/brokers` ve ana sayfalardaki sıradır. Altta masa adları. |
 | **Blog posts** | `content/blog/<slug>.mdoc` (yazı başına bir dosya) | `/blog` (ana sayfa, kategori sayfaları, sayfalama), yazı sayfası `/blog/<slug>`, ana sayfadaki "Notes from the desk" şeridi, masa ve sınıf sayfalarındaki not kartları, tam metinli RSS (`/blog/feed.xml`), `llms.txt` / `llms-full.txt`, sitemap, JSON-LD (Blog, BlogPosting, BreadcrumbList). Ayrıntılar §3.1. |
@@ -121,6 +123,101 @@ Kasım 2026'da 13 araştırma notu bloga taşındı: adresler aynı kaldı (`/re
 
 **Önizleme:** `npm run dev` açıkken yazının sayfası `http://localhost:3000/blog/<slug>` (panelde sağ üstteki dış bağlantı simgesi). Taslaklar da görünür; yeni dosyalar sunucuyu yeniden başlatmadan görünür.
 
+### 3.2 Ana sayfa (Homepage)
+
+**Pages → Homepage** iki kısımdan oluşur:
+
+1. **Hero (always first)** — sayfanın ilk ekranı; her zaman en üstte. Alanlar: rail adı, **Footage** (hero'nun arkasındaki video plakası; altı plakadan biri, ne oynattığı Media library'de), başlık (h1; en çok 48 karakter, en çok 3 satır — satırı bölmek istediğiniz yerde Enter), vurgu kelimesi (başlıkta geçen ve pirinç renkte yazılan kelime, ör. *Bosphorus.*), alt satır, giriş, iki düğme metni ve sağ alttaki mono sahne etiketi.
+2. **Sections (drag to reorder)** — hero'dan sonra gelen bölümler, **yukarıdan aşağı sayfadaki sırayla**. Sol tutamaçtan sürükleyerek sırayı değiştirin; satıra tıklayıp bölümün metnini düzenleyin; **Show …** kutusunun işaretini kaldırmak bölümü metni silinmeden gizler (listede "(hidden)" yazar). Çöp kutusu bölümü listeden kaldırır (metni de gider); **Add** ile kaldırılmış bir bölüm geri eklenir (metni yeniden yazılır). Her bölüm türü en fazla bir kez kullanılabilir.
+
+| Bölüm | Ne düzenlenir | Notlar |
+| --- | --- | --- |
+| Who we are | Alt satır, kaydırdıkça dolan cümle (h2, ≤ 220), /about bağlantı metni, sonar etiketi, sahne etiketi, **tam 4 madde** (ikon, başlık, satır, bağlantı), isteğe bağlı uyum satırı | Arka plan batimetri çizgileri (P-bathy). |
+| Desks & services | Başlık (Enter ile iki satır), giriş, **tam 4 satır** (başlık, giriş ≤ 140, bağlantı, sınıf çipleri, fotoğraf, alt yazı), **Estimate a voyage** kartı | Kart `/freight-calculator`'a gider; "Show the calculator card" ile gizlenir. Fotoğraflar Media library'den seçilir. |
+| Ships we fix | Başlık, sekme adları, kart bağlantı metni, **her karttaki hesaplayıcı bağlantı metni** | 9 sınıf kartı Tanker/LPG classes'tan gelir; her kart `/freight-calculator?class=<sınıf>` bağlantısı taşır. |
+| How we work | **Footage** (reel plakası), başlık, **tam 4 adım** | Kâğıttan tam ekrana açılan video penceresi. |
+| Reach | Başlık, **tam 4 sayaç** (yalnız sabit sayılar; para birimi, oran, yüzde yazılamaz), **tam 6 rota** (kod, satır, bağlantı, fotoğraf) | Ofis saatleri Site settings → Offices'taki saat dilimlerinden. |
+| Team | Başlık, giriş, /brokers bağlantı metni | Kartlar Brokers'tan. |
+| Notes + FAQ | Başlık, gösterilen yazı sayısı (1–6), SSS başlığı ve soru sayısı (0 gizler) | Yazılar blogdan, sorular FAQs → Home page'den; altında blog kategorilerine bağlantılar. |
+| Contact letter | **Footage**, mektup etiketi, başlığı ve satırı, düğme | E-posta, masa hatları ve nöbetçi hattı Site settings'ten. |
+
+**Rail ve numaralar** sırayı izler: soldaki rail'in durakları ve sahne etiketlerindeki "02 / 09" sayıları sıra veya görünürlük değişince kendiliğinden güncellenir. Sahne, sayfadaki pencerelere göre hangi videonun ne zaman yükleneceğine kendisi karar verir; sıralama için başka bir ayar gerekmez.
+
+**Sınırlar** panelde sayaçla gösterilir ve kayıttan önce denetlenir; ayrıca `npm test` ve derleme sırasında yeniden denetlenir (§5). Bağlantılar (madde, satır, rota) var olan bir sayfaya gitmelidir: `/tankers`, `/lpg/vlgc`, `/blog/<slug>`, `/blog/category/<kategori>`, `/freight-calculator` gibi.
+
+**10 dil:** `/zh`, `/de`, `/ar`… sayfaları aynı sırayı ve görünürlüğü kullanır; metinleri `lib/i18n.ts`'tedir (geliştirici işi). Panelde İngilizce bir metni değiştirmek yerel sayfaları değiştirmez.
+
+### 3.3 Medya kütüphanesi (Media library)
+
+**Media → Media library**, sitenin arkasındaki altı video plakasını ve dokuz fotoğrafı yönetir. **Bir kaydın bütün alanları boşsa sitede gelen lisanslı dosya kullanılır** (kaynaklar `docs/MEDIA-CREDITS.md`). Bir plakayı değiştirmek, o plakayı kullanan her sayfayı değiştirir:
+
+| Plaka | Nerede |
+| --- | --- |
+| V-hero | Ana sayfa hero'su (varsayılan), `/tankers` başlığı |
+| V-gas | `/lpg` başlığı |
+| V-reel | Ana sayfa "How we work" penceresi |
+| V-strait | `/turkish-straits` başlığı |
+| V-night | Ana sayfa mektubu, `/contact` |
+| V-ocean | Footer (her sayfa), 404 |
+
+Ana sayfada hangi bölümün hangi plakayı kullandığı Homepage → **Footage** alanlarından seçilir.
+
+**Bir plakanın alanları:**
+
+- **Video file (upload)** — MP4 (H.264) veya WebM, **sessiz**, 8–20 sn döngü, 1920×1080, en çok ~10 MB. Dosya `public/media/uploads/plates/<plaka>/videoFile.<uzantı>` olarak kaydedilir (yerelde bu klasörü de commit edin). Daha büyük dosyalar için bağlantı kullanın; GitHub modunda çok büyük dosyalar kaydedilemeyebilir.
+- **…or video link** — başka bir sitedeki **doğrudan video dosyasının** https adresi (`.mp4`, `.webm`, `.m4v`, `.mov` ile biten; sonunda `?…` sorgu olabilir). YouTube/Vimeo izleme sayfaları dosya değildir, kabul edilmez. Yükleme ile bağlantı aynı anda doldurulamaz.
+- **Phone video** (isteğe bağlı) — telefonlar için dikey 720×1280 kesim (yükleme veya bağlantı). Boşsa telefon ana videoyu (veya gelen dikey dosyayı) oynatır.
+- **Poster** (isteğe bağlı) — videonun ilk karesi, JPG/WebP, 1600 px genişlik; video başlamadan ve hareket kapalıyken görünür, hero'da sayfanın ilk görseli (LCP) budur. Boşsa: gelen videoda gelen poster; yeni videoda **videonun ilk karesi** gösterilir (yüklenene kadar lacivert zemin). Hızlı ilk açılış için yeni videoya poster eklemeniz önerilir.
+- **Grade** — her karenin geçtiği renk işlemi: *dawn* (lacivertten kuma, hero), *day*, *dusk* (pirinç ışıklar), *night*, *deep* (koyu deniz). Aynı plakanın posteri ve videosu aynı derecelendirmeden geçer. *None — original colours (testing only)* videoyu (ve posterini) kendi renkleriyle gösterir: başka çekimleri olduğu gibi karşılaştırmak için; yayında kullanmayın — tasarımda görüntü hiçbir zaman ham gösterilmez ve metin kontrastı derecelendirmeye göre ölçüldü.
+- **Focal point (%)** — ekran görüntüyü kırptığında görünür kalacak nokta: soldan (0) sağa (100) ve yukarıdan (0) aşağıya (100). İkisi birlikte doldurulur. Boşsa: gelen videonun kendi odağı, yeni videoda merkez. **Phone focal** dikey dosyanın karesinde.
+- **Mirror** — *As shipped* (gelen dosyanın ayarı; yeni videoda kapalı), *Mirror*, *Never mirror*. Yalnız kara, yazı veya logo olmayan açık deniz görüntülerinde aynalayın.
+- **Horizon (%)** — ufkun karedeki yüksekliği (masaüstünde ekranın iki yanındaki ince çizgi onu izler). Boşsa gelen videonun değeri; yeni videoda çizgi yok.
+- **Credit**, **Licence URL** — yeni dosyanın kaynağı ve lisans sayfası (yayından önce doldurun).
+
+**Fotoğraflar** (tankerBow, galata, portDusk…): **Image** (yükleme, `public/media/uploads/stills/<ad>/imageFile.<uzantı>`) veya **…or image link** (https, `.jpg/.png/.webp/.avif`), yeni görselde **Alt text** zorunlu, Grade (gelen fotoğraf kendi derecelendirmesiyle gelir; başka bir ön ayar seçilirse ham dosya o derecelendirmeyle gösterilir), Focal point, Credit, Licence URL. Fotoğrafın nerede kullanıldığı Homepage → masa satırları ve rotalarda seçilir; iç sayfalar ve blog kapakları da aynı kayıtları kullanır.
+
+#### Başka sitelerden video ile test etmek
+
+Siteyi başka videolarla denemek için (ör. referans sitelerdeki çekimler) yalnız **bağlantıyı** yapıştırmanız yeterli; dosyayı indirip depoya eklemeyin:
+
+1. Tarayıcıda videonun oynadığı sayfayı açın, geliştirici araçlarında (**F12 → Network → Media**) oynayan `.mp4`/`.webm` dosyasının adresini kopyalayın (sayfanın adresini değil).
+2. **Media library → ilgili plaka → …or video link** alanına yapıştırın, **Save**. Yerelde sayfayı yenileyin; canlıda Vercel yeniden yayınlayınca görünür.
+3. Geri almak için alanı boşaltıp kaydedin: lisanslı dosya geri gelir.
+
+Bu yalnız **test** içindir: başkasının videosunu canlı sitede yayınlamadan önce hak sahibinden izin alın veya lisanslı bir dosya kullanın; Credit ve Licence URL alanlarını doldurun.
+
+**Neden bazı videolar "düz" oynar (CORS).** Sahne videoyu WebGL ile çizer (derecelendirme, metin altındaki sakin bölgeler, gren, geçişler). Tarayıcı, başka bir sitedeki dosyanın WebGL'de kullanılmasına ancak o site `Access-Control-Allow-Origin` başlığıyla izin verirse göz yumar. Site bu yüzden yeni bağlantıları açılışta kendisi dener:
+
+- **İzin varsa** (çoğu CDN, ör. Mixkit, Pexels, Cloudinary, S3/CloudFront'ta CORS açıksa): video sahnenin içinden oynar.
+- **İzin yoksa** (çoğu kurumsal site, WordPress yüklemeleri) veya dosya WebGL'de açılamazsa: sayfa poster moduna geçer ve videoyu **düz bir `<video>` öğesi** olarak, aynı derecelendirmenin SVG filtresi ve metin altındaki koyu katmanlarla oynatır (tarayıcı konsolunda bir CORS uyarısı görünmesi normaldir; `<html data-stage-why="remote-media">`). Sayfanın diğer WebGL efektleri (batimetri çizgileri, 3B gemi planı) o sayfada durağan görsellere döner.
+- **Dosya hiç açılamazsa** (yanlış adres, silinmiş dosya, desteklenmeyen biçim): poster, yoksa lacivert zemin görünür — siyah ekran olmaz.
+- Hareketi azalt tercihi, "Pause motion", veri tasarrufu veya yavaş bağlantıda videolar oynamaz; poster (posteri yoksa ilk kare) görünür.
+
+Not: ileride siteye bir Content-Security-Policy eklenirse (§7, PR #3) başka sitelerden video ve görsel için `media-src` ve `img-src` izinleri de eklenmelidir.
+
+### 3.4 Navlun hesaplayıcı (Freight calculator)
+
+`/freight-calculator` bir sefer tahmini (voyage estimate) yapar: balast, yüklü ve isteğe bağlı dönüş balast bacakları; Türk Boğazları ve kanallar; VLSFO/MGO; liman masrafları, komisyonlar ve AB ETS → TCE, başabaş navlun (breakeven) ve duyarlılık tablosu. Ters modda hedef TCE için gereken navlunu bulur. Sayfanın açıldığı bütün başlangıç değerleri **Tools → Freight calculator data** ekranından (`content/freight.json`) düzenlenir. Ziyaretçi her değeri kendi hesabı için değiştirebilir; panel yalnızca başlangıç değerlerini ve referans fiyatları belirler.
+
+| Alan | Ne işe yarar |
+| --- | --- |
+| **Note next to the reference prices** | Fiyatların yanında görünen not. Gelen dosyada "Example values — update in the admin." yazar (örnek değerler). Gerçek referans fiyatları girdiğinizde notu da değiştirin, ör. "Desk reference prices, Rotterdam–Fujairah–Singapore average." |
+| **Sources and method** | Mesafelerin ve masrafların kaynağı; sayfadaki "How the estimate is built" bölümünde ve `llms-full.txt`'de görünür. |
+| **Flag prices older than (days)** | "As of" tarihi bundan eski bir fiyat sayfada uyarıyla ("check it") gösterilir (varsayılan 30 gün). Fiyatın yaşı ziyaretçinin o günkü tarihine göre hesaplanır, yani sayfa yeniden yayınlanmasa da eskiyen fiyat işaretlenir. |
+| **Bunker prices** | VLSFO, MGO ve HSFO ($/t) ve her birinin **As of** tarihi. Tarih fiyatın yanında yazar; fiyatı güncellerken tarihi de güncelleyin. |
+| **EU ETS** | EUA fiyatı (€/t CO₂) ve tarihi, EUR/USD kuru ve tarihi, **Phase-in**: yılın emisyonlarının teslim edilen payı (2024 %40, 2025 %70, 2026'dan itibaren %100). |
+| **Calculator defaults** | Sayfanın açıldığı gemi sınıfı, hava payı (%, deniz süresine eklenir), adres komisyonu ve brokerage (%), liman başına ek süre (saat; liman süresi yükleme hızından hesaplanırken eklenir: NOR, yanaşma, evrak), gaz gemileri için doldurma sınırı (%), AB ETS kapsamı (Auto = limanlara göre). |
+| **Class presets** | 9 sınıfın her biri için DWT, kapasite (tanker: ton, gaz gemisi: cbm), yüklü/balast hız, tüketimler (yüklü, balast, limanda yük operasyonu, beklemede), ana yakıt, **port and passage cost factor** (liman ve geçiş masrafları Aframax boyu için girilir, her sınıf bu katsayıyla ölçekler: VLCC 2.4, MR 0.55 gibi), liman günü, yükleme hızı (t/saat), örnek demuraj ($/gün), varsayılan yük (t), gaz yükü (yalnız gaz gemileri, ör. `propane`), **örnek navlun ($/t)** ve tipik rota (açık pozisyon, yükleme ve tahliye limanı). Sınıf sayfalarındaki "Estimate a voyage for this class" bağlantısı hesaplayıcıyı bu rotayla açar. |
+| **Ports** | **Id** (mesafelerde ve preset'lerde kullanılır; kullanıldıktan sonra değiştirmeyin), ad, ülke kodu, bölge (açılır listedeki grup), enlem/boylam (mesafe denetimi için), **EU / EEA port** (AB ETS: AB'ye giriş veya çıkış seferi %50, AB limanları arası ve AB rıhtımında %100), **0.10% S fuel at berth** (rıhtımda MGO: ECA limanları, AB limanları, Türkiye), Aframax boyu liman masrafı ($) ve isteğe bağlı not (liman seçilince altında görünür, ör. yaptırım uyarısı). |
+| **Passages** | Boğazlar ve kanallar: Aframax boyu yüklü ve balast maliyet ($) ve beklenen bekleme/gecikme (gün); not geçişin altında görünür. Bab el-Mandeb ve Hormuz 0 maliyetle gelir: savaş riski ek primini (AWRP) maliyet olarak girebilirsiniz. |
+| **Distances** | Liman çiftleri arası deniz mesafesi (nm). Her çift bir kez yazılır; hesaplayıcı iki yönde de okur. Aynı çift için iki rota (ör. Süveyş ve Ümit Burnu) farklı **Via** ile iki satırdır: hesaplayıcı geminin kullanabildiği en kısa rotayla açar (yüklü VLCC Süveyş'ten, hiçbir VLCC Panama'dan geçemez; bu kural kodda), diğerini seçtirir. **Passages**: rotadaki geçiş id'leri, From limanından başlayarak sırayla ve virgülle (ör. `turkish-straits, gibraltar`). **ECA share**: rotanın SOx Emisyon Kontrol Alanları içindeki yüzdesi (bu kısımda MGO yakılır; Akdeniz 1 Mayıs 2025'ten beri ECA). |
+
+**Gelen değerler örnektir.** Fiyatlar 6 Kasım 2026 tarihli örnek değerlerdir; mesafeler LEVANTER'ın standart deniz yolu noktaları (trafik ayırım şemaları, burunlar, boğazlar, kanal girişleri) arasındaki büyük daire bacaklarından hesaplanmıştır ve yaygın tablolarla yaklaşık ±%2 uyuşur; liman ve geçiş masrafları da örnektir. Canlıya almadan önce fiyatları ve tarihlerini, notu ve masrafları güncelleyin. Worldscale düz fiyatları (flat rate) Worldscale Association lisansıyla yayımlandığı için sitede yoktur; ziyaretçi kendi tablosundan girer.
+
+**Bir fiyatı güncellemek:** **Tools → Freight calculator data → Bunker prices → VLSFO 0.50% S** altında **Price** ve **As of**'u değiştirin, **Save**. `/freight-calculator` yenilendiğinde yeni fiyat, tarihi ve "x days ago" görünür. "Copy link" ile paylaşılmış hesaplar kendi fiyatlarını taşıdığından değişmez; adres çubuğundaki bağlantıda ziyaretçinin değiştirmediği fiyatlar güncel referansla açılır.
+
+**Kurallar** (kayıttan sonra `npm test` ve derleme sırasında denetlenir, §5): id'ler tekil; preset'lerin ve mesafelerin andığı her liman ve geçiş listede olmalı; bir mesafe iki limanın enlem/boylamından hesaplanan büyük daire mesafesinden kısa olamaz (yanlış yazılmış bir rakamı yakalar); aynı çift aynı **Via** ile iki kez yazılamaz; gaz yükü **LPG converter cargoes** listesinde olmalı. Bir limanı silmeden önce onu kullanan mesafe ve preset satırlarını silin veya değiştirin. Kodda kalanlar: yakıtların emisyon katsayıları (VLSFO 3.151, MGO 3.206, HSFO 3.114 t CO₂/t), kanal sınırları ve hesap yöntemi (`lib/freight/`).
+
 ### Broker fotoğrafı
 
 Broker penceresinde **Photo → Choose file**. Kare, omuz hizasından, en az 240 × 240 px bir fotoğraf (JPG, PNG, WebP veya AVIF) seçin; iPhone'un HEIC biçimi tarayıcılarda görünmediği için kabul edilmez (derleme hata verir), önce JPG'ye çevirin. Dosya `public/images/brokers/<kısa-id>/photo.<uzantı>` olarak kaydedilir (kısa id addan otomatik üretilir). Fotoğraf varsa broker kartında ve `/brokers` JSON-LD'sinde görünür; yoksa baş harfli yuvarlak avatar kalır. **Remove** fotoğrafı kaldırır. Kişinin yayın için onayını almayı unutmayın.
@@ -141,7 +238,9 @@ Her içerik dosyası `lib/content/schemas.ts`'teki zod şemasıyla ve dosyalar a
 - zorunlu alanlar dolu, seçimler geçerli, tarihler `YYYY-AA-GG`, WhatsApp numarası `+` ve rakam;
 - sınıf, broker, dönüştürücü yükü ve Boğazlar bölümü kimlikleri tekil;
 - blog yazıları: ön bilgi (frontmatter) şeması, Markdoc gövdesi (bilinmeyen bileşen, eksik zorunlu alan), slug biçimi ve ayrılmış adlar, yazar broker listesinde, revizyon tarihi yayından önce değil, kullanılan görseller `public/` altında mevcut;
-- Hormuz yazısı mevcut.
+- Hormuz yazısı mevcut;
+- ana sayfa: hero başlığı ≤ 48 karakter ve ≤ 3 satır, cümle ≤ 220, satır girişi ≤ 140, sayaç alt yazısı ≤ 48; sayaçlarda, rota kodlarında ve hesaplayıcı kartında **para birimi, oran, yüzde yok**; vurgu kelimesi başlıkta geçmeli; her bölüm türü en fazla bir kez; maddeler 4, satırlar 4, adımlar 4, sayaçlar 4, rotalar 6; tüm bağlantılar var olan sayfalara;
+- medya kütüphanesi: bağlantılar https ve doğrudan dosya (video: `.mp4/.webm/.m4v/.mov`, görsel: `.jpg/.png/.webp/.avif`), yükleme ile bağlantı aynı anda yok, odak değerleri 0–100 ve ikisi birlikte, yeni fotoğrafta alt metin, yüklenen dosyalar `public/` altında mevcut.
 
 Denetim iki yerde çalışır: **`npm test`** (`lib/content/content.test.ts` ve `lib/blog/blog.test.ts`; ayrıca Keystatic'in kendi okuyucusunun her dosyayı açabildiğini ve dosyaların Keystatic'in yazdığı biçimde olduğunu kontrol eder) ve **derleme sırasında** (`app/sitemap.ts` içindeki `assertValidContent()`). Kurala uymayan bir kayıt Vercel derlemesini durdurur; canlı site bozulmaz.
 
@@ -152,7 +251,8 @@ Panelden değil, kodda değişir:
 - Marka renkleri, paylaşım görseli rotası ve dil kodu (`lib/site.ts`); avatar renk değerleri (`AVATAR_COLOR`) ve masa sırası (`TEAM_ORDER`, `lib/data/brokers.ts`).
 - Seçim listeleri (`lib/content/options.ts`): masalar, ofis şehirleri (yeni bir ofis şehri brokerlara atanacaksa buraya eklenir), blog kategorileri ve masaları, sözlük grupları, tanker aileleri. Kategori açıklamaları (kategori sayfasının alt başlığı) `lib/blog/meta.ts`'te.
 - Blog sayfalarının sabit metinleri (ör. "Notes from the desk.", masthead açıklaması) `lib/blog/meta.ts`'te.
-- Sayfa metinleri (başlıklar, giriş paragrafları, ana sayfa bölümleri) `app/(site)/…` sayfalarında; 10 dilin metni `lib/i18n.ts`'te; sayfa kataloğu `lib/pages.ts`'te.
+- İç sayfa metinleri (başlıklar, giriş paragrafları) `app/(site)/…` sayfalarında; ana sayfanın İngilizce metni ve sırası panelde (§3.2), 10 dilin ana sayfa metni `lib/i18n.ts`'te; sayfa kataloğu `lib/pages.ts`'te.
+- Ana sayfa bölüm türleri (yeni bir bölüm türü eklemek geliştirici işidir: `lib/content/options.ts` → `HOME_BLOCK_KINDS`, şema, panel ve bileşen), plakalar ve derecelendirme ön ayarları.
 
 ## 7. Güvenlik ve dizinleme
 
@@ -207,7 +307,11 @@ PR #3 `lib/site.ts` ve `lib/data/*.ts` dosyalarındaki içeriği doğrudan düze
 
 | Ne | Nerede |
 | --- | --- |
-| Panel şeması (alanlar, etiketler, menü) | `keystatic.config.ts` |
+| Panel şeması (alanlar, etiketler, menü) | `keystatic.config.ts`; Homepage ve Media library: `lib/content/keystatic-home.ts` (config'e yayılır) |
+| Ana sayfa ve medya şemaları (zod) | `lib/content/home-schema.ts` |
+| Ana sayfa yükleyicisi (bölüm sırası) ve görünüm | `lib/data/home.ts`, `components/site/home/view.ts` |
+| Medya kütüphanesinin uygulanması (sevkiyat manifestosu + kayıtlar) | `lib/media.ts` (`videos`, `stills`; ham manifesto `shippedVideos`, `shippedStills`) |
+| Başka sitedeki videolar: CORS denemesi, düz `<video>` yedeği, SVG derecelendirme | `components/site/stage/runtime.ts`, `gl/compositor.ts`, `GradeFilters.tsx`; sözleşme `docs/STAGE.md` §12 |
 | Depolama modu ve GitHub değişkenleri | `lib/content/storage.ts` |
 | Panel sayfası, kurulum notu, kök düzen | `app/keystatic/` |
 | Keystatic API | `app/api/keystatic/[...params]/route.ts` |
@@ -217,7 +321,7 @@ PR #3 `lib/site.ts` ve `lib/data/*.ts` dosyalarındaki içeriği doğrudan düze
 | Araştırma → blog taşıma betiği (tek seferlik) | `scripts/migrate-research-to-blog.ts`, eski veri: `lib/blog/__fixtures__/research-legacy.json` |
 | zod şemaları, doğrulama, yardımcılar | `lib/content/schemas.ts`, `validate.ts`, `format.ts`, `options.ts` |
 | Yükleyiciler (dışa aktarılan adlar ve tipler değişmedi) | `lib/site.ts`, `lib/data/*.ts` |
-| Testler | `lib/content/content.test.ts`, `keystatic.test.ts`, `setup-notice.test.tsx`, `lib/blog/blog.test.ts` |
+| Testler | `lib/content/content.test.ts`, `keystatic.test.ts`, `setup-notice.test.tsx`, `lib/blog/blog.test.ts`, `components/site/home/home.test.ts` (ana sayfa), `lib/media.test.ts` (medya kütüphanesi) |
 
 - Yükleyiciler JSON'u **statik olarak** içe aktarır (çalışma zamanında dosya okuma yok, async yok); istemci bileşenleri (`Nav`, `FloatingContact`, `LpgConverter`, `InquiryForm`, `ErrorView`, `global-error`) aynı modülleri kullanmaya devam eder. zod yalnızca testlerde ve sunucu tarafında (sitemap) çalışır, istemci paketlerine girmez.
 - Keystatic boş metin alanlarını JSON'a yazmaz; yükleyiciler eksik anahtarı "yok" kabul eder (ör. `seoTitle`, `updated`, `photo`). Boş tablo hücresi `null` olarak yazılır, sayfaya `""` olarak gelir.

@@ -77,6 +77,15 @@ export const PAGES: PageEntry[] = [
     changeFrequency: "monthly",
   },
   {
+    path: "/freight-calculator",
+    title: "Freight Calculator",
+    summary:
+      "Voyage estimate for tankers and gas carriers: ballast and laden legs, Turkish Straits and canal passages, VLSFO/MGO in ECAs, port costs, commissions and EU ETS, to TCE, breakeven freight (also in Worldscale points with your flat rate) and a sensitivity grid. Reference prices are dated; indicative only.",
+    group: "primary",
+    priority: 0.8,
+    changeFrequency: "weekly",
+  },
+  {
     path: "/compliance",
     title: "Sanctions & Compliance Screening",
     summary:

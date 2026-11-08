@@ -56,6 +56,11 @@ export interface CompositorOptions {
   onDowngrade: () => void;
   /** WebGL context lost and not restored: back to posters. */
   onLost: () => void;
+  /**
+   * A plate's video could not be loaded as a texture (a Media library link without CORS
+   * consent, a missing file, an unsupported codec): the runtime takes the plate over.
+   */
+  onMediaError?: (plate: PlateId) => void;
 }
 
 export interface CompositorInfo {

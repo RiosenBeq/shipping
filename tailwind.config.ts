@@ -65,7 +65,13 @@ const config: Config = {
         swell: "cubic-bezier(0.65, 0, 0.35, 1)",
         quick: "cubic-bezier(0.33, 1, 0.68, 1)",
       },
-      borderRadius: { lg: "10px", md: "6px", sm: "4px", card: "var(--r-card)", media: "var(--r-media)" },
+      borderRadius: {
+        lg: "10px",
+        md: "6px",
+        sm: "4px",
+        card: "var(--r-card)",
+        media: "var(--r-media)",
+      },
       // One fixed reading measure for the article column (≈68ch of the 17px
       // .lv-prose body). In rem, not ch, so cards, dividers and tag rows set
       // at 16px end on the same edge as the prose.

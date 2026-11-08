@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { videos } from "@/lib/media";
+// The shipped clips: budgets and file choice are about the files that ship with the site.
+import { shippedVideos as videos } from "@/lib/media";
 import { levelFor, pickVideoFile, preloadPlan, viewportsAway } from "./preload";
 import type { WindowBox } from "./compose";
 

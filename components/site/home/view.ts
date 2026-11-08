@@ -4,16 +4,18 @@
  * data (classes, brokers, posts, offices) comes from the same loaders for all.
  */
 import { SHIP_CLASSES, isPlateId, type PlateId, type ShipClassSlug } from "@/components/site/stage";
-import { latestPostCards } from "@/lib/blog/posts";
+import { categoryCounts, getPosts, latestPostCards } from "@/lib/blog/posts";
 import { BROKERS, TEAM_LABEL, TEAM_ORDER } from "@/lib/data/brokers";
 import { HOME_FAQ } from "@/lib/data/faqs";
-import { HOME } from "@/lib/data/home";
+import { HOME, homeBlock, homeBlocks, homeOrder } from "@/lib/data/home";
+import type { HomeFile } from "@/lib/content/home-schema";
+import { FREIGHT_CALCULATOR_PATH, type HomeBlockKind } from "@/lib/content/options";
 import type { Locale } from "@/lib/i18n";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import type { StillKey } from "@/lib/media";
 import { dutyWhatsappUrl, siteConfig, telUrl } from "@/lib/site";
-import type { HomeSection, HomeView, LinkItem, ShipCard } from "./types";
+import type { HomeBlockSection, HomeSection, HomeView, LinkItem, ShipCard } from "./types";
 
 /** Decimal degrees → nautical "41°02.6′N" style. */
 function toDm(v: number, pos: string, neg: string, pad: number) {
@@ -24,6 +26,10 @@ function toDm(v: number, pos: string, neg: string, pad: number) {
 }
 /** The Istanbul desk's position, e.g. 41°02.6′N 029°00.5′E. */
 export const POSITION = `${toDm(siteConfig.geo.latitude, "N", "S", 2)} ${toDm(siteConfig.geo.longitude, "E", "W", 3)}`;
+
+/** The freight calculator, with a class preselected when given. */
+export const calculatorHref = (cls?: string) =>
+  cls ? `${FREIGHT_CALCULATOR_PATH}?class=${encodeURIComponent(cls)}` : FREIGHT_CALCULATOR_PATH;
 
 /** Head office first, then the desks in the order of the team page. */
 export const TEAM = [...BROKERS].sort(
@@ -43,6 +49,7 @@ export const SHIP_CARDS: ShipCard[] = [
     band: band(c.dwtRange),
     routes: c.routes.slice(0, 2).map((r) => r.code),
     href: `/tankers/${c.slug}`,
+    estimateHref: calculatorHref(c.slug),
   })),
   ...LPG_CLASSES.map((c) => ({
     slug: c.slug as ShipClassSlug,
@@ -52,6 +59,7 @@ export const SHIP_CARDS: ShipCard[] = [
     band: band(c.capacity),
     routes: Array.from(new Set(c.routes.map((r) => r.code))).slice(0, 2),
     href: `/lpg/${c.slug}`,
+    estimateHref: calculatorHref(c.slug),
   })),
 ].filter((c) => c.slug in SHIP_CLASSES);
 
@@ -103,79 +111,68 @@ const lines = (s: string) =>
 const plate = (v: string, fallback: PlateId): PlateId => (isPlateId(v) ? v : fallback);
 
 /** The English homepage, from content/home.json (/keystatic → Pages → Homepage). */
-export function englishHome(): HomeView {
-  const h = HOME;
-  const show: Record<HomeSection, boolean> = {
-    hero: true,
-    who: h.who.show,
-    desks: h.desks.show,
-    ships: h.ships.show,
-    process: h.process.show,
-    reach: h.reach.show,
-    team: h.team.show,
-    notes: h.notes.show,
-    letter: h.letter.show,
-  };
+export function englishHome(file: HomeFile = HOME): HomeView {
+  const h = file.hero;
+  const order = homeOrder(file);
+  const on = <K extends HomeBlockKind>(k: K) =>
+    order.includes(k) ? homeBlock(k, file) : undefined;
+  const who = on("who");
+  const desks = on("desks");
+  const ships = on("ships");
+  const process = on("process");
+  const reach = on("reach");
+  const team = on("team");
+  const notes = on("notes");
+  const letter = on("letter");
+
+  const rail: Partial<Record<HomeSection, string>> = { hero: h.rail };
+  for (const b of homeBlocks(file))
+    if (order.includes(b.discriminant)) rail[b.discriminant] = b.value.rail;
+
   return {
     lang: "en",
     dir: "ltr",
     split: "chars",
-    show,
-    plates: {
-      hero: plate(h.hero.plate, "V-hero"),
-      process: plate(h.process.plate, "V-reel"),
-      letter: plate(h.letter.plate, "V-night"),
-    },
-    rail: {
-      label: "Sections on this page",
-      items: {
-        hero: h.hero.rail,
-        who: h.who.rail,
-        desks: h.desks.rail,
-        ships: h.ships.rail,
-        process: h.process.rail,
-        reach: h.reach.rail,
-        team: h.team.rail,
-        notes: h.notes.rail,
-        letter: h.letter.rail,
-      },
-    },
+    order,
+    rail: { label: "Sections on this page", items: rail },
     pause: { pause: "Pause motion", play: "Play motion" },
     newTab: "(opens in a new tab)",
     hero: {
-      lines: lines(h.hero.headline),
-      accent: h.hero.accent,
-      sub: h.hero.sub,
-      lead: h.hero.lead,
-      inquiry: h.hero.inquiry,
+      plate: plate(h.plate, "V-hero"),
+      lines: lines(h.headline),
+      accent: h.accent,
+      sub: h.sub,
+      lead: h.lead,
+      inquiry: h.inquiry,
       inquiryHref: "/contact",
-      whatsapp: { label: h.hero.whatsapp },
-      scene: h.hero.scene,
+      whatsapp: { label: h.whatsapp },
+      scene: h.scene,
       position: POSITION,
     },
-    who: {
-      sub: h.who.sub,
-      statement: h.who.statement,
-      more: { label: h.who.more, href: "/about" },
-      pin: h.who.pin,
-      scene: h.who.scene,
-      facts: h.who.facts.map((f) => ({
+    who: who && {
+      sub: who.sub,
+      statement: who.statement,
+      more: { label: who.more, href: "/about" },
+      pin: who.pin,
+      scene: who.scene,
+      facts: who.facts.map((f) => ({
         icon: f.icon,
         title: f.title,
         text: f.text,
         link: { label: f.linkLabel, href: f.href },
       })),
       badge:
-        h.who.badge && h.who.badgeLink
-          ? { text: h.who.badge, link: { label: h.who.badgeLink, href: "/compliance" } }
+        who.badge && who.badgeLink
+          ? { text: who.badge, link: { label: who.badgeLink, href: "/compliance" } }
           : undefined,
     },
-    desks: {
-      sub: h.desks.sub,
-      lines: lines(h.desks.headline),
-      lead: h.desks.lead,
-      more: { label: h.desks.more, href: "#process" },
-      rows: h.desks.rows.map((r) => ({
+    desks: desks && {
+      sub: desks.sub,
+      lines: lines(desks.headline),
+      lead: desks.lead,
+      // "How we work" scrolls to the reel when the page has it, else the About page.
+      more: { label: desks.more, href: order.includes("process") ? "#process" : "/about" },
+      rows: desks.rows.map((r) => ({
         title: r.title,
         text: r.text,
         link: { label: r.linkLabel, href: r.href },
@@ -190,56 +187,73 @@ export function englishHome(): HomeView {
         caption: r.caption,
       })),
       open: "Show",
+      calculator: desks.calculator.show
+        ? {
+            label: desks.calculator.label,
+            title: desks.calculator.title,
+            text: desks.calculator.text,
+            cta: desks.calculator.cta,
+            href: calculatorHref(),
+          }
+        : undefined,
     },
-    ships: {
-      sub: h.ships.sub,
-      title: h.ships.headline,
-      tabs: { tanker: h.ships.tankers, gas: h.ships.gas },
+    ships: ships && {
+      sub: ships.sub,
+      title: ships.headline,
+      tabs: { tanker: ships.tankers, gas: ships.gas },
       tabsLabel: "Ship family",
-      classGuide: h.ships.classGuide,
+      classGuide: ships.classGuide,
+      estimate: ships.estimate,
       prev: "Previous class",
       next: "Next class",
       cards: SHIP_CARDS,
     },
-    process: { sub: h.process.sub, title: h.process.headline, steps: h.process.steps },
-    reach: {
-      sub: h.reach.sub,
-      lines: lines(h.reach.headline),
-      counters: h.reach.counters,
+    process: process && {
+      plate: plate(process.plate, "V-reel"),
+      sub: process.sub,
+      title: process.headline,
+      steps: process.steps,
+    },
+    reach: reach && {
+      sub: reach.sub,
+      lines: lines(reach.headline),
+      counters: reach.counters,
       offices: OFFICES,
       localTime: "local time",
       mapLabel:
         "Map of our trading area from Europe to Singapore, with lanes from Istanbul and our three offices",
       lanesLabel: "Lanes we work",
-      lanes: h.reach.lanes,
+      lanes: reach.lanes,
     },
-    team: {
-      sub: h.team.sub,
-      lines: lines(h.team.headline),
-      lead: h.team.lead,
-      more: { label: h.team.more, href: "/brokers" },
+    team: team && {
+      sub: team.sub,
+      lines: lines(team.headline),
+      lead: team.lead,
+      more: { label: team.more, href: "/brokers" },
       brokers: TEAM,
       email: "Email {name}",
       whatsapp: "WhatsApp {name}",
       stripLabel: "Our brokers",
       deskLabels: TEAM_LABEL,
     },
-    notes: {
-      sub: h.notes.sub,
-      title: h.notes.headline,
+    notes: notes && {
+      sub: notes.sub,
+      title: notes.headline,
       allPosts: "All posts",
-      posts: latestPostCards(h.notes.count),
-      faqTitle: h.notes.faqHeadline,
-      faqMore: { label: h.notes.faqMore, href: "/contact" },
-      faq: HOME_FAQ.slice(0, h.notes.faqCount),
+      posts: latestPostCards(notes.count),
+      faqTitle: notes.faqHeadline,
+      faqMore: { label: notes.faqMore, href: "/contact" },
+      faq: HOME_FAQ.slice(0, notes.faqCount),
+      categories: { counts: categoryCounts(), total: getPosts().length },
     },
-    letter: {
-      label: h.letter.label,
-      headline: h.letter.headline,
-      line: h.letter.line,
+    letter: letter && {
+      plate: plate(letter.plate, "V-night"),
+      label: letter.label,
+      headline: letter.headline,
+      line: letter.line,
       place: "Beşiktaş, Istanbul",
       stamp: "FIRST REPLY · 60 MIN · ISTANBUL ·",
-      sub: h.letter.sub,
+      sub: letter.sub,
       email: siteConfig.email,
       deskLines: deskLines({
         tankers: siteConfig.desks.tankers.label,
@@ -251,11 +265,38 @@ export function englishHome(): HomeView {
         text: `WhatsApp the duty broker — ${siteConfig.duty.display}. ${siteConfig.duty.hours}`,
         href: dutyWhatsappUrl(),
       },
-      inquiry: h.letter.inquiry,
+      inquiry: letter.inquiry,
       inquiryHref: "/contact",
       clocks: CLOCKS,
     },
   };
+}
+
+/** The plate a section's window shows (cards have none: the stage stays on the last plate). */
+export function sectionPlate(view: HomeView, s: HomeBlockSection): PlateId | null {
+  switch (s) {
+    case "who":
+      return "P-bathy";
+    case "ships":
+      return "P-lines";
+    case "process":
+      return view.process?.plate ?? null;
+    case "letter":
+      return view.letter?.plate ?? null;
+    default:
+      return null;
+  }
+}
+
+/** Every plate the page's windows use, in page order, then the footer's ocean (SiteShell). */
+export function pagePlates(view: HomeView): PlateId[] {
+  const plates: PlateId[] = [view.hero.plate];
+  for (const s of view.order) {
+    const p = sectionPlate(view, s);
+    if (p) plates.push(p);
+  }
+  plates.push("V-ocean"); // the footer (components/site/Footer.tsx)
+  return plates;
 }
 
 /** How the hero splits for its rise: CJK by character, Arabic by word (§12), the rest by letter. */
@@ -271,22 +312,24 @@ export function splitFor(hreflang: string): HomeView["split"] {
  * (hrefLang="en"). Sections, plates, counters' numbers, lanes and stills follow
  * the English CMS entry, so an editor's switch applies to all eleven pages.
  */
-export function localizedHome(locale: Locale): HomeView {
+export function localizedHome(locale: Locale, file: HomeFile = HOME): HomeView {
   const t = locale.dict;
   const h = t.home;
-  const en = englishHome();
+  const en = englishHome(file);
   const speaker = locale.brokerLanguage
     ? BROKERS.find((b) => b.languages.includes(locale.brokerLanguage!))
     : undefined;
   const rowText = [t.tankerDesk.text, t.lpgDesk.text, h.straits.text, h.postText];
   const rowTitle = [t.tankerDesk.title, t.lpgDesk.title, h.straits.title, h.postTitle];
+  const rail: Partial<Record<HomeSection, string>> = { hero: h.rail.hero };
+  for (const s of en.order) rail[s] = h.rail[s];
   return {
     ...en,
     lang: locale.hreflang,
     dir: locale.dir,
     linkLang: "en",
     split: splitFor(locale.hreflang),
-    rail: { label: t.rail.label, items: h.rail },
+    rail: { label: t.rail.label, items: rail },
     pause: h.pause,
     newTab: t.newTab,
     hero: {
@@ -307,7 +350,7 @@ export function localizedHome(locale: Locale): HomeView {
         text: `Attn ${speaker.name} — ${t.whatsappGreeting}`,
       },
     },
-    who: {
+    who: en.who && {
       ...en.who,
       sub: h.subs.who,
       statement: h.statement,
@@ -322,12 +365,12 @@ export function localizedHome(locale: Locale): HomeView {
       })),
       badge: undefined,
     },
-    desks: {
+    desks: en.desks && {
       ...en.desks,
       sub: h.subs.desks,
       lines: h.desksLines,
       lead: h.desksLead,
-      more: { label: h.howWeWork, href: "#process" },
+      more: { ...en.desks.more, label: h.howWeWork },
       rows: en.desks.rows.map((r, i) => ({
         ...r,
         title: rowTitle[i] ?? r.title,
@@ -337,23 +380,32 @@ export function localizedHome(locale: Locale): HomeView {
         caption: h.captions[i] ?? r.caption,
       })),
       open: h.open,
+      calculator: en.desks.calculator && {
+        ...en.desks.calculator,
+        label: h.calc.label,
+        title: h.calc.title,
+        text: h.calc.text,
+        cta: h.calc.cta,
+      },
     },
-    ships: {
+    ships: en.ships && {
       ...en.ships,
       sub: h.subs.ships,
       title: h.ships.title,
       tabs: { tanker: h.ships.tanker, gas: h.ships.gas },
       tabsLabel: h.ships.family,
       classGuide: h.ships.classGuide,
+      estimate: h.calc.estimate,
       prev: h.ships.prev,
       next: h.ships.next,
     },
-    process: {
+    process: en.process && {
+      ...en.process,
       sub: t.stepsEyebrow,
       title: t.stepsTitle,
       steps: t.steps,
     },
-    reach: {
+    reach: en.reach && {
       ...en.reach,
       sub: h.subs.reach,
       lines: h.reachLines,
@@ -362,7 +414,7 @@ export function localizedHome(locale: Locale): HomeView {
       mapLabel: h.mapLabel,
       lanesLabel: h.lanesLabel,
     },
-    team: {
+    team: en.team && {
       ...en.team,
       sub: h.subs.team,
       lines: h.teamLines,
@@ -372,7 +424,7 @@ export function localizedHome(locale: Locale): HomeView {
       whatsapp: "WhatsApp {name}",
       stripLabel: h.subs.team,
     },
-    notes: {
+    notes: en.notes && {
       ...en.notes,
       sub: h.subs.notes,
       title: h.notesTitle,
@@ -381,7 +433,7 @@ export function localizedHome(locale: Locale): HomeView {
       faqMore: { label: h.askDesk, href: "/contact" },
       faq: t.faq,
     },
-    letter: {
+    letter: en.letter && {
       ...en.letter,
       label: h.letterLabel,
       headline: t.ctaTitle,

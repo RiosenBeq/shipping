@@ -8,7 +8,7 @@ import { GasCarrierArt, PressurisedGasArt, TankerArt } from "@/components/site/V
 import { Arrow } from "./icons";
 import type { HomeView } from "./types";
 
-type Ships = HomeView["ships"];
+type Ships = NonNullable<HomeView["ships"]>;
 
 function CardArt({ slug }: { slug: string }) {
   const Art =
@@ -27,11 +27,23 @@ function CardArt({ slug }: { slug: string }) {
   );
 }
 
+/** A small route glyph for the calculator link: two ports and a passage between them. */
+function CalcGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <circle cx="4" cy="14" r="2" />
+      <circle cx="16" cy="6" r="2" />
+      <path d="M6 13.2C9 12 11 8.6 14 7" strokeDasharray="2 2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /**
  * "Ships we fix" (DESIGN-V2 §7.4): the segmented control (Tankers | Gas), the
  * stage's lines plan of the active class (`ShipLines`, morphing in 700ms), an
  * `aria-live` caption, and a draggable rail of nine glass class cards — real
- * links to the class guides — with previous/next buttons and a progress
+ * links to the class guides, each with a second link to the freight
+ * calculator for that class — with previous/next buttons and a progress
  * hairline. Pointing at or focusing a card makes it the active class; arrow
  * keys move between cards. Phones: a swipe carousel of full-width cards, each
  * with its own line drawing and ribbon (no WebGL).
@@ -168,7 +180,7 @@ export function ShipsSlider({
       <div className="ships__stage">
         <ShipLines ship={card.slug} className="ships__lines" />
         <p className="ships__caption" aria-live="polite">
-          <span className="t-data">
+          <span className="t-data" dir="ltr">
             {String(active + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}
           </span>
           <span>
@@ -191,28 +203,46 @@ export function ShipsSlider({
         >
           {cards.map((c, i) => (
             <li key={c.slug} data-active={i === active ? "" : undefined}>
-              <Link
-                href={c.href}
-                hrefLang={linkLang}
-                className="ship-card"
-                draggable={false}
-                onMouseEnter={() => setActive(i)}
-                onFocus={() => setActive(i)}
-              >
+              {/* The class guide is the card's main link (stretched over the card); the
+                  calculator link sits above it, so the two never nest. */}
+              <div className="ship-card" onMouseEnter={() => setActive(i)}>
                 <CardArt slug={c.slug} />
-                <span className="t-card ship-card__name">{c.name}</span>
-                <span className="t-data ship-card__band">{c.band}</span>
-                <span className="ship-card__routes" aria-hidden="true">
-                  {c.routes.map((r) => (
-                    <span key={r} className="lv-pill">
-                      {r}
-                    </span>
-                  ))}
-                </span>
-                <span className="ship-card__more">
-                  {ships.classGuide} <Arrow />
-                </span>
-              </Link>
+                <Link
+                  href={c.href}
+                  hrefLang={linkLang}
+                  className="ship-card__link"
+                  draggable={false}
+                  onFocus={() => setActive(i)}
+                >
+                  <span className="t-card ship-card__name">{c.name}</span>
+                  <span className="t-data ship-card__band" dir="ltr">
+                    {c.band}
+                  </span>
+                  <span className="ship-card__routes" aria-hidden="true">
+                    {c.routes.map((r) => (
+                      <span key={r} className="lv-pill">
+                        {r}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="ship-card__more">
+                    {ships.classGuide} <Arrow />
+                  </span>
+                </Link>
+                <Link
+                  href={c.estimateHref}
+                  hrefLang={linkLang}
+                  className="ship-card__calc"
+                  draggable={false}
+                  onFocus={() => setActive(i)}
+                >
+                  <CalcGlyph />
+                  <span>
+                    {ships.estimate}
+                    <span className="sr-only"> — {c.name}</span>
+                  </span>
+                </Link>
+              </div>
             </li>
           ))}
         </ul>

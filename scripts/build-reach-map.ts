@@ -38,10 +38,10 @@ const ROWS = Math.round((Y0 - Y1) / CELL);
 
 /** Projected grid units: x 0..COLS, y 0..ROWS (top = north). */
 export function project(lon: number, lat: number): [number, number] {
-  return [(((lon - LON0) * Math.PI) / 180) / CELL, (Y0 - merc(lat)) / CELL];
+  return [((lon - LON0) * Math.PI) / 180 / CELL, (Y0 - merc(lat)) / CELL];
 }
 function unproject(x: number, y: number): [number, number] {
-  const lon = LON0 + ((x * CELL) * 180) / Math.PI;
+  const lon = LON0 + (x * CELL * 180) / Math.PI;
   const m = Y0 - y * CELL;
   const lat = ((2 * Math.atan(Math.exp(m)) - Math.PI / 2) * 180) / Math.PI;
   return [lon, lat];

@@ -9,6 +9,7 @@ import type { HomeView } from "./types";
  */
 export function Ships({ view, id }: { view: HomeView; id: string }) {
   const { ships } = view;
+  if (!ships) return null;
   return (
     <StageWindow
       id={id}

@@ -153,6 +153,28 @@ const hexRgb = (hex: string): [number, number, number] => [
   parseInt(hex.slice(5, 7), 16) / 255,
 ];
 
+/**
+ * Whether every remote (Media library) video can be fetched with CORS — what WebGL needs to
+ * draw it. Resolves once the response headers arrive (the body is not downloaded).
+ */
+function corsAllowed(srcs: string[], timeoutMs = 6000): Promise<boolean> {
+  const one = (src: string) => {
+    const ctl = new AbortController();
+    const timer = window.setTimeout(() => ctl.abort(), timeoutMs);
+    return fetch(src, { mode: "cors", credentials: "omit", cache: "no-store", signal: ctl.signal })
+      .then(() => true)
+      .catch(() => false)
+      .finally(() => {
+        window.clearTimeout(timer);
+        ctl.abort();
+      });
+  };
+  return Promise.all(srcs.map(one)).then((ok) => ok.every(Boolean));
+}
+
+/** How the poster stage shows Media library footage: not at all, playing, or as a still. */
+type DomVideo = "off" | "play" | "still";
+
 export class StageRuntime {
   private windows: WindowEl[] = [];
   private cards: HTMLElement[] = [];
@@ -170,6 +192,10 @@ export class StageRuntime {
   private visible = true;
   private lastComp: Composition | null = null;
   private cancelBoot: (() => void) | null = null;
+  /** Media library footage in the poster layers (plain <video>, CSS grade): see syncDomVideos. */
+  private domVideo: DomVideo = "off";
+  private corsProbe: Promise<boolean> | null = null;
+  private dominantPlate: PlateId | null = null;
   private readonly cleanups: (() => void)[] = [];
   private readonly reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   private readonly portraitMq = window.matchMedia("(max-aspect-ratio: 4/5)");
@@ -210,15 +236,20 @@ export class StageRuntime {
     const onVis = () => {
       this.visible = !document.hidden;
       this.syncRunning();
+      this.syncDomVideos();
     };
     document.addEventListener("visibilitychange", onVis);
     const unsub = subscribeMotionPaused((p) => {
       this.paused = p;
       this.compositor?.setMotionPaused(p);
       this.syncRunning();
+      this.syncDomVideos();
     });
     const onReduce = () => {
-      if (this.reduce.matches) this.goPoster("reduced-motion");
+      if (!this.reduce.matches) return;
+      // No autoplay with reduced motion: footage we play ourselves holds a still frame.
+      if (this.domVideo === "play") this.domVideo = "still";
+      this.goPoster("reduced-motion");
     };
     this.reduce.addEventListener("change", onReduce);
     this.cleanups.push(
@@ -239,7 +270,17 @@ export class StageRuntime {
     html.dataset.stageTier = tier;
     if (why) html.dataset.stageWhy = why;
     html.dataset.stageLines = "svg";
-    if (tier !== "low") this.cancelBoot = afterLcpAndIdle(() => void this.boot());
+    if (tier !== "low") {
+      // Media library links to other sites: ask now (in parallel with the LCP) whether
+      // WebGL may draw them, so the stage never boots into a black plate.
+      const remote = this.remoteSources();
+      if (remote.length) this.corsProbe = corsAllowed(remote);
+      this.cancelBoot = afterLcpAndIdle(() => void this.boot());
+    } else if (why !== "save-data" && why !== "slow-network" && why !== "low-memory") {
+      // A new clip without a poster still shows its first frame.
+      this.domVideo = "still";
+      this.syncDomVideos();
+    }
   }
 
   dispose() {
@@ -250,6 +291,15 @@ export class StageRuntime {
     this.cleanups.forEach((c) => c());
     this.compositor?.dispose();
     this.compositor = null;
+    // Footage the runtime played itself (Media library fallback): stop decoding before unmount.
+    for (const el of this.layers.values()) {
+      el.querySelectorAll<HTMLVideoElement>(":scope > video").forEach((v) => {
+        v.pause();
+        v.removeAttribute("src");
+        v.load();
+        v.remove();
+      });
+    }
     const html = document.documentElement;
     delete html.dataset.stage;
     delete html.dataset.stageTier;
@@ -261,9 +311,14 @@ export class StageRuntime {
 
   private async boot() {
     if (this.disposed || this.tier === "low") return;
+    if (this.corsProbe && !(await this.corsProbe)) {
+      this.goDomVideo();
+      return;
+    }
     try {
       const create = await this.o.load();
-      if (this.disposed) return;
+      // The page may have gone to posters while the chunk loaded (reduced motion, media).
+      if (this.disposed || (this.tier as StageTier) === "low") return;
       this.compositor = create({
         canvas: this.o.canvas,
         tier: this.tier,
@@ -271,6 +326,10 @@ export class StageRuntime {
         onReady: () => this.goLive(),
         onDowngrade: () => this.stepDown(),
         onLost: () => this.goPoster("no-webgl"),
+        onMediaError: (plate) => {
+          // Footage from the Media library that WebGL cannot use: we play it ourselves.
+          if (this.layers.get(plate)?.dataset.video) this.goDomVideo();
+        },
       });
       document.documentElement.dataset.stageLines = this.lines3d() ? "3d" : "svg";
       this.update();
@@ -302,6 +361,84 @@ export class StageRuntime {
     html.dataset.stageWhy = why;
     html.dataset.stageLines = "svg";
     this.update();
+  }
+
+  /** Media library URLs on this page's plates that live on another site. */
+  private remoteSources(): string[] {
+    const portrait = this.portraitMq.matches;
+    const out: string[] = [];
+    for (const el of this.layers.values()) {
+      if (!("remote" in el.dataset)) continue;
+      const src = (portrait && el.dataset.videoPhone) || el.dataset.video;
+      if (src && /^https?:\/\//i.test(src)) out.push(src);
+    }
+    return out;
+  }
+
+  /**
+   * The poster stage with Media library footage playing in plain <video> elements (no CORS
+   * needed) under the CSS grade: for links to sites that do not let WebGL draw their files.
+   */
+  private goDomVideo() {
+    if (this.disposed) return;
+    this.domVideo = this.reduce.matches ? "still" : "play";
+    this.goPoster("remote-media");
+  }
+
+  /**
+   * Plays, holds or creates the poster layers' Media library footage: in "play" mode the
+   * dominant plate plays (one decoder) while motion is allowed and the tab is visible; in
+   * "still" mode clips without a poster show their first frame. A file that fails here too
+   * is dropped: the poster (or the plain ground) stays — never a black plate.
+   */
+  private syncDomVideos() {
+    if (this.domVideo === "off") return;
+    for (const [id, el] of this.layers) {
+      if (!el.dataset.video) continue;
+      if (this.domVideo === "still" && !("noPoster" in el.dataset)) continue;
+      const v =
+        el.dataset.state === "off"
+          ? el.querySelector<HTMLVideoElement>(":scope > video")
+          : this.domVideoFor(el);
+      if (!v) continue;
+      const play =
+        this.domVideo === "play" &&
+        id === this.dominantPlate &&
+        !this.paused &&
+        this.visible &&
+        this.visibleWindow;
+      if (play) {
+        if (v.paused) void v.play().catch(() => undefined);
+      } else if (!v.paused) v.pause();
+    }
+  }
+
+  private domVideoFor(el: HTMLElement): HTMLVideoElement | null {
+    const have = el.querySelector<HTMLVideoElement>(":scope > video");
+    if (have) return have;
+    if ("videoFailed" in el.dataset) return null;
+    const src = (this.portraitMq.matches && el.dataset.videoPhone) || el.dataset.video;
+    if (!src) return null;
+    const v = document.createElement("video");
+    v.muted = true;
+    v.defaultMuted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.setAttribute("playsinline", "");
+    v.setAttribute("muted", "");
+    v.setAttribute("aria-hidden", "true");
+    v.setAttribute("tabindex", "-1");
+    v.disableRemotePlayback = true;
+    v.preload = this.domVideo === "play" ? "auto" : "metadata";
+    v.addEventListener("loadeddata", () => (v.dataset.ready = ""));
+    v.addEventListener("error", () => {
+      el.dataset.videoFailed = "";
+      v.remove();
+    });
+    // "still": the first frame (a media fragment), never played.
+    v.src = this.domVideo === "still" ? `${src.split("#")[0]}#t=0.1` : src;
+    el.appendChild(v);
+    return v;
   }
 
   private stepDown() {
@@ -388,10 +525,7 @@ export class StageRuntime {
       const w = this.windows[i];
       const r = rects[i];
       const def = this.frameOf(w.plate);
-      const ap = w.aperture?.getBoundingClientRect() ?? null;
-      const apRadius = w.aperture
-        ? parseFloat(getComputedStyle(w.aperture).borderTopLeftRadius) || 0
-        : 0;
+      const ap = w.aperture ? openingOf(w.aperture) : null;
       const lr = w.lines?.getBoundingClientRect() ?? null;
       const slug = w.lines?.dataset.class;
       const pr = w.pin?.getBoundingClientRect() ?? null;
@@ -406,7 +540,7 @@ export class StageRuntime {
               : w.ground
           )
         ),
-        aperture: ap ? { x: ap.left, y: ap.top, w: ap.width, h: ap.height, r: apRadius } : null,
+        aperture: ap,
         zoom: pushIn(r.top, r.bottom, vh),
         dim: 0,
         focal: mirrorFocal(focalFor(def, { portrait, rtl }), def.flipX),
@@ -427,6 +561,7 @@ export class StageRuntime {
     this.paintCalm(calmRects);
     this.paintHorizon(comp, a, b, vw, vh);
     const ground = comp ? this.windows[dominant(comp)].ground : "dark";
+    this.dominantPlate = comp ? this.windows[dominant(comp)].plate : null;
     // Only on change: the page's mutation observer watches data-ground.
     if (this.o.root.dataset.ground !== ground) this.o.root.dataset.ground = ground;
 
@@ -435,6 +570,7 @@ export class StageRuntime {
       this.compositor.setFrame(state);
     }
     this.syncRunning();
+    this.syncDomVideos();
   }
 
   private visibleWindow = true;
@@ -563,6 +699,29 @@ export class StageRuntime {
       renderOnce: () => this.compositor?.renderOnce(),
     };
   }
+}
+
+/**
+ * The opening of an aperture: its box minus its border. Pages that reshape an opening with the
+ * scroll may keep the box still and grow a ground-coloured border instead of moving the box —
+ * no layout shift — so the plate is drawn inside the border, with the inner corner radius.
+ */
+function openingOf(el: HTMLElement): { x: number; y: number; w: number; h: number; r: number } {
+  const r = el.getBoundingClientRect();
+  const cs = getComputedStyle(el);
+  const bt = parseFloat(cs.borderTopWidth) || 0;
+  const br = parseFloat(cs.borderRightWidth) || 0;
+  const bb = parseFloat(cs.borderBottomWidth) || 0;
+  const bl = parseFloat(cs.borderLeftWidth) || 0;
+  // "28px" or "40px 60px" (horizontal, vertical): the inner radius on the narrower side.
+  const [rx, ry = rx] = cs.borderTopLeftRadius.split(" ").map((v) => parseFloat(v) || 0);
+  return {
+    x: r.left + bl,
+    y: r.top + bt,
+    w: Math.max(0, r.width - bl - br),
+    h: Math.max(0, r.height - bt - bb),
+    r: Math.max(0, Math.min(rx - bl, ry - bt)),
+  };
 }
 
 /** Last values written per element: unchanged ones are skipped (inherited custom properties

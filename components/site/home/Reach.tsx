@@ -50,7 +50,7 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
 
 /** Halftone dot map Europe → Singapore with brass lanes and three office portholes (§7.6). */
 function ReachMap({ view }: { view: HomeView }) {
-  const { reach } = view;
+  const reach = view.reach!;
   const ist = pt(...CITY.Istanbul);
   return (
     <figure className="h-map" aria-label={reach.mapLabel}>
@@ -123,6 +123,7 @@ function ReachMap({ view }: { view: HomeView }) {
  */
 export function Reach({ view, id, stackOver }: { view: HomeView; id: string; stackOver?: string }) {
   const { reach } = view;
+  if (!reach) return null;
   return (
     <Card
       id={id}

@@ -85,10 +85,87 @@ export const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
 
 /* ---------- homepage (content/home.json, the `home` singleton) ---------- */
 
-/** Plates an editor may pick for the homepage's footage windows (DESIGN-V2 §6.1). */
-export const HOME_HERO_PLATES = ["V-hero", "V-gas", "V-strait", "V-ocean"] as const;
-export const HOME_PROCESS_PLATES = ["V-reel", "V-hero", "V-gas", "V-strait"] as const;
-export const HOME_LETTER_PLATES = ["V-night", "V-strait", "V-ocean"] as const;
+/** Every footage plate of the stage (DESIGN-V2 §6.1): one Media library entry each. */
+export const VIDEO_PLATES = ["V-hero", "V-gas", "V-reel", "V-strait", "V-night", "V-ocean"] as const;
+export type VideoPlate = (typeof VIDEO_PLATES)[number];
+
+/** Plates an editor may pick for the homepage's footage windows (any footage plate). */
+export const HOME_HERO_PLATES = VIDEO_PLATES;
+export const HOME_PROCESS_PLATES = VIDEO_PLATES;
+export const HOME_LETTER_PLATES = VIDEO_PLATES;
+
+/**
+ * The homepage sections after the hero, in their default order (DESIGN-V2 §7.0).
+ * The `home` singleton stores them as a sortable list of blocks: an editor
+ * reorders, hides or edits each one; the hero always opens the page and the
+ * footer always closes it. Each kind appears at most once.
+ */
+export const HOME_BLOCK_KINDS = [
+  "who",
+  "desks",
+  "ships",
+  "process",
+  "reach",
+  "team",
+  "notes",
+  "letter",
+] as const;
+export type HomeBlockKind = (typeof HOME_BLOCK_KINDS)[number];
+
+/** Where the freight calculator lives (built by its own module; linked from the chrome and home). */
+export const FREIGHT_CALCULATOR_PATH = "/freight-calculator";
+
+/* ---------- media library (content/media.json, the `media` singleton) ---------- */
+
+/**
+ * The stage's grade presets (components/site/stage/grades.ts), for the admin's pickers, plus
+ * "none": the footage in its own colours — for testing other clips side by side only; the
+ * design always grades (DESIGN-V2 §16).
+ */
+export const GRADE_CHOICES = ["dawn", "day", "dusk", "night", "deep", "none"] as const;
+export type GradeChoice = (typeof GRADE_CHOICES)[number];
+
+export const GRADE_LABELS: Record<GradeChoice, string> = {
+  dawn: "Dawn — navy to sand (hero)",
+  day: "Day — slate blue to sand",
+  dusk: "Dusk — warm brass highlights",
+  night: "Night — near black, brass lights",
+  deep: "Deep — dark, desaturated sea",
+  none: "None — original colours (testing only)",
+};
+
+/** The grade each plate is designed for (DESIGN-V2 §6.1); the Media library's defaults. */
+export const PLATE_GRADES: Record<VideoPlate, GradeChoice> = {
+  "V-hero": "dawn",
+  "V-gas": "day",
+  "V-reel": "dusk",
+  "V-strait": "day",
+  "V-night": "night",
+  "V-ocean": "deep",
+};
+
+/** Mirror a clip horizontally: the shipped clip's own setting, or forced on / off. */
+export const FLIP_CHOICES = ["auto", "on", "off"] as const;
+
+/**
+ * Uploaded videos and images: saved by the admin under public/media/uploads/
+ * (Keystatic names them after the field, e.g. plates/V-hero/videoFile.mp4).
+ */
+export const MEDIA_UPLOAD_DIR = "public/media/uploads";
+export const MEDIA_UPLOAD_PUBLIC_PATH = "/media/uploads/";
+export const UPLOADED_VIDEO_PATTERN = /^\/media\/uploads\/[\w\-./]+\.(?:mp4|webm|m4v|mov)$/i;
+export const UPLOADED_IMAGE_PATTERN = /^\/media\/uploads\/[\w\-./]+\.(?:jpe?g|png|webp|avif)$/i;
+/**
+ * A direct link to a video file on another site: https, no spaces, a video
+ * extension at the end of the path (a query string may follow). Pages such as
+ * YouTube or Vimeo watch pages are not video files and cannot play here.
+ */
+export const VIDEO_URL_PATTERN = /^https:\/\/[^\s/?#]+\/[^\s?#]*\.(?:mp4|webm|m4v|mov)(?:[?#]\S*)?$/i;
+/** A direct link to an image file (poster or still): https, an image extension. */
+export const IMAGE_URL_PATTERN =
+  /^https:\/\/[^\s/?#]+\/[^\s?#]*\.(?:jpe?g|png|webp|avif)(?:[?#]\S*)?$/i;
+/** Any https page (credits, licences). */
+export const HTTPS_URL_PATTERN = /^https:\/\/[^\s/?#]+(?:[/?#]\S*)?$/i;
 
 /** Line icons of the four Who facts (lucide family, 1.6px stroke, in 46px circles). */
 export const FACT_ICONS = [

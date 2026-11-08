@@ -1364,6 +1364,26 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   }
 }
 
+/* ===== Media the build did not grade (Media library, lib/media.ts) =====
+   Uploads, links and regraded shipped items carry a #lv-grade-<preset> fragment:
+   they are shown through the same grade as the stage's lens, as an SVG filter
+   (components/site/stage/GradeFilters.tsx, rendered once per page). Never raw. */
+img[src$="#lv-grade-dawn"] {
+  filter: url(#lv-grade-dawn);
+}
+img[src$="#lv-grade-day"] {
+  filter: url(#lv-grade-day);
+}
+img[src$="#lv-grade-dusk"] {
+  filter: url(#lv-grade-dusk);
+}
+img[src$="#lv-grade-night"] {
+  filter: url(#lv-grade-night);
+}
+img[src$="#lv-grade-deep"] {
+  filter: url(#lv-grade-deep);
+}
+
 /* ===== Skip link (a11y) ===== */
 .skip-link {
   position: absolute;
@@ -1411,7 +1431,8 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
 }
 /* Arabic and CJK set larger on the body: the hero steps down to keep three lines clear of the lead. */
 .t-hero:lang(ar) {
-  font-size: clamp(42px, 6.2vw, 92px);
+  /* 1.25 leading: also capped by the viewport height so the hero stays one screen */
+  font-size: clamp(40px, min(5.3vw, 8.5vh), 84px);
 }
 .t-hero:is(:lang(zh), :lang(ja), :lang(ko)) {
   font-size: clamp(42px, 6.6vw, 100px);

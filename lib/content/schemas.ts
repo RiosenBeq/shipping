@@ -15,16 +15,8 @@ import {
   AVATAR_KINDS,
   BLOG_CATEGORIES,
   BLOG_DESKS,
-  CURRENCY_PATTERN,
-  DESK_CHIP_SETS,
   E164_PATTERN,
-  FACT_ICONS,
   GLOSSARY_GROUP_KEYS,
-  HOME_HERO_PLATES,
-  HOME_LETTER_PLATES,
-  HOME_LIMITS,
-  HOME_PROCESS_PLATES,
-  INTERNAL_PATH_PATTERN,
   OFFICE_NAMES,
   SLUG_PATTERN,
   TANKER_FAMILIES,
@@ -110,171 +102,14 @@ export const siteFileSchema = z
   })
   .strict();
 
-/* ---------- homepage (content/home.json) ---------- */
+/* ---------- homepage and media library: lib/content/home-schema.ts ---------- */
 
-const STILL_KEY_ENUM = z.enum(Object.keys(stills) as [StillKey, ...StillKey[]]);
-const internalPath = z
-  .string()
-  .regex(INTERNAL_PATH_PATTERN, "A site path starting with /, e.g. /tankers or /blog/my-post");
-/** Text with at most `max` characters (line breaks not counted). */
-const upTo = (max: number) =>
-  text.refine((v) => v.replace(/\n/g, "").length <= max, `At most ${max} characters`);
-const section = { show: z.boolean(), rail: z.string().min(1).max(24) };
-
-export const homeFileSchema = z
-  .object({
-    hero: z
-      .object({
-        rail: z.string().min(1).max(24),
-        plate: z.enum(HOME_HERO_PLATES),
-        headline: upTo(HOME_LIMITS.heroHeadline).refine(
-          (v) => v.split("\n").length <= 3,
-          "Three lines at most"
-        ),
-        accent: optionalText,
-        sub: z.string().min(1).max(60),
-        lead: upTo(240),
-        inquiry: z.string().min(1).max(28),
-        whatsapp: z.string().min(1).max(28),
-        scene: z.string().min(1).max(36),
-      })
-      .strict()
-      .refine((h) => !h.accent || h.headline.includes(h.accent), {
-        message: "The accent must be a word of the headline",
-        path: ["accent"],
-      }),
-    who: z
-      .object({
-        ...section,
-        sub: text,
-        statement: upTo(HOME_LIMITS.statement),
-        more: text,
-        pin: z.string().min(1).max(32),
-        scene: z.string().min(1).max(48),
-        facts: z
-          .array(
-            z
-              .object({
-                icon: z.enum(FACT_ICONS),
-                title: upTo(40),
-                text: upTo(120),
-                linkLabel: text,
-                href: internalPath,
-              })
-              .strict()
-          )
-          .length(4, "Exactly four facts"),
-        badge: optionalText,
-        badgeLink: optionalText,
-      })
-      .strict(),
-    desks: z
-      .object({
-        ...section,
-        sub: text,
-        headline: upTo(40),
-        lead: upTo(220),
-        more: text,
-        rows: z
-          .array(
-            z
-              .object({
-                title: upTo(40),
-                text: upTo(HOME_LIMITS.rowLead),
-                linkLabel: text,
-                href: internalPath,
-                chips: z.enum(DESK_CHIP_SETS),
-                still: STILL_KEY_ENUM,
-                caption: z.string().min(1).max(40),
-              })
-              .strict()
-          )
-          .length(4, "Exactly four rows"),
-      })
-      .strict(),
-    ships: z
-      .object({
-        ...section,
-        sub: text,
-        headline: upTo(48),
-        tankers: z.string().min(1).max(16),
-        gas: z.string().min(1).max(16),
-        classGuide: z.string().min(1).max(24),
-      })
-      .strict(),
-    process: z
-      .object({
-        ...section,
-        plate: z.enum(HOME_PROCESS_PLATES),
-        sub: text,
-        headline: upTo(48),
-        steps: z
-          .array(z.object({ title: upTo(20), text: upTo(90) }).strict())
-          .length(4, "Exactly four steps"),
-      })
-      .strict(),
-    reach: z
-      .object({
-        ...section,
-        sub: text,
-        headline: upTo(40),
-        counters: z
-          .array(
-            z
-              .object({
-                value: z.number().int().min(0).max(9999),
-                caption: upTo(HOME_LIMITS.counterCaption).refine(
-                  (v) => !CURRENCY_PATTERN.test(v),
-                  "No prices, rates or currency symbols in counters"
-                ),
-              })
-              .strict()
-          )
-          .length(4, "Exactly four counters"),
-        lanes: z
-          .array(
-            z
-              .object({
-                code: upTo(HOME_LIMITS.laneCode).refine(
-                  (v) => !CURRENCY_PATTERN.test(v),
-                  "No prices or rates"
-                ),
-                lane: upTo(HOME_LIMITS.laneLine),
-                href: internalPath,
-                still: STILL_KEY_ENUM,
-              })
-              .strict()
-          )
-          .length(6, "Exactly six lanes"),
-      })
-      .strict(),
-    team: z
-      .object({ ...section, sub: text, headline: upTo(48), lead: upTo(160), more: text })
-      .strict(),
-    notes: z
-      .object({
-        ...section,
-        sub: text,
-        headline: upTo(40),
-        count: z.number().int().min(1).max(6),
-        faqHeadline: upTo(48),
-        faqMore: text,
-        faqCount: z.number().int().min(0).max(8),
-      })
-      .strict(),
-    letter: z
-      .object({
-        ...section,
-        plate: z.enum(HOME_LETTER_PLATES),
-        label: z.string().min(1).max(32),
-        headline: upTo(48),
-        line: upTo(160),
-        sub: text,
-        inquiry: z.string().min(1).max(28),
-      })
-      .strict(),
-  })
-  .strict();
+export {
+  homeFileSchema,
+  mediaFileSchema,
+  type HomeFile,
+  type MediaFile,
+} from "./home-schema";
 
 /* ---------- brokers ---------- */
 
@@ -500,7 +335,6 @@ export const turkishStraitsFileSchema = z
   .strict();
 
 export type SiteFile = z.infer<typeof siteFileSchema>;
-export type HomeFile = z.infer<typeof homeFileSchema>;
 export type BrokersFile = z.infer<typeof brokersFileSchema>;
 export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
 export type FaqsFile = z.infer<typeof faqsFileSchema>;

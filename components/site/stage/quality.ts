@@ -36,7 +36,9 @@ export type LowReason =
   | "reduced-motion"
   | "no-webgl"
   | "software-gl"
-  | "forced";
+  | "forced"
+  /** Media library footage from another site that WebGL may not draw (no CORS consent). */
+  | "remote-media";
 
 /** The reason a visitor is on the low tier, or null when the live stage may run. */
 export function lowReason(h: DeviceHints): LowReason | null {

@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  PauseMotion,
-  StageAperture,
-  StageWindow,
-  calm,
-  type PlateId,
-} from "@/components/site/stage";
+import { PauseMotion, StageAperture, StageWindow, calm } from "@/components/site/stage";
 import { whatsappUrl } from "@/lib/site";
 import { BtnArrow, WhatsAppGlyph } from "./icons";
 import { RiseLines } from "./text";
@@ -18,7 +12,7 @@ export function SceneLabel({ n, total, text }: { n: number; total: number; text:
   const pad = (v: number) => String(v).padStart(2, "0");
   return (
     <p className="t-data h-scene">
-      <b>
+      <b dir="ltr">
         {pad(n)} / {pad(total)}
       </b>{" "}
       {text}
@@ -32,23 +26,13 @@ export function SceneLabel({ n, total, text }: { n: number; total: number; text:
  * by letter from its waterline, the "— sub" line, the lead and CTAs bottom-
  * left on calm zones, scene label, coordinates and Pause motion bottom-right.
  */
-export function Hero({
-  view,
-  id,
-  plate,
-  total,
-}: {
-  view: HomeView;
-  id: string;
-  plate: PlateId;
-  total: number;
-}) {
+export function Hero({ view, id, total }: { view: HomeView; id: string; total: number }) {
   const { hero } = view;
   const hl = view.linkLang;
   return (
     <StageWindow
       id={id}
-      plate={plate}
+      plate={hero.plate}
       className="h-hero"
       aria-labelledby="hero-title"
       data-header-overlay=""

@@ -119,24 +119,68 @@ html[data-home-motion="on"] [data-reveal="type"][data-in] .type > span {
 }
 
 /* ===== 1 · Hero ============================================================ */
+/* A column: the head from 23% down, the foot at the bottom. They can never overlap (a tall
+   headline — Arabic sets 1.25 leading — grows the window instead). */
 .h-hero {
   position: relative;
-  height: 100vh;
-  height: 100svh;
+  display: flex;
+  flex-direction: column;
   min-height: 600px;
+  min-height: max(600px, 100vh);
+  min-height: max(600px, 100svh);
+  padding-top: max(23vh, calc(var(--hdr-h) + 48px));
+  padding-top: max(23svh, calc(var(--hdr-h) + 48px));
+  padding-bottom: calc(var(--stage-inset) + 56px);
+}
+/* Apertures that change shape with the scroll keep their box still and grow a border in the
+   ground colour instead: the opening shrinks or grows without moving any box, so nothing
+   counts as a layout shift (CLS 0, §14). The stage reads the opening inside the border. */
+/* The ground border's rounded outer edge meets the ground shadow outside it: a 4px outline
+   across that edge hides their anti-aliasing seam. */
+.stage-aperture:is(.h-hero__ap, .h-process__ap) {
+  outline: 4px solid var(--ap-ground);
+  outline-offset: -2px;
 }
 .stage-aperture.h-hero__ap {
-  --ap-inset: calc(var(--stage-inset) + 28px * var(--stage-out, 0));
-  --ap-radius: calc(var(--stage-radius) + 8px * var(--stage-out, 0));
+  --b: calc(28px * var(--stage-out, 0));
+  --r: calc(var(--stage-radius) + 8px * var(--stage-out, 0));
+  --ap-inset: var(--stage-inset);
+  border: var(--b) solid var(--ap-ground);
+  border-radius: calc(var(--b) + var(--r));
+}
+/* A scrim under the header band (§14 "calm zones + scrims"): footage is often brightest at the
+   top (sky, shoreline), and the glass pill, wordmark and language pill must stay AA over any
+   clip an editor picks. Inside the aperture, so it insets and rounds with it. */
+.h-hero__ap::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(260px, 36%);
+  border-radius: inherit;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+  background: linear-gradient(rgba(5, 22, 36, 0.7), rgba(5, 22, 36, 0.42) 42%, rgba(5, 22, 36, 0));
 }
 .h-hero__head {
-  position: absolute;
-  top: max(23%, calc(var(--hdr-h) + 48px));
-  inset-inline: 0;
+  position: relative;
 }
 .h-hero__title {
   max-width: 11em;
   color: var(--sand);
+}
+/* Short landscape screens (laptops at 720–820px): a smaller headline and tighter offsets
+   keep the hero one screen tall. */
+@media (min-width: 768px) and (max-height: 820px) {
+  .h-hero {
+    padding-top: max(calc(var(--hdr-h) + 36px), 19vh);
+    padding-top: max(calc(var(--hdr-h) + 36px), 19svh);
+  }
+  .h-hero__title {
+    font-size: min(var(--t-hero), 13vh);
+  }
+  .h-hero__foot {
+    padding-top: 24px;
+  }
 }
 .h-hero__title .acc {
   color: var(--brass-light);
@@ -145,12 +189,12 @@ html[data-home-motion="on"] [data-reveal="type"][data-in] .type > span {
   margin-top: 30px;
 }
 .h-hero__foot {
-  position: absolute;
-  inset-inline: 0;
-  bottom: calc(var(--stage-inset) + 56px);
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 40px;
+  margin-top: auto;
+  padding-top: 40px;
 }
 .h-hero__pitch {
   max-width: 34em;
@@ -595,6 +639,76 @@ html[data-home-motion="on"] .h-who .fill {
   }
 }
 
+/* "Estimate a voyage": the freight calculator's card under the rows (paper on sand, no glass) */
+.h-calc {
+  display: grid;
+  /* the copy lines up with the desk rows' titles (120px number column + 32px gap) */
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  gap: 18px 32px;
+  align-items: center;
+  margin-top: 48px;
+  padding: 28px 32px;
+  border-radius: var(--r-media);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--line-ink, rgba(10, 31, 51, 0.12));
+}
+.h-calc__route {
+  width: 88px;
+  height: 48px;
+}
+.h-calc__route path {
+  stroke: var(--brass);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 4 5;
+}
+.h-calc__route circle {
+  fill: var(--paper);
+  stroke: var(--navy);
+  stroke-width: 1.6;
+}
+.h-calc__label {
+  margin: 0 0 8px;
+  color: var(--brass-ink);
+}
+.h-calc__title {
+  margin: 0;
+  color: var(--navy);
+}
+.h-calc__text {
+  max-width: 46em;
+  margin: 8px 0 0;
+  color: var(--slate);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .h-calc__route path {
+    animation: h-calc-route 2.4s linear infinite;
+  }
+  html[data-motion="paused"] .h-calc__route path {
+    animation-play-state: paused;
+  }
+}
+@keyframes h-calc-route {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+@media (max-width: 1023px) {
+  .h-calc {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 32px;
+    padding: 22px 20px 24px;
+  }
+  .h-calc__route {
+    width: 96px;
+    height: 52px;
+  }
+  .h-calc__cta {
+    justify-self: start;
+  }
+}
+
 /* ===== 4 · Ships we fix =================================================== */
 .h-ships {
   position: relative;
@@ -713,14 +827,13 @@ html[data-home-motion="on"] .h-who .fill {
 }
 .ship-card {
   position: relative;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   width: 320px;
   height: 188px;
   padding: 18px 22px;
   border-radius: var(--r-media);
   color: var(--sand);
-  text-decoration: none;
   background: linear-gradient(160deg, rgba(13, 39, 64, 0.74), rgba(5, 22, 36, 0.56));
   box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.12);
   -webkit-backdrop-filter: blur(12px);
@@ -731,14 +844,73 @@ html[data-home-motion="on"] .h-who .fill {
 .ships__track > li[data-active] .ship-card {
   box-shadow: inset 0 0 0 1px rgba(217, 176, 113, 0.6);
 }
-.ship-card:focus-visible {
+/* The class guide link covers the card; the calculator link sits above it. */
+.ship-card__link {
+  display: grid;
+  flex: 1;
+  grid-template-rows: auto auto 1fr auto;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  -webkit-user-drag: none;
+}
+.ship-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.ship-card__link:focus-visible::after {
   outline: 2px solid var(--brass-light);
   outline-offset: 3px;
+}
+.ship-card__calc {
+  position: absolute;
+  z-index: 1;
+  inset-inline-end: 16px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--sand);
+  text-decoration: none;
+  background: rgba(5, 22, 36, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.22);
+  transition:
+    color 180ms var(--ease-quick),
+    background-color 180ms var(--ease-quick);
+  -webkit-user-drag: none;
+}
+.ship-card__calc svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--brass-light);
+}
+.ship-card__calc:hover {
+  color: var(--navy-deep);
+  background: var(--sand);
+}
+.ship-card__calc:hover svg {
+  color: var(--brass-ink);
+}
+.ship-card__calc:focus-visible {
+  outline: 2px solid var(--brass-light);
+  outline-offset: 2px;
 }
 .ship-card__art {
   display: none;
 }
 .ship-card__band {
+  /* LTR numbers (dir="ltr") sitting at the card's start edge in RTL too */
+  justify-self: start;
   margin-top: 6px;
   color: var(--mist);
 }
@@ -873,8 +1045,13 @@ html[data-motion="paused"] .ship-card__ribbon path {
   --ap-x: calc(var(--x0) * (1 - var(--k)));
   --ap-b: calc(8vh * (1 - var(--k)));
   --ap-t: calc(var(--top0) * (1 - var(--k)));
-  inset: var(--ap-t) var(--ap-x) var(--ap-b);
-  border-radius: calc(var(--stage-radius) * (1 - var(--k)));
+  --r: calc(var(--stage-radius) * (1 - var(--k)));
+  inset: 0;
+  border-style: solid;
+  border-color: var(--ap-ground);
+  border-width: var(--ap-t) var(--ap-x) var(--ap-b);
+  border-radius: calc(var(--ap-x) + var(--r)) / calc(var(--ap-t) + var(--r))
+    calc(var(--ap-t) + var(--r)) calc(var(--ap-b) + var(--r)) calc(var(--ap-b) + var(--r));
 }
 .h-process__band {
   position: absolute;
@@ -1282,6 +1459,33 @@ html[data-home-motion="on"] .h-map__lanes path {
   font-size: clamp(34px, 3.6vw, 56px);
 }
 
+.h-notes__cats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 32px;
+}
+.h-notes__cats .t-label {
+  margin: 0;
+  color: var(--ink-2);
+}
+.h-notes__cats ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h-notes__cats b {
+  margin-inline-start: 8px;
+  font:
+    500 11.5px/1 var(--font-mono),
+    monospace;
+  color: var(--brass-ink);
+}
+
 /* ===== 9 · The letter ===================================================== */
 .h-letter {
   position: relative;
@@ -1556,19 +1760,18 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
 
   /* hero */
   .h-hero {
-    min-height: 640px;
-  }
-  .h-hero__head {
-    top: calc(var(--hdr-h) + 24px);
+    min-height: max(640px, 100svh);
+    padding-top: calc(var(--hdr-h) + 24px);
+    padding-bottom: calc(var(--stage-inset) + 22px);
   }
   .h-hero__sub {
     margin-top: 18px;
   }
   .h-hero__foot {
-    bottom: calc(var(--stage-inset) + 22px);
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
+    padding-top: 28px;
   }
   .h-hero__ctas {
     flex-direction: column;
@@ -1696,8 +1899,10 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   .ship-card {
     width: 100%;
     height: auto;
-    grid-template-rows: auto auto auto auto auto;
     padding: 16px 18px 20px;
+  }
+  .ship-card__link {
+    grid-template-rows: auto auto auto auto;
   }
   .ship-card__art {
     display: grid;
@@ -1737,8 +1942,11 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   }
   .stage-aperture.h-process__ap {
     --w: clamp(0, calc(var(--stage-in, 1) * 1.6 - 0.3), 1);
-    inset: 0 calc(6% * (1 - var(--w)));
-    border-radius: var(--stage-radius) var(--stage-radius) 0 0;
+    --ap-x: calc(6vw * (1 - var(--w)));
+    inset: 0;
+    border-width: 0 var(--ap-x);
+    border-radius: calc(var(--ap-x) + var(--stage-radius)) / var(--stage-radius) var(--stage-radius)
+      0 0;
   }
   .h-process__band {
     position: relative;
@@ -1949,7 +2157,9 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   }
 }
 /* Non-pinned desktops (narrow or short windows, reduced motion): process stacks like phones. */
-@media (min-width: 768px) and (max-width: 1023px), (min-width: 768px) and (max-height: 639px), (min-width: 768px) and (prefers-reduced-motion: reduce) {
+@media (min-width: 768px) and (max-width: 1023px),
+  (min-width: 768px) and (max-height: 639px),
+  (min-width: 768px) and (prefers-reduced-motion: reduce) {
   .h-process__pin {
     --k: 0;
     padding-bottom: var(--stage-inset);
@@ -1965,6 +2175,8 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   }
   .stage-aperture.h-process__ap {
     inset: 0 var(--stage-inset);
+    border-width: 0;
+    border-radius: var(--stage-radius) var(--stage-radius) 0 0;
   }
   .h-process__band {
     position: relative;

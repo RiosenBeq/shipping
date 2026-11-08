@@ -17,7 +17,18 @@
  * item's `look` says how (grade preset, focal points, flipX, horizon, levels) and `graded` is
  * the same poster or still with that grade baked in (components/site/stage/tools/build-media.ts,
  * the LUTs in /media/lut). Public pages use the graded files, never the ungraded ones.
+ *
+ * The Media library (content/media.json, /keystatic → Media library) can replace any plate's
+ * clip, phone file and poster with an upload (public/media/uploads/) or a link to a file on
+ * another site, change its grade and framing, and replace any still. `videos` and `stills`
+ * below are the shipped manifest with those entries applied (empty fields keep the shipped
+ * files); `shippedVideos` / `shippedStills` are the manifest alone. An image that is not
+ * graded at build time (an upload, a link, or a shipped item regraded in the admin) carries
+ * `css: <preset>` and a `#lv-grade-<preset>` fragment: the page shows it through the same
+ * grade as an SVG filter (components/site/stage/GradeFilters.tsx), never raw.
  */
+import mediaFile from "@/content/media.json";
+import type { MediaFile, PlateMedia, StillMedia } from "@/lib/content/home-schema";
 
 export type VideoSlot = "hero" | "sea" | "gas" | "port" | "bosphorus" | "night" | "ocean" | "reel";
 export type StillKey =
@@ -58,6 +69,11 @@ export interface StageLook {
   horizon: number | null;
   /** Luma black/white points (from the clip's histogram) normalised before the grade. */
   levels: [number, number];
+  /**
+   * Media library "none": the footage in its own colours (testing other clips only). `grade`
+   * keeps the plate's preset for typing; nothing applies it.
+   */
+  ungraded?: boolean;
 }
 
 /** A poster or still with the item's grade baked in (ffmpeg colorlevels + lut3d). */
@@ -77,6 +93,18 @@ export interface GradedImage {
   portraitWidth?: number;
   portraitHeight?: number;
   bytes: { avif: number; webp: number; avifSmall?: number; avifPortrait?: number };
+  /**
+   * Not graded at build time (Media library upload or link, or a regraded shipped item):
+   * show it through this preset's CSS/SVG grade. The URLs end in `#lv-grade-<preset>`.
+   */
+  css?: GradePreset;
+}
+
+/** Where an item's file comes from (the Media library). Absent: the shipped, licensed file. */
+export interface MediaSourceInfo {
+  kind: "upload" | "url";
+  /** An absolute URL on another site: WebGL may only draw it if that site allows CORS. */
+  remote: boolean;
 }
 
 export interface MediaCredit {
@@ -128,6 +156,8 @@ export interface VideoLoop {
   look: StageLook;
   /** Graded posters (what poster mode and the LCP show). Present for the clips the stage plays. */
   graded?: GradedImage;
+  /** Set when the Media library replaced the clip (absent: the shipped file plays). */
+  source?: MediaSourceInfo;
 }
 
 export interface StillImage {
@@ -143,9 +173,12 @@ export interface StillImage {
   /** Grade and focal point; `graded` is the same frame with that grade baked in. */
   look: Pick<StageLook, "grade" | "focal">;
   graded: GradedImage;
+  /** Set when the Media library replaced the image. */
+  source?: MediaSourceInfo;
 }
 
-export const videos: Record<VideoSlot, VideoLoop> = {
+/** The shipped, licensed loops (docs/MEDIA-CREDITS.md) — before the Media library's overrides. */
+export const shippedVideos: Record<VideoSlot, VideoLoop> = {
   hero: {
     slot: "hero",
     mp4_1080: "/media/video/hero-1080.mp4",
@@ -569,7 +602,8 @@ export const videos: Record<VideoSlot, VideoLoop> = {
   },
 };
 
-export const stills: Record<StillKey, StillImage> = {
+/** The shipped, licensed stills — before the Media library's overrides. */
+export const shippedStills: Record<StillKey, StillImage> = {
   tankerBow: {
     avif: "/media/still/tanker-bow.avif",
     webp: "/media/still/tanker-bow.webp",
@@ -841,6 +875,215 @@ export const stills: Record<StillKey, StillImage> = {
     },
   },
 };
+
+/* ---------- the Media library (content/media.json) ---------- */
+
+/** The footage plates of the stage and the shipped clip each one plays by default. */
+export const PLATE_SLOTS = {
+  "V-hero": "hero",
+  "V-gas": "gas",
+  "V-reel": "reel",
+  "V-strait": "bosphorus",
+  "V-night": "night",
+  "V-ocean": "ocean",
+} as const satisfies Record<string, VideoSlot>;
+export type MediaPlateId = keyof typeof PLATE_SLOTS;
+
+/** URL fragment that marks an image for the CSS grade (the fragment is never sent to a server). */
+export const gradeFragment = (g: GradePreset) => `#lv-grade-${g}`;
+const withGrade = (src: string, g: GradePreset) => `${src.split("#")[0]}${gradeFragment(g)}`;
+const isAbsolute = (src: string) => /^https?:\/\//i.test(src);
+const sourceOf = (src: string, upload: boolean): MediaSourceInfo => ({
+  kind: upload ? "upload" : "url",
+  remote: isAbsolute(src),
+});
+const pct = (v: number | undefined) => (v === undefined ? undefined : v / 100);
+const focalFrom = (x: number | undefined, y: number | undefined): Focal | undefined =>
+  x === undefined || y === undefined ? undefined : { x: pct(x)!, y: pct(y)! };
+const CENTRE: Focal = { x: 0.5, y: 0.5 };
+
+/** A plate's clip with its Media library entry applied (pure; exported for the tests). */
+export function applyPlateMedia(v: VideoLoop, e: PlateMedia | undefined): VideoLoop {
+  if (!e) return v;
+  // "none": the footage in its own colours (testing other clips only).
+  const ungraded = e.grade === "none";
+  const grade = (ungraded ? v.look.grade : e.grade) as GradePreset;
+  /** An image as shown: marked for the CSS grade, or as it is when ungraded. */
+  const shown = (src: string) => (ungraded ? src.split("#")[0] : withGrade(src, grade));
+  const css = ungraded ? {} : { css: grade };
+  const video = e.videoUrl ?? e.videoFile;
+  const phone = e.phoneUrl ?? e.phoneFile;
+  const poster = e.posterUrl ?? e.posterFile;
+  const custom = Boolean(video);
+  const focal = focalFrom(e.focalX, e.focalY) ?? (custom ? CENTRE : v.look.focal);
+  const look: StageLook = {
+    grade,
+    focal,
+    focalPhone:
+      focalFrom(e.focalPhoneX, e.focalPhoneY) ?? (custom || phone ? focal : v.look.focalPhone),
+    ...(custom || !v.look.focalRtl ? {} : { focalRtl: v.look.focalRtl }),
+    flipX: e.flipX === "on" ? true : e.flipX === "off" ? false : custom ? false : v.look.flipX,
+    horizon: e.horizon !== undefined ? e.horizon / 100 : custom ? null : v.look.horizon,
+    levels: custom ? [0, 1] : v.look.levels,
+    ...(ungraded ? { ungraded: true } : {}),
+  };
+
+  let graded: GradedImage | undefined;
+  if (poster) {
+    const src = shown(poster);
+    graded = {
+      avif: src,
+      webp: src,
+      width: 1600,
+      height: 900,
+      bytes: { avif: 0, webp: 0 },
+      ...css,
+    };
+  } else if (!custom && !ungraded && grade === v.look.grade && !phone) {
+    graded = v.graded;
+  } else if (!custom) {
+    // The shipped clip in another grade, ungraded or with a new phone file: its raw first frames.
+    graded = {
+      avif: shown(v.poster_avif),
+      webp: shown(v.poster_webp),
+      width: v.width,
+      height: v.height,
+      avifSmall: shown(v.posterSmall_avif),
+      webpSmall: shown(v.posterSmall_webp),
+      smallWidth: 720,
+      ...(v.posterPortrait_avif && v.posterPortrait_webp && !phone
+        ? {
+            avifPortrait: shown(v.posterPortrait_avif),
+            webpPortrait: shown(v.posterPortrait_webp),
+            portraitWidth: v.portraitWidth,
+            portraitHeight: v.portraitHeight,
+          }
+        : {}),
+      bytes: { avif: 0, webp: 0 },
+      ...css,
+    };
+  }
+  // A new clip without a poster: no image; the stage shows the clip's first frame.
+
+  const out: VideoLoop = { ...v, look, graded };
+  if (custom) {
+    out.mp4_1080 = video!;
+    out.mp4_720 = video!;
+    out.bytes = { mp4_1080: 0, mp4_720: 0 };
+    out.posterLuma = 0.3;
+    out.loop = "crossfade";
+    out.subject = "Footage from the Media library";
+    out.alt = "";
+    out.source = sourceOf(video!, !e.videoUrl);
+    out.credit = {
+      source: "Media library",
+      title: e.credit ?? "",
+      url: e.videoUrl ?? "",
+      author: e.credit ?? "",
+      license: "",
+      licenseUrl: e.licenceUrl ?? "",
+      segment: "",
+    };
+    delete out.mp4_portrait;
+  }
+  if (phone) {
+    out.mp4_portrait = phone;
+    out.portraitWidth = 720;
+    out.portraitHeight = 1280;
+  } else if (custom) {
+    delete out.portraitWidth;
+    delete out.portraitHeight;
+  }
+  if (custom || poster) {
+    const p = poster ?? "";
+    out.poster_avif = p;
+    out.poster_webp = p;
+    out.posterSmall_avif = p;
+    out.posterSmall_webp = p;
+    delete out.posterPortrait_avif;
+    delete out.posterPortrait_webp;
+  }
+  return out;
+}
+
+/** A still with its Media library entry applied (pure; exported for the tests). */
+export function applyStillMedia(s: StillImage, e: StillMedia | undefined): StillImage {
+  if (!e) return s;
+  const ungraded = e.grade === "none";
+  const grade = (ungraded ? s.look.grade : e.grade) as GradePreset;
+  const shown = (src: string) => (ungraded ? src.split("#")[0] : withGrade(src, grade));
+  const css = ungraded ? {} : { css: grade };
+  const image = e.imageUrl ?? e.imageFile;
+  const focal = focalFrom(e.focalX, e.focalY) ?? (image ? CENTRE : s.look.focal);
+  if (image) {
+    const src = shown(image);
+    return {
+      ...s,
+      avif: image,
+      webp: image,
+      bytes: { avif: 0, webp: 0 },
+      subject: e.alt ?? "",
+      alt: e.alt ?? "",
+      note: undefined,
+      look: { grade, focal },
+      graded: {
+        avif: src,
+        webp: src,
+        width: 1600,
+        height: 900,
+        bytes: { avif: 0, webp: 0 },
+        ...css,
+      },
+      source: sourceOf(image, !e.imageUrl),
+      credit: {
+        source: "Media library",
+        title: e.credit ?? "",
+        url: e.imageUrl ?? "",
+        author: e.credit ?? "",
+        license: "",
+        licenseUrl: e.licenceUrl ?? "",
+        segment: "",
+      },
+    };
+  }
+  if (!ungraded && grade === s.look.grade) return { ...s, look: { grade, focal } };
+  return {
+    ...s,
+    look: { grade, focal },
+    graded: {
+      avif: shown(s.avif),
+      webp: shown(s.webp),
+      width: s.width,
+      height: s.height,
+      bytes: { avif: 0, webp: 0 },
+      ...css,
+    },
+  };
+}
+
+const library = mediaFile as MediaFile;
+const PLATE_OF_SLOT = Object.fromEntries(
+  Object.entries(PLATE_SLOTS).map(([plate, slot]) => [slot, plate])
+) as Partial<Record<VideoSlot, MediaPlateId>>;
+
+/**
+ * Every loop as the site plays it: the shipped manifest with the Media library applied to the
+ * six plate clips (the other loops are not stage plates and stay as shipped).
+ */
+export const videos: Record<VideoSlot, VideoLoop> = Object.fromEntries(
+  (Object.keys(shippedVideos) as VideoSlot[]).map((slot) => {
+    const plate = PLATE_OF_SLOT[slot];
+    return [slot, applyPlateMedia(shippedVideos[slot], plate && library.plates?.[plate])];
+  })
+) as Record<VideoSlot, VideoLoop>;
+
+/** Every still as the site shows it: the shipped stills with the Media library applied. */
+export const stills: Record<StillKey, StillImage> = Object.fromEntries(
+  (Object.keys(shippedStills) as StillKey[]).map((k) => [
+    k,
+    applyStillMedia(shippedStills[k], library.stills?.[k]),
+  ])
+) as Record<StillKey, StillImage>;
 
 /**
  * Pre-rendered statics of the procedural plates (DESIGN-V2 §6.3): what poster mode, blog

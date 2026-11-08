@@ -13,6 +13,7 @@ import path from "node:path";
 import type { ZodType } from "zod";
 import site from "@/content/site.json";
 import home from "@/content/home.json";
+import media from "@/content/media.json";
 import brokers from "@/content/brokers.json";
 import faqs from "@/content/faqs.json";
 import glossary from "@/content/glossary.json";
@@ -21,9 +22,17 @@ import lpgClasses from "@/content/lpg-classes.json";
 import lpgCargoes from "@/content/lpg-cargoes.json";
 import compliance from "@/content/compliance.json";
 import turkishStraits from "@/content/turkish-straits.json";
+import freight from "@/content/freight.json";
+import { freightFileSchema } from "./freight-schema";
 import { parsePostFile, POSTS_DIR } from "@/lib/blog/posts";
 import { bodyImages, validateBody } from "@/lib/blog/markdoc";
-import { BLOG_CATEGORIES, BLOG_RESERVED_SLUGS, HORMUZ_NOTE_SLUG, SLUG_PATTERN } from "./options";
+import {
+  BLOG_CATEGORIES,
+  BLOG_RESERVED_SLUGS,
+  FREIGHT_CALCULATOR_PATH,
+  HORMUZ_NOTE_SLUG,
+  SLUG_PATTERN,
+} from "./options";
 import {
   brokersFileSchema,
   complianceFileSchema,
@@ -31,6 +40,7 @@ import {
   glossaryFileSchema,
   homeFileSchema,
   lpgCargoesFileSchema,
+  mediaFileSchema,
   lpgClassesFileSchema,
   postFrontmatterSchema,
   siteFileSchema,
@@ -39,6 +49,7 @@ import {
   type BrokersFile,
   type HomeFile,
   type LpgCargoesFile,
+  type MediaFile,
   type LpgClassesFile,
   type TankerClassesFile,
   type TurkishStraitsFile,
@@ -48,6 +59,7 @@ import {
 export const CONTENT_FILES = [
   { name: "site", path: "content/site.json", data: site, schema: siteFileSchema },
   { name: "home", path: "content/home.json", data: home, schema: homeFileSchema },
+  { name: "media", path: "content/media.json", data: media, schema: mediaFileSchema },
   { name: "brokers", path: "content/brokers.json", data: brokers, schema: brokersFileSchema },
   { name: "faqs", path: "content/faqs.json", data: faqs, schema: faqsFileSchema },
   { name: "glossary", path: "content/glossary.json", data: glossary, schema: glossaryFileSchema },
@@ -81,6 +93,8 @@ export const CONTENT_FILES = [
     data: turkishStraits,
     schema: turkishStraitsFileSchema,
   },
+  // Freight calculator data: the schema also checks ports, passages, distances and presets.
+  { name: "freight", path: "content/freight.json", data: freight, schema: freightFileSchema },
 ] as const satisfies readonly { name: string; path: string; data: unknown; schema: ZodType }[];
 
 function duplicates(values: string[]): string[] {
@@ -143,6 +157,7 @@ export function validateContent(): string[] {
 
   issues.push(...validatePosts(b));
   issues.push(...validateHomeLinks(home as HomeFile));
+  issues.push(...validateMediaFiles(media as MediaFile));
 
   return issues;
 }
@@ -161,6 +176,7 @@ const STATIC_ROUTES = new Set([
   "/glossary",
   "/privacy",
   "/terms",
+  FREIGHT_CALCULATOR_PATH,
 ]);
 
 /** Every link on the homepage goes to a page that exists: a route, a class guide or a post. */
@@ -178,14 +194,39 @@ export function validateHomeLinks(h: HomeFile): string[] {
     if (a === "lpg") return !c && gas.has(b);
     return false;
   };
-  const links: [string, string][] = [
-    ...h.who.facts.map((f, i) => [`who.facts.${i}.href`, f.href] as [string, string]),
-    ...h.desks.rows.map((r, i) => [`desks.rows.${i}.href`, r.href] as [string, string]),
-    ...h.reach.lanes.map((l, i) => [`reach.lanes.${i}.href`, l.href] as [string, string]),
-  ];
+  const links: [string, string][] = [];
+  (h.sections ?? []).forEach((b, i) => {
+    const at = `sections.${i} (${b.discriminant})`;
+    if (b.discriminant === "who")
+      b.value.facts.forEach((f, j) => links.push([`${at}.facts.${j}.href`, f.href]));
+    if (b.discriminant === "desks")
+      b.value.rows.forEach((r, j) => links.push([`${at}.rows.${j}.href`, r.href]));
+    if (b.discriminant === "reach")
+      b.value.lanes.forEach((l, j) => links.push([`${at}.lanes.${j}.href`, l.href]));
+  });
   return links
     .filter(([, href]) => !exists(href))
     .map(([where, href]) => `content/home.json: ${where}: no page at ${href}`);
+}
+
+/**
+ * Media library uploads exist under public/ (a link to another site is checked by its
+ * pattern only: it is fetched by the visitor's browser, not at build time).
+ */
+export function validateMediaFiles(m: MediaFile): string[] {
+  const missing = (src: string | undefined) =>
+    Boolean(src) && !existsSync(path.join(process.cwd(), "public", src!.split(/[?#]/)[0]));
+  const issues: string[] = [];
+  for (const [plate, e] of Object.entries(m.plates)) {
+    for (const key of ["videoFile", "phoneFile", "posterFile"] as const) {
+      if (missing(e[key])) issues.push(`content/media.json: plates.${plate}.${key}: ${e[key]} is missing from public/`);
+    }
+  }
+  for (const [still, e] of Object.entries(m.stills)) {
+    if (missing(e.imageFile))
+      issues.push(`content/media.json: stills.${still}.imageFile: ${e.imageFile} is missing from public/`);
+  }
+  return issues;
 }
 
 /** The post files in content/blog/, as [repository path, slug, source] (sorted). */

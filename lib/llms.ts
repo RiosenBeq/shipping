@@ -10,6 +10,7 @@ import { ABOUT_FAQ, HOME_FAQ, LPG_FAQ, TANKERS_FAQ, type FaqEntry } from "@/lib/
 import { STRAITS_FACTS, STRAITS_FAQ, STRAITS_SECTIONS } from "@/lib/data/turkish-straits";
 import { COMPLIANCE_FAQ, COMPLIANCE_STEPS, SCREENING } from "@/lib/data/compliance";
 import { LOCALES } from "@/lib/i18n";
+import { freightCalculatorMd } from "@/lib/freight/llms";
 
 /**
  * Generators for /llms.txt (https://llmstxt.org/) and /llms-full.txt. Both are
@@ -39,7 +40,7 @@ const KEY_FACTS = () => [
   "Service promise: a broker replies within 60 minutes during business hours.",
   `Contact: ${siteConfig.email} · tankers ${siteConfig.desks.tankers.email} · LPG ${siteConfig.desks.lpg.email} · phone ${siteConfig.phone} · WhatsApp ${siteConfig.whatsappDisplay}.`,
   `Hours: ${siteConfig.hours}.`,
-  "The site does not publish live freight rates, bunker prices or port tariffs; current numbers come from the desks.",
+  "The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator works from dated reference values, and current numbers come from the desks.",
 ];
 
 export function llmsTxt(): string {
@@ -64,6 +65,10 @@ When citing, link the page the fact comes from. Blog posts carry their publicati
 - ${link("/tankers")}
 - ${link("/lpg")}
 - ${link("/contact")}
+
+## Tools
+
+- ${link("/freight-calculator")}
 
 ## Tanker classes
 
@@ -223,6 +228,8 @@ ${faqMd(LPG_FAQ)}
 
 ${gas}
 
+${freightCalculatorMd(url)}
+
 ## Turkish Straits transit guide
 
 Source: ${url("/turkish-straits")}
@@ -262,7 +269,7 @@ ${glossary}
 
 ## Notes
 
-- The site does not publish live freight rates, bunker prices or port tariffs; ask the desks for current numbers.
+- The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator's reference prices carry their date. Ask the desks for current numbers.
 - Blog posts are dated; market commentary reflects conditions at publication.
 - Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages and the inquiry form are in English.
 `;

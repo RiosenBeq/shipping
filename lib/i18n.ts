@@ -140,6 +140,11 @@ export type Dictionary = {
     dutyText: string;
     /** "Phone · Istanbul" in the contact column. */
     phone: string;
+    /**
+     * The freight calculator's entry points: the card under the desk rows and
+     * the second link on each class card (the calculator page is in English).
+     */
+    calc: { label: string; title: string; text: string; cta: string; estimate: string };
   };
 };
 
@@ -316,6 +321,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "非工作时间有实时成交？",
         dutyText: "通过WhatsApp联系值班经纪人——{number}。晚间和周末均有人回复。",
         phone: "电话 · 伊斯坦布尔",
+        calc: {
+          label: "运费计算器",
+          title: "估算一个航次。",
+          text: "输入港口、船型和货物，即可得到航程、航行天数和航次费用的初步估算——联系经纪人之前先心中有数。",
+          cta: "打开计算器（英文）",
+          estimate: "估算航次",
+        },
       },
     },
   },
@@ -511,6 +523,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "営業時間外の成約案件ですか？",
         dutyText: "当番ブローカーにWhatsAppで——{number}。夜間・週末も対応します。",
         phone: "電話 · イスタンブール",
+        calc: {
+          label: "運賃計算ツール",
+          title: "航海を見積もる。",
+          text: "港・船型・貨物を入力すると、距離、航海日数、航海費用の目安がわかります。デスクに相談する前の最初の目安に。",
+          cta: "計算ツールを開く（英語）",
+          estimate: "航海を見積もる",
+        },
       },
     },
   },
@@ -695,6 +714,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "영업시간 외 진행 중인 성약?",
         dutyText: "당직 브로커에게 WhatsApp — {number}. 저녁과 주말에도 응답합니다.",
         phone: "전화 · 이스탄불",
+        calc: {
+          label: "운임 계산기",
+          title: "항차를 견적해 보세요.",
+          text: "항구, 선형, 화물을 입력하면 거리, 항해 일수, 항차 비용의 대략적인 견적이 나옵니다. 데스크에 문의하기 전 첫 감을 잡아 보세요.",
+          cta: "계산기 열기 (영문)",
+          estimate: "항차 견적",
+        },
       },
     },
   },
@@ -895,6 +921,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "Ζωντανή ναύλωση εκτός ωραρίου;",
         dutyText: "WhatsApp στον μεσίτη υπηρεσίας — {number}. Απαντά βράδια και Σαββατοκύριακα.",
         phone: "Τηλέφωνο · Κωνσταντινούπολη",
+        calc: {
+          label: "Υπολογιστής ναύλου",
+          title: "Εκτιμήστε ένα ταξίδι.",
+          text: "Λιμάνια, πλοίο και φορτίο — απόσταση, ημέρες στη θάλασσα και μια ενδεικτική εκτίμηση του ταξιδιού, πριν ρωτήσετε το γραφείο.",
+          cta: "Ο υπολογιστής (στα αγγλικά)",
+          estimate: "Εκτίμηση ταξιδιού",
+        },
       },
     },
   },
@@ -1094,6 +1127,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "Levende slutning etter arbeidstid?",
         dutyText: "WhatsApp vaktmegleren — {number}. Besvares kvelder og helger.",
         phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fraktkalkulator",
+          title: "Beregn en reise.",
+          text: "Havner, skip og last inn — distanse, dager i sjøen og et veiledende reiseestimat ut. En første pekepinn før du spør desken.",
+          cta: "Åpne kalkulatoren (engelsk)",
+          estimate: "Beregn en reise",
+        },
       },
     },
   },
@@ -1284,6 +1324,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "Aktiv befragtning uden for arbejdstid?",
         dutyText: "WhatsApp vagtmægleren — {number}. Besvares aftener og weekender.",
         phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fragtberegner",
+          title: "Beregn en rejse.",
+          text: "Havne, skib og last ind — distance, dage til søs og et vejledende rejseestimat ud. Et første bud, før du spørger desken.",
+          cta: "Åbn beregneren (engelsk)",
+          estimate: "Beregn en rejse",
+        },
       },
     },
   },
@@ -1485,6 +1532,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "Pågående avslut efter arbetstid?",
         dutyText: "WhatsApp jourmäklaren — {number}. Besvaras kvällar och helger.",
         phone: "Telefon · Istanbul",
+        calc: {
+          label: "Fraktkalkylator",
+          title: "Uppskatta en resa.",
+          text: "Hamnar, fartyg och last in — distans, dagar till sjöss och en vägledande reseuppskattning ut, innan du frågar desken.",
+          cta: "Öppna kalkylatorn (engelska)",
+          estimate: "Uppskatta en resa",
+        },
       },
     },
   },
@@ -1689,6 +1743,13 @@ export const LOCALES: Locale[] = [
         dutyText:
           "WhatsApp an den diensthabenden Makler — {number}. Abends und am Wochenende erreichbar.",
         phone: "Telefon · Istanbul",
+        calc: {
+          label: "Frachtrechner",
+          title: "Eine Reise abschätzen.",
+          text: "Häfen, Schiff und Ladung rein — Distanz, Seetage und eine unverbindliche Reiseschätzung raus, bevor Sie den Desk fragen.",
+          cta: "Zum Rechner (Englisch)",
+          estimate: "Reise schätzen",
+        },
       },
     },
   },
@@ -1890,6 +1951,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "¿Fijación en curso fuera de horario?",
         dutyText: "WhatsApp al corredor de guardia — {number}. Atiende tardes y fines de semana.",
         phone: "Teléfono · Estambul",
+        calc: {
+          label: "Calculadora de fletes",
+          title: "Estime un viaje.",
+          text: "Puertos, buque y carga: distancia, días de mar y una estimación orientativa del viaje, antes de consultar a la mesa.",
+          cta: "Abrir la calculadora (en inglés)",
+          estimate: "Estimar un viaje",
+        },
       },
     },
   },
@@ -2085,6 +2153,13 @@ export const LOCALES: Locale[] = [
         dutyTitle: "صفقة جارية خارج ساعات العمل؟",
         dutyText: "راسل الوسيط المناوب عبر واتساب — {number}. نرد في المساء وعطلات نهاية الأسبوع.",
         phone: "الهاتف · إسطنبول",
+        calc: {
+          label: "حاسبة أجرة الشحن",
+          title: "قدِّر رحلة بحرية.",
+          text: "أدخل الموانئ والسفينة والشحنة، واحصل على المسافة وأيام الإبحار وتقديرٍ استرشادي للرحلة قبل أن تسأل المكتب.",
+          cta: "افتح الحاسبة (بالإنجليزية)",
+          estimate: "قدِّر رحلة",
+        },
       },
     },
   },

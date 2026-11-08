@@ -23,17 +23,8 @@ import {
   BLOG_DESKS,
   BLOG_IMAGE_DIR,
   BLOG_IMAGE_PUBLIC_PATH,
-  DESK_CHIP_LABELS,
-  DESK_CHIP_SETS,
   E164_PATTERN,
-  FACT_ICON_LABELS,
-  FACT_ICONS,
   GLOSSARY_GROUP_KEYS,
-  HOME_HERO_PLATES,
-  HOME_LETTER_PLATES,
-  HOME_LIMITS,
-  HOME_PROCESS_PLATES,
-  INTERNAL_PATH_PATTERN,
   OFFICE_NAMES,
   SLUG_PATTERN,
   TANKER_FAMILIES,
@@ -41,6 +32,8 @@ import {
 } from "@/lib/content/options";
 import { stills, type StillKey } from "@/lib/media";
 import { GITHUB_REPO, keystaticStorageMode, type StorageMode } from "@/lib/content/storage";
+import { homeNavigation, homeSingletons } from "@/lib/content/keystatic-home";
+import { freightNavigation, freightSingletons } from "@/lib/content/keystatic-freight";
 
 /* ---------- shared field helpers ---------- */
 
@@ -543,260 +536,6 @@ export const blogComponents = {
   }),
 };
 
-/* ---------- homepage (content/home.json) ---------- */
-
-/** Text with a hard character limit (the counter in the admin enforces it). */
-const limited = (label: string, max: number, description?: string, multiline = false) =>
-  fields.text({
-    label,
-    description: description ? `${description} At most ${max} characters.` : `At most ${max} characters.`,
-    multiline,
-    validation: { isRequired: true, length: { min: 1, max } },
-  });
-
-const internalLink = (label: string, description = "A page of this site, e.g. /tankers or /blog/<slug>.") =>
-  fields.text({
-    label,
-    description,
-    validation: {
-      isRequired: true,
-      pattern: { regex: INTERNAL_PATH_PATTERN, message: "Start with /, lowercase, e.g. /lpg/vlgc." },
-    },
-  });
-
-const show = (what: string) =>
-  fields.checkbox({ label: `Show ${what}`, defaultValue: true });
-const rail = () =>
-  limited("Rail label", 24, "Waypoint name on the rail at the left edge (desktop).");
-const stillPicker = (label: string) =>
-  choice(label, Object.keys(stills) as StillKey[], "tankerBow", STILL_LABELS_HOME, "A graded still from the media library.");
-
-const STILL_LABELS_HOME: Record<StillKey, string> = Object.fromEntries(
-  (Object.keys(stills) as StillKey[]).map((k) => [k, stills[k].alt])
-) as Record<StillKey, string>;
-
-const PLATE_LABELS: Record<string, string> = {
-  "V-hero": "Tankers at anchor, high aerial (dawn grade)",
-  "V-gas": "Loaded tanker at anchor (day grade)",
-  "V-reel": "20 s reel: sea, port, Bosphorus, tanker (dusk grade)",
-  "V-strait": "Istanbul waterfront, Galata (day grade)",
-  "V-night": "Harbour at night (night grade)",
-  "V-ocean": "Dark sea surface (deep grade)",
-};
-
-const home = singleton({
-  label: "Homepage",
-  path: "content/home",
-  format: { data: "json" },
-  previewUrl: "/",
-  schema: {
-    hero: fields.object(
-      {
-        rail: rail(),
-        plate: choice("Footage", HOME_HERO_PLATES, "V-hero", PLATE_LABELS, "The video behind the headline."),
-        headline: limited(
-          "Headline (h1)",
-          HOME_LIMITS.heroHeadline,
-          "Sentence case, three lines at most: press Enter where a line should break.",
-          true
-        ),
-        accent: optionalLine("Accent word", "One word of the headline set in brass, e.g. Bosphorus."),
-        sub: limited("Sub line", 60, "Under the headline, after a short rule."),
-        lead: limited("Lead", 240, undefined, true),
-        inquiry: limited("Inquiry button", 28),
-        whatsapp: limited("WhatsApp button", 28),
-        scene: limited("Scene label", 36, "Small mono line bottom-right, e.g. Dawn · outbound."),
-      },
-      { label: "1 · Hero (Departure)" }
-    ),
-    who: fields.object(
-      {
-        show: show("Who we are"),
-        rail: rail(),
-        sub: line("Sub line"),
-        statement: limited("Statement (h2)", HOME_LIMITS.statement, "Fills word by word as the page scrolls.", true),
-        more: line("Link to /about"),
-        pin: limited("Pin label", 32, "Next to the sonar ping, after the coordinates."),
-        scene: limited("Scene label", 48),
-        facts: fields.array(
-          fields.object({
-            icon: choice("Icon", FACT_ICONS, "anchor", FACT_ICON_LABELS),
-            title: limited("Title", 40),
-            text: limited("Line", 120, undefined, true),
-            linkLabel: line("Link label"),
-            href: internalLink("Link"),
-          }),
-          {
-            label: "Facts (exactly four)",
-            itemLabel: (props) => props.fields.title.value || "New fact",
-            validation: { length: { min: 4, max: 4 } },
-          }
-        ),
-        badge: optionalLine(
-          "Compliance line",
-          "Optional line under the facts, linking to /compliance. Only claims already made on /compliance."
-        ),
-        badgeLink: optionalLine("Compliance link label"),
-      },
-      { label: "2 · Who we are (Local depth)" }
-    ),
-    desks: fields.object(
-      {
-        show: show("Desks & services"),
-        rail: rail(),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 40, "Enter for a line break.", true),
-        lead: limited("Lead", 220, undefined, true),
-        more: line("Link to How we work"),
-        rows: fields.array(
-          fields.object({
-            title: limited("Title (h3)", 40),
-            text: limited("Lead", HOME_LIMITS.rowLead, undefined, true),
-            linkLabel: line("Link label"),
-            href: internalLink("Link"),
-            chips: choice("Class chips", DESK_CHIP_SETS, "none", DESK_CHIP_LABELS),
-            still: stillPicker("Still"),
-            caption: limited("Still caption", 40),
-          }),
-          {
-            label: "Rows (exactly four)",
-            itemLabel: (props) => props.fields.title.value || "New row",
-            validation: { length: { min: 4, max: 4 } },
-          }
-        ),
-      },
-      { label: "3 · Desks & services" }
-    ),
-    ships: fields.object(
-      {
-        show: show("Ships we fix"),
-        rail: rail(),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 48),
-        tankers: limited("Tankers tab", 16),
-        gas: limited("Gas tab", 16),
-        classGuide: limited("Card link label", 24),
-      },
-      {
-        label: "4 · Ships we fix",
-        description: "The nine class cards come from Tanker classes and LPG classes.",
-      }
-    ),
-    process: fields.object(
-      {
-        show: show("How we work"),
-        rail: rail(),
-        plate: choice("Footage", HOME_PROCESS_PLATES, "V-reel", PLATE_LABELS),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 48),
-        steps: fields.array(
-          fields.object({ title: limited("Step", 20), text: limited("Line", 90, undefined, true) }),
-          {
-            label: "Steps (exactly four)",
-            itemLabel: (props) => props.fields.title.value || "New step",
-            validation: { length: { min: 4, max: 4 } },
-          }
-        ),
-      },
-      { label: "5 · How we work (showreel)" }
-    ),
-    reach: fields.object(
-      {
-        show: show("Reach"),
-        rail: rail(),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 40, "Enter for a line break.", true),
-        counters: fields.array(
-          fields.object({
-            value: fields.integer({
-              label: "Number",
-              description: "A plain, evergreen number (no prices, rates or indices).",
-              validation: { isRequired: true, min: 0, max: 9999 },
-            }),
-            caption: limited(
-              "Caption",
-              HOME_LIMITS.counterCaption,
-              "No currency symbols, rates or percentages."
-            ),
-          }),
-          {
-            label: "Counters (exactly four)",
-            itemLabel: (props) => `${props.fields.value.value ?? ""} ${props.fields.caption.value}`,
-            validation: { length: { min: 4, max: 4 } },
-          }
-        ),
-        lanes: fields.array(
-          fields.object({
-            code: limited("Route", HOME_LIMITS.laneCode, "Big text on the tile, e.g. MEG–China."),
-            lane: limited("Line", HOME_LIMITS.laneLine, "Small line, e.g. TD3C · VLCC."),
-            href: internalLink("Link", "The matching note or class guide."),
-            still: stillPicker("Still"),
-          }),
-          {
-            label: "Lanes (exactly six)",
-            itemLabel: (props) => props.fields.code.value || "New lane",
-            validation: { length: { min: 6, max: 6 } },
-          }
-        ),
-      },
-      {
-        label: "6 · Reach (counters, map, lanes)",
-        description: "Office clocks use the time zones in Site settings → Offices.",
-      }
-    ),
-    team: fields.object(
-      {
-        show: show("Team"),
-        rail: rail(),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 48, "Enter for a line break.", true),
-        lead: limited("Lead", 160, undefined, true),
-        more: line("Link to /brokers"),
-      },
-      { label: "7 · Team", description: "The cards come from Brokers." }
-    ),
-    notes: fields.object(
-      {
-        show: show("Notes and FAQ"),
-        rail: rail(),
-        sub: line("Sub line"),
-        headline: limited("Headline (h2)", 40),
-        count: fields.integer({
-          label: "Posts shown",
-          description: "Latest blog posts in the strip (1–6).",
-          defaultValue: 3,
-          validation: { isRequired: true, min: 1, max: 6 },
-        }),
-        faqHeadline: limited("FAQ headline (h2)", 48),
-        faqMore: line("FAQ link to /contact"),
-        faqCount: fields.integer({
-          label: "Questions shown",
-          description: "The first questions of FAQs → Homepage (0 hides the FAQ).",
-          defaultValue: 5,
-          validation: { isRequired: true, min: 0, max: 8 },
-        }),
-      },
-      { label: "8 · Notes from the desk + FAQ" }
-    ),
-    letter: fields.object(
-      {
-        show: show("the letter"),
-        rail: rail(),
-        plate: choice("Footage", HOME_LETTER_PLATES, "V-night", PLATE_LABELS),
-        label: limited("Letter label", 32),
-        headline: limited("Letter headline (h2)", 48),
-        line: limited("Letter line", 160, undefined, true),
-        sub: line("Contact sub line"),
-        inquiry: limited("Inquiry button", 28),
-      },
-      {
-        label: "9 · Contact (the letter)",
-        description: "Emails, desk lines and the duty line come from Site settings.",
-      }
-    ),
-  },
-});
-
 const STILL_LABELS: Record<StillKey, string> = Object.fromEntries(
   (Object.keys(stills) as StillKey[]).map((k) => [k, stills[k].alt])
 ) as Record<StillKey, string>;
@@ -959,7 +698,7 @@ const posts = collection({
 /* ---------- config ---------- */
 
 const singletons = {
-  home,
+  ...homeSingletons,
   site,
   brokers,
   faqs,
@@ -969,6 +708,7 @@ const singletons = {
   lpgCargoes,
   compliance,
   turkishStraits,
+  ...freightSingletons,
 };
 
 export function keystaticConfig(mode: StorageMode) {
@@ -977,7 +717,7 @@ export function keystaticConfig(mode: StorageMode) {
     ui: {
       brand: { name: "LEVANTER" },
       navigation: {
-        Pages: ["home"],
+        ...homeNavigation,
         Company: ["site", "brokers"],
         Blog: ["posts"],
         "Desks & reference": [
@@ -989,6 +729,7 @@ export function keystaticConfig(mode: StorageMode) {
           "compliance",
           "turkishStraits",
         ],
+        ...freightNavigation,
       },
     },
     singletons,

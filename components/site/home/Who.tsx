@@ -27,6 +27,7 @@ export function Who({
   total: number;
 }) {
   const { who } = view;
+  if (!who) return null;
   const hl = view.linkLang;
   return (
     <StageWindow

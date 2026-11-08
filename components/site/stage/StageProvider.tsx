@@ -14,12 +14,18 @@ const fetchPriorityProp = (v: "high" | "low" | "auto") =>
 
 function Poster({ poster, priority }: { poster: PlatePoster; priority: boolean }) {
   const sizes = "100vw";
+  // Media library posters are one file of unknown width: no `w` descriptors to guess.
+  const one = poster.avif === poster.webp;
   const landscapeAvif = poster.avifSmall
     ? `${poster.avifSmall} ${poster.smallWidth ?? 800}w, ${poster.avif} ${poster.width}w`
-    : `${poster.avif} ${poster.width}w`;
+    : one
+      ? poster.avif
+      : `${poster.avif} ${poster.width}w`;
   const landscapeWebp = poster.webpSmall
     ? `${poster.webpSmall} ${poster.smallWidth ?? 800}w, ${poster.webp} ${poster.width}w`
-    : `${poster.webp} ${poster.width}w`;
+    : one
+      ? poster.webp
+      : `${poster.webp} ${poster.width}w`;
   return (
     <picture>
       {poster.avifPortrait && (
@@ -28,8 +34,8 @@ function Poster({ poster, priority }: { poster: PlatePoster; priority: boolean }
       {poster.webpPortrait && (
         <source media="(max-aspect-ratio: 4/5)" type="image/webp" srcSet={poster.webpPortrait} />
       )}
-      <source type="image/avif" srcSet={landscapeAvif} sizes={sizes} />
-      <source type="image/webp" srcSet={landscapeWebp} sizes={sizes} />
+      {!one && <source type="image/avif" srcSet={landscapeAvif} sizes={sizes} />}
+      {!one && <source type="image/webp" srcSet={landscapeWebp} sizes={sizes} />}
       {/* eslint-disable-next-line @next/next/no-img-element -- art-directed <picture>, fixed layer */}
       <img
         src={poster.webp}
@@ -76,6 +82,17 @@ export function StageProvider({ plates, frame = true }: StageProviderProps) {
         const [fx, fy] = objectPosition(mirrorFocal(def.focal, def.flipX)).split(" ");
         const [px, py] = objectPosition(mirrorFocal(def.focalPhone, def.flipX)).split(" ");
         const style: Style = { "--fx": fx, "--fy": fy, "--fx-phone": px, "--fy-phone": py };
+        // Media library footage: what the runtime plays itself if WebGL cannot draw it
+        // (another site without CORS consent), and the grade it shows it through.
+        const media = def.video
+          ? {
+              "data-video": def.video.src,
+              ...(def.video.phone ? { "data-video-phone": def.video.phone } : {}),
+              ...(def.video.remote ? { "data-remote": "" } : {}),
+              ...(def.poster ? {} : { "data-no-poster": "" }),
+              ...(def.flipX ? { "data-flip": "" } : {}),
+            }
+          : {};
         return (
           <div
             key={id}
@@ -83,6 +100,8 @@ export function StageProvider({ plates, frame = true }: StageProviderProps) {
             data-stage-layer={id}
             data-kind={def.kind}
             data-state={id === first ? "a" : "off"}
+            data-grade={def.grade}
+            {...media}
             style={style}
           >
             {def.poster && <Poster poster={def.poster} priority={id === first} />}

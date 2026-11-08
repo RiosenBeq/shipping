@@ -7,6 +7,8 @@ import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { LOCALES, homeLanguages } from "@/lib/i18n";
 import { assertValidContent } from "@/lib/content/validate";
+import { FREIGHT_DATA } from "@/lib/content/freight";
+import { FREIGHT_PATH } from "@/lib/freight/constants";
 
 /** siteConfig.contentUpdated: bumped when content changes, not a fake "now" per build. */
 const CONTENT_UPDATED = new Date(siteConfig.contentUpdated);
@@ -53,10 +55,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       : [];
   });
   const blogLastmod = latest(blogPosts);
+  // The freight calculator changes when its reference prices do: the newest "as of" date.
+  const f = FREIGHT_DATA;
+  const freightUpdated = [f.fuels.vlsfo, f.fuels.mgo, f.fuels.hsfo, f.eua, f.eurUsd]
+    .map((d) => d.asOf)
+    .reduce((max, d) => (d > max ? d : max));
 
   const pages: MetadataRoute.Sitemap = PAGES.map((p) => ({
     url: url(p.path),
-    lastModified: p.path === "/blog" && blogLastmod ? lastmod(blogLastmod) : CONTENT_UPDATED,
+    lastModified:
+      p.path === "/blog" && blogLastmod
+        ? lastmod(blogLastmod)
+        : p.path === FREIGHT_PATH
+          ? lastmod(freightUpdated)
+          : CONTENT_UPDATED,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
     ...(p.path === "/" ? { alternates: { languages: homeAlternates } } : {}),

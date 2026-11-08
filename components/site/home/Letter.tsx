@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  PauseMotion,
-  StageAperture,
-  StageWindow,
-  calm,
-  type PlateId,
-} from "@/components/site/stage";
+import { PauseMotion, StageAperture, StageWindow, calm } from "@/components/site/stage";
 import { Arrow, BtnArrow, Stamp } from "./icons";
 import { OfficeClock } from "./OfficeClock";
 import type { HomeView } from "./types";
@@ -17,13 +11,14 @@ import type { HomeView } from "./types";
  * Right, "— Contact", the desk email, three desk lines, the after-hours duty
  * line and the inquiry button. Bottom: office clocks and Pause motion.
  */
-export function Letter({ view, id, plate }: { view: HomeView; id: string; plate: PlateId }) {
+export function Letter({ view, id }: { view: HomeView; id: string }) {
   const { letter } = view;
+  if (!letter) return null;
   const hl = view.linkLang;
   return (
     <StageWindow
       id={id}
-      plate={plate}
+      plate={letter.plate}
       className="h-letter"
       aria-labelledby="letter-title"
       data-snap=""

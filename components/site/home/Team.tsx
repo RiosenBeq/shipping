@@ -11,7 +11,7 @@ import type { HomeView } from "./types";
 
 /** A glass portrait card: photo or a navy portrait with brass initials, name, role, desk, two actions. */
 function Member({ broker, view }: { broker: Broker; view: HomeView }) {
-  const { team } = view;
+  const team = view.team!;
   const deskEmail =
     broker.team === "lpg" ? siteConfig.desks.lpg.email : siteConfig.desks.tankers.email;
   const first = broker.name.split(" ")[0];
@@ -60,6 +60,7 @@ function Member({ broker, view }: { broker: Broker; view: HomeView }) {
  */
 export function Team({ view, id }: { view: HomeView; id: string }) {
   const { team } = view;
+  if (!team) return null;
   return (
     <Card
       id={id}

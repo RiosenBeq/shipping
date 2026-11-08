@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ArrowRight, Check, Globe, Linkedin, X } from "lucide-react";
+import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { inquiryHrefFor } from "@/lib/inquiry";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
@@ -15,6 +16,7 @@ const LINKS = [
   { href: "/turkish-straits", label: "Turkish Straits" },
   { href: "/brokers", label: "Team" },
   { href: "/blog", label: "Blog" },
+  { href: FREIGHT_CALCULATOR_PATH, label: "Calculator" },
 ];
 const MENU_LINKS = [...LINKS, { href: "/contact", label: "Contact" }];
 

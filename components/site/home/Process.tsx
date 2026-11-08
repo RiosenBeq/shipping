@@ -1,4 +1,4 @@
-import { StageAperture, StageWindow, calm, type PlateId } from "@/components/site/stage";
+import { StageAperture, StageWindow, calm } from "@/components/site/stage";
 import type { HomeView } from "./types";
 
 type Style = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -14,12 +14,13 @@ type Style = React.CSSProperties & Record<`--${string}`, string | number>;
  * screen (HomeMotion). Phones: no pin; the card widens from 88% to full width
  * as it crosses the viewport, the steps follow as a vertical list on night.
  */
-export function Process({ view, id, plate }: { view: HomeView; id: string; plate: PlateId }) {
+export function Process({ view, id }: { view: HomeView; id: string }) {
   const { process } = view;
+  if (!process) return null;
   return (
     <StageWindow
       id={id}
-      plate={plate}
+      plate={process.plate}
       ground="light"
       className="h-process h-pinned"
       aria-labelledby="process-title"

@@ -32,8 +32,8 @@ const nextConfig = {
       { source: "/offices/:city", destination: "/contact", permanent: true },
       { source: "/brokers/:slug", destination: "/brokers", permanent: true },
       { source: "/gas", destination: "/lpg", permanent: true },
-      // Retired: needed live freight, bunker and tariff data to stay accurate.
-      { source: "/voyage-estimator", destination: "/tankers", permanent: true },
+      // The old voyage estimator lives on as the freight calculator.
+      { source: "/voyage-estimator", destination: "/freight-calculator", permanent: true },
       // Retired research notes: straight to the blog (no redirect chains).
       {
         source: "/research/aframax-5yearold-market-14-deals-3-themes",

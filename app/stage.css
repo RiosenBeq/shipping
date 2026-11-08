@@ -155,6 +155,60 @@
   background: linear-gradient(transparent, rgba(217, 176, 113, 0.35) 50%, transparent);
   will-change: transform;
 }
+/* Media library (lib/media.ts, content/media.json): posters the build did not grade carry
+   #lv-grade-<preset>; footage from another site that WebGL may not draw (no CORS consent)
+   plays in a plain <video> the runtime adds to the layer. Both go through the grade's SVG
+   filter (components/site/stage/GradeFilters.tsx), never raw. */
+.stage__layer img[src$="#lv-grade-dawn"],
+.stage__layer[data-grade="dawn"] > video {
+  filter: url(#lv-grade-dawn) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-day"],
+.stage__layer[data-grade="day"] > video {
+  filter: url(#lv-grade-day) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-dusk"],
+.stage__layer[data-grade="dusk"] > video {
+  filter: url(#lv-grade-dusk) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-night"],
+.stage__layer[data-grade="night"] > video {
+  filter: url(#lv-grade-night) brightness(calc(1 - var(--dim)));
+}
+.stage__layer img[src$="#lv-grade-deep"],
+.stage__layer[data-grade="deep"] > video {
+  filter: url(#lv-grade-deep) brightness(calc(1 - var(--dim)));
+}
+.stage__layer > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fx) var(--fy);
+  transform: scale(var(--zoom));
+  transform-origin: var(--fx) var(--fy);
+  opacity: 0;
+  transition: opacity 0.4s var(--stage-ease-tide);
+}
+.stage__layer > video[data-ready] {
+  opacity: 1;
+}
+.stage__layer[data-flip] > video {
+  object-position: calc(100% - var(--fx)) var(--fy);
+  transform: scale(var(--zoom)) scaleX(-1);
+}
+@media (max-aspect-ratio: 4/5) {
+  .stage__layer > video {
+    object-position: var(--fx-phone) var(--fy-phone);
+    transform-origin: var(--fx-phone) var(--fy-phone);
+  }
+}
+/* A new clip without a poster: the ground until its first frame arrives. */
+.stage__layer[data-no-poster] {
+  background: var(--stage-navy-deep);
+}
+
 /* Off-screen decoders for the compositor's <video> elements (never display:none:
    some browsers stop decoding hidden video). */
 .stage__decoders {

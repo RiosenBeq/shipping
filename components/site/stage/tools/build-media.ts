@@ -25,9 +25,10 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, statSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+// The shipped files (the Media library's uploads and links are graded live, not baked here).
 import {
-  stills,
-  videos,
+  shippedStills as stills,
+  shippedVideos as videos,
   type StillImage,
   type VideoLoop,
   type VideoSlot,

@@ -120,6 +120,14 @@ class and drive `inset` and `border-radius` from the window's `--stage-*` variab
 </StageWindow>
 ```
 
+**Reshaping without layout shift.** Changing `inset` with the scroll moves the box, which the
+browser counts as a layout shift (CLS). The homepage keeps the box still instead and grows a
+border in the ground colour (`border: <width> solid var(--ap-ground)`, outer radius = border +
+inner radius); the runtime draws the plate in the **opening inside the border** (box minus
+border widths, inner corner radius), so both techniques work (`.h-hero__ap`, `.h-process__ap`
+in `components/site/home/home.css`; a 4px outline in the ground colour hides the seam where the
+border meets the shadow).
+
 The lab's `lab-reel` scene is exactly this. Switch the window's `data-ground` to `"dark"`
 yourself once the aperture is full bleed if the header should turn glass-navy there (the
 stage follows attribute changes).
@@ -324,13 +332,12 @@ and a live debug readout. `?stage=0` / `?stage=1&stagetier=high` switch modes;
 
 - The painted voyage engine (`components/site/voyage/engine/`) is retired from the build
   (§3); it lives in git history (tag `voyage-painted-v1` to be set by the lead).
-- `components/site/voyage/` now only holds a **transitional adapter** for the legacy homepage
-  (`Journey.tsx`): `VoyageStage` maps its eight scenes onto windows (light scenes → `none` on
-  paper; process, offices, letter → `V-reel`, `V-strait`, `V-night`), `VoyageRail` is
-  `StageRail`. Delete the folder, and the "Homepage journey (legacy)" block of
-  `app/stage.css`, when the homepages move to these primitives.
-- The header should read `data-ground` (not `data-voyage-scene` / `data-tone`) from the
-  section under its centre line; windows and cards always carry it.
+- The transitional adapter (`components/site/voyage/`, `Journey.tsx`) and the "Homepage
+  journey (legacy)" block of `app/stage.css` are gone: the English and localized homepages
+  (`components/site/home/`) use these primitives directly, in the section order set in the
+  admin.
+- The header reads `data-ground` from the section under its centre line; windows and cards
+  always carry it.
 
 ## 11. Tests
 
@@ -338,3 +345,45 @@ and a live debug readout. `?stage=0` / `?stage=1&stagetier=high` switch modes;
 selection and falloff, tier picking and DPR caps and the fps governor, composition and
 cover-fit maths, preload scheduling and video file choice (with the hero weight budgets),
 rail progress, easings, class parameters and the 700 ms morph, and the lines-plan geometry.
+
+## 12. The Media library (content/media.json) and footage from other sites
+
+Editors replace footage and stills in `/keystatic` → Media → Media library (Turkish guide:
+`docs/CMS.md` §3.3). `lib/media.ts` applies the entries to the shipped manifest: `videos` and
+`stills` are what the site plays and shows; `shippedVideos` / `shippedStills` are the licensed
+files alone (the media pipeline and the budget tests use those). An empty entry changes
+nothing. Per plate (`PLATE_SLOTS`: V-hero → hero, V-gas → gas, V-reel → reel, V-strait →
+bosphorus, V-night → night, V-ocean → ocean): an upload under `public/media/uploads/` or an https
+link to a video file, an optional portrait file, a poster, the grade, focal points, flipX,
+horizon, credit and licence.
+
+- **Nothing raw.** A poster or still that the build did not grade (an upload, a link, or a
+  shipped item in another grade) carries `graded.css = <preset>` and a `#lv-grade-<preset>`
+  URL fragment. `<GradeFilters/>` (`components/site/stage/GradeFilters.tsx`, rendered once per
+  page by SiteShell) defines the five grades as SVG filters with the lens maths (exposure →
+  luma → tritone + brass split → chroma kept; within 0.02 of `gradeRgb`, tested), and CSS
+  applies them to every `img[src$="#lv-grade-…"]` and to the stage's fallback `<video>`. The
+  compositor grades such posters in the shader like video (`graded = 1`). A new clip without a
+  poster has none (the layer shows the ground, `data-no-poster`).
+- **Layers** of plates with Media library footage carry `data-video`, `data-video-phone`,
+  `data-remote` (absolute URL), `data-no-poster`, `data-flip` and `data-grade`.
+- **CORS.** WebGL may only upload a video from another origin as a texture if that origin
+  allows it, so every video loads with `crossOrigin="anonymous"` (a tainted texture would throw).
+  Before the compositor boots, the runtime fetches each remote video's headers in CORS mode
+  (`corsAllowed`, 6 s timeout, body aborted). If any is refused — or a video errors later in
+  the compositor (`onMediaError`: no consent, 404, codec) — the page goes to poster mode with
+  `data-stage-why="remote-media"` and the runtime plays Media library footage itself: a plain
+  `<video muted loop playsinline>` (no `crossOrigin`) in the plate's poster layer, through the
+  CSS grade, with the poster-mode calm zones, vignette, grain and tide clip. One decoder: only
+  the dominant plate plays; it pauses with Pause motion, a hidden tab or when no window is on
+  screen. If that fails too the element is dropped and the poster (or ground) stays — never a
+  black plate. Reduced motion holds a still frame.
+- **Grade "none"** (admin label "None — original colours (testing only)") shows a plate or
+  still in its own colours: `look.ungraded`, no `css` on its images, no `data-grade` on its
+  layer, `graded = 0` in the lens. For comparing other footage only; DESIGN-V2 §16 still holds
+  for the live site.
+- **Low tier** (reduced motion, `?stage=0`, no WebGL) shows a clip without a poster as its
+  first frame (`#t=0.1`, never played); not on save-data, slow networks or low memory.
+- The compositor takes a video's real size from `loadedmetadata` (Media library files are not
+  probed at build time).
+

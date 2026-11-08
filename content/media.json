@@ -1,0 +1,57 @@
+{
+  "plates": {
+    "V-hero": {
+      "grade": "dawn",
+      "flipX": "auto"
+    },
+    "V-gas": {
+      "grade": "day",
+      "flipX": "auto"
+    },
+    "V-reel": {
+      "grade": "dusk",
+      "flipX": "auto"
+    },
+    "V-strait": {
+      "grade": "day",
+      "flipX": "auto"
+    },
+    "V-night": {
+      "grade": "night",
+      "flipX": "auto"
+    },
+    "V-ocean": {
+      "grade": "deep",
+      "flipX": "auto"
+    }
+  },
+  "stills": {
+    "tankerBow": {
+      "grade": "day"
+    },
+    "tankerAtAnchor": {
+      "grade": "dusk"
+    },
+    "tankerFleet": {
+      "grade": "dawn"
+    },
+    "lpgDeck": {
+      "grade": "day"
+    },
+    "openSea": {
+      "grade": "day"
+    },
+    "wakeTopdown": {
+      "grade": "dawn"
+    },
+    "portDusk": {
+      "grade": "dusk"
+    },
+    "galata": {
+      "grade": "day"
+    },
+    "mosqueNight": {
+      "grade": "night"
+    }
+  }
+}

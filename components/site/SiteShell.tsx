@@ -10,6 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LOCALES } from "@/lib/i18n";
 import { proceduralStatics } from "@/lib/media";
 import { organizationLd, websiteLd } from "@/lib/seo";
+import { GradeFilters } from "./stage/GradeFilters";
 import { FloatingContact, type FabLocale } from "./FloatingContact";
 import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
@@ -121,6 +122,8 @@ export function SiteShell({
           Skip to content
         </a>
         <JsonLd data={[organizationLd(), websiteLd()]} />
+        {/* The five grades as SVG filters, for media the build did not grade (Media library). */}
+        <GradeFilters />
         <Nav languages={LANGUAGES} bathy={BATHY} />
         <main id="content">{children}</main>
         <Footer />

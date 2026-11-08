@@ -61,6 +61,11 @@ export function shareCards(): Record<string, ShareCard> {
       title: "Tanker & LPG chartering glossary, in plain English.",
       footer: "Freight · Vessels · Gas · Regulation · Contracts",
     },
+    "/freight-calculator": {
+      eyebrow: "Tool · Voyage estimate",
+      title: "Freight calculator: from ballast leg to TCE, breakeven and EU ETS.",
+      footer: "Tankers · LPG · Turkish Straits · Suez · Worldscale",
+    },
   };
   for (const t of TANKER_CLASSES) {
     cards[`/tankers/${t.slug}`] = {

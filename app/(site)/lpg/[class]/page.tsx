@@ -5,7 +5,8 @@ import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
 import { ClassGuide } from "@/components/site/inner/ClassGuide";
-import { BtnLabel } from "@/components/site/inner/ui";
+import { BtnLabel, LinkArrow } from "@/components/site/inner/ui";
+import { FREIGHT_PATH } from "@/lib/freight/constants";
 import { StageProvider, type ShipClassSlug } from "@/components/site/stage";
 import { getPost, toCard } from "@/lib/blog/posts";
 import type { PostCardData } from "@/lib/blog/meta";
@@ -125,6 +126,10 @@ export default function LpgClassPage({ params }: Params) {
               <Mail aria-hidden="true" />
               <span>Email the LPG desk</span>
             </a>
+            <Link href={`${FREIGHT_PATH}?class=${c.slug}`} className="lv-link">
+              <span>Estimate a voyage for this class</span>
+              <LinkArrow />
+            </Link>
           </>
         }
         facts={[

@@ -18,7 +18,7 @@ import {
   WebGLRenderer,
   WebGLRenderTarget,
 } from "three";
-import { videos } from "@/lib/media";
+import { videos, type GradePreset } from "@/lib/media";
 import { packCalm } from "../calm";
 import { coverFit, mirrorFocal } from "../compose";
 import { GRADES } from "../grades";
@@ -34,20 +34,31 @@ import { LinesPlate, raw } from "./lines";
 
 const RANK: Record<PreloadLevel, number> = { none: 0, metadata: 1, auto: 2 };
 
-/** One <video> per video plate on the page; only the dominant one ever plays. */
+/** True for an absolute URL (Media library links): WebGL needs that site's CORS consent. */
+const isRemote = (src: string) => /^https?:\/\//i.test(src);
+
+/**
+ * One <video> per video plate on the page; only the dominant one ever plays. Files come from
+ * lib/media.ts with the Media library applied, so a plate may play an upload or a link to a
+ * file on another site: those load with crossOrigin="anonymous" (a WebGL texture must not be
+ * tainted). If the file cannot be loaded that way (no CORS consent, 404, unsupported codec),
+ * `onError` tells the runtime, which hands the plate to a plain <video> under a CSS grade.
+ */
 class VideoSource {
   readonly el: HTMLVideoElement;
   readonly tex: VideoTexture;
   readonly file: NonNullable<ReturnType<typeof pickVideoFile>>;
   level: PreloadLevel = "none";
   ready = false;
+  failed = false;
   private wantPlay = false;
 
   constructor(
     readonly plate: VideoPlateId,
     tier: StageTier,
     host: HTMLElement,
-    private readonly onFrame: () => void
+    private readonly onFrame: () => void,
+    onError: (plate: VideoPlateId) => void
   ) {
     const v = videos[PLATES[plate].slot!];
     this.file = pickVideoFile(v, tier, {
@@ -87,6 +98,19 @@ class VideoSource {
     };
     el.addEventListener("loadeddata", mark);
     el.addEventListener("seeked", mark);
+    // The real frame size (Media library files are not probed at build time).
+    el.addEventListener("loadedmetadata", () => {
+      if (el.videoWidth > 0 && el.videoHeight > 0) {
+        this.file.width = el.videoWidth;
+        this.file.height = el.videoHeight;
+      }
+    });
+    el.addEventListener("error", () => {
+      if (this.failed || !el.getAttribute("src")) return;
+      this.failed = true;
+      this.wantPlay = false;
+      onError(plate);
+    });
     if ("requestVideoFrameCallback" in el) el.requestVideoFrameCallback(() => mark());
     // Autoplay can be refused (iOS low power): the still first frame is still drawn.
     el.addEventListener("pause", () => {
@@ -95,7 +119,7 @@ class VideoSource {
   }
 
   setLevel(l: PreloadLevel) {
-    if (RANK[l] <= RANK[this.level]) return;
+    if (this.failed || RANK[l] <= RANK[this.level]) return;
     this.level = l;
     this.el.preload = l;
     if (!this.el.src) this.el.src = this.file.src;
@@ -103,6 +127,7 @@ class VideoSource {
   }
 
   play() {
+    if (this.failed) return;
     this.setLevel("auto");
     this.wantPlay = true;
     if (this.el.paused) void this.el.play().catch(() => undefined);
@@ -174,7 +199,7 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
   const sources = new Map<VideoPlateId, VideoSource>();
   const posters = new Map<
     PlateId,
-    { tex: Texture; aspect: number; portrait: boolean } | "loading"
+    { tex: Texture; aspect: number; portrait: boolean } | "loading" | "failed"
   >();
   let levels = new Map<PlateId, PreloadLevel>();
 
@@ -200,7 +225,13 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
   function source(p: VideoPlateId) {
     let s = sources.get(p);
     if (!s) {
-      s = new VideoSource(p, tier, host, () => requestRender());
+      s = new VideoSource(
+        p,
+        tier,
+        host,
+        () => requestRender(),
+        (plate) => o.onMediaError?.(plate)
+      );
       sources.set(p, s);
     }
     return s;
@@ -208,6 +239,7 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
 
   function poster(p: PlateId) {
     const cur = posters.get(p);
+    if (cur === "failed") return null;
     if (cur && cur !== "loading") return cur;
     const def = PLATES[p];
     if (cur === "loading" || !def.poster) return null;
@@ -215,7 +247,11 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
     const portrait = portraitScreen() && !!def.poster.webpPortrait;
     const img = new Image();
     img.decoding = "async";
-    img.src = portrait ? def.poster.webpPortrait! : def.poster.webp;
+    const src = portrait ? def.poster.webpPortrait! : def.poster.webp;
+    // A poster on another site may only become a texture with that site's CORS consent.
+    if (isRemote(src)) img.crossOrigin = "anonymous";
+    img.onerror = () => posters.set(p, "failed");
+    img.src = src;
     img.onload = () => {
       if (disposed) return;
       const tex = new Texture(img);
@@ -249,6 +285,22 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
     return [x * d, (size.h - (y + h)) * d, w * d, h * d] as const;
   }
 
+  function setGrade(u: LayerUniform, preset: GradePreset, levels: readonly [number, number]) {
+    const g = GRADES[preset];
+    const e = u.tone.elements;
+    e[0] = g.shadow[0];
+    e[1] = g.shadow[1];
+    e[2] = g.shadow[2];
+    e[3] = g.mid[0];
+    e[4] = g.mid[1];
+    e[5] = g.mid[2];
+    e[6] = g.highlight[0];
+    e[7] = g.highlight[1];
+    e[8] = g.highlight[2];
+    u.sce.set(g.split, g.chroma, g.exposure);
+    u.levels.set(levels[0], levels[1]);
+  }
+
   function applyLayer(u: LayerUniform, s: LayerState, texKey: "uTexA" | "uTexB") {
     const def = PLATES[s.plate];
     const rect = s.aperture ?? { x: 0, y: 0, w: size.w, h: size.h, r: 0 };
@@ -274,21 +326,12 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
         aspect = src.file.width / src.file.height;
         // `s.focal` is already in the mirrored frame when the plate is flipX.
         if (src.file.portrait) focal = mirrorFocal(def.focalPhone, def.flipX);
-        u.graded = 1;
         u.flipX = def.flipX ? 1 : 0;
-        const g = GRADES[v.look.grade];
-        const e = u.tone.elements;
-        e[0] = g.shadow[0];
-        e[1] = g.shadow[1];
-        e[2] = g.shadow[2];
-        e[3] = g.mid[0];
-        e[4] = g.mid[1];
-        e[5] = g.mid[2];
-        e[6] = g.highlight[0];
-        e[7] = g.highlight[1];
-        e[8] = g.highlight[2];
-        u.sce.set(g.split, g.chroma, g.exposure);
-        u.levels.set(v.look.levels[0], v.look.levels[1]);
+        // Media library "none" (testing other clips): the footage in its own colours.
+        if (!v.look.ungraded) {
+          u.graded = 1;
+          setGrade(u, v.look.grade, v.look.levels);
+        }
       } else {
         const p = poster(s.plate);
         if (p) {
@@ -296,6 +339,12 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
           aspect = p.aspect;
           // Graded posters of flipX clips are already mirrored, like `s.focal`.
           if (p.portrait) focal = mirrorFocal(def.focalPhone, def.flipX);
+          // A poster the build did not grade (Media library): grade it here like the video.
+          const css = def.poster?.css;
+          if (css) {
+            u.graded = 1;
+            setGrade(u, css, [0, 1]);
+          }
         }
       }
     } else if (s.plate === "P-bathy") {
@@ -558,7 +607,7 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
       canvas.removeEventListener("webglcontextlost", onLost);
       canvas.removeEventListener("webglcontextrestored", onRestored);
       sources.forEach((s) => s.dispose());
-      posters.forEach((p) => p !== "loading" && p.tex.dispose());
+      posters.forEach((p) => typeof p === "object" && p.tex.dispose());
       host.remove();
       flow?.dispose();
       lines.dispose();
