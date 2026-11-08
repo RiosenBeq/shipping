@@ -32,6 +32,8 @@ export const siteConfig = {
   geo: data.geo,
   offices: data.offices,
   hours: data.hours,
+  /** After-hours duty line: title, WhatsApp (E.164), number as displayed, when it is answered. */
+  duty: data.duty,
   socials: data.socials,
   themeColor: "#0A1F33",
   brassColor: "#B8893A",
@@ -41,5 +43,9 @@ export type SiteConfig = typeof siteConfig;
 
 export const whatsappUrl = (text = "Hi LEVANTER desk — I'd like to discuss a fixture.") =>
   `https://wa.me/${siteConfig.whatsapp.replace(/\+/g, "")}?text=${encodeURIComponent(text)}`;
+
+/** wa.me link to the after-hours duty broker. */
+export const dutyWhatsappUrl = (text = "Hi LEVANTER duty broker — live fixture: ") =>
+  `https://wa.me/${siteConfig.duty.whatsapp.replace(/\+/g, "")}?text=${encodeURIComponent(text)}`;
 
 export const telUrl = (phone: string = siteConfig.phone) => `tel:${phone.replace(/\s+/g, "")}`;

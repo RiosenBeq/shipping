@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { PageHeader } from "@/components/site/PageHeader";
-import { Eyebrow, Section } from "@/components/site/Section";
-import { ReportCard } from "@/components/site/ReportCard";
+import { StageHero } from "@/components/site/PageHeader";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
+import { NotesStrip } from "@/components/site/blog/NotesStrip";
+import { Toc, TocMobile } from "@/components/site/inner/Toc";
+import { BtnLabel, LinkArrow, StillFigure, Sub } from "@/components/site/inner/ui";
+import { Card, StageProvider } from "@/components/site/stage";
 import { getBroker } from "@/lib/data/brokers";
-import { getReportBySlug, type Report } from "@/lib/data/research";
+import { getPost, toCard } from "@/lib/blog/posts";
+import { BLOG_PATH } from "@/lib/blog/meta";
 import {
   STRAITS_FACTS,
   STRAITS_FAQ,
@@ -49,8 +52,9 @@ const RELATED = [
   "suezmax-tightness-sustains-as-cpc-volumes-rebound",
   "laytime-and-demurrage-a-practical-guide-for-tanker-and-lpg-charters",
 ]
-  .map(getReportBySlug)
-  .filter((r): r is Report => Boolean(r));
+  .map((slug) => getPost(slug))
+  .filter((p): p is NonNullable<typeof p> => Boolean(p))
+  .map(toCard);
 
 const AUTHOR = getBroker("Mehmet Aydın");
 
@@ -69,9 +73,21 @@ const STRAITS_PLACES = [
   },
 ];
 
+const TOC = [
+  ...STRAITS_SECTIONS.map((s) => ({ id: s.id, label: s.title })),
+  { id: "faq", label: "Questions and answers" },
+];
+
+const UPDATED = new Date(STRAITS_UPDATED).toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 export default function TurkishStraitsPage() {
   return (
-    <>
+    <div className="ip-page">
       <JsonLd
         data={[
           webPageLd({
@@ -95,134 +111,159 @@ export default function TurkishStraitsPage() {
           }),
         ]}
       />
+      <StageProvider plates={["V-strait", "V-ocean"]} />
 
-      <PageHeader
-        tone="dark"
-        eyebrow="Guide · Bosphorus & Dardanelles"
+      <StageHero
+        plate="V-strait"
+        crumbs={[{ name: "Turkish Straits guide", path: PATH }]}
+        sub="Guide · Bosphorus & Dardanelles"
+        long
+        bright
         title="Turkish Straits transit guide for tanker and LPG charterers."
         lead="What the rules, the weather and the queue mean for a Black Sea fixture, and how to price the transit before you fix. Written by the brokers who work from the Bosphorus."
-        crumbs={[{ name: "Turkish Straits guide", path: PATH }]}
-        aside={
-          <div className="uv-card uv-card--dark !gap-0 !p-6 md:!p-8">
-            <Eyebrow dark size="sm">
-              At a glance
-            </Eyebrow>
-            <dl className="mt-5 divide-y divide-white/10 border-y border-white/10">
-              {STRAITS_FACTS.map((f) => (
-                <div key={f.k} className="grid gap-1 py-3 text-sm sm:grid-cols-[8rem_1fr] sm:gap-4">
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-fog">
-                    {f.k}
-                  </dt>
-                  <dd className="leading-relaxed text-white">{f.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+        actions={
+          <>
+            <Link href={inquiryHref({ segment: "crude" })} className="lv-btn lv-btn--cta">
+              <BtnLabel>Price a Black Sea voyage</BtnLabel>
+            </Link>
+            <a
+              href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent("Turkish Straits question")}`}
+              className="lv-btn lv-btn--ghost"
+            >
+              <Mail aria-hidden="true" />
+              <span>Ask the Istanbul desk</span>
+            </a>
+          </>
         }
-      >
-        <Link
-          href={inquiryHref({ segment: "crude" })}
-          className="uv-btn uv-btn--lg w-full sm:w-auto"
-        >
-          Price a Black Sea voyage <ArrowRight aria-hidden="true" />
-        </Link>
-        <a
-          href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent("Turkish Straits question")}`}
-          className="uv-btn-ghost-light uv-btn--lg w-full sm:w-auto"
-        >
-          <Mail aria-hidden="true" />
-          <span>Ask the Istanbul desk</span>
-        </a>
-      </PageHeader>
+        meta={{ label: "The Bosphorus", coords: "41°07′N 029°04′E" }}
+      />
 
-      <section className="py-12 md:py-16">
-        <div className="container grid gap-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16">
-          <article className="lv-prose">
-            {AUTHOR && (
-              <p className="!mb-10 border-b border-line pb-6 text-sm text-slate">
-                By <span className="font-semibold text-navy">{AUTHOR.name}</span>, {AUTHOR.title} ·{" "}
-                {AUTHOR.office} · Updated{" "}
-                <time dateTime={STRAITS_UPDATED} className="font-mono text-xs">
-                  {new Date(STRAITS_UPDATED).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    timeZone: "UTC",
-                  })}
-                </time>
-              </p>
-            )}
-            {STRAITS_SECTIONS.map((s) => (
-              <div key={s.id}>
-                <h2 id={s.id} className="scroll-mt-28">
-                  {s.title}
-                </h2>
-                {s.body.map((p) => (
-                  <p key={p.slice(0, 40)}>{p}</p>
-                ))}
-                {s.list && (
-                  <ul>
-                    {s.list.map((item) => (
-                      <li key={item.slice(0, 40)}>{item}</li>
-                    ))}
-                  </ul>
-                )}
+      <Card ground="paper" id="guide" aria-label="Transit guide" className="ip-card">
+        <div className="ip-wrap">
+          <Sub>At a glance</Sub>
+          <dl className="ip-facts ip-facts--3 ip-reveal">
+            {STRAITS_FACTS.map((f, i) => (
+              <div key={f.k}>
+                <dt>
+                  <span className="t-label">{f.k}</span>
+                  <span className="t-data" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </dt>
+                <dd>{f.v}</dd>
               </div>
             ))}
-            <p className="text-sm text-slate">
-              This guide summarises how transits work in practice. It is not legal advice; the
-              current regulations, VTS instructions and the ship&apos;s agent are the authority for
-              any specific transit.
-            </p>
-          </article>
+          </dl>
 
-          {/* On-page contents: jump links for readers and search results. */}
-          <nav aria-labelledby="toc-title" className="lg:sticky lg:top-24 lg:self-start">
-            <div className="uv-card !gap-0 !p-6">
-              <Eyebrow as="h2" size="sm" id="toc-title">
-                On this page
-              </Eyebrow>
-              <ol className="mt-4 space-y-2.5 text-[15px]">
-                {STRAITS_SECTIONS.map((s) => (
-                  <li key={s.id}>
-                    <a href={`#${s.id}`} className="uv-link text-navy">
-                      {s.title}
-                    </a>
-                  </li>
+          <div className="ip-article mt-[clamp(56px,7vw,96px)]">
+            {/* On-page contents: jump links for readers and search results. */}
+            <Toc items={TOC} articleId="straits-guide" />
+
+            <article id="straits-guide" aria-labelledby="page-title">
+              <TocMobile items={TOC} />
+              {AUTHOR && (
+                <p className="ip-byline">
+                  <span>
+                    By <b>{AUTHOR.name}</b>, {AUTHOR.title} · {AUTHOR.office}
+                  </span>
+                  <span>
+                    Updated{" "}
+                    <time dateTime={STRAITS_UPDATED} className="t-data">
+                      {UPDATED}
+                    </time>
+                  </span>
+                </p>
+              )}
+              <div className="ip-prose">
+                {STRAITS_SECTIONS.map((s, i) => (
+                  <div key={s.id}>
+                    <h2 id={s.id}>{s.title}</h2>
+                    {s.body.map((para) => (
+                      <p key={para.slice(0, 40)}>{para}</p>
+                    ))}
+                    {s.list && (
+                      <ul>
+                        {s.list.map((item) => (
+                          <li key={item.slice(0, 40)}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {i === 1 && (
+                      <StillFigure
+                        still="galata"
+                        caption="Karaköy and the Galata Tower, Istanbul"
+                        className="my-10"
+                      />
+                    )}
+                  </div>
                 ))}
-                <li>
-                  <a href="#faq" className="uv-link text-navy">
-                    Questions and answers
-                  </a>
-                </li>
-              </ol>
-            </div>
-          </nav>
-        </div>
-      </section>
+              </div>
+              <p className="ip-fineprint">
+                This guide summarises how transits work in practice. It is not legal advice; the
+                current regulations, VTS instructions and the ship&apos;s agent are the authority
+                for any specific transit.
+              </p>
+            </article>
 
-      <Section id="faq" tone="sand" eyebrow="FAQ" title="Turkish Straits questions.">
-        <Faq items={STRAITS_FAQ} onSand />
-      </Section>
+            <aside
+              className="ip-article__aside ip-article__aside--sticky"
+              aria-label="Talk to the desk"
+            >
+              <div className="ip-panel">
+                <p className="t-label acc">Fixing through the Straits</p>
+                <p className="mt-3 text-[15px] leading-relaxed text-slate">
+                  We price transit time, waiting and dues into every Black Sea estimate we send.
+                </p>
+                <Link
+                  href={inquiryHref({ segment: "crude" })}
+                  className="lv-btn lv-btn--ink lv-btn--sm lv-btn--block mt-5"
+                >
+                  <BtnLabel>Price a voyage</BtnLabel>
+                </Link>
+                <a
+                  href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent("Turkish Straits question")}`}
+                  className="lv-link mt-4"
+                >
+                  <span>Ask the Istanbul desk</span>
+                  <LinkArrow />
+                </a>
+              </div>
+            </aside>
+          </div>
+
+          <section id="faq" aria-labelledby="faq-title" className="ip-block">
+            <div className="ip-faq-block">
+              <div className="ip-faq-block__head">
+                <div>
+                  <Sub>FAQ</Sub>
+                  <h2 id="faq-title" className="ip-h2">
+                    Turkish Straits questions.
+                  </h2>
+                </div>
+                <Link href={inquiryHref({ segment: "crude" })} className="lv-link">
+                  <span>Ask the desk</span>
+                  <LinkArrow />
+                </Link>
+              </div>
+              <Faq items={STRAITS_FAQ} />
+            </div>
+          </section>
+        </div>
+      </Card>
 
       {RELATED.length > 0 && (
-        <Section
-          eyebrow="Research"
-          title="Black Sea notes from the desks."
-          action={
-            <Link href="/research" className="uv-btn-outline">
-              All research <ArrowRight aria-hidden="true" />
-            </Link>
-          }
-        >
-          <ul className="grid gap-5 md:grid-cols-3">
-            {RELATED.map((r) => (
-              <li key={r.slug}>
-                <ReportCard report={r} />
-              </li>
-            ))}
-          </ul>
-        </Section>
+        <Card ground="paper" id="research" aria-label="Research" className="ip-card">
+          <div className="ip-wrap">
+            <NotesStrip
+              posts={RELATED}
+              id="notes"
+              sub="Research"
+              title="Black Sea notes from the desks."
+              allHref={BLOG_PATH}
+              allLabel="All posts"
+            />
+          </div>
+        </Card>
       )}
 
       <CtaBand
@@ -230,6 +271,6 @@ export default function TurkishStraitsPage() {
         text="Send the cargo, ports and laycan. We will come back with ships, a freight idea and the transit time we have assumed, within 60 minutes during business hours."
         email={siteConfig.desks.tankers.email}
       />
-    </>
+    </div>
   );
 }

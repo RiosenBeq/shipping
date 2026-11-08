@@ -3,14 +3,21 @@
 import { useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, LifeBuoy, RotateCcw } from "lucide-react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { siteConfig } from "@/lib/site";
-import { LightGraticule } from "./LightGraticule";
-import { Eyebrow } from "./Section";
+
+/** The P-bathy static (lib/media.ts proceduralStatics.bathy), inlined: this is a client view. */
+const BATHY = {
+  avif: "/media/stage/bathy-1920.avif",
+  webp: "/media/stage/bathy-1920.webp",
+  avifPortrait: "/media/stage/bathy-portrait.avif",
+  webpPortrait: "/media/stage/bathy-portrait.webp",
+};
 
 /**
  * Segment error UI shared by both root layouts (English copy, so it marks
- * itself lang="en"/ltr inside localized pages).
+ * itself lang="en"/ltr inside localized pages): a night masthead over the
+ * static contours, the way back and the live-fixture line.
  */
 export function ErrorView({
   error,
@@ -43,66 +50,61 @@ export function ErrorView({
     <section
       lang="en"
       dir="ltr"
-      className="relative isolate border-b border-line bg-sand"
+      data-ground="dark"
+      data-header-overlay=""
+      className="ip-mast ip-mast--full"
       aria-labelledby="error-title"
     >
-      <LightGraticule />
-      <div className="container relative z-[1] py-20 md:py-28">
-        <span
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-brass/60 bg-white text-brass-ink shadow-[0_0_0_6px_rgba(184,137,58,0.08)]"
-          aria-hidden="true"
-        >
-          <LifeBuoy className="h-6 w-6" />
-        </span>
-        <Eyebrow className="mt-8">Error</Eyebrow>
-        <h1
-          id="error-title"
-          className="mt-4 max-w-2xl font-display text-[38px] leading-[1.08] tracking-tight text-navy sm:text-5xl"
-        >
+      <picture className="ip-mast__art">
+        <source media="(max-aspect-ratio: 4/5)" type="image/avif" srcSet={BATHY.avifPortrait} />
+        <source media="(max-aspect-ratio: 4/5)" type="image/webp" srcSet={BATHY.webpPortrait} />
+        <source type="image/avif" srcSet={BATHY.avif} />
+        {/* eslint-disable-next-line @next/next/no-img-element -- decorative static plate */}
+        <img src={BATHY.webp} alt="" width={1920} height={1200} decoding="async" />
+      </picture>
+      <div className="lv-glow lv-glow--brass" aria-hidden="true" />
+      <div className="ip-wrap">
+        <p className="t-sub ip-sub">Error</p>
+        <h1 id="error-title" className="t-display max-w-[11em]">
           Something went wrong
         </h1>
-        <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-slate">
+        <p className="t-lead !mt-7 max-w-[36em]">
           This page didn&apos;t load properly. Try again, or go back to the home page. If it keeps
           happening, please let us know.
         </p>
         {error.digest && (
-          <p className="mt-4 text-sm text-slate">
-            Reference{" "}
-            <code className="select-all rounded border border-line bg-white px-2 py-0.5 font-mono text-[13px] text-navy">
-              {error.digest}
-            </code>
+          <p className="t-data !mt-4">
+            Reference <code className="select-all text-sand">{error.digest}</code>
           </p>
         )}
 
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="ip-actions ip-actions--stack mt-9">
           <button
             type="button"
             onClick={retry}
-            className="uv-btn uv-btn--lg"
+            className="lv-btn lv-btn--cta"
             aria-busy={retrying || undefined}
           >
-            {retrying ? (
-              <span className="uv-loader uv-loader--sm" aria-hidden="true" />
-            ) : (
-              <RotateCcw aria-hidden="true" />
-            )}
             <span>{retrying ? "Retrying…" : "Try again"}</span>
+            <span className="lv-btn__arrow" aria-hidden="true">
+              {retrying ? <span className="uv-loader uv-loader--sm" /> : <RotateCcw />}
+            </span>
           </button>
-          <Link href="/" className="uv-btn-outline uv-btn--lg">
+          <Link href="/" className="lv-btn lv-btn--ghost gap-2.5">
             Back to home
-            <ArrowRight aria-hidden="true" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
 
-        <p className="mt-10 text-sm text-slate">
+        <p className="mt-10 max-w-[40em] text-[15px] leading-relaxed text-mist">
           Working a live fixture? Email{" "}
-          <a href={reportHref} className="uv-link font-semibold text-navy">
+          <a href={reportHref} className="font-semibold text-sand underline underline-offset-4">
             {siteConfig.email}
           </a>{" "}
           or call{" "}
           <a
             href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
-            className="uv-link font-semibold text-navy"
+            className="font-semibold text-sand underline underline-offset-4"
           >
             {siteConfig.phone}
           </a>

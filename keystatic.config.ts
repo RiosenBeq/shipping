@@ -1,27 +1,45 @@
 /**
  * Keystatic admin (/keystatic): every editable list on the site, stored as
- * JSON singletons in content/. lib/site.ts and lib/data/* import those files
- * statically, so pages, client components, the RSS feed, llms.txt and JSON-LD
- * read the same data with no runtime file access.
+ * JSON singletons in content/, plus the blog: the `posts` collection, one
+ * Markdoc file per post in content/blog/ (frontmatter + body). lib/site.ts and
+ * lib/data/* import the JSON files statically, so pages, client components,
+ * llms.txt and JSON-LD read the same data with no runtime file access; the
+ * posts are read once at build time by lib/blog/posts.ts.
  *
  * Field order here is the key order Keystatic writes. Empty text fields are
  * left out of the JSON; the loaders treat a missing key as empty. The zod
  * schemas in lib/content/schemas.ts check the files at test and build time.
  * How to use it: docs/CMS.md.
  */
-import { config, fields, singleton } from "@keystatic/core";
+import { collection, config, fields, singleton } from "@keystatic/core";
+import { block, wrapper } from "@keystatic/core/content-components";
+import brokersFile from "@/content/brokers.json";
 import {
   ARTICLES,
   AVATAR_KINDS,
+  BLOG_CATEGORIES,
+  BLOG_CATEGORY_LABELS,
+  BLOG_DESK_LABELS,
+  BLOG_DESKS,
+  BLOG_IMAGE_DIR,
+  BLOG_IMAGE_PUBLIC_PATH,
+  DESK_CHIP_LABELS,
+  DESK_CHIP_SETS,
   E164_PATTERN,
+  FACT_ICON_LABELS,
+  FACT_ICONS,
   GLOSSARY_GROUP_KEYS,
+  HOME_HERO_PLATES,
+  HOME_LETTER_PLATES,
+  HOME_LIMITS,
+  HOME_PROCESS_PLATES,
+  INTERNAL_PATH_PATTERN,
   OFFICE_NAMES,
-  REPORT_CATEGORIES,
-  REPORT_DESKS,
   SLUG_PATTERN,
   TANKER_FAMILIES,
   TEAM_KEYS,
 } from "@/lib/content/options";
+import { stills, type StillKey } from "@/lib/media";
 import { GITHUB_REPO, keystaticStorageMode, type StorageMode } from "@/lib/content/storage";
 
 /* ---------- shared field helpers ---------- */
@@ -150,6 +168,26 @@ const site = singleton({
     }),
     whatsappDisplay: line("WhatsApp number (as displayed)", "e.g. +90 533 000 0000"),
     hours: para("Office hours"),
+    duty: fields.object(
+      {
+        label: line("Title", "e.g. Live fixture after hours?"),
+        whatsapp: fields.text({
+          label: "Duty WhatsApp (E.164)",
+          description: "No spaces, e.g. +905330000000.",
+          validation: {
+            isRequired: true,
+            pattern: { regex: E164_PATTERN, message: "Use + and digits only, e.g. +905330000000." },
+          },
+        }),
+        display: line("Number as displayed", "e.g. +90 533 000 0000"),
+        hours: line("When it is answered", "e.g. Answered evenings and weekends."),
+      },
+      {
+        label: "After-hours duty line",
+        description: "The duty broker box in the homepage letter scene and on /contact.",
+        layout: [12, 6, 6, 12],
+      }
+    ),
     desks: fields.object(
       {
         tankers: fields.object(
@@ -185,8 +223,21 @@ const site = singleton({
     ),
     offices: fields.array(
       fields.object(
-        { city: line("City"), country: line("Country"), role: line("Role") },
-        { layout: [4, 4, 4] }
+        {
+          city: line("City"),
+          country: line("Country"),
+          role: line("Role"),
+          timeZone: fields.text({
+            label: "Time zone",
+            description:
+              "IANA name for the office clock, e.g. Europe/Istanbul, Europe/London, Asia/Singapore.",
+            validation: {
+              isRequired: true,
+              pattern: { regex: /^[A-Za-z_]+\/[A-Za-z_/]+$/, message: "e.g. Europe/Istanbul" },
+            },
+          }),
+        },
+        { layout: [3, 3, 3, 3] }
       ),
       {
         label: "Offices",
@@ -255,119 +306,6 @@ const brokers = singleton({
     teamLabels: fields.object(
       { lpg: line("LPG"), crude: line("Crude"), clean: line("Clean") },
       { label: "Desk names", description: "Headings on /brokers and labels on broker cards." }
-    ),
-  },
-});
-
-const research = singleton({
-  label: "Research notes",
-  path: "content/research",
-  format: { data: "json" },
-  schema: {
-    notes: fields.array(
-      fields.object({
-        slug: slugField(
-          "URL slug",
-          "The note's address: /research/<slug>. Do not change it once published."
-        ),
-        title: line("Title"),
-        seoTitle: optionalLine(
-          "Search title",
-          "Optional shorter <title> for search results when the title runs past ~60 characters."
-        ),
-        desc: fields.text({
-          label: "Summary (meta description)",
-          description: "One or two sentences, at most 160 characters.",
-          multiline: true,
-          validation: { isRequired: true, length: { max: 160 } },
-        }),
-        desk: choice("Desk", REPORT_DESKS, "tankers", { tankers: "Tankers", lpg: "LPG & ammonia" }),
-        cat: choice("Category (filter)", REPORT_CATEGORIES, "guide", {
-          weekly: "Weekly outlook",
-          route: "Route guide",
-          reg: "Regulatory / risk",
-          guide: "Guide",
-        }),
-        catLabel: line("Category label", "As printed on the card, e.g. Route Guide, Risk Brief."),
-        iss: line("Issue", "e.g. OCTOBER 2026, 18 / 2026, Q2 2026, BRIEF."),
-        date: fields.date({ label: "Published", validation: required }),
-        updated: fields.date({
-          label: "Last material revision",
-          description: "Optional. Feeds dateModified and the sitemap.",
-        }),
-        author: line("Author", "A broker's name exactly as on the Brokers list."),
-        read: fields.integer({
-          label: "Reading time (minutes)",
-          validation: { isRequired: true, min: 1 },
-        }),
-        gated: fields.checkbox({
-          label: "Gated",
-          description: "Shows only the gated summary below; the full report is sent on request.",
-        }),
-        label: line("Card tags", "e.g. CRUDE · TD20 / TD6"),
-        dek: para("Dek", "One sentence under the title on the note page."),
-        summary: fields.text({
-          label: "Gated summary",
-          description: "Shown instead of the full text when the note is gated.",
-          multiline: true,
-        }),
-        blocks: fields.blocks(
-          {
-            p: {
-              label: "Paragraph",
-              schema: fields.text({ label: "Paragraph", multiline: true, validation: required }),
-              itemLabel: (props) => short(props.value, "Paragraph"),
-            },
-            h2: {
-              label: "Heading",
-              schema: line("Heading"),
-              itemLabel: (props) => `## ${props.value}`,
-            },
-            ul: {
-              label: "Bullet list",
-              schema: strings("Items", "Item", { multiline: true }),
-              itemLabel: (props) => `• Bullet list (${props.elements.length})`,
-            },
-            ol: {
-              label: "Numbered list",
-              schema: strings("Items", "Item", { multiline: true }),
-              itemLabel: (props) => `1. Numbered list (${props.elements.length})`,
-            },
-            callout: {
-              label: "Callout box",
-              schema: fields.object({
-                label: line("Label"),
-                text: para("Text"),
-                linkHref: optionalLine(
-                  "Link: path",
-                  "Optional. A page on this site, e.g. /compliance."
-                ),
-                linkLabel: optionalLine("Link: text"),
-              }),
-              itemLabel: (props) => `Callout: ${props.fields.label.value}`,
-            },
-            table: {
-              label: "Table",
-              schema: fields.object({
-                caption: line("Caption"),
-                head: cells("Column headings", "Heading"),
-                rows: fields.array(fields.object({ cells: cells("Cells", "Cell") }), {
-                  label: "Rows",
-                  itemLabel: (props) =>
-                    props.fields.cells.elements.map((c) => c.value).join(" | ") || "Row",
-                }),
-              }),
-              itemLabel: (props) => `Table: ${props.fields.caption.value}`,
-            },
-          },
-          { label: "Body" }
-        ),
-      }),
-      {
-        label: "Notes",
-        description: "Newest first. The order here is the order on /research.",
-        itemLabel: (props) => props.fields.title.value || "New note",
-      }
     ),
   },
 });
@@ -558,12 +496,472 @@ const turkishStraits = singleton({
   },
 });
 
+/* ---------- blog ---------- */
+
+/** Body components: the "+" menu of the post editor. Mirrored by lib/blog/markdoc.ts. */
+export const blogComponents = {
+  callout: wrapper({
+    label: "Callout",
+    description: "A boxed note with a label (e.g. Practical takeaway) and an optional link.",
+    schema: {
+      label: line("Label", "Short, e.g. Practical takeaway, Desk note, Update, October 2026."),
+      linkHref: optionalLine("Link: path", "Optional. A page on this site, e.g. /compliance."),
+      linkLabel: optionalLine("Link: text"),
+    },
+  }),
+  pullQuote: block({
+    label: "Pull quote",
+    description: "One sentence from the text, set large. Use at most one or two per post.",
+    schema: {
+      quote: para("Quote"),
+      attribution: optionalLine("Attribution", "Optional, e.g. the broker's name."),
+    },
+  }),
+  routeTable: wrapper({
+    label: "Table with caption",
+    description:
+      "A captioned table (routes, cost splits, worked examples). Insert a table inside it; the first row is the header and the first column names each row.",
+    schema: {
+      caption: line("Caption", "e.g. Illustrative laytime calculation, round numbers only"),
+    },
+  }),
+  figure: block({
+    label: "Figure",
+    description: "An image with a caption. Saved in public/images/blog/.",
+    schema: {
+      image: fields.image({
+        label: "Image",
+        description: "At least 1360 px wide. JPG, PNG, WebP or AVIF.",
+        directory: BLOG_IMAGE_DIR,
+        publicPath: BLOG_IMAGE_PUBLIC_PATH,
+        validation: required,
+      }),
+      alt: line("Alt text", "What the image shows, for screen readers and search."),
+      caption: optionalLine("Caption"),
+      credit: optionalLine("Credit", "Photographer or source, if not our own."),
+    },
+  }),
+};
+
+/* ---------- homepage (content/home.json) ---------- */
+
+/** Text with a hard character limit (the counter in the admin enforces it). */
+const limited = (label: string, max: number, description?: string, multiline = false) =>
+  fields.text({
+    label,
+    description: description ? `${description} At most ${max} characters.` : `At most ${max} characters.`,
+    multiline,
+    validation: { isRequired: true, length: { min: 1, max } },
+  });
+
+const internalLink = (label: string, description = "A page of this site, e.g. /tankers or /blog/<slug>.") =>
+  fields.text({
+    label,
+    description,
+    validation: {
+      isRequired: true,
+      pattern: { regex: INTERNAL_PATH_PATTERN, message: "Start with /, lowercase, e.g. /lpg/vlgc." },
+    },
+  });
+
+const show = (what: string) =>
+  fields.checkbox({ label: `Show ${what}`, defaultValue: true });
+const rail = () =>
+  limited("Rail label", 24, "Waypoint name on the rail at the left edge (desktop).");
+const stillPicker = (label: string) =>
+  choice(label, Object.keys(stills) as StillKey[], "tankerBow", STILL_LABELS_HOME, "A graded still from the media library.");
+
+const STILL_LABELS_HOME: Record<StillKey, string> = Object.fromEntries(
+  (Object.keys(stills) as StillKey[]).map((k) => [k, stills[k].alt])
+) as Record<StillKey, string>;
+
+const PLATE_LABELS: Record<string, string> = {
+  "V-hero": "Tankers at anchor, high aerial (dawn grade)",
+  "V-gas": "Loaded tanker at anchor (day grade)",
+  "V-reel": "20 s reel: sea, port, Bosphorus, tanker (dusk grade)",
+  "V-strait": "Istanbul waterfront, Galata (day grade)",
+  "V-night": "Harbour at night (night grade)",
+  "V-ocean": "Dark sea surface (deep grade)",
+};
+
+const home = singleton({
+  label: "Homepage",
+  path: "content/home",
+  format: { data: "json" },
+  previewUrl: "/",
+  schema: {
+    hero: fields.object(
+      {
+        rail: rail(),
+        plate: choice("Footage", HOME_HERO_PLATES, "V-hero", PLATE_LABELS, "The video behind the headline."),
+        headline: limited(
+          "Headline (h1)",
+          HOME_LIMITS.heroHeadline,
+          "Sentence case, three lines at most: press Enter where a line should break.",
+          true
+        ),
+        accent: optionalLine("Accent word", "One word of the headline set in brass, e.g. Bosphorus."),
+        sub: limited("Sub line", 60, "Under the headline, after a short rule."),
+        lead: limited("Lead", 240, undefined, true),
+        inquiry: limited("Inquiry button", 28),
+        whatsapp: limited("WhatsApp button", 28),
+        scene: limited("Scene label", 36, "Small mono line bottom-right, e.g. Dawn · outbound."),
+      },
+      { label: "1 · Hero (Departure)" }
+    ),
+    who: fields.object(
+      {
+        show: show("Who we are"),
+        rail: rail(),
+        sub: line("Sub line"),
+        statement: limited("Statement (h2)", HOME_LIMITS.statement, "Fills word by word as the page scrolls.", true),
+        more: line("Link to /about"),
+        pin: limited("Pin label", 32, "Next to the sonar ping, after the coordinates."),
+        scene: limited("Scene label", 48),
+        facts: fields.array(
+          fields.object({
+            icon: choice("Icon", FACT_ICONS, "anchor", FACT_ICON_LABELS),
+            title: limited("Title", 40),
+            text: limited("Line", 120, undefined, true),
+            linkLabel: line("Link label"),
+            href: internalLink("Link"),
+          }),
+          {
+            label: "Facts (exactly four)",
+            itemLabel: (props) => props.fields.title.value || "New fact",
+            validation: { length: { min: 4, max: 4 } },
+          }
+        ),
+        badge: optionalLine(
+          "Compliance line",
+          "Optional line under the facts, linking to /compliance. Only claims already made on /compliance."
+        ),
+        badgeLink: optionalLine("Compliance link label"),
+      },
+      { label: "2 · Who we are (Local depth)" }
+    ),
+    desks: fields.object(
+      {
+        show: show("Desks & services"),
+        rail: rail(),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 40, "Enter for a line break.", true),
+        lead: limited("Lead", 220, undefined, true),
+        more: line("Link to How we work"),
+        rows: fields.array(
+          fields.object({
+            title: limited("Title (h3)", 40),
+            text: limited("Lead", HOME_LIMITS.rowLead, undefined, true),
+            linkLabel: line("Link label"),
+            href: internalLink("Link"),
+            chips: choice("Class chips", DESK_CHIP_SETS, "none", DESK_CHIP_LABELS),
+            still: stillPicker("Still"),
+            caption: limited("Still caption", 40),
+          }),
+          {
+            label: "Rows (exactly four)",
+            itemLabel: (props) => props.fields.title.value || "New row",
+            validation: { length: { min: 4, max: 4 } },
+          }
+        ),
+      },
+      { label: "3 · Desks & services" }
+    ),
+    ships: fields.object(
+      {
+        show: show("Ships we fix"),
+        rail: rail(),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 48),
+        tankers: limited("Tankers tab", 16),
+        gas: limited("Gas tab", 16),
+        classGuide: limited("Card link label", 24),
+      },
+      {
+        label: "4 · Ships we fix",
+        description: "The nine class cards come from Tanker classes and LPG classes.",
+      }
+    ),
+    process: fields.object(
+      {
+        show: show("How we work"),
+        rail: rail(),
+        plate: choice("Footage", HOME_PROCESS_PLATES, "V-reel", PLATE_LABELS),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 48),
+        steps: fields.array(
+          fields.object({ title: limited("Step", 20), text: limited("Line", 90, undefined, true) }),
+          {
+            label: "Steps (exactly four)",
+            itemLabel: (props) => props.fields.title.value || "New step",
+            validation: { length: { min: 4, max: 4 } },
+          }
+        ),
+      },
+      { label: "5 · How we work (showreel)" }
+    ),
+    reach: fields.object(
+      {
+        show: show("Reach"),
+        rail: rail(),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 40, "Enter for a line break.", true),
+        counters: fields.array(
+          fields.object({
+            value: fields.integer({
+              label: "Number",
+              description: "A plain, evergreen number (no prices, rates or indices).",
+              validation: { isRequired: true, min: 0, max: 9999 },
+            }),
+            caption: limited(
+              "Caption",
+              HOME_LIMITS.counterCaption,
+              "No currency symbols, rates or percentages."
+            ),
+          }),
+          {
+            label: "Counters (exactly four)",
+            itemLabel: (props) => `${props.fields.value.value ?? ""} ${props.fields.caption.value}`,
+            validation: { length: { min: 4, max: 4 } },
+          }
+        ),
+        lanes: fields.array(
+          fields.object({
+            code: limited("Route", HOME_LIMITS.laneCode, "Big text on the tile, e.g. MEG–China."),
+            lane: limited("Line", HOME_LIMITS.laneLine, "Small line, e.g. TD3C · VLCC."),
+            href: internalLink("Link", "The matching note or class guide."),
+            still: stillPicker("Still"),
+          }),
+          {
+            label: "Lanes (exactly six)",
+            itemLabel: (props) => props.fields.code.value || "New lane",
+            validation: { length: { min: 6, max: 6 } },
+          }
+        ),
+      },
+      {
+        label: "6 · Reach (counters, map, lanes)",
+        description: "Office clocks use the time zones in Site settings → Offices.",
+      }
+    ),
+    team: fields.object(
+      {
+        show: show("Team"),
+        rail: rail(),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 48, "Enter for a line break.", true),
+        lead: limited("Lead", 160, undefined, true),
+        more: line("Link to /brokers"),
+      },
+      { label: "7 · Team", description: "The cards come from Brokers." }
+    ),
+    notes: fields.object(
+      {
+        show: show("Notes and FAQ"),
+        rail: rail(),
+        sub: line("Sub line"),
+        headline: limited("Headline (h2)", 40),
+        count: fields.integer({
+          label: "Posts shown",
+          description: "Latest blog posts in the strip (1–6).",
+          defaultValue: 3,
+          validation: { isRequired: true, min: 1, max: 6 },
+        }),
+        faqHeadline: limited("FAQ headline (h2)", 48),
+        faqMore: line("FAQ link to /contact"),
+        faqCount: fields.integer({
+          label: "Questions shown",
+          description: "The first questions of FAQs → Homepage (0 hides the FAQ).",
+          defaultValue: 5,
+          validation: { isRequired: true, min: 0, max: 8 },
+        }),
+      },
+      { label: "8 · Notes from the desk + FAQ" }
+    ),
+    letter: fields.object(
+      {
+        show: show("the letter"),
+        rail: rail(),
+        plate: choice("Footage", HOME_LETTER_PLATES, "V-night", PLATE_LABELS),
+        label: limited("Letter label", 32),
+        headline: limited("Letter headline (h2)", 48),
+        line: limited("Letter line", 160, undefined, true),
+        sub: line("Contact sub line"),
+        inquiry: limited("Inquiry button", 28),
+      },
+      {
+        label: "9 · Contact (the letter)",
+        description: "Emails, desk lines and the duty line come from Site settings.",
+      }
+    ),
+  },
+});
+
+const STILL_LABELS: Record<StillKey, string> = Object.fromEntries(
+  (Object.keys(stills) as StillKey[]).map((k) => [k, stills[k].alt])
+) as Record<StillKey, string>;
+
+const posts = collection({
+  label: "Blog posts",
+  path: "content/blog/*",
+  slugField: "title",
+  format: { contentField: "body" },
+  entryLayout: "content",
+  columns: ["date", "category"],
+  previewUrl: "/blog/{slug}",
+  schema: {
+    title: fields.slug({
+      name: { label: "Title", validation: required },
+      slug: {
+        label: "URL slug",
+        description:
+          "The post's address: /blog/<slug>. Generated from the title; do not change it once published.",
+        validation: {
+          pattern: {
+            regex: SLUG_PATTERN,
+            message: "Lowercase letters, digits and single hyphens only (e.g. my-new-post).",
+          },
+        },
+      },
+    }),
+    draft: fields.checkbox({
+      label: "Draft",
+      description:
+        "Drafts show on the development server only (preview while you write); the live site leaves them out.",
+    }),
+    seoTitle: fields.text({
+      label: "Search title",
+      description:
+        "Optional shorter <title> for search results, at most 60 characters. Needed when the title is longer than that.",
+      validation: { length: { max: 60 } },
+    }),
+    description: fields.text({
+      label: "Search summary (meta description)",
+      description: "One or two sentences, at most 160 characters. Also the RSS summary.",
+      multiline: true,
+      validation: { isRequired: true, length: { max: 160 } },
+    }),
+    dek: para("Dek", "One sentence under the title on the post page and on cards."),
+    category: choice("Category", BLOG_CATEGORIES, "chartering-guides", BLOG_CATEGORY_LABELS),
+    format: optionalLine(
+      "Format label",
+      "Optional pill on the card, e.g. Risk brief, Route guide, Weekly outlook. Defaults to the category."
+    ),
+    desk: choice(
+      "Desk",
+      BLOG_DESKS,
+      "tankers",
+      BLOG_DESK_LABELS,
+      "Which desk pages list the post."
+    ),
+    author: choice(
+      "Author",
+      brokersFile.brokers.map((b) => b.name.slug),
+      "elif-kaya",
+      Object.fromEntries(brokersFile.brokers.map((b) => [b.name.slug, b.name.name])),
+      "A broker from the Brokers list (add new brokers there first, then reload this page)."
+    ),
+    date: fields.date({ label: "Published", validation: required }),
+    updated: fields.date({
+      label: "Last material revision",
+      description: "Optional. Shown on the post, and feeds dateModified, the sitemap and RSS.",
+    }),
+    issue: optionalLine("Issue", "Optional, e.g. October 2026, 18 / 2026, Brief."),
+    tags: strings("Tags", "Tag"),
+    readingTime: fields.integer({
+      label: "Reading time (minutes)",
+      description: "Optional. Leave empty to work it out from the text.",
+      validation: { min: 1 },
+    }),
+    gated: fields.checkbox({
+      label: "Summary only",
+      description:
+        "Shows the summary below and a 'full report on request' box; the full text is emailed on request.",
+    }),
+    summary: fields.text({
+      label: "Summary (summary-only posts)",
+      description: "Shown above the body when the post is summary only.",
+      multiline: true,
+    }),
+    keyTakeaways: strings("Key takeaways", "Takeaway", { multiline: true }),
+    cover: fields.conditional(
+      fields.select({
+        label: "Cover",
+        description: "Type-set (a big code over contour lines) unless you have a photograph.",
+        options: [
+          { value: "type", label: "Type-set cover" },
+          { value: "still", label: "Photograph" },
+        ],
+        defaultValue: "type",
+      }),
+      {
+        type: fields.object(
+          {
+            code: fields.text({
+              label: "Code",
+              description:
+                "The big text: a route code (TD3C), a class (VLGC) or coordinates (26°34′N). 12 characters at most. No prices or rates.",
+              validation: { isRequired: true, length: { max: 12 } },
+            }),
+            caption: optionalLine(
+              "Caption",
+              "Small line under the code, e.g. Strait of Hormuz · 56°15′E."
+            ),
+            seed: fields.integer({
+              label: "Pattern",
+              description:
+                "Optional number (1–9999) that changes the contour pattern. Empty: derived from the slug.",
+              validation: { min: 1, max: 9999 },
+            }),
+          },
+          { label: "Type-set cover" }
+        ),
+        still: fields.object(
+          {
+            media: choice(
+              "From the media library",
+              ["none", ...(Object.keys(stills) as StillKey[])],
+              "none",
+              {
+                none: "— (upload below instead)",
+                ...STILL_LABELS,
+              }
+            ),
+            image: fields.image({
+              label: "Or upload a photograph",
+              description: "Landscape, at least 1600 px wide. Saved in public/images/blog/.",
+              directory: BLOG_IMAGE_DIR,
+              publicPath: BLOG_IMAGE_PUBLIC_PATH,
+            }),
+            alt: line("Alt text", "What the photograph shows."),
+            caption: optionalLine("Caption / credit"),
+          },
+          { label: "Photograph" }
+        ),
+      }
+    ),
+    faq: faqList(
+      "FAQ",
+      "Optional questions and answers at the end of the post (FAQPage data for search)."
+    ),
+    body: fields.markdoc({
+      label: "Body",
+      options: {
+        heading: [2, 3],
+        image: { directory: BLOG_IMAGE_DIR, publicPath: BLOG_IMAGE_PUBLIC_PATH },
+        codeBlock: false,
+      },
+      components: blogComponents,
+    }),
+  },
+});
+
 /* ---------- config ---------- */
 
 const singletons = {
+  home,
   site,
   brokers,
-  research,
   faqs,
   glossary,
   tankerClasses,
@@ -579,8 +977,9 @@ export function keystaticConfig(mode: StorageMode) {
     ui: {
       brand: { name: "LEVANTER" },
       navigation: {
+        Pages: ["home"],
         Company: ["site", "brokers"],
-        Research: ["research"],
+        Blog: ["posts"],
         "Desks & reference": [
           "tankerClasses",
           "lpgClasses",
@@ -593,6 +992,7 @@ export function keystaticConfig(mode: StorageMode) {
       },
     },
     singletons,
+    collections: { posts },
   });
 }
 

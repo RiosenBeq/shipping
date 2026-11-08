@@ -7,7 +7,7 @@ type Item = { id: string; label: string; count: number };
 
 /**
  * Sticky section chips for the glossary. A light scroll listener marks the
- * section being read (aria-current, brass border on sand), and keeps that
+ * section being read (aria-current, navy chip), and keeps that
  * chip visible in the swipeable row on phones. Without JS the chips are plain
  * in-page links.
  */
@@ -95,32 +95,24 @@ export function GlossaryNav({ items }: { items: Item[] }) {
   }, [active]);
 
   return (
-    <nav
-      aria-label="Glossary sections"
-      className="sticky top-16 z-30 border-b border-line bg-white/[0.97] backdrop-blur supports-[backdrop-filter]:bg-white/[0.94]"
-    >
-      {/* scroll-px matches the container gutter, so snapped chips keep their
-          inset instead of landing flush on the screen edge; below md a
-          short fade on the end edge shows the row scrolls. */}
-      <ul
-        ref={listRef}
-        className="container flex snap-x scroll-px-5 gap-2 overflow-x-auto py-3 [scrollbar-width:none] max-md:[mask-image:linear-gradient(90deg,#000_calc(100%_-_2.5rem),transparent)] md:scroll-px-8 [&::-webkit-scrollbar]:hidden"
-      >
+    <nav aria-label="Glossary sections" className="ip-gnav">
+      {/* Always one row (swipeable where it doesn't fit); below md a short fade
+          on the end edge shows the row scrolls. */}
+      <ul ref={listRef} className="ip-gnav__list">
         {items.map((i) => (
-          <li key={i.id} className="shrink-0 snap-start">
+          <li key={i.id}>
             <a
               href={`#${i.id}`}
               onClick={() => pin(i.id)}
               aria-current={active === i.id ? "true" : undefined}
-              // `aria-[current]` beats the kit's chip border/background on specificity.
-              className="uv-chip aria-[current=true]:border-brass aria-[current=true]:bg-sand"
+              className="ip-chip"
             >
               {i.label}
-              <span className="font-mono text-[11px] text-slate">
+              <b>
                 {i.count}
                 <span className="sr-only"> terms</span>
-              </span>
-              {/* in-page jump: the arrow says it's a link (static chips have no dot) */}
+              </b>
+              {/* in-page jump: the arrow says it's a link */}
               <ArrowDown className="h-3 w-3 text-brass-ink" aria-hidden="true" />
             </a>
           </li>

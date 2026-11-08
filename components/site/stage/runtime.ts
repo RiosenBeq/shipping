@@ -1,0 +1,582 @@
+/**
+ * The stage's DOM runtime: reads the page's windows, cards, apertures and calm zones, decides
+ * what the stage shows at this scroll position (compose.ts), drives poster mode directly in
+ * the DOM and hands the same frame to the WebGL compositor once it is live.
+ *
+ * Framework-free: StageProvider creates one per page and disposes it on unmount.
+ */
+import { CALM_FEATHER, parseCalm, selectCalmRects, type CalmRect } from "./calm";
+import {
+  COVER_FREEZE,
+  composeAt,
+  coverFit,
+  coverRatio,
+  dominant,
+  horizonInRect,
+  mirrorFocal,
+  pushIn,
+  windowProgress,
+  type Box,
+  type Composition,
+  type WindowBox,
+} from "./compose";
+import { isMotionPaused, subscribeMotionPaused } from "./pause";
+import { PRELOAD_METADATA_AT } from "./preload";
+import { focalFor } from "./focal";
+import {
+  downgrade,
+  lowReason,
+  pickTier,
+  probeWebGL,
+  readDeviceHints,
+  type DeviceHints,
+  type LowReason,
+} from "./quality";
+import {
+  groundColor,
+  isPlateId,
+  type Focal,
+  type Ground,
+  type PlateFrame,
+  type PlateId,
+  type StageTier,
+} from "./types";
+import { isShipClass, type ShipClassSlug } from "./lines/classes";
+import type { Compositor, CreateCompositor, FrameState, LayerState } from "./gl/contract";
+
+const WINDOW = "[data-stage-window]";
+const FALLBACK_FRAME: PlateFrame = {
+  focal: { x: 0.5, y: 0.5 },
+  focalPhone: { x: 0.5, y: 0.5 },
+  flipX: false,
+  horizon: null,
+  aspect: 16 / 9,
+};
+const CARD = "[data-stage-card]";
+
+interface WindowEl {
+  el: HTMLElement;
+  plate: PlateId;
+  ground: Ground;
+  aperture: HTMLElement | null;
+  lines: HTMLElement | null;
+  pin: HTMLElement | null;
+  horizon: boolean;
+}
+
+export interface RuntimeOptions {
+  root: HTMLElement;
+  canvas: HTMLCanvasElement;
+  /** Fixed DOM layer with the chart frame and horizon hairline (may be absent). */
+  frame: HTMLElement | null;
+  /** Framing of the plates this page declared (StageProvider `plates`). */
+  plates: Partial<Record<PlateId, PlateFrame>>;
+  /** Loads the compositor chunk (dynamic import), so this module stays out of first-load JS. */
+  load: () => Promise<CreateCompositor>;
+}
+
+/** `?stage=0` poster only, `?stage=1` live even on software GL; `?stagetier=high|medium|low`. */
+function flags() {
+  const q = new URLSearchParams(window.location.search);
+  const s = q.get("stage");
+  const t = q.get("stagetier");
+  return {
+    stage: s === "0" ? ("off" as const) : s === "1" ? ("on" as const) : null,
+    tier: t === "high" || t === "medium" || t === "low" ? (t as StageTier) : null,
+  };
+}
+
+/** Decide the tier: the hints, the WebGL probe and the URL flags. */
+export function decideTier(): { tier: StageTier; why: LowReason | null } {
+  const f = flags();
+  if (f.stage === "off") return { tier: "low", why: "forced" };
+  const hints: DeviceHints = readDeviceHints();
+  if (f.stage === "on") {
+    const gl = probeWebGL();
+    if (!gl.webgl) return { tier: "low", why: "no-webgl" };
+    return {
+      tier:
+        f.tier ??
+        pickTier({ ...hints, reducedMotion: false, saveData: false, effectiveType: undefined }),
+      why: null,
+    };
+  }
+  const early = lowReason(hints);
+  if (early) return { tier: "low", why: early };
+  const gl = probeWebGL();
+  const all = { ...hints, ...gl };
+  const why = lowReason(all);
+  if (why) return { tier: "low", why };
+  return { tier: f.tier ?? pickTier(all), why: null };
+}
+
+/** Run `cb` once the LCP has been reported and the page is idle (§6.5). */
+function afterLcpAndIdle(cb: () => void): () => void {
+  let fired = false;
+  let idle = 0;
+  let timer = 0;
+  let po: PerformanceObserver | null = null;
+  const go = () => {
+    if (fired) return;
+    fired = true;
+    po?.disconnect();
+    if (typeof window.requestIdleCallback === "function")
+      idle = window.requestIdleCallback(cb, { timeout: 2500 });
+    else timer = window.setTimeout(cb, 600);
+  };
+  try {
+    po = new PerformanceObserver((list) => {
+      if (list.getEntries().length) go();
+    });
+    po.observe({ type: "largest-contentful-paint", buffered: true });
+  } catch {
+    po = null;
+  }
+  // Browsers without LCP entries (Safari < 17, Firefox < 122): after load.
+  const onLoad = () => window.setTimeout(go, 400);
+  if (document.readyState === "complete") onLoad();
+  else window.addEventListener("load", onLoad, { once: true });
+  const cap = window.setTimeout(go, 5000);
+  return () => {
+    fired = true;
+    po?.disconnect();
+    window.removeEventListener("load", onLoad);
+    window.clearTimeout(cap);
+    if (idle) window.cancelIdleCallback(idle);
+    if (timer) window.clearTimeout(timer);
+  };
+}
+
+const hexRgb = (hex: string): [number, number, number] => [
+  parseInt(hex.slice(1, 3), 16) / 255,
+  parseInt(hex.slice(3, 5), 16) / 255,
+  parseInt(hex.slice(5, 7), 16) / 255,
+];
+
+export class StageRuntime {
+  private windows: WindowEl[] = [];
+  private cards: HTMLElement[] = [];
+  private calm: HTMLElement[] = [];
+  private layers = new Map<PlateId, HTMLElement>();
+  private calmEls: HTMLElement[] = [];
+  private tide: HTMLElement | null;
+  private horizon: HTMLElement | null;
+  private frameRaf = 0;
+  private scanRaf = 0;
+  private disposed = false;
+  private compositor: Compositor | null = null;
+  private tier: StageTier = "low";
+  private paused = false;
+  private visible = true;
+  private lastComp: Composition | null = null;
+  private cancelBoot: (() => void) | null = null;
+  private readonly cleanups: (() => void)[] = [];
+  private readonly reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  private readonly portraitMq = window.matchMedia("(max-aspect-ratio: 4/5)");
+  private readonly phoneMq = window.matchMedia("(max-width: 767px), (pointer: coarse)");
+
+  constructor(private readonly o: RuntimeOptions) {
+    this.tide = o.root.querySelector<HTMLElement>(".stage__tide");
+    this.horizon = o.frame?.querySelector<HTMLElement>(".stage-frame__horizon") ?? null;
+    o.root.querySelectorAll<HTMLElement>("[data-stage-layer]").forEach((el) => {
+      const id = el.dataset.stageLayer;
+      if (isPlateId(id)) this.layers.set(id, el);
+    });
+    this.calmEls = Array.from(o.root.querySelectorAll<HTMLElement>(".stage__calm > i"));
+  }
+
+  start() {
+    const html = document.documentElement;
+    html.dataset.stage = "poster";
+    this.paused = isMotionPaused();
+    this.scan();
+    this.update();
+
+    const onScroll = () => this.schedule();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    const ro = new ResizeObserver(() => this.scheduleScan());
+    ro.observe(document.body);
+    // Pages switch classes (ShipLines) and grounds without scrolling: follow the attributes.
+    const mo = new MutationObserver((records) => {
+      // Ignore the stage's own writes (root ground, rail colour).
+      if (records.some((r) => !(r.target as Element).closest?.(".stage, .stage-rail")))
+        this.scheduleScan();
+    });
+    mo.observe(document.body, {
+      subtree: true,
+      attributeFilter: ["data-class", "data-plate", "data-ground", "data-calm"],
+    });
+    const onVis = () => {
+      this.visible = !document.hidden;
+      this.syncRunning();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    const unsub = subscribeMotionPaused((p) => {
+      this.paused = p;
+      this.compositor?.setMotionPaused(p);
+      this.syncRunning();
+    });
+    const onReduce = () => {
+      if (this.reduce.matches) this.goPoster("reduced-motion");
+    };
+    this.reduce.addEventListener("change", onReduce);
+    this.cleanups.push(
+      () => window.removeEventListener("scroll", onScroll),
+      () => window.removeEventListener("resize", onScroll),
+      () => ro.disconnect(),
+      () => mo.disconnect(),
+      () => document.removeEventListener("visibilitychange", onVis),
+      unsub,
+      () => this.reduce.removeEventListener("change", onReduce)
+    );
+
+    if (process.env.NODE_ENV !== "production")
+      (window as unknown as { __stage?: StageRuntime }).__stage = this;
+
+    const { tier, why } = decideTier();
+    this.tier = tier;
+    html.dataset.stageTier = tier;
+    if (why) html.dataset.stageWhy = why;
+    html.dataset.stageLines = "svg";
+    if (tier !== "low") this.cancelBoot = afterLcpAndIdle(() => void this.boot());
+  }
+
+  dispose() {
+    this.disposed = true;
+    this.cancelBoot?.();
+    if (this.frameRaf) cancelAnimationFrame(this.frameRaf);
+    if (this.scanRaf) cancelAnimationFrame(this.scanRaf);
+    this.cleanups.forEach((c) => c());
+    this.compositor?.dispose();
+    this.compositor = null;
+    const html = document.documentElement;
+    delete html.dataset.stage;
+    delete html.dataset.stageTier;
+    delete html.dataset.stageWhy;
+    delete html.dataset.stageLines;
+  }
+
+  // ---- boot / fall back ----------------------------------------------------
+
+  private async boot() {
+    if (this.disposed || this.tier === "low") return;
+    try {
+      const create = await this.o.load();
+      if (this.disposed) return;
+      this.compositor = create({
+        canvas: this.o.canvas,
+        tier: this.tier,
+        motionPaused: this.paused,
+        onReady: () => this.goLive(),
+        onDowngrade: () => this.stepDown(),
+        onLost: () => this.goPoster("no-webgl"),
+      });
+      document.documentElement.dataset.stageLines = this.lines3d() ? "3d" : "svg";
+      this.update();
+      this.syncRunning();
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") console.warn("[stage] compositor failed", err);
+      this.goPoster("no-webgl");
+    }
+  }
+
+  private lines3d() {
+    return this.tier !== "low" && !this.phoneMq.matches;
+  }
+
+  private goLive() {
+    if (this.disposed) return;
+    this.o.root.dataset.mode = "live";
+    document.documentElement.dataset.stage = "live";
+  }
+
+  private goPoster(why: LowReason) {
+    this.compositor?.dispose();
+    this.compositor = null;
+    this.tier = "low";
+    this.o.root.dataset.mode = "poster";
+    const html = document.documentElement;
+    html.dataset.stage = "poster";
+    html.dataset.stageTier = "low";
+    html.dataset.stageWhy = why;
+    html.dataset.stageLines = "svg";
+    this.update();
+  }
+
+  private stepDown() {
+    const next = downgrade(this.tier);
+    if (next === "low") {
+      this.goPoster("forced");
+      return;
+    }
+    this.tier = next;
+    document.documentElement.dataset.stageTier = next;
+    this.compositor?.setTier(next);
+  }
+
+  // ---- reading the page ----------------------------------------------------
+
+  private scheduleScan() {
+    if (!this.scanRaf)
+      this.scanRaf = requestAnimationFrame(() => {
+        this.scanRaf = 0;
+        this.scan();
+        this.update();
+      });
+  }
+
+  private schedule() {
+    if (!this.frameRaf)
+      this.frameRaf = requestAnimationFrame(() => {
+        this.frameRaf = 0;
+        this.update();
+      });
+  }
+
+  private scan() {
+    this.windows = Array.from(document.querySelectorAll<HTMLElement>(WINDOW)).flatMap((el) => {
+      const plate = el.dataset.plate;
+      if (!isPlateId(plate)) return [];
+      return [
+        {
+          el,
+          plate,
+          ground: el.dataset.ground === "light" ? "light" : "dark",
+          aperture: el.querySelector<HTMLElement>("[data-stage-aperture]"),
+          lines: el.querySelector<HTMLElement>("[data-stage-lines]"),
+          pin: el.querySelector<HTMLElement>("[data-stage-pin]"),
+          horizon: el.dataset.horizon !== "off",
+        } satisfies WindowEl,
+      ];
+    });
+    this.cards = Array.from(document.querySelectorAll<HTMLElement>(CARD));
+    this.calm = Array.from(document.querySelectorAll<HTMLElement>(`${WINDOW} [data-calm]`));
+  }
+
+  // ---- the frame -----------------------------------------------------------
+
+  private update() {
+    if (this.disposed) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const boxes: WindowBox[] = [];
+    const rects = this.windows.map((w) => {
+      const r = w.el.getBoundingClientRect();
+      boxes.push({ plate: w.plate, top: r.top, bottom: r.bottom });
+      return r;
+    });
+
+    const cardBoxes: Box[] = this.cards.map((c) => c.getBoundingClientRect());
+    // Scrub variables for page CSS (aperture growth, pinned scenes). All reads above, all
+    // writes here; apertures and calm zones are read after, so they include this frame's CSS.
+    this.windows.forEach((w, i) => writeProgress(w.el, rects[i].top, rects[i].bottom, vh));
+    this.cards.forEach((c, i) => writeProgress(c, cardBoxes[i].top, cardBoxes[i].bottom, vh));
+
+    const comp = composeAt(boxes, vh);
+    this.lastComp = comp;
+    const anyWindow = boxes.some((b) => b.bottom > 0 && b.top < vh);
+    const covered = coverRatio(cardBoxes, vw, vh) >= COVER_FREEZE;
+    this.visibleWindow = anyWindow && !covered;
+
+    const calmRects = this.readCalm(vw, vh);
+    const portrait = this.portraitMq.matches;
+    const rtl = document.documentElement.dir === "rtl";
+
+    const layer = (i: number): LayerState | null => {
+      if (i < 0) return null;
+      const w = this.windows[i];
+      const r = rects[i];
+      const def = this.frameOf(w.plate);
+      const ap = w.aperture?.getBoundingClientRect() ?? null;
+      const apRadius = w.aperture
+        ? parseFloat(getComputedStyle(w.aperture).borderTopLeftRadius) || 0
+        : 0;
+      const lr = w.lines?.getBoundingClientRect() ?? null;
+      const slug = w.lines?.dataset.class;
+      const pr = w.pin?.getBoundingClientRect() ?? null;
+      return {
+        plate: w.plate,
+        ground: hexRgb(
+          groundColor(
+            w.aperture
+              ? w.aperture.dataset.apertureGround === "light"
+                ? "light"
+                : "dark"
+              : w.ground
+          )
+        ),
+        aperture: ap ? { x: ap.left, y: ap.top, w: ap.width, h: ap.height, r: apRadius } : null,
+        zoom: pushIn(r.top, r.bottom, vh),
+        dim: 0,
+        focal: mirrorFocal(focalFor(def, { portrait, rtl }), def.flipX),
+        lines:
+          lr && isShipClass(slug)
+            ? { x: lr.left, y: lr.top, w: lr.width, h: lr.height, slug: slug as ShipClassSlug }
+            : null,
+        pin: pr ? { x: pr.left + pr.width / 2, y: pr.top + pr.height / 2 } : null,
+      };
+    };
+
+    const a = comp ? layer(comp.a) : null;
+    const b = comp ? layer(comp.b) : null;
+    // The outgoing plate darkens 15% as the next window rises over it (§7.1).
+    if (a && b && comp) a.dim = 0.15 * (1 - comp.edge);
+
+    this.paintPoster(comp, a, b, boxes, vh);
+    this.paintCalm(calmRects);
+    this.paintHorizon(comp, a, b, vw, vh);
+    const ground = comp ? this.windows[dominant(comp)].ground : "dark";
+    // Only on change: the page's mutation observer watches data-ground.
+    if (this.o.root.dataset.ground !== ground) this.o.root.dataset.ground = ground;
+
+    if (this.compositor && comp && a) {
+      const state: FrameState = { vw, vh, a, b, edge: comp.edge, calm: calmRects, near: boxes };
+      this.compositor.setFrame(state);
+    }
+    this.syncRunning();
+  }
+
+  private visibleWindow = true;
+
+  private frameOf(id: PlateId): PlateFrame {
+    const f = this.o.plates[id];
+    if (f) return f;
+    if (process.env.NODE_ENV !== "production" && !this.warned.has(id)) {
+      this.warned.add(id);
+      console.warn(
+        `[stage] plate ${id} is used by a window but missing from <StageProvider plates>`
+      );
+    }
+    return FALLBACK_FRAME;
+  }
+  private warned = new Set<PlateId>();
+
+  private syncRunning() {
+    const c = this.compositor;
+    if (!c) return;
+    c.setRunning(this.visible && this.visibleWindow && !this.reduce.matches);
+  }
+
+  private readCalm(vw: number, vh: number): CalmRect[] {
+    const rects: CalmRect[] = [];
+    for (const el of this.calm) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -CALM_FEATHER || r.top > vh + CALM_FEATHER) continue;
+      rects.push({ x: r.left, y: r.top, w: r.width, h: r.height, k: parseCalm(el.dataset.calm) });
+    }
+    return selectCalmRects(rects, vw, vh);
+  }
+
+  /** Poster mode: show plate A, clip plate B below the tide edge, warm the next poster. */
+  private paintPoster(
+    comp: Composition | null,
+    a: LayerState | null,
+    b: LayerState | null,
+    boxes: readonly WindowBox[],
+    vh: number
+  ) {
+    const near = new Set<PlateId>();
+    for (const r of boxes) {
+      const away = r.top >= vh ? (r.top - vh) / vh : r.bottom <= 0 ? -r.bottom / vh : 0;
+      if (away <= PRELOAD_METADATA_AT) near.add(r.plate);
+    }
+    for (const [id, el] of this.layers) {
+      const isA = a?.plate === id;
+      const isB = b?.plate === id;
+      el.dataset.state = isA ? "a" : isB ? "b" : near.has(id) ? "near" : "off";
+      const s = isA ? a : isB ? b : null;
+      if (s) {
+        el.style.setProperty("--zoom", s.zoom.toFixed(4));
+        el.style.setProperty("--dim", s.dim.toFixed(3));
+        el.style.setProperty("--fx", `${(s.focal.x * 100).toFixed(2)}%`);
+        el.style.setProperty("--fy", `${(s.focal.y * 100).toFixed(2)}%`);
+      }
+      el.style.clipPath = isB && comp ? `inset(${(comp.edge * 100).toFixed(3)}% 0 0 0)` : "";
+    }
+    if (this.tide) {
+      const show = !!(comp && b);
+      this.tide.style.opacity = show ? "" : "0";
+      if (show && comp)
+        this.tide.style.transform = `translate3d(0, ${(comp.edge * vh).toFixed(1)}px, 0)`;
+    }
+    this.o.root.dataset.a = a?.plate ?? "";
+    this.o.root.dataset.b = b?.plate ?? "";
+  }
+
+  /** Poster mode's calm zones: navy overlays at the shader's strength and feather. */
+  private paintCalm(rects: readonly CalmRect[]) {
+    this.calmEls.forEach((el, i) => {
+      const r = rects[i];
+      if (!r) {
+        el.style.opacity = "0";
+        return;
+      }
+      el.style.opacity = r.k.toFixed(3);
+      el.style.transform = `translate3d(${r.x.toFixed(1)}px, ${r.y.toFixed(1)}px, 0)`;
+      el.style.width = `${r.w.toFixed(1)}px`;
+      el.style.height = `${r.h.toFixed(1)}px`;
+    });
+  }
+
+  private paintHorizon(
+    comp: Composition | null,
+    a: LayerState | null,
+    b: LayerState | null,
+    vw: number,
+    vh: number
+  ) {
+    const el = this.horizon;
+    if (!el) return;
+    const at = (s: LayerState | null, i: number): number | null => {
+      if (!s || i < 0 || !this.windows[i].horizon) return null;
+      const def = this.frameOf(s.plate);
+      const rect = s.aperture ?? { x: 0, y: 0, w: vw, h: vh };
+      const cover = coverFit(def.aspect, rect.w / Math.max(1, rect.h), s.focal as Focal, s.zoom);
+      const y = horizonInRect(def.horizon, cover, rect.h);
+      return y == null ? null : rect.y + y;
+    };
+    let y: number | null = null;
+    if (comp) {
+      const ya = at(a, comp.a);
+      const yb = at(b, comp.b);
+      if (ya != null && ya < comp.edge * vh) y = ya;
+      else if (yb != null && yb > comp.edge * vh) y = yb;
+    }
+    if (y == null || y < 0 || y > vh) {
+      el.style.opacity = "0";
+      return;
+    }
+    el.style.opacity = "";
+    el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
+  }
+
+  /** Lab and screenshots (development builds expose it as `window.__stage`). */
+  debug() {
+    return {
+      tier: this.tier,
+      mode: this.o.root.dataset.mode,
+      composition: this.lastComp,
+      plates: { a: this.o.root.dataset.a, b: this.o.root.dataset.b },
+      info: this.compositor?.info() ?? null,
+      setClock: (s: number | null) => this.compositor?.setClock(s),
+      renderOnce: () => this.compositor?.renderOnce(),
+    };
+  }
+}
+
+/** Last values written per element: unchanged ones are skipped (inherited custom properties
+ * invalidate the whole subtree, and far-away sections sit at 0 or 1 anyway). */
+const written = new WeakMap<HTMLElement, string>();
+
+function writeProgress(el: HTMLElement, top: number, bottom: number, vh: number) {
+  const p = windowProgress(top, bottom, vh);
+  const v = [p.in, p.out, p.pin, p.through].map((n) => n.toFixed(4));
+  const key = v.join(" ");
+  if (written.get(el) === key) return;
+  written.set(el, key);
+  el.style.setProperty("--stage-in", v[0]);
+  el.style.setProperty("--stage-out", v[1]);
+  el.style.setProperty("--stage-pin", v[2]);
+  el.style.setProperty("--stage-through", v[3]);
+}

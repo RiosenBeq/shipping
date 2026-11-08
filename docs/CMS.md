@@ -1,8 +1,8 @@
 # LEVANTER: İçerik yönetim paneli (Keystatic)
 
-Sitedeki bütün liste ve metin verileri (şirket ve iletişim bilgileri, brokerlar, araştırma notları, SSS'ler, sözlük, tanker ve LPG sınıfları, LPG dönüştürücü yoğunlukları, uyum ve Türk Boğazları sayfaları) artık **`/keystatic`** adresindeki yönetim panelinden eklenip düzenlenebilir.
+Sitedeki bütün liste ve metin verileri (şirket ve iletişim bilgileri, brokerlar, **blog yazıları**, SSS'ler, sözlük, tanker ve LPG sınıfları, LPG dönüştürücü yoğunlukları, uyum ve Türk Boğazları sayfaları) artık **`/keystatic`** adresindeki yönetim panelinden eklenip düzenlenebilir.
 
-Panel [Keystatic](https://keystatic.com) ile kuruldu (`@keystatic/core` 0.6.9, `@keystatic/next` 5.0.5). Veritabanı ve ayrı bir sunucu yok: içerik depodaki JSON dosyalarında (`content/*.json`) durur, her kayıt bir Git değişikliğidir.
+Panel [Keystatic](https://keystatic.com) ile kuruldu (`@keystatic/core` 0.6.9, `@keystatic/next` 5.0.5). Veritabanı ve ayrı bir sunucu yok: içerik depodaki dosyalarda durur (`content/*.json`; blog yazıları `content/blog/*.mdoc`), her kayıt bir Git değişikliğidir.
 
 - **Kendi bilgisayarınızda** (`npm run dev`): panel dosyaları doğrudan diske yazar.
 - **Canlı sitede** (Vercel): panel her kaydı GitHub'daki `RiosenBeq/shipping` deposuna commit olarak gönderir, Vercel siteyi yeniden yayınlar.
@@ -76,7 +76,7 @@ Bu değişkenler yokken `/keystatic` hata vermez; eksik değişkenlerin **adlar�
 | --- | --- | --- |
 | **Site settings** | `content/site.json` | Şirket adı, slogan, açıklama, site adresi, tüzel kişilik, kuruluş yılı, "içerik güncellendi" tarihi; ana e-posta, telefon, WhatsApp (wa.me bağlantısı için `+905…` biçiminde) ve görünen hali; çalışma saatleri; masa e-postaları (tanker, LPG, araştırma); adres ve harita konumu; ofisler; X/Twitter ve LinkedIn. Üst menü, alt bilgi, iletişim sayfası, yüzen iletişim düğmesi, hata sayfaları, JSON-LD, `llms.txt`, `humans.txt`, `ai.txt`, `security.txt`. |
 | **Brokers** | `content/brokers.json` | Her broker: ad, unvan, masa, ofis, uzmanlık etiketleri, diller, baş harfler, avatar rengi (masa şefi: pirinç, broker: lacivert) ve **isteğe bağlı fotoğraf**. Sıra, `/brokers` ve ana sayfalardaki sıradır. Altta masa adları. |
-| **Research notes** | `content/research.json` | Her not tek kayıt: adres (slug), başlık, arama başlığı, özet (en çok 160 karakter), masa, kategori, yayın ve revizyon tarihi, yazar, okuma süresi, "gated", kart etiketleri, giriş cümlesi (dek), gated özeti ve **gövde**. `/research`, not sayfaları, RSS (`/research/feed.xml`), `llms-full.txt`, JSON-LD (Article). |
+| **Blog posts** | `content/blog/<slug>.mdoc` (yazı başına bir dosya) | `/blog` (ana sayfa, kategori sayfaları, sayfalama), yazı sayfası `/blog/<slug>`, ana sayfadaki "Notes from the desk" şeridi, masa ve sınıf sayfalarındaki not kartları, tam metinli RSS (`/blog/feed.xml`), `llms.txt` / `llms-full.txt`, sitemap, JSON-LD (Blog, BlogPosting, BreadcrumbList). Ayrıntılar §3.1. |
 | **Tanker classes** | `content/tanker-classes.json` | `/tankers` ve `/tankers/<sınıf>`: teknik değerler, rotalar (Hormuz işaretiyle), pazarlar, eğilimler, kiralama şekli, sorumlu masa. |
 | **LPG classes** | `content/lpg-classes.json` | `/lpg` ve `/lpg/<sınıf>`: kapasite, yük, rotalar, ticaretler, dikkat noktaları, sınıfa özel SSS. |
 | **LPG converter cargoes** | `content/lpg-cargoes.json` | `/lpg`'deki cbm ↔ ton dönüştürücüsünün yük listesi ve yoğunlukları (t/m³). |
@@ -85,17 +85,41 @@ Bu değişkenler yokken `/keystatic` hata vermez; eksik değişkenlerin **adlar�
 | **Compliance** | `content/compliance.json` | `/compliance`: son gözden geçirme tarihi, tarama grupları, adımlar, SSS. |
 | **Turkish Straits** | `content/turkish-straits.json` | `/turkish-straits`: tarih, kısa bilgiler, bölümler (paragraflar ve isteğe bağlı maddeler), SSS. |
 
-### Araştırma notu gövdesi
+### 3.1 Blog yazıları (Blog posts)
 
-Gövde bloklardan oluşur; **Add** ile blok türü seçilir, sürükleyerek sıralanır:
+Kasım 2026'da 13 araştırma notu bloga taşındı: adresler aynı kaldı (`/research/<slug>` → `/blog/<slug>`, kalıcı 308 yönlendirme; `/research` → `/blog`, `/research/feed.xml` → `/blog/feed.xml`). Eski `Research notes` bölümü ve `content/research.json` kaldırıldı.
 
-- **Paragraph**: düz metin paragraf.
-- **Heading**: ara başlık (sayfada H2).
-- **Bullet list / Numbered list**: madde listesi; her madde ayrı satır.
-- **Callout box**: çerçeveli kutu: etiket, metin ve isteğe bağlı site içi bağlantı (yol, ör. `/compliance`, ve bağlantı metni; ikisi birlikte doldurulur).
-- **Table**: başlık (caption), sütun başlıkları ve satırlar; her satırda sütun sayısı kadar hücre. Boş hücre olabilir.
+**Yeni yazı:** **Blog posts → Add**. Sol tarafta gövde editörü, sağda alanlar:
 
-Metinlerde Markdown veya HTML kullanılmaz; yazılan aynen görünür.
+| Alan | Açıklama |
+| --- | --- |
+| **Title** / **URL slug** | Başlık; adres başlıktan otomatik üretilir (`/blog/<slug>`). Yayından sonra slug'ı değiştirmeyin. `category`, `page`, `feed`, `rss`, `tag`, `author` kullanılamaz (bunlar /blog altındaki sayfalardır). |
+| **Draft** | İşaretliyse yazı yalnızca geliştirme sunucusunda (`npm run dev`) görünür, üstünde "Draft" etiketiyle; canlı sitede, sitemap'te, RSS'te ve `llms.txt`'de yer almaz. Yayına almak için işareti kaldırıp kaydedin. |
+| **Search title** | İsteğe bağlı, en çok 60 karakter. Başlık 60 karakterden uzunsa doldurun (testler kontrol eder). |
+| **Search summary** | Meta açıklama ve RSS özeti, en çok 160 karakter. |
+| **Dek** | Başlığın altındaki tek cümle (yazı sayfası ve kartlar). |
+| **Category** | Chartering guides, Route guides, Risk & regulation, Market notes, News. Kategori sayfası: `/blog/category/<kategori>`. |
+| **Format label** | İsteğe bağlı kart etiketi (ör. *Risk brief*, *Route guide*, *Weekly outlook*); boşsa kategoriden gelir. |
+| **Desk** | Tankers, LPG & ammonia veya ikisi; masa sayfalarındaki not şeritleri buna göre süzülür. |
+| **Author** | Broker listesinden seçilir. Yeni bir broker önce **Brokers** bölümüne eklenmeli, sonra panel sayfası yenilenmeli. Yazar kartı ve JSON-LD'deki `Person` buradan gelir. |
+| **Published** / **Last material revision** | Yayın ve (isteğe bağlı) önemli revizyon tarihi; sitemap `lastmod`, RSS ve `dateModified` bunları kullanır. Revizyon, yayından önce olamaz. |
+| **Issue**, **Tags** | İsteğe bağlı sayı bilgisi ve etiketler (kapak etiketi, "Filed under", ilgili yazılar). |
+| **Reading time** | Boş bırakılırsa metinden hesaplanır (dakikada ~220 kelime). Taşınan notlarda eski değer korundu. |
+| **Summary only** + **Summary** | İşaretliyse sayfada özet ve "Full report on request" kutusu görünür; tam rapor e-postayla gönderilir. |
+| **Key takeaways** | Yazının başındaki "Key takeaways" kutusu (2–4 kısa madde önerilir). |
+| **Cover** | **Type-set cover** (varsayılan): büyük bir **Code** (rota kodu *TD3C*, sınıf *VLGC* veya koordinat *26°34′N*; en çok 12 karakter, **fiyat/navlun yazmayın**), altında küçük **Caption**; kontur çizgileri slug'dan üretilir, **Pattern** sayısı (1–9999) deseni değiştirir. **Photograph**: lisanslı medya kütüphanesinden bir kare seçin veya fotoğraf yükleyin (en az 1600 px genişlik), **Alt text** zorunlu. |
+| **FAQ** | İsteğe bağlı soru-cevaplar; yazının sonunda açılır liste ve FAQPage JSON-LD olarak çıkar. |
+
+**Gövde editörü** Markdoc yazar: paragraf, ara başlık (H2/H3; H2'ler soldaki "On this page" listesine girer), kalın/italik, madde ve numaralı liste, bağlantı, alıntı, tablo ve görsel araç çubuğundadır. **+** menüsündeki bileşenler:
+
+- **Callout**: etiketli çerçeveli kutu (ör. *Practical takeaway*, *Update, October 2026*); isteğe bağlı site içi bağlantı (**Link: path** ör. `/compliance` ve **Link: text**, ikisi birlikte).
+- **Pull quote**: metinden bir cümle, büyük italik serif; isteğe bağlı kaynak. Yazı başına en çok bir-iki tane.
+- **Table with caption**: başlıklı tablo; içine araç çubuğundaki tablo ekleyin. İlk satır başlık, ilk sütun satır adıdır; geniş tablolar kendi içinde kayar.
+- **Figure**: başlıklı ve isteğe bağlı kaynaklı görsel.
+
+**Görseller** (kapak fotoğrafı, Figure ve gövdeye eklenen görseller) `public/images/blog/<slug>/` altına kaydedilir; JPG, PNG, WebP veya AVIF kullanın (HEIC değil). Yerelde çalışıyorsanız bu klasörü de commit edin. Yazıyı silince (**Delete entry…**) Keystatic görselleri de siler; boş kalan klasörü silebilirsiniz.
+
+**Önizleme:** `npm run dev` açıkken yazının sayfası `http://localhost:3000/blog/<slug>` (panelde sağ üstteki dış bağlantı simgesi). Taslaklar da görünür; yeni dosyalar sunucuyu yeniden başlatmadan görünür.
 
 ### Broker fotoğrafı
 
@@ -103,9 +127,10 @@ Broker penceresinde **Photo → Choose file**. Kare, omuz hizasından, en az 240
 
 ## 4. Dikkat edilecekler
 
-- **Slug'lar adrestir.** Araştırma notu, tanker ve LPG sınıfı slug'larını yayından sonra değiştirmeyin; eski bağlantılar 404 olur. Gerekirse eski adres için `next.config.mjs`'e yönlendirme eklenmelidir (geliştirici işi).
-- **Yazar adı** broker listesindeki adla birebir aynı olmalı (Türkçe karakterler dahil).
-- **Strait of Hormuz notu** (`strait-of-hormuz-disruption-checklist-for-tanker-and-lpg-charterers`) rota tablolarından ve `/compliance`'tan bağlantılıdır; silinemez.
+- **Slug'lar adrestir.** Blog yazısı, tanker ve LPG sınıfı slug'larını yayından sonra değiştirmeyin; eski bağlantılar 404 olur. Gerekirse eski adres için `next.config.mjs`'e yönlendirme eklenmelidir (geliştirici işi).
+- **Yazar** listeden seçilir; bir broker silinirse onun yazıları derlemeyi durdurur (§5): önce yazıların yazarını değiştirin.
+- **Strait of Hormuz yazısı** (`strait-of-hormuz-disruption-checklist-for-tanker-and-lpg-charterers`) rota tablolarından ve `/compliance`'tan bağlantılıdır; silinemez.
+- Kapaklarda ve metinlerde canlı navlun, fiyat veya bunker rakamı vermeyin; tarihli piyasa yorumları yayın tarihine göre okunur.
 - **Site URL** alanı yalnızca yedektir: Vercel'de `NEXT_PUBLIC_SITE_URL` tanımlıysa o kullanılır.
 - **"Content last updated"** tarihini önemli bir içerik değişikliğinden sonra güncelleyin (sitemap, humans.txt, ai.txt bunu gösterir). Uyum ve Boğazlar sayfalarının kendi tarihleri var.
 
@@ -114,18 +139,19 @@ Broker penceresinde **Photo → Choose file**. Kare, omuz hizasından, en az 240
 Her içerik dosyası `lib/content/schemas.ts`'teki zod şemasıyla ve dosyalar arası kurallarla (`lib/content/validate.ts`) denetlenir:
 
 - zorunlu alanlar dolu, seçimler geçerli, tarihler `YYYY-AA-GG`, WhatsApp numarası `+` ve rakam;
-- not, sınıf, broker, dönüştürücü yükü ve Boğazlar bölümü kimlikleri tekil;
-- her notun yazarı broker listesinde; revizyon tarihi yayın tarihinden önce değil;
-- Hormuz notu mevcut.
+- sınıf, broker, dönüştürücü yükü ve Boğazlar bölümü kimlikleri tekil;
+- blog yazıları: ön bilgi (frontmatter) şeması, Markdoc gövdesi (bilinmeyen bileşen, eksik zorunlu alan), slug biçimi ve ayrılmış adlar, yazar broker listesinde, revizyon tarihi yayından önce değil, kullanılan görseller `public/` altında mevcut;
+- Hormuz yazısı mevcut.
 
-Denetim iki yerde çalışır: **`npm test`** (`lib/content/content.test.ts`; ayrıca Keystatic'in kendi okuyucusunun her dosyayı açabildiğini ve dosya biçimini kontrol eder) ve **derleme sırasında** (`app/sitemap.ts` içindeki `assertValidContent()`). Kurala uymayan bir kayıt Vercel derlemesini durdurur; canlı site bozulmaz.
+Denetim iki yerde çalışır: **`npm test`** (`lib/content/content.test.ts` ve `lib/blog/blog.test.ts`; ayrıca Keystatic'in kendi okuyucusunun her dosyayı açabildiğini ve dosyaların Keystatic'in yazdığı biçimde olduğunu kontrol eder) ve **derleme sırasında** (`app/sitemap.ts` içindeki `assertValidContent()`). Kurala uymayan bir kayıt Vercel derlemesini durdurur; canlı site bozulmaz.
 
 ## 6. Kodda kalanlar
 
 Panelden değil, kodda değişir:
 
 - Marka renkleri, paylaşım görseli rotası ve dil kodu (`lib/site.ts`); avatar renk değerleri (`AVATAR_COLOR`) ve masa sırası (`TEAM_ORDER`, `lib/data/brokers.ts`).
-- Seçim listeleri (`lib/content/options.ts`): masalar, ofis şehirleri (yeni bir ofis şehri brokerlara atanacaksa buraya eklenir), araştırma kategorileri, sözlük grupları, tanker aileleri.
+- Seçim listeleri (`lib/content/options.ts`): masalar, ofis şehirleri (yeni bir ofis şehri brokerlara atanacaksa buraya eklenir), blog kategorileri ve masaları, sözlük grupları, tanker aileleri. Kategori açıklamaları (kategori sayfasının alt başlığı) `lib/blog/meta.ts`'te.
+- Blog sayfalarının sabit metinleri (ör. "Notes from the desk.", masthead açıklaması) `lib/blog/meta.ts`'te.
 - Sayfa metinleri (başlıklar, giriş paragrafları, ana sayfa bölümleri) `app/(site)/…` sayfalarında; 10 dilin metni `lib/i18n.ts`'te; sayfa kataloğu `lib/pages.ts`'te.
 
 ## 7. Güvenlik ve dizinleme
@@ -185,12 +211,17 @@ PR #3 `lib/site.ts` ve `lib/data/*.ts` dosyalarındaki içeriği doğrudan düze
 | Depolama modu ve GitHub değişkenleri | `lib/content/storage.ts` |
 | Panel sayfası, kurulum notu, kök düzen | `app/keystatic/` |
 | Keystatic API | `app/api/keystatic/[...params]/route.ts` |
-| İçerik dosyaları | `content/*.json` |
+| İçerik dosyaları | `content/*.json`, blog: `content/blog/*.mdoc` |
+| Blog veri katmanı (yükleyici, Markdoc, kapaklar, RSS) | `lib/blog/` (`posts.ts`, `markdoc.ts`, `cover.ts`, `feed.ts`, `meta.ts`) |
+| Blog sayfaları ve bileşenleri | `app/(site)/blog/`, `components/site/blog/` (`NotesStrip` ana sayfa şeridi) |
+| Araştırma → blog taşıma betiği (tek seferlik) | `scripts/migrate-research-to-blog.ts`, eski veri: `lib/blog/__fixtures__/research-legacy.json` |
 | zod şemaları, doğrulama, yardımcılar | `lib/content/schemas.ts`, `validate.ts`, `format.ts`, `options.ts` |
 | Yükleyiciler (dışa aktarılan adlar ve tipler değişmedi) | `lib/site.ts`, `lib/data/*.ts` |
-| Testler | `lib/content/content.test.ts`, `keystatic.test.ts`, `setup-notice.test.tsx` |
+| Testler | `lib/content/content.test.ts`, `keystatic.test.ts`, `setup-notice.test.tsx`, `lib/blog/blog.test.ts` |
 
 - Yükleyiciler JSON'u **statik olarak** içe aktarır (çalışma zamanında dosya okuma yok, async yok); istemci bileşenleri (`Nav`, `FloatingContact`, `LpgConverter`, `InquiryForm`, `ErrorView`, `global-error`) aynı modülleri kullanmaya devam eder. zod yalnızca testlerde ve sunucu tarafında (sitemap) çalışır, istemci paketlerine girmez.
 - Keystatic boş metin alanlarını JSON'a yazmaz; yükleyiciler eksik anahtarı "yok" kabul eder (ör. `seoTitle`, `updated`, `photo`). Boş tablo hücresi `null` olarak yazılır, sayfaya `""` olarak gelir.
 - JSON dosyaları Keystatic'in yazdığı biçimdedir (`JSON.stringify(…, null, 2)`); `.prettierignore` bu yüzden `content`'i hariç tutar. Elle düzenlerken de bu biçimi koruyun; test kontrol eder.
 - Yeni bir alan eklemek: `keystatic.config.ts` + `lib/content/schemas.ts` + ilgili yükleyici + `content/*.json`, sonra `npm test`.
+- Blog yazıları JSON değil: `lib/blog/posts.ts` `content/blog/*.mdoc` dosyalarını derleme sırasında okur (geliştirme sunucusunda dosya değişince yeniden). Ön bilgi Keystatic'in biçimindedir (js-yaml `dump`, tarihler tırnaksız); gövde `Markdoc.format` biçimindedir. Markdoc bileşenlerinin özellikleri `keystatic.config.ts` (`blogComponents`) ile `lib/blog/markdoc.ts` (`BLOG_TAGS`) arasında aynı olmalı; test kontrol eder. Yeni bir bileşen iki yere de eklenir, `blog.css`'e stili yazılır.
+- `lib/data/research.ts` eski `Report` biçimini (masa ve sınıf sayfalarındaki `ReportCard` için) bloğa dayalı olarak sürdürür; yeni kod `lib/blog/posts.ts` kullanmalı.

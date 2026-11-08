@@ -17,7 +17,7 @@ export const PAGES: PageEntry[] = [
     path: "/",
     title: "Home",
     summary:
-      "Tanker and LPG chartering brokers headquartered in Istanbul: two desks (tankers; LPG & ammonia), process, team, research and FAQ.",
+      "Tanker and LPG chartering brokers headquartered in Istanbul: two desks (tankers; LPG & ammonia), process, team, blog and FAQ.",
     group: "primary",
     priority: 1,
     changeFrequency: "weekly",
@@ -42,10 +42,10 @@ export const PAGES: PageEntry[] = [
     changeFrequency: "weekly",
   },
   {
-    path: "/research",
-    title: "Research",
+    path: "/blog",
+    title: "Blog — Notes from the desk",
     summary:
-      "Route guides, practical guides (Worldscale and TCE, laytime and demurrage, LPG charter types), market outlooks and risk and regulatory briefs (Strait of Hormuz, price cap, EU ETS) from the tanker and LPG desks.",
+      "Chartering guides (Worldscale and TCE, laytime and demurrage, LPG charter types), route guides, risk and regulatory briefs (Strait of Hormuz, price cap, EU ETS) and market notes, written by the tanker and LPG brokers.",
     group: "primary",
     priority: 0.8,
     changeFrequency: "weekly",

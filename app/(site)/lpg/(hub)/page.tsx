@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { CalendarClock, Compass, FileCheck2, Mail, Repeat } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { PageHeader } from "@/components/site/PageHeader";
-import { Section } from "@/components/site/Section";
-import { CoverageCard } from "@/components/site/CoverageCard";
+import { StageHero } from "@/components/site/PageHeader";
 import { BrokerCard } from "@/components/site/BrokerCard";
-import { ReportCard } from "@/components/site/ReportCard";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
 import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
+import { NotesStrip } from "@/components/site/blog/NotesStrip";
+import { ClassRows } from "@/components/site/inner/ClassRows";
+import { BtnLabel, Glows, LinkArrow, SectionHead, Sub } from "@/components/site/inner/ui";
+import { Card, StageProvider } from "@/components/site/stage";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { brokersByTeam } from "@/lib/data/brokers";
-import { REPORTS } from "@/lib/data/research";
+import { latestPostCards } from "@/lib/blog/posts";
+import { BLOG_PATH } from "@/lib/blog/meta";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
-import { CHIP_STATIC, cn } from "@/lib/utils";
 import { LpgConverter } from "./LpgConverter";
 import { LPG_FAQ } from "@/lib/data/faqs";
 
@@ -44,18 +45,22 @@ export const metadata: Metadata = buildPageMetadata({
 
 const SERVICES = [
   {
+    Icon: Compass,
     title: "Spot voyages",
     text: "Single cargoes and relets, priced in $/mt with the routing and port-time assumptions shown.",
   },
   {
+    Icon: CalendarClock,
     title: "Time charters",
     text: "Period business from 6 months to multi-year, for importers, traders and end-users.",
   },
   {
+    Icon: Repeat,
     title: "Contracts of affreightment",
     text: "Regular programmes — LPG distribution or ammonia supply — with a fleet that fits your terminals.",
   },
   {
+    Icon: FileCheck2,
     title: "Post-fixture",
     text: "Voyage follow-up, laytime and demurrage calculations, and claims through to settlement.",
   },
@@ -78,17 +83,15 @@ const FOCUS = [
   },
 ];
 
-const EYEBROW = "text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink";
-
 /** Silhouette width per class (VLGC → pressurised): a quiet visual size ladder. */
-const ART_WIDTH = ["w-full", "w-[84%]", "w-[70%]", "w-[56%]"];
+const ART_WIDTH = ["100%", "84%", "70%", "56%"];
 
 export default function LpgPage() {
   const team = brokersByTeam("lpg");
-  const reports = REPORTS.filter((r) => r.desk === "lpg").slice(0, 3);
+  const notes = latestPostCards(3, "lpg");
 
   return (
-    <>
+    <div className="ip-page">
       <JsonLd
         data={[
           webPageLd({ title: TITLE, description: DESCRIPTION, path: "/lpg" }),
@@ -104,181 +107,187 @@ export default function LpgPage() {
           }),
         ]}
       />
+      <StageProvider plates={["V-gas", "V-ocean"]} />
 
-      <PageHeader
-        tone="dark"
-        eyebrow="LPG & ammonia desk"
+      <StageHero
+        plate="V-gas"
+        crumbs={[{ name: "LPG & Ammonia", path: "/lpg" }]}
+        sub="LPG & ammonia desk"
+        long
+        bright
         title="LPG and ammonia chartering, from VLGCs to pressurised coasters."
         lead="Propane, butane, ammonia and petrochemical gases — spot, period and COA. One desk that follows every size of gas carrier, run from Istanbul with brokers in London and Singapore."
-        crumbs={[{ name: "LPG & Ammonia", path: "/lpg" }]}
-        aside={
-          // Desktop only: on phones it would stack under the CTAs and repeat the
-          // fleet cards that follow straight after.
-          <div className="max-lg:hidden">
-            <CoverageCard
-              title="Gas carriers we fix"
-              items={LPG_CLASSES.map((c) => ({
-                name: c.name,
-                size: c.capacity.split(" — ")[0],
-                href: `/lpg/${c.slug}`,
-              }))}
-            />
-          </div>
+        actions={
+          <>
+            <Link href={inquiryHref({ segment: "lpg" })} className="lv-btn lv-btn--cta">
+              <BtnLabel>Send an LPG inquiry</BtnLabel>
+            </Link>
+            {/* labelled like the class pages; the address is printed in the letter and footer */}
+            <a href={`mailto:${siteConfig.desks.lpg.email}`} className="lv-btn lv-btn--ghost">
+              <Mail aria-hidden="true" />
+              <span>
+                Email the LPG desk
+                <span className="sr-only"> ({siteConfig.desks.lpg.email})</span>
+              </span>
+            </a>
+          </>
         }
-      >
-        <Link href={inquiryHref({ segment: "lpg" })} className="uv-btn uv-btn--lg w-full sm:w-auto">
-          Send an LPG inquiry <ArrowRight aria-hidden="true" />
-        </Link>
-        {/* labelled like the class pages; the address is printed in the CTA band and footer */}
-        <a
-          href={`mailto:${siteConfig.desks.lpg.email}`}
-          className="uv-btn-ghost-light uv-btn--lg w-full sm:w-auto"
-        >
-          <Mail aria-hidden="true" />
-          <span>
-            Email the LPG desk
-            <span className="sr-only"> ({siteConfig.desks.lpg.email})</span>
-          </span>
-        </a>
-      </PageHeader>
+        meta={{ label: "LPG & ammonia desk · Istanbul", coords: "41°02.6′N 029°00.5′E" }}
+      />
 
-      {/* Fleet */}
-      <Section
-        eyebrow="Fleet we cover"
-        title="Every size of gas carrier."
-        intro="Each segment trades differently. Pick the ship size for a quick guide to capacities, cargoes and routes — or just send us the cargo and we will advise."
+      {/* Fleet: Seacon rows */}
+      <Card ground="paper" id="fleet" aria-labelledby="fleet-title" className="ip-card">
+        <div className="ip-wrap">
+          <SectionHead
+            sub="Fleet we cover"
+            id="fleet-title"
+            title="Every size of gas carrier."
+            lead="Each segment trades differently. Pick the ship size for a quick guide to capacities, cargoes and routes — or just send us the cargo and we will advise."
+          />
+          <ClassRows
+            className="!border-t !border-t-[var(--ink)]"
+            rows={LPG_CLASSES.map((c, i) => {
+              // Pressurised coasters carry cylindrical deck tanks, not a refrigerated trunk deck.
+              const Art = c.slug === "pressurised" ? PressurisedGasArt : GasCarrierArt;
+              return {
+                href: `/lpg/${c.slug}`,
+                name: c.name,
+                sub: c.longName,
+                size: c.capacity.split(" — ")[0],
+                chips: c.cargoes.slice(0, 3),
+                chipsLabel: "Main cargoes",
+                go: `${c.name} guide`,
+                art: <Art />,
+                artWidth: ART_WIDTH[i],
+              };
+            })}
+          />
+        </div>
+      </Card>
+
+      {/* Services, cargoes and focus: night glass */}
+      <Card
+        ground="night"
+        id="services"
+        aria-labelledby="services-title"
+        className="ip-card ip-card--night"
       >
-        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {LPG_CLASSES.map((c, i) => {
-            // Pressurised coasters carry cylindrical deck tanks, not a refrigerated trunk deck.
-            const Art = c.slug === "pressurised" ? PressurisedGasArt : GasCarrierArt;
-            return (
-              <li key={c.slug} className="flex">
-                <Link href={`/lpg/${c.slug}`} className="uv-card w-full !gap-0 !p-0 !pb-14">
-                  <div
-                    aria-hidden="true"
-                    className="flex h-28 items-end justify-center border-b border-line bg-sand/60 px-6 text-navy/75"
-                  >
-                    <Art className={`${ART_WIDTH[i] ?? "w-1/2"} max-w-[260px]`} />
-                  </div>
-                  <div className="flex flex-1 flex-col px-6 pt-6">
-                    {/* two-line minimum in the 4-up row, so a wrapped eyebrow
-                      ("Pressurised & semi-ref coasters") doesn't push its card's
-                      title below the others */}
-                    <p className={`${EYEBROW} xl:min-h-[2lh]`}>{c.longName}</p>
-                    <h3 className="uv-card__title !mt-2 font-display !text-[26px] !font-normal !leading-tight">
-                      {c.name}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed">{c.capacity}</p>
-                    <ul className="mt-4 flex flex-wrap gap-1.5">
-                      {c.cargoes.slice(0, 3).map((g) => (
-                        <li key={g} className={cn(CHIP_STATIC, "!min-h-[28px] !text-xs")}>
-                          {g}
-                        </li>
-                      ))}
-                    </ul>
-                    <span className="uv-card__meta pt-6 font-semibold !text-navy">
-                      {c.name} guide
+        <Glows />
+        <div className="ip-wrap">
+          <SectionHead
+            sub="What we fix"
+            id="services-title"
+            title="From first idea to final demurrage."
+          />
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+            <ul className="ip-services ip-reveal">
+              {SERVICES.map(({ Icon, title, text }, i) => (
+                <li key={title} className="ip-glass ip-service">
+                  <div className="ip-service__top">
+                    <span className="ip-icon">
+                      <Icon aria-hidden="true" />
+                    </span>
+                    <span className="t-data" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
                   </div>
-                  <span className="uv-card__arrow" aria-hidden="true" />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </Section>
-
-      {/* Services */}
-      <Section tone="sand" eyebrow="What we fix" title="From first idea to final demurrage.">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-8">
-          <dl className="grid gap-px overflow-hidden rounded-[10px] border border-line bg-line sm:grid-cols-2">
-            {SERVICES.map((s, i) => (
-              <div key={s.title} className="bg-white p-6 sm:p-7">
-                <dt className="font-semibold text-navy">
-                  <span
-                    aria-hidden="true"
-                    className="mb-4 block font-mono text-xs font-medium text-brass-ink"
+                  <h3 className="t-card">{title}</h3>
+                  <p>{text}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="ip-glass p-7 sm:p-8">
+              <h3 className="t-label acc">Cargoes</h3>
+              <ul className="ip-chips mt-4">
+                {CARGOES.map((c) => (
+                  <li key={c}>
+                    <span className="ip-chip ip-chip--dot">{c}</span>
+                  </li>
+                ))}
+              </ul>
+              <h3 className="t-label acc !mt-9">Where we focus</h3>
+              <ul className="mt-2">
+                {FOCUS.map((f) => (
+                  <li
+                    key={f.title}
+                    className="border-t border-[var(--hair)] py-4 first:border-t-0 last:pb-0"
                   >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  {s.title}
-                </dt>
-                <dd className="mt-2 leading-relaxed text-slate">{s.text}</dd>
+                    <p className="font-semibold">{f.title}</p>
+                    <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--ink-2)]">
+                      {f.text}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <hr className="ip-rule" />
+
+          <SectionHead
+            sub="The LPG desk"
+            id="team-title"
+            title="Gas brokers by segment."
+            action={
+              <Link href="/brokers" className="lv-link">
+                <span>Full team</span>
+                <LinkArrow />
+              </Link>
+            }
+          />
+          <ul className="ip-team ip-team--4">
+            {team.map((b) => (
+              <li key={b.name}>
+                <BrokerCard broker={b} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Card>
+
+      {/* Converter (physical densities only — no market data): the paper tool card */}
+      <Card ground="paper" id="converter" aria-labelledby="converter-title" className="ip-card">
+        <div className="ip-wrap">
+          <SectionHead
+            sub="Free tool"
+            id="converter-title"
+            size="sm"
+            title="LPG cargo converter: cbm to tonnes."
+            lead="Quickly check how many tonnes fit in a ship's tanks — or how much capacity a parcel needs — for propane, butane, ammonia and petrochemical gases."
+          />
+          <LpgConverter />
+
+          {notes.length > 0 && (
+            <NotesStrip
+              posts={notes}
+              id="notes"
+              sub="LPG research"
+              title="Notes from the gas desk."
+              allHref={BLOG_PATH}
+              allLabel="All posts"
+              className="ip-block"
+            />
+          )}
+
+          <section id="faq" aria-labelledby="faq-title" className="ip-block">
+            <div className="ip-faq-block">
+              <div className="ip-faq-block__head">
+                <div>
+                  <Sub>FAQ</Sub>
+                  <h2 id="faq-title" className="t-display">
+                    LPG chartering questions.
+                  </h2>
+                </div>
+                <Link href={inquiryHref({ segment: "lpg" })} className="lv-link">
+                  <span>Ask the desk</span>
+                  <LinkArrow />
+                </Link>
               </div>
-            ))}
-          </dl>
-          <div className="uv-card !gap-0 !p-6 sm:!p-7">
-            <h3 className={EYEBROW}>Cargoes</h3>
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {CARGOES.map((c) => (
-                <li key={c} className={CHIP_STATIC}>
-                  {c}
-                </li>
-              ))}
-            </ul>
-            <h3 className={`mt-8 ${EYEBROW}`}>Where we focus</h3>
-            <ul className="mt-2 divide-y divide-line">
-              {FOCUS.map((f) => (
-                <li key={f.title} className="py-4 last:pb-0">
-                  <p className="font-semibold text-navy">{f.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate">{f.text}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+              <Faq items={LPG_FAQ} />
+            </div>
+          </section>
         </div>
-      </Section>
-
-      {/* Converter (physical densities only — no market data) */}
-      <Section
-        id="converter"
-        eyebrow="Free tool"
-        title="LPG cargo converter: cbm to tonnes."
-        intro="Quickly check how many tonnes fit in a ship's tanks — or how much capacity a parcel needs — for propane, butane, ammonia and petrochemical gases."
-      >
-        <LpgConverter />
-      </Section>
-
-      {/* Team */}
-      <Section
-        tone="sand"
-        eyebrow="The LPG desk"
-        title="Gas brokers by segment."
-        action={
-          <Link href="/brokers" className="uv-btn-outline">
-            Full team <ArrowRight aria-hidden="true" />
-          </Link>
-        }
-      >
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {team.map((b) => (
-            <BrokerCard key={b.name} broker={b} />
-          ))}
-        </div>
-      </Section>
-
-      {reports.length > 0 && (
-        <Section
-          eyebrow="LPG research"
-          title="Notes from the gas desk."
-          action={
-            <Link href="/research" className="uv-btn-outline">
-              All research <ArrowRight aria-hidden="true" />
-            </Link>
-          }
-        >
-          <div className="grid gap-5 md:grid-cols-3">
-            {reports.map((r) => (
-              <ReportCard key={r.slug} report={r} />
-            ))}
-          </div>
-        </Section>
-      )}
-
-      <Section tone="sand" eyebrow="FAQ" title="LPG chartering questions.">
-        <Faq items={LPG_FAQ} onSand />
-      </Section>
+      </Card>
 
       <CtaBand
         title="Have an LPG or ammonia cargo?"
@@ -288,6 +297,6 @@ export default function LpgPage() {
         // in as "LPG". Both reach the gas desk.
         inquiryHref={inquiryHref()}
       />
-    </>
+    </div>
   );
 }

@@ -9,12 +9,17 @@
  * Paths are public-root URLs (serve as-is from Next.js `public/`).
  *
  * Every loop is seamless (crossfaded tail→head, or a forward/back ping-pong for footage
- * whose motion cannot be crossfaded), H.264 High, yuv420p, no audio, `+faststart`.
- * Posters are the first frame of each loop, so a poster → video swap does not jump.
- * Total weight of /public/media at generation time: 41.3 MB.
+ * whose motion cannot be crossfaded), H.264 High, yuv420p, no audio, `+faststart`; the `reel`
+ * is a 20 s edit of four of them with hard cuts. Posters are the first frame of each loop, so
+ * a poster → video swap does not jump.
+ *
+ * The stage (components/site/stage, docs/STAGE.md) shows footage only through its lens: each
+ * item's `look` says how (grade preset, focal points, flipX, horizon, levels) and `graded` is
+ * the same poster or still with that grade baked in (components/site/stage/tools/build-media.ts,
+ * the LUTs in /media/lut). Public pages use the graded files, never the ungraded ones.
  */
 
-export type VideoSlot = "hero" | "sea" | "gas" | "port" | "bosphorus" | "night" | "ocean";
+export type VideoSlot = "hero" | "sea" | "gas" | "port" | "bosphorus" | "night" | "ocean" | "reel";
 export type StillKey =
   | "tankerBow"
   | "tankerAtAnchor"
@@ -25,6 +30,54 @@ export type StillKey =
   | "portDusk"
   | "galata"
   | "mosqueNight";
+
+/**
+ * Lens grade presets of the stage (DESIGN-V2 §6.2; numbers in components/site/stage/grades.ts,
+ * `.cube` LUTs in /media/lut/). Every clip and still is shown through exactly one of them.
+ */
+export type GradePreset = "dawn" | "day" | "dusk" | "night" | "deep";
+
+/** A point in a frame, 0..1 from the top-left corner (CSS `object-position` semantics). */
+export interface Focal {
+  x: number;
+  y: number;
+}
+
+/** How the stage frames and grades an item (DESIGN-V2 §6.2, §6.6, §12). */
+export interface StageLook {
+  grade: GradePreset;
+  /** Kept in view by cover-fit on landscape screens (in the landscape file's frame). */
+  focal: Focal;
+  /** Kept in view on portrait phones (in the portrait file's frame when there is one). */
+  focalPhone: Focal;
+  /** Right-to-left pages: plates are never mirrored for RTL, they re-frame instead. */
+  focalRtl?: Focal;
+  /** Mirror horizontally. Allowed only for open water: no land, text or livery in frame. */
+  flipX: boolean;
+  /** Height of the horizon (or waterline) in the source frame, 0 top..1 bottom; null when there is none (top-down). */
+  horizon: number | null;
+  /** Luma black/white points (from the clip's histogram) normalised before the grade. */
+  levels: [number, number];
+}
+
+/** A poster or still with the item's grade baked in (ffmpeg colorlevels + lut3d). */
+export interface GradedImage {
+  /** 1600 wide (posters) or 1200 wide (stills). */
+  avif: string;
+  webp: string;
+  width: number;
+  height: number;
+  /** 800-wide version (posters only). */
+  avifSmall?: string;
+  webpSmall?: string;
+  smallWidth?: number;
+  /** Portrait crop (posters of clips with a portrait file). */
+  avifPortrait?: string;
+  webpPortrait?: string;
+  portraitWidth?: number;
+  portraitHeight?: number;
+  bytes: { avif: number; webp: number; avifSmall?: number; avifPortrait?: number };
+}
 
 export interface MediaCredit {
   /** Library or archive the item came from. */
@@ -62,8 +115,8 @@ export interface VideoLoop {
   /** Loop length in seconds. */
   duration: number;
   fps: number;
-  /** How the seamless loop was made (ping-pong loops play forward then backward). */
-  loop: "crossfade" | "pingpong" | "eased-pingpong";
+  /** How the loop was made (ping-pong loops play forward then backward; `cut` is an edit with hard cuts that loops back to its first shot). */
+  loop: "crossfade" | "pingpong" | "eased-pingpong" | "cut";
   /** Mean luma of the poster, 0 (black) – 1 (white): pick overlay strength / text colour from it. */
   posterLuma: number;
   bytes: { mp4_1080: number; mp4_720: number; mp4_portrait?: number };
@@ -71,6 +124,10 @@ export interface VideoLoop {
   subject: string;
   alt: string;
   credit: MediaCredit;
+  /** Stage framing and grade. */
+  look: StageLook;
+  /** Graded posters (what poster mode and the LCP show). Present for the clips the stage plays. */
+  graded?: GradedImage;
 }
 
 export interface StillImage {
@@ -83,6 +140,9 @@ export interface StillImage {
   alt: string;
   credit: MediaCredit;
   note?: string;
+  /** Grade and focal point; `graded` is the same frame with that grade baked in. */
+  look: Pick<StageLook, "grade" | "focal">;
+  graded: GradedImage;
 }
 
 export const videos: Record<VideoSlot, VideoLoop> = {
@@ -123,6 +183,28 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       licenseUrl: "https://www.law.cornell.edu/uscode/text/17/105",
       segment: "source 30.45–36.45 s (720p, upscaled), eased forward/back drift loop",
     },
+    look: {
+      grade: "dawn",
+      focal: { x: 0.62, y: 0.62 },
+      focalPhone: { x: 0.5, y: 0.6 },
+      flipX: false,
+      horizon: 0.11,
+      levels: [0.08, 0.74],
+    },
+    graded: {
+      avif: "/media/graded/hero-1600.avif",
+      webp: "/media/graded/hero-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/hero-800.avif",
+      webpSmall: "/media/graded/hero-800.webp",
+      smallWidth: 800,
+      avifPortrait: "/media/graded/hero-portrait.avif",
+      webpPortrait: "/media/graded/hero-portrait.webp",
+      portraitWidth: 720,
+      portraitHeight: 1280,
+      bytes: { avif: 15087, webp: 26596, avifSmall: 6044, avifPortrait: 7977 },
+    },
   },
   sea: {
     slot: "sea",
@@ -160,6 +242,14 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "source 3.25–14.5 s, 95% crop drifting with the boat so the crossfade lines up",
     },
+    look: {
+      grade: "dawn",
+      focal: { x: 0.5, y: 0.45 },
+      focalPhone: { x: 0.5, y: 0.5 },
+      flipX: true,
+      horizon: null,
+      levels: [0.2, 0.46],
+    },
   },
   gas: {
     slot: "gas",
@@ -192,6 +282,24 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       licenseUrl: "https://www.law.cornell.edu/uscode/text/17/105",
       segment: "source 0.15–6.15 s (720p, upscaled), eased forward/back orbit loop",
     },
+    look: {
+      grade: "day",
+      focal: { x: 0.66, y: 0.5 },
+      focalPhone: { x: 0.74, y: 0.5 },
+      flipX: false,
+      horizon: 0.375,
+      levels: [0.16, 0.97],
+    },
+    graded: {
+      avif: "/media/graded/gas-1600.avif",
+      webp: "/media/graded/gas-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/gas-800.avif",
+      webpSmall: "/media/graded/gas-800.webp",
+      smallWidth: 800,
+      bytes: { avif: 23384, webp: 45054, avifSmall: 8856 },
+    },
   },
   port: {
     slot: "port",
@@ -222,6 +330,14 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       license: "Mixkit Stock Video Free License",
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "source 0.96–5.28 s (timelapse played at 0.8× speed, 24 fps), ping-pong loop",
+    },
+    look: {
+      grade: "dusk",
+      focal: { x: 0.55, y: 0.62 },
+      focalPhone: { x: 0.6, y: 0.62 },
+      flipX: false,
+      horizon: 0.86,
+      levels: [0.06, 0.88],
     },
   },
   bosphorus: {
@@ -261,6 +377,28 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       segment:
         "source 0.16–8.64 s (played at 0.8× speed, 24 fps), crossfade loop, started at a phase without a docked ferry",
     },
+    look: {
+      grade: "day",
+      focal: { x: 0.62, y: 0.5 },
+      focalPhone: { x: 0.5, y: 0.5 },
+      flipX: false,
+      horizon: 0.775,
+      levels: [0.02, 0.98],
+    },
+    graded: {
+      avif: "/media/graded/bosphorus-1600.avif",
+      webp: "/media/graded/bosphorus-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/bosphorus-800.avif",
+      webpSmall: "/media/graded/bosphorus-800.webp",
+      smallWidth: 800,
+      avifPortrait: "/media/graded/bosphorus-portrait.avif",
+      webpPortrait: "/media/graded/bosphorus-portrait.webp",
+      portraitWidth: 720,
+      portraitHeight: 900,
+      bytes: { avif: 61268, webp: 89764, avifSmall: 20811, avifPortrait: 26138 },
+    },
   },
   night: {
     slot: "night",
@@ -298,6 +436,28 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "source 0.7–6.1 s, ping-pong loop",
     },
+    look: {
+      grade: "night",
+      focal: { x: 0.55, y: 0.55 },
+      focalPhone: { x: 0.5, y: 0.55 },
+      flipX: false,
+      horizon: 0.63,
+      levels: [0, 0.86],
+    },
+    graded: {
+      avif: "/media/graded/night-1600.avif",
+      webp: "/media/graded/night-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/night-800.avif",
+      webpSmall: "/media/graded/night-800.webp",
+      smallWidth: 800,
+      avifPortrait: "/media/graded/night-portrait.avif",
+      webpPortrait: "/media/graded/night-portrait.webp",
+      portraitWidth: 720,
+      portraitHeight: 900,
+      bytes: { avif: 27300, webp: 42920, avifSmall: 10207, avifPortrait: 8162 },
+    },
   },
   ocean: {
     slot: "ocean",
@@ -334,6 +494,78 @@ export const videos: Record<VideoSlot, VideoLoop> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "source 4.0–15.5 s, crossfade loop",
     },
+    look: {
+      grade: "deep",
+      focal: { x: 0.5, y: 0.5 },
+      focalPhone: { x: 0.5, y: 0.5 },
+      flipX: false,
+      horizon: null,
+      levels: [0.09, 0.5],
+    },
+    graded: {
+      avif: "/media/graded/ocean-1600.avif",
+      webp: "/media/graded/ocean-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/ocean-800.avif",
+      webpSmall: "/media/graded/ocean-800.webp",
+      smallWidth: 800,
+      avifPortrait: "/media/graded/ocean-portrait.avif",
+      webpPortrait: "/media/graded/ocean-portrait.webp",
+      portraitWidth: 720,
+      portraitHeight: 1280,
+      bytes: { avif: 12129, webp: 24058, avifSmall: 4294, avifPortrait: 6889 },
+    },
+  },
+  reel: {
+    slot: "reel",
+    mp4_1080: "/media/video/reel-1080.mp4",
+    mp4_720: "/media/video/reel-720.mp4",
+    poster_avif: "/media/poster/reel-1920.avif",
+    poster_webp: "/media/poster/reel-1920.webp",
+    posterSmall_avif: "/media/poster/reel-720.avif",
+    posterSmall_webp: "/media/poster/reel-720.webp",
+    width: 1600,
+    height: 900,
+    duration: 20,
+    fps: 24,
+    loop: "cut",
+    posterLuma: 0.24,
+    bytes: {
+      mp4_1080: 2731848,
+      mp4_720: 1587326,
+    },
+    subject:
+      "20 s edit with hard cuts, 5 s each: workboat underway on open sea (top-down) → harbour cranes at dusk → Istanbul Karaköy waterfront by day → loaded tanker at anchor",
+    alt: "Ships at sea, a harbour at dusk, the Istanbul waterfront and a tanker at anchor",
+    credit: {
+      source: "Mixkit and Wikimedia Commons (U.S. Coast Guard)",
+      title: "LEVANTER reel (edit of the sea, port, bosphorus and gas loops)",
+      url: "https://mixkit.co/free-stock-video/boat-sailing-in-the-sea-seen-from-high-above-50176/",
+      author: "Mixkit; Aidan Cooney, U.S. Coast Guard (public domain)",
+      license: "Mixkit Stock Video Free License; public domain (17 U.S.C. § 105)",
+      licenseUrl: "https://mixkit.co/license/#videoFree",
+      segment:
+        "sea 0.4–5.4 s, port 0–5 s, bosphorus 1–6 s, gas 0–5 s of the delivered loops (sources and licences: those entries)",
+    },
+    look: {
+      grade: "dusk",
+      focal: { x: 0.5, y: 0.5 },
+      focalPhone: { x: 0.5, y: 0.5 },
+      flipX: false,
+      horizon: null,
+      levels: [0.05, 0.9],
+    },
+    graded: {
+      avif: "/media/graded/reel-1600.avif",
+      webp: "/media/graded/reel-1600.webp",
+      width: 1600,
+      height: 900,
+      avifSmall: "/media/graded/reel-800.avif",
+      webpSmall: "/media/graded/reel-800.webp",
+      smallWidth: 800,
+      bytes: { avif: 2653, webp: 7950, avifSmall: 845 },
+    },
   },
 };
 
@@ -361,6 +593,14 @@ export const stills: Record<StillKey, StillImage> = {
       segment: "frame at 43.5 s",
     },
     note: "upscaled from 1280×720",
+    look: { grade: "day", focal: { x: 0.45, y: 0.55 } },
+    graded: {
+      avif: "/media/graded/still/tanker-bow.avif",
+      webp: "/media/graded/still/tanker-bow.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 14709, webp: 26356 },
+    },
   },
   tankerAtAnchor: {
     avif: "/media/still/tanker-at-anchor.avif",
@@ -384,6 +624,14 @@ export const stills: Record<StillKey, StillImage> = {
       segment: "frame at 3.0 s",
     },
     note: "upscaled from 1280×720",
+    look: { grade: "dusk", focal: { x: 0.7, y: 0.55 } },
+    graded: {
+      avif: "/media/graded/still/tanker-at-anchor.avif",
+      webp: "/media/graded/still/tanker-at-anchor.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 9833, webp: 21550 },
+    },
   },
   tankerFleet: {
     avif: "/media/still/tanker-fleet-aerial.avif",
@@ -407,6 +655,14 @@ export const stills: Record<StillKey, StillImage> = {
       segment: "frame at 34.5 s",
     },
     note: "upscaled from 1280×720",
+    look: { grade: "dawn", focal: { x: 0.6, y: 0.6 } },
+    graded: {
+      avif: "/media/graded/still/tanker-fleet-aerial.avif",
+      webp: "/media/graded/still/tanker-fleet-aerial.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 5713, webp: 11244 },
+    },
   },
   lpgDeck: {
     avif: "/media/still/lpg-carrier-deck.avif",
@@ -430,6 +686,14 @@ export const stills: Record<StillKey, StillImage> = {
       segment: "frame at 66 s",
     },
     note: "upscaled from 1280×720",
+    look: { grade: "day", focal: { x: 0.45, y: 0.45 } },
+    graded: {
+      avif: "/media/graded/still/lpg-carrier-deck.avif",
+      webp: "/media/graded/still/lpg-carrier-deck.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 30388, webp: 47508 },
+    },
   },
   openSea: {
     avif: "/media/still/open-sea.avif",
@@ -450,6 +714,14 @@ export const stills: Record<StillKey, StillImage> = {
       license: "Mixkit Stock Video Free License",
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "frame at 1.0 s",
+    },
+    look: { grade: "day", focal: { x: 0.5, y: 0.5 } },
+    graded: {
+      avif: "/media/graded/still/open-sea.avif",
+      webp: "/media/graded/still/open-sea.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 16739, webp: 35644 },
     },
   },
   wakeTopdown: {
@@ -472,6 +744,14 @@ export const stills: Record<StillKey, StillImage> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "frame at 8.0 s",
     },
+    look: { grade: "dawn", focal: { x: 0.6, y: 0.5 } },
+    graded: {
+      avif: "/media/graded/still/wake-topdown.avif",
+      webp: "/media/graded/still/wake-topdown.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 1443, webp: 4610 },
+    },
   },
   portDusk: {
     avif: "/media/still/port-dusk.avif",
@@ -492,6 +772,14 @@ export const stills: Record<StillKey, StillImage> = {
       license: "Mixkit Stock Video Free License",
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "frame at 7.0 s",
+    },
+    look: { grade: "dusk", focal: { x: 0.6, y: 0.7 } },
+    graded: {
+      avif: "/media/graded/still/port-dusk.avif",
+      webp: "/media/graded/still/port-dusk.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 15491, webp: 26296 },
     },
   },
   galata: {
@@ -514,6 +802,14 @@ export const stills: Record<StillKey, StillImage> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "frame at 5.5 s",
     },
+    look: { grade: "day", focal: { x: 0.65, y: 0.55 } },
+    graded: {
+      avif: "/media/graded/still/galata-waterfront.avif",
+      webp: "/media/graded/still/galata-waterfront.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 37014, webp: 59396 },
+    },
   },
   mosqueNight: {
     avif: "/media/still/mosque-night.avif",
@@ -535,7 +831,44 @@ export const stills: Record<StillKey, StillImage> = {
       licenseUrl: "https://mixkit.co/license/#videoFree",
       segment: "frame at 4.0 s",
     },
+    look: { grade: "night", focal: { x: 0.78, y: 0.55 } },
+    graded: {
+      avif: "/media/graded/still/mosque-night.avif",
+      webp: "/media/graded/still/mosque-night.webp",
+      width: 1200,
+      height: 675,
+      bytes: { avif: 8158, webp: 14632 },
+    },
   },
+};
+
+/**
+ * Pre-rendered statics of the procedural plates (DESIGN-V2 §6.3): what poster mode, blog
+ * mastheads and type covers show. Rendered from the live shader (components/site/stage/gl/bathy.ts)
+ * in /stage-lab, so the static and the live field match.
+ */
+export const proceduralStatics = {
+  bathy: {
+    avif: "/media/stage/bathy-1920.avif",
+    webp: "/media/stage/bathy-1920.webp",
+    width: 1920,
+    height: 1200,
+    avifPortrait: "/media/stage/bathy-portrait.avif",
+    webpPortrait: "/media/stage/bathy-portrait.webp",
+    portraitWidth: 900,
+    portraitHeight: 1600,
+    bytes: { avif: 27982, webp: 66998, avifPortrait: 12647 },
+    alt: "Bathymetric contour lines of a winding channel, in brass on deep navy",
+  },
+} as const;
+
+/** The lens grades as 17³ `.cube` LUTs (ffmpeg `lut3d`), written from components/site/stage/grades.ts. */
+export const gradeLuts: Record<GradePreset, string> = {
+  dawn: "/media/lut/dawn.cube",
+  day: "/media/lut/day.cube",
+  dusk: "/media/lut/dusk.cube",
+  night: "/media/lut/night.cube",
+  deep: "/media/lut/deep.cube",
 };
 
 export const videoSlots = Object.keys(videos) as VideoSlot[];

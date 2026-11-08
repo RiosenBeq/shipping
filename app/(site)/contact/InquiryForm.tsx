@@ -617,7 +617,7 @@ export function InquiryForm() {
         e.preventDefault();
         submit("email");
       }}
-      className="rounded-lg border border-line bg-white p-5 shadow-[0_1px_2px_rgba(10,31,51,0.04)] sm:p-8 md:p-10"
+      className="ip-form"
     >
       <fieldset>
         {legend("01", "Cargo & ship")}
@@ -754,26 +754,19 @@ export function InquiryForm() {
           <button
             ref={submitRef}
             type="submit"
-            className="uv-btn uv-btn--lg sm:min-w-[15rem]"
+            className="lv-btn lv-btn--cta min-h-[52px] sm:min-w-[15rem]"
             aria-busy={busy === "email" || undefined}
             aria-disabled={busy === "whatsapp" || undefined}
           >
-            {busy === "email" ? (
-              <>
-                <span className="uv-loader uv-loader--sm" aria-hidden="true" />
-                <span>Opening email app…</span>
-              </>
-            ) : (
-              <>
-                <span>Send by email</span>
-                <ArrowRight aria-hidden="true" />
-              </>
-            )}
+            <span>{busy === "email" ? "Opening email app…" : "Send by email"}</span>
+            <span className="lv-btn__arrow" aria-hidden="true">
+              {busy === "email" ? <span className="uv-loader uv-loader--sm" /> : <ArrowRight />}
+            </span>
           </button>
           <button
             type="button"
             onClick={() => submit("whatsapp")}
-            className="uv-btn-outline uv-btn--lg sm:min-w-[15rem]"
+            className="lv-btn lv-btn--ghost min-h-[52px] gap-2.5 sm:min-w-[15rem] [&>svg]:h-[17px] [&>svg]:w-[17px]"
             aria-busy={busy === "whatsapp" || undefined}
             aria-disabled={busy === "email" || undefined}
           >

@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, FileCheck2, Mail, Users } from "lucide-react";
+import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { PageHeader } from "@/components/site/PageHeader";
-import { Eyebrow, Section } from "@/components/site/Section";
-import { Faq } from "@/components/site/Faq";
-import { CtaBand } from "@/components/site/CtaBand";
-import { HormuzBadge, HormuzNote } from "@/components/site/HormuzNote";
-import { ReportCard } from "@/components/site/ReportCard";
-import { relatedReports } from "@/lib/data/research";
 import { TankerArt } from "@/components/site/VesselArt";
+import { ClassGuide } from "@/components/site/inner/ClassGuide";
+import { BtnLabel } from "@/components/site/inner/ui";
+import { StageProvider, type ShipClassSlug } from "@/components/site/stage";
+import { getPost, toCard } from "@/lib/blog/posts";
+import type { PostCardData } from "@/lib/blog/meta";
+import { relatedReports } from "@/lib/data/research";
 import {
   TANKER_CLASSES,
   getTankerClassBySlug,
   type TankerClassData,
 } from "@/lib/data/tanker-classes";
+import type { StillKey } from "@/lib/media";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { VESSEL_BY_CLASS, inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
-import { CHIP_STATIC, cn } from "@/lib/utils";
 
 type Params = { params: { class: string } };
 
@@ -83,27 +82,35 @@ export function generateMetadata({ params }: Params): Metadata {
   });
 }
 
-const EYEBROW = "text-xs font-semibold uppercase tracking-[0.16em] text-brass-ink";
+/**
+ * A graded still per class (lib/media.ts), captioned with what is actually on screen — the
+ * licensed footage shows tankers, not necessarily this size.
+ */
+const STILL: Record<string, { still: StillKey; caption: string }> = {
+  vlcc: { still: "tankerFleet", caption: "Tankers at anchor, from the air" },
+  suezmax: { still: "tankerBow", caption: "Tanker at anchor, more on the horizon" },
+  aframax: { still: "tankerAtAnchor", caption: "Laden tanker at anchor" },
+  lr1: { still: "portDusk", caption: "Harbour basin at dusk" },
+  mr: { still: "tankerBow", caption: "Tanker at anchor, more on the horizon" },
+};
 
 export default function TankerClassPage({ params }: Params) {
   const t = getTankerClassBySlug(params.class);
   if (!t) notFound();
   const { title, description } = copy(t);
+  const i = TANKER_CLASSES.findIndex((o) => o.slug === t.slug);
+  const next = TANKER_CLASSES[(i + 1) % TANKER_CLASSES.length];
   const others = TANKER_CLASSES.filter((o) => o.slug !== t.slug);
   // Inquiries from this page arrive with the cargo and ship size preselected.
   const inquiry = inquiryHref({ segment: t.family, vessel: VESSEL_BY_CLASS[t.slug] });
-
-  const specs = [
-    { k: "Deadweight", v: t.dwtRange },
-    { k: "Cargo", v: t.cargoCapacity },
-    { k: "LOA / beam", v: `${t.loa} / ${t.beam}` },
-    { k: "Draft", v: t.draft },
-    { k: "Speed", v: t.speed },
-    { k: "Consumption", v: t.consumption },
-  ];
+  const notes = relatedReports("tankers", [t.shortName, ...t.routes.map((r) => r.code)])
+    .map((r) => getPost(r.slug))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .map(toCard) satisfies PostCardData[];
+  const still = STILL[t.slug] ?? STILL.vlcc;
 
   return (
-    <>
+    <div className="ip-page">
       <JsonLd
         data={[
           webPageLd({ title, description, path: `/tankers/${t.slug}` }),
@@ -116,213 +123,83 @@ export default function TankerClassPage({ params }: Params) {
           }),
         ]}
       />
+      <StageProvider plates={["P-lines", "V-ocean"]} />
 
-      <PageHeader
-        eyebrow={t.longName}
-        title={`${t.shortName} chartering`}
-        lead={t.intro}
+      <ClassGuide
+        slug={t.slug as ShipClassSlug}
         crumbs={[
           { name: "Tankers", path: "/tankers" },
           { name: t.shortName, path: `/tankers/${t.slug}` },
         ]}
-        aside={
-          <div className="uv-card !gap-0 !p-0 shadow-[0_24px_48px_-32px_rgba(10,31,51,0.45)]">
-            <div className="relative isolate overflow-hidden bg-navy px-6 pb-2 pt-5 text-white/80">
-              <div className="uv-hero-pattern [--uv-grid:48px]" aria-hidden="true" />
-              <div className="relative z-[1] flex items-baseline justify-between gap-4">
-                <Eyebrow dark size="sm">
-                  At a glance
-                </Eyebrow>
-                <p className="font-mono text-xs text-fog">
-                  {t.family === "crude" ? "Crude" : "Clean"} · {t.shortName}
-                </p>
-              </div>
-              <TankerArt className="relative z-[1] mx-auto mt-4 w-full max-w-[340px]" />
-            </div>
-            <dl className="divide-y divide-line px-6">
-              {specs.map((s) => (
-                <div
-                  key={s.k}
-                  className="grid gap-1 py-3 text-sm sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-4"
-                >
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate sm:pt-0.5">
-                    {s.k}
-                  </dt>
-                  <dd className="tnum leading-relaxed text-navy">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        }
-      >
-        <Link href={inquiry} className="uv-btn uv-btn--lg w-full sm:w-auto">
-          Request {t.shortName} tonnage <ArrowRight aria-hidden="true" />
-        </Link>
-        <a
-          href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent(`${t.shortName} inquiry`)}`}
-          className="uv-btn-outline uv-btn--lg w-full sm:w-auto"
-        >
-          <Mail aria-hidden="true" />
-          <span>Email the tanker desk</span>
-        </a>
-      </PageHeader>
-
-      {/* Routes */}
-      <Section eyebrow="Routes" title={`Key ${t.shortName} lanes.`}>
-        <div className="overflow-hidden rounded-[10px] border border-line bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full text-start text-sm">
-              <caption className="sr-only">
-                Key {t.shortName} routes, with benchmark code, lane and notes
-              </caption>
-              <thead className="border-b border-line bg-sand/60">
-                <tr className="text-[11px] uppercase tracking-[0.14em] text-slate">
-                  <th scope="col" className="w-28 px-4 py-3 text-start font-semibold sm:px-6">
-                    Code
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-start font-semibold sm:px-6">
-                    Lane
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden px-6 py-3 text-start font-semibold md:table-cell"
-                  >
-                    Note
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {t.routes.map((r) => (
-                  <tr key={r.code} className="align-top hover:bg-sand/30">
-                    <th scope="row" className="px-4 py-4 text-start font-normal sm:px-6">
-                      {/* same chip as the route codes on the /tankers fleet cards;
-                          a block pulled up 4px so its 28px centre lines up with
-                          the 20px first line of the lane and note text */}
-                      <span
-                        className={cn(
-                          CHIP_STATIC,
-                          "-my-1 !flex !min-h-[28px] w-fit font-mono !text-xs"
-                        )}
-                      >
-                        {r.code}
-                      </span>
-                    </th>
-                    <td className="px-4 py-4 sm:px-6">
-                      <span className="font-medium text-navy">{r.lane}</span>
-                      {r.hormuz && <HormuzBadge />}
-                      <p className="mt-1 leading-relaxed text-slate md:hidden">{r.note}</p>
-                    </td>
-                    <td className="hidden px-6 py-4 leading-relaxed text-slate md:table-cell">
-                      {r.note}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {t.routes.some((r) => r.hormuz) && <HormuzNote />}
-
-        <div className="mt-10">
-          <h3 id="charterers" className={EYEBROW}>
-            Typical charterers
-          </h3>
-          <ul aria-labelledby="charterers" className="mt-4 flex flex-wrap gap-2">
-            {t.marketsServed.map((m) => (
-              <li key={m} className={cn(CHIP_STATIC, "max-w-full !whitespace-normal")}>
-                {m}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      {/* Desk view */}
-      <Section tone="sand" eyebrow="Desk view" title="What we watch before fixing.">
-        <ol className="grid gap-x-8 gap-y-10 md:grid-cols-3">
-          {t.keyTrends.map((k, i) => (
-            <li
-              key={k.title}
-              className="relative border-t border-line pt-6 before:absolute before:-top-px before:start-0 before:h-0.5 before:w-12 before:bg-brass"
+        sub={t.longName}
+        title={`${t.shortName} chartering`}
+        band={`${t.family === "crude" ? "Crude" : "Clean"} · ${t.dwtRange} · ${t.loa} LOA`}
+        lead={t.intro}
+        name={t.shortName}
+        actions={
+          <>
+            <Link href={inquiry} className="lv-btn lv-btn--cta">
+              <BtnLabel>Request {t.shortName} tonnage</BtnLabel>
+            </Link>
+            <a
+              href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent(`${t.shortName} inquiry`)}`}
+              className="lv-btn lv-btn--ghost"
             >
-              <span aria-hidden="true" className="font-mono text-xs text-brass-ink">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-2 text-lg font-semibold text-navy">{k.title}</h3>
-              <p className="mt-2 leading-relaxed text-slate">{k.body}</p>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
-          {[
-            { Icon: FileCheck2, h: `How ${t.shortName} business is fixed`, body: t.charterShape },
-            { Icon: Users, h: "Who covers it", body: t.desk },
-          ].map(({ Icon, h, body }) => (
-            <div key={h} className="uv-card !gap-4 !p-6 sm:!flex-row sm:!gap-5 sm:!p-7">
-              <span
-                aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line bg-sand/60 text-brass-ink"
-              >
-                <Icon className="h-5 w-5" />
-              </span>
-              <div>
-                <h3 className="text-lg font-semibold text-navy">{h}</h3>
-                <p className="mt-2 leading-relaxed text-slate">{body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section eyebrow="FAQ" title={`${t.shortName} questions.`}>
-        <Faq items={faqFor(t)} />
-      </Section>
-
-      {/* Compare */}
-      <Section tone="sand" eyebrow="Other tanker sizes" title="Compare segments.">
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {others.map((o) => (
-            <li key={o.slug} className="flex">
-              <Link href={`/tankers/${o.slug}`} className="uv-card w-full">
-                <p className={EYEBROW}>{o.family === "crude" ? "Crude" : "Clean"}</p>
-                <h3 className="uv-card__title font-display !text-2xl !font-normal">
-                  {o.shortName}
-                </h3>
-                <p className="tnum text-sm">{o.dwtRange}</p>
-                <span className="uv-card__meta pt-3 font-semibold !text-navy">
-                  {o.shortName} guide
-                </span>
-                <span className="uv-card__arrow" aria-hidden="true" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section
-        eyebrow="Research"
-        title={`Notes for ${t.shortName} charterers.`}
-        action={
-          <Link href="/research" className="uv-btn-outline">
-            All research <ArrowRight aria-hidden="true" />
-          </Link>
+              <Mail aria-hidden="true" />
+              <span>Email the tanker desk</span>
+            </a>
+          </>
         }
-      >
-        <ul className="grid gap-5 md:grid-cols-3">
-          {relatedReports("tankers", [t.shortName, ...t.routes.map((r) => r.code)]).map((r) => (
-            <li key={r.slug}>
-              <ReportCard report={r} />
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <CtaBand
-        title={`Looking for ${withArticle(t)}?`}
-        text="Send the cargo, ports and laycan — or your open position. The tanker desk replies within 60 minutes during business hours."
-        email={siteConfig.desks.tankers.email}
-        inquiryHref={inquiry}
+        facts={[
+          { label: "Size", value: t.dwtRange, small: t.cargoCapacity },
+          {
+            label: "Cargoes",
+            value: t.family === "crude" ? "Crude oil and fuel oil" : "Clean products",
+            small: t.family === "crude" ? "Dirty tanker" : "Coated tanker",
+          },
+          {
+            label: "Main routes",
+            value: t.routes.map((r) => r.code).join(" · "),
+            small: t.routes[0]?.lane,
+          },
+          { label: "What to watch", value: t.keyTrends[0]?.title ?? "—" },
+        ]}
+        specs={[
+          { k: "Deadweight", v: t.dwtRange },
+          { k: "Cargo", v: t.cargoCapacity },
+          { k: "LOA / beam", v: `${t.loa} / ${t.beam}` },
+          { k: "Draft", v: t.draft },
+          { k: "Speed", v: t.speed },
+          { k: "Consumption", v: t.consumption },
+        ]}
+        art={<TankerArt />}
+        routesTitle={`Key ${t.shortName} lanes.`}
+        routes={t.routes}
+        chipsTitle="Typical charterers"
+        chips={t.marketsServed}
+        watch={t.keyTrends}
+        charterShape={t.charterShape}
+        desk={t.desk}
+        still={still.still}
+        stillCaption={still.caption}
+        faqTitle={`${t.shortName} questions.`}
+        faq={faqFor(t)}
+        notesTitle={`Notes for ${t.shortName} charterers.`}
+        notes={notes}
+        othersTitle="Other tanker sizes"
+        others={others.map((o) => ({
+          href: `/tankers/${o.slug}`,
+          name: o.shortName,
+          size: `${o.family === "crude" ? "Crude" : "Clean"} · ${o.dwtRange}`,
+        }))}
+        next={{ href: `/tankers/${next.slug}`, name: next.shortName }}
+        inquiry={inquiry}
+        letter={{
+          title: `Looking for ${withArticle(t)}?`,
+          text: "Send the cargo, ports and laycan — or your open position. The tanker desk replies within 60 minutes during business hours.",
+          email: siteConfig.desks.tankers.email,
+        }}
       />
-    </>
+    </div>
   );
 }

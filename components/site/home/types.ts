@@ -1,99 +1,168 @@
+import type { PlateId, ShipClassSlug } from "@/components/site/stage";
+import type { PostCardData } from "@/lib/blog/meta";
+import type { FactIcon } from "@/lib/content/options";
 import type { Broker } from "@/lib/data/brokers";
-import type { VoyageSceneId } from "@/components/site/voyage/types";
+import type { StillKey } from "@/lib/media";
 
 export type LinkItem = { href: string; label: string };
 
+/** The homepage's sections in page order (DESIGN-V2 §7.0); also their #fragments. */
+export const HOME_SECTIONS = [
+  "hero",
+  "who",
+  "desks",
+  "ships",
+  "process",
+  "reach",
+  "team",
+  "notes",
+  "letter",
+] as const;
+export type HomeSection = (typeof HOME_SECTIONS)[number];
+
+/** Section ids (the rail's and the header's #fragments). GNB ids kept where they existed. */
+export const SECTION_IDS: Record<HomeSection, string> = {
+  hero: "overview",
+  who: "who",
+  desks: "desks",
+  ships: "ships",
+  process: "process",
+  reach: "reach",
+  team: "team",
+  notes: "notes",
+  letter: "contact",
+};
+
+/** How a display line is split for its `rise` reveal (§5, §12): no letter split in Arabic. */
+export type SplitMode = "chars" | "cjk" | "words";
+
+export type ShipCard = {
+  slug: ShipClassSlug;
+  family: "tanker" | "gas";
+  name: string;
+  /** Spoken in the aria-live caption: "VLGC — very large gas carrier". */
+  longName: string;
+  /** Physical size band, mono (no rates). */
+  band: string;
+  /** Two benchmark route codes. */
+  routes: string[];
+  href: string;
+};
+
 /**
- * Everything the homepage journey prints, so the English homepage and the ten
- * localized ones share one scene flow (components/site/home/Journey.tsx).
- * Headings come as `lines`: each entry is one revealed line (a long line
- * still wraps inside its mask).
+ * Everything the homepage prints, resolved: the English homepage builds it
+ * from content/home.json (Keystatic), the ten localized ones from lib/i18n.ts,
+ * so all eleven share one section flow (components/site/home/HomePage.tsx).
  */
-export type HomeCopy = {
+export type HomeView = {
+  /** BCP 47 language of the copy. */
+  lang: string;
+  dir: "ltr" | "rtl";
   /** Localized pages link into the English site: internal links carry this hrefLang. */
   linkLang?: string;
-  /** How the hero headline splits for its letter reveal: letters, CJK letters, or whole words (Arabic joins its letters). */
-  heroSplit: "chars" | "cjk" | "words";
+  split: SplitMode;
+  show: Record<HomeSection, boolean>;
+  plates: { hero: PlateId; process: PlateId; letter: PlateId };
+  rail: { label: string; items: Record<HomeSection, string> };
+  pause: { pause: string; play: string };
+  newTab: string;
   hero: {
-    /** The short headline (2–4 words), the visible start of the h1. */
-    title: string;
-    /** One word of the title set in brass. */
+    /** Headline lines (manual breaks); the h1's accessible text is their join. */
+    lines: string[];
     accent?: string;
-    /** Descriptive continuation of the h1, visually hidden (SEO and screen readers). */
-    h1Rest: string;
     sub: string;
     lead: string;
     inquiry: string;
     inquiryHref: string;
     whatsapp: { label: string; text?: string };
-    newTab: string;
+    scene: string;
+    position: string;
     /** Under the buttons, e.g. "The inquiry form is in English." */
     note?: string;
     /** A broker who speaks the page's language, offered on WhatsApp. */
-    speaker?: {
-      name: string;
-      initials: string;
-      color: string;
-      ink: string;
-      label: string;
-      text: string;
-    };
-    place: string;
-  };
-  what: { lines: string[]; sub: string; lead: string; more: string; moreHref: string };
-  services: {
-    /** Visually hidden heading of the band. */
-    heading: string;
-    columns: {
-      id: string;
-      title: string;
-      text: string;
-      href: string;
-      chipsLabel?: string;
-      chips: LinkItem[];
-    }[];
+    speaker?: { name: string; initials: string; label: string; text: string };
   };
   who: {
-    lines: string[];
     sub: string;
-    lead?: string;
-    traits: { title: string; text: string; link?: LinkItem }[];
+    statement: string;
+    more: LinkItem;
+    pin: string;
+    scene: string;
+    facts: { icon: FactIcon; title: string; text: string; link: LinkItem }[];
+    badge?: { text: string; link: LinkItem };
+  };
+  desks: {
+    sub: string;
+    lines: string[];
+    lead: string;
+    more: LinkItem;
+    rows: {
+      title: string;
+      text: string;
+      link: LinkItem;
+      chips: LinkItem[];
+      chipsLabel?: string;
+      still: StillKey;
+      caption: string;
+    }[];
+    /** "Open" label for the closed rows' + button (screen readers). */
+    open: string;
+  };
+  ships: {
+    sub: string;
+    title: string;
+    tabs: { tanker: string; gas: string };
+    tabsLabel: string;
+    classGuide: string;
+    prev: string;
+    next: string;
+    cards: ShipCard[];
+  };
+  process: { sub: string; title: string; steps: { title: string; text: string }[] };
+  reach: {
+    sub: string;
+    lines: string[];
+    counters: { value: number; caption: string }[];
+    offices: { city: string; timeZone: string; still: StillKey }[];
+    localTime: string;
+    mapLabel: string;
+    lanesLabel: string;
+    lanes: { code: string; lane: string; href: string; still: StillKey }[];
   };
   team: {
-    lines: string[];
     sub: string;
+    lines: string[];
     lead: string;
-    cta: string;
-    stripLabel: string;
+    more: LinkItem;
     brokers: Broker[];
-    /** Label of the WhatsApp action ("WhatsApp {name}"). */
+    /** "Email {name}", "WhatsApp {name}". */
+    email: string;
     whatsapp: string;
-    /** Spoken after the card's name: the card writes to the broker's desk. */
-    emailHint: string;
-    newTab: string;
+    stripLabel: string;
+    deskLabels: Record<Broker["team"], string>;
   };
-  process: { lines: string[]; sub: string; steps: { title: string; text: string }[] };
-  offices: {
-    lines: string[];
+  notes: {
     sub: string;
-    lead: string;
-    cards: { city: string; lines: string[]; phone?: string; email?: string }[];
+    title: string;
+    allPosts: string;
+    posts: PostCardData[];
+    faqTitle: string;
+    faqMore: LinkItem;
+    faq: { q: string; a: string }[];
   };
   letter: {
+    label: string;
+    headline: string;
     line: string;
-    sign: string;
-    text: string;
+    place: string;
+    stamp: string;
+    sub: string;
+    email: string;
+    deskLines: { label: string; value: string; href: string; external?: boolean }[];
+    duty: { title: string; text: string; href: string };
     inquiry: string;
     inquiryHref: string;
     note?: string;
-    email: string;
-    deskLinesTitle: string;
-    deskLines: { label: string; href: string; value: string; external?: boolean }[];
-    offices: { city: string; line: string }[];
-    officesLabel: string;
-    social: { linkedin: string; x: string };
-    legal: LinkItem[];
-    newTab: string;
+    clocks: { city: string; timeZone: string }[];
   };
-  rail: { label: string; labels: Record<VoyageSceneId, string> };
 };

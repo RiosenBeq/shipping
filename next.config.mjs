@@ -34,21 +34,27 @@ const nextConfig = {
       { source: "/gas", destination: "/lpg", permanent: true },
       // Retired: needed live freight, bunker and tariff data to stay accurate.
       { source: "/voyage-estimator", destination: "/tankers", permanent: true },
+      // Retired research notes: straight to the blog (no redirect chains).
       {
         source: "/research/aframax-5yearold-market-14-deals-3-themes",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
       {
         source: "/research/vlcc-newbuild-slot-pricing-the-slow-squeeze",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
       {
         source: "/research/the-crude-outlook-2026-annual-report",
-        destination: "/research",
+        destination: "/blog",
         permanent: true,
       },
+      // Research became the blog (November 2026): same slugs, 308s keep links
+      // and search equity. The feed first, so it is not read as a slug.
+      { source: "/research/feed.xml", destination: "/blog/feed.xml", permanent: true },
+      { source: "/research", destination: "/blog", permanent: true },
+      { source: "/research/:slug", destination: "/blog/:slug", permanent: true },
     ];
   },
 };

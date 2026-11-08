@@ -104,3 +104,15 @@ Posters are each loop's first frame:
 - WebP at quality 74
 
 All files under `public/media` total about 41 MB.
+
+## Derived media (stage)
+
+Made by LEVANTER from the items above; no new sources. Recipe and rebuild: [`docs/STAGE.md`](STAGE.md) §7.
+
+| Files | Made from | How |
+|---|---|---|
+| `video/reel-1080.mp4` (1600×900), `video/reel-720.mp4`, `poster/reel-*` | `sea` 0.4–5.4 s, `port` 0–5 s, `bosphorus` 1–6 s, `gas` 0–5 s (the loops above) | 20 s edit with hard cuts, no audio; licences are those of the four source items (Mixkit Stock Video Free License; public domain) |
+| `graded/*-{1600,800,portrait}.{avif,webp}` | first frames of `hero`, `gas`, `reel`, `bosphorus`, `night`, `ocean` | the clip's lens grade baked in (`colorlevels` + `lut3d`) |
+| `graded/still/*.{avif,webp}` | the stills above | the still's lens grade baked in, 1200 wide |
+| `lut/*.cube` | — | the five lens grades as 3D LUTs (`components/site/stage/grades.ts`) |
+| `stage/bathy-*.{avif,webp}` | — | rendered by LEVANTER's own bathymetry shader (no third-party content) |

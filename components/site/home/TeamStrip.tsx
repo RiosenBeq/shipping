@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/** Same query as the pinned layout in app/voyage.css (".scene--team"). */
-const PINNED =
-  "(min-width: 1024px) and (min-height: 640px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+import { PINNED_QUERY } from "./HomeMotion";
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 /**
- * The team scene's portrait strip (reference "Meet our sharks").
+ * The team strip (DESIGN-V2 §7.7, GNB's horizontal team strip).
  *
- * Desktop with motion: the scene is pinned (CSS: a 250vh section with a
- * sticky frame) and the strip slides sideways as the page scrolls through it.
- * Tabbing to a card scrolls the page to where that card is in view.
- * Phones and reduced motion: a native horizontal scroller with snap points;
- * nothing here runs.
+ * Desktop with motion: the team card is pinned (240vh, a sticky frame) and
+ * the strip slides sideways with the page — CSS maps the stage's
+ * `--stage-pin` (0..1, written on the card) onto `--team-max`, the overflow
+ * measured here. Tabbing to a card scrolls the page to where that card is in
+ * view (no focus trap). Phones: a native horizontal scroller with snap points
+ * (1.2 cards). Reduced motion: a wrapped grid. Nothing here runs there.
  */
 export function TeamStrip({ label, children }: { label: string; children: React.ReactNode }) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -24,75 +22,55 @@ export function TeamStrip({ label, children }: { label: string; children: React.
   useEffect(() => {
     const vp = viewportRef.current;
     const track = trackRef.current;
-    const section = vp?.closest<HTMLElement>(".scene");
+    const section = vp?.closest<HTMLElement>("[data-team-pin]");
     if (!vp || !track || !section) return;
-    const mq = window.matchMedia(PINNED);
+    const mq = window.matchMedia(PINNED_QUERY);
     let max = 0;
-    let sign = -1;
-    let frame = 0;
 
-    const progress = () => {
-      const r = section.getBoundingClientRect();
-      const span = r.height - window.innerHeight;
-      return span > 0 ? clamp01(-r.top / span) : 0;
-    };
-    const update = () => {
-      frame = 0;
-      if (!mq.matches) return;
-      vp.style.setProperty("--team-x", `${(sign * progress() * max).toFixed(1)}px`);
-    };
-    const onScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
-    };
     const measure = () => {
       max = Math.max(0, track.scrollWidth - vp.clientWidth);
-      sign = getComputedStyle(vp).direction === "rtl" ? 1 : -1;
-      update();
+      vp.style.setProperty("--team-max", `${max}px`);
     };
     const apply = () => {
       if (mq.matches) {
-        vp.setAttribute("data-driven", "");
+        vp.dataset.driven = "";
         measure();
       } else {
-        vp.removeAttribute("data-driven");
-        vp.style.removeProperty("--team-x");
+        delete vp.dataset.driven;
+        vp.style.removeProperty("--team-max");
       }
     };
-
     // Keyboard: bring the focused card into view by scrolling the page.
     const onFocus = (e: FocusEvent) => {
       if (!mq.matches || max <= 0) return;
-      const card = (e.target as Element).closest<HTMLElement>(".member");
+      const card = (e.target as Element).closest<HTMLElement>("li");
       if (!card) return;
-      const t = track.getBoundingClientRect();
-      const c = card.getBoundingClientRect();
-      const center = sign < 0 ? c.left - t.left + c.width / 2 : t.right - c.right + c.width / 2;
-      const p = clamp01((center - vp.clientWidth / 2) / max);
-      if (Math.abs(p - progress()) < 0.02) return;
+      const rtl = getComputedStyle(vp).direction === "rtl";
+      const centre = rtl
+        ? track.offsetWidth - (card.offsetLeft + card.offsetWidth / 2)
+        : card.offsetLeft + card.offsetWidth / 2;
+      const p = clamp01((centre - vp.clientWidth / 2) / max);
       const top = section.getBoundingClientRect().top + window.scrollY;
       const span = section.offsetHeight - window.innerHeight;
       window.scrollTo({ top: top + p * span, behavior: "instant" });
     };
 
     apply();
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => mq.matches && measure());
     ro.observe(track);
     ro.observe(vp);
     mq.addEventListener("change", apply);
-    window.addEventListener("scroll", onScroll, { passive: true });
     vp.addEventListener("focusin", onFocus);
     return () => {
-      if (frame) window.cancelAnimationFrame(frame);
       ro.disconnect();
       mq.removeEventListener("change", apply);
-      window.removeEventListener("scroll", onScroll);
       vp.removeEventListener("focusin", onFocus);
     };
   }, []);
 
   return (
-    <div ref={viewportRef} className="team__viewport" role="region" aria-label={label}>
-      <ul ref={trackRef} className="team__track">
+    <div ref={viewportRef} className="team__viewport">
+      <ul ref={trackRef} className="team__track" aria-label={label}>
         {children}
       </ul>
     </div>

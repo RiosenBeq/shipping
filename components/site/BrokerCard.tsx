@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { Languages, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
 import { TEAM_LABEL, type Broker } from "@/lib/data/brokers";
 import { siteConfig, whatsappUrl } from "@/lib/site";
-import { CHIP_STATIC, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 /** WCAG relative luminance of a #rrggbb colour. */
 function luminance(hex: string) {
@@ -13,9 +13,6 @@ function luminance(hex: string) {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
-
-/** The round avatar: a photo when the broker has one (set in /keystatic), initials otherwise. */
-const AVATAR = "h-14 w-14 shrink-0 rounded-full shadow-[0_0_0_3px_#fff,0_0_0_4px_#B8893A]";
 
 const BRASS_LIGHT = "#D9B071";
 const NAVY = "#0A1F33";
@@ -31,18 +28,22 @@ export function initialsColor(bg: string) {
 }
 
 /**
- * Person card on a static `.uv-card` (no hover lift: only the two actions are
- * links, so the card must not look clickable). Email goes to the desk inbox
- * with an "Attn" subject line; that inbox is printed under the buttons so
- * touch users see where the mail goes too.
+ * A broker's glass portrait card (DESIGN-V2 §7.7, §10) — night grounds only: portrait frame
+ * (the photo set in /keystatic, or brass initials over the static contours), name, role,
+ * focus chips, office and languages, and two round actions. Only the actions are links, so
+ * the card itself does not lift. Email goes to the desk inbox with an "Attn" subject line;
+ * the inbox is printed beside the buttons so touch users see where the mail goes too.
  */
 export function BrokerCard({
   broker,
   showTeam = false,
+  id,
   className,
 }: {
   broker: Broker;
-  /** Show the broker's desk above the name (useful outside the grouped /brokers page). */
+  /** Anchor id (on /brokers: the broker's slug, the target of blog bylines' /brokers#slug). */
+  id?: string;
+  /** Show the broker's desk on the portrait (useful outside the grouped /brokers page). */
   showTeam?: boolean;
   className?: string;
 }) {
@@ -51,98 +52,65 @@ export function BrokerCard({
   const firstName = broker.name.split(" ")[0];
 
   return (
-    // `!` overrides: the kit card's own padding/gap load after Tailwind.
-    <article className={cn("uv-card h-full !gap-0 !p-6", className)}>
-      {/* items-start + a two-line role slot: a wrapping role no longer shifts
-          the name up or the chips down against its neighbours in the row. */}
-      <div className="flex items-start gap-4">
+    <article id={id} className={cn("ip-broker ip-glass", className)}>
+      <div className="ip-broker__portrait">
         {broker.photo ? (
           <Image
             src={broker.photo}
             alt={broker.name}
-            width={56}
-            height={56}
-            className={cn(AVATAR, "bg-sand object-cover")}
+            width={400}
+            height={320}
+            sizes="(min-width: 900px) 320px, 80vw"
           />
         ) : (
-          <div
-            className={cn(
-              AVATAR,
-              "flex items-center justify-center font-display text-lg tracking-wide"
-            )}
-            style={{ background: broker.color, color: initialsColor(broker.color) }}
-            aria-hidden="true"
-          >
+          <span className="ip-broker__initials" aria-hidden="true">
             {broker.initials}
-          </div>
+          </span>
         )}
-        <div className="min-w-0">
-          {showTeam && (
-            <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brass-ink">
-              {TEAM_LABEL[broker.team]}
-            </p>
-          )}
-          <h3 className="text-lg font-semibold leading-snug text-navy">{broker.name}</h3>
-          <p className="mt-0.5 min-h-[2lh] text-sm leading-snug text-slate">{broker.title}</p>
-        </div>
+        {showTeam && <span className="ip-broker__team">{TEAM_LABEL[broker.team]}</span>}
       </div>
-
-      <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${firstName}'s focus`}>
-        {broker.focus.map((f) => (
-          <li key={f}>
-            <span className={CHIP_STATIC}>{f}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Pinned to the bottom as one block, so the divider, meta rows and
-          buttons line up across a row even when titles wrap differently. */}
-      <div className="mt-auto pt-5">
-        <dl className="space-y-1.5 border-t border-line pt-4 text-sm text-slate">
-          <div className="flex items-center gap-2">
-            <dt>
-              <MapPin className="h-4 w-4 text-brass-ink" aria-hidden="true" />
-              <span className="sr-only">Office</span>
-            </dt>
-            <dd className="text-navy">{broker.office}</dd>
+      <div className="ip-broker__body">
+        <h3 className="t-card">{broker.name}</h3>
+        <p className="t-label ip-broker__role">{broker.title}</p>
+        <ul className="ip-chips" aria-label={`${firstName}'s focus`}>
+          {broker.focus.map((f) => (
+            <li key={f}>
+              <span className="ip-chip">{f}</span>
+            </li>
+          ))}
+        </ul>
+        <dl className="ip-broker__facts">
+          <div>
+            <dt>Office</dt>
+            <dd>{broker.office}</dd>
           </div>
-          <div className="flex items-start gap-2">
-            <dt>
-              <Languages className="mt-0.5 h-4 w-4 text-brass-ink" aria-hidden="true" />
-              <span className="sr-only">Languages</span>
-            </dt>
+          <div>
+            <dt>Languages</dt>
             <dd>{broker.languages.join(", ")}</dd>
           </div>
         </dl>
-
-        {/* Side by side while both fit at their natural width; in a narrow card
-          they wrap and each takes the full row (never clipped by the kit's
-          overflow:hidden). */}
-        <div className="flex flex-wrap gap-2 pt-6">
+        <div className="ip-broker__actions">
           <a
             href={`mailto:${deskEmail}?subject=${encodeURIComponent(`Attn ${broker.name}`)}`}
-            className="uv-btn-outline uv-btn--sm flex-auto"
+            className="ip-iconbtn"
           >
             <Mail aria-hidden="true" />
-            Email
-            <span className="sr-only"> {broker.name}</span>
+            <span className="sr-only">Email {broker.name}</span>
           </a>
           <a
             href={whatsappUrl(`Hi ${firstName} — `)}
             target="_blank"
             rel="noopener"
-            className="uv-btn-outline uv-btn--sm flex-auto"
+            className="ip-iconbtn"
           >
             <MessageCircle aria-hidden="true" />
-            WhatsApp
-            <span className="sr-only"> {broker.name} (opens in a new tab)</span>
+            <span className="sr-only">WhatsApp {broker.name} (opens in a new tab)</span>
           </a>
+          <p className="ip-broker__mail m-0">
+            <span>Email goes to</span>
+            {deskEmail}
+          </p>
         </div>
-        {/* Label and address always on their own lines, so every card's footer
-            is the same height whether or not the address would have fit. */}
-        <p className="mt-2.5 text-xs text-slate [overflow-wrap:anywhere]">
-          Email goes to <span className="block font-mono text-navy">{deskEmail}</span>
-        </p>
       </div>
     </article>
   );

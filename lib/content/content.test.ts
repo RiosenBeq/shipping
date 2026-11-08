@@ -9,7 +9,7 @@ import { isoToReportDate } from "@/lib/content/format";
 import { ResearchCategorySchema } from "@/lib/schemas";
 import { AVATAR_COLOR, BROKERS, TEAM_LABEL, TEAM_ORDER } from "@/lib/data/brokers";
 import { HORMUZ_NOTE_PATH, REPORTS, getReportBySlug, reportDateIso } from "@/lib/data/research";
-import { REPORT_BODIES } from "@/lib/data/research-bodies";
+import { getAllPosts } from "@/lib/blog/posts";
 import { LPG_CARGO_DENSITY, LPG_CLASSES } from "@/lib/data/lpg-classes";
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { STRAITS_SECTIONS } from "@/lib/data/turkish-straits";
@@ -42,6 +42,13 @@ describe("content files", () => {
     const paths = Object.values(singletons).map((s) => `${s.path}.json`);
     expect(paths.sort()).toEqual(onDisk);
     for (const s of Object.values(singletons)) expect(s.format).toEqual({ data: "json" });
+
+    // The blog is a collection of Markdoc files, and nothing else lives in content/blog.
+    const { posts } = keystaticConfig("local").collections;
+    expect(posts.path).toBe("content/blog/*");
+    expect(posts.format).toEqual({ contentField: "body" });
+    const blog = readdirSync(path.join(ROOT, "content/blog"));
+    expect(blog.filter((f) => !f.endsWith(".mdoc"))).toEqual([]);
   });
 
   it("are formatted the way Keystatic writes them (no noise in admin diffs)", () => {
@@ -56,14 +63,21 @@ describe("content files", () => {
     for (const key of Object.keys(reader.singletons) as (keyof typeof reader.singletons)[]) {
       await expect(reader.singletons[key].readOrThrow(), key).resolves.toBeTruthy();
     }
+    const slugs = await reader.collections.posts.list();
+    expect(slugs.sort()).toEqual(getAllPosts().map((p) => p.slug).sort());
+    for (const slug of slugs) {
+      const entry = await reader.collections.posts.readOrThrow(slug, { resolveLinkedFiles: true });
+      expect(entry.title, slug).toBeTruthy();
+      expect(entry.body.node.children.length, slug).toBeGreaterThan(0);
+    }
   });
 });
 
 describe("unique slugs", () => {
   const unique = (values: string[]) => expect(new Set(values).size).toBe(values.length);
 
-  it("research notes, classes, brokers, converter cargoes and Straits sections", () => {
-    unique(REPORTS.map((r) => r.slug));
+  it("blog posts, classes, brokers, converter cargoes and Straits sections", () => {
+    unique(getAllPosts().map((p) => p.slug));
     unique(TANKER_CLASSES.map((c) => c.slug));
     unique(LPG_CLASSES.map((c) => c.slug));
     unique(BROKERS.map((b) => b.name));
@@ -72,15 +86,15 @@ describe("unique slugs", () => {
   });
 
   it("are reported by validateContent when they collide", async () => {
-    const research = (await import("@/content/research.json")).default;
-    const first = research.notes[0];
-    research.notes.push(first);
+    const brokers = (await import("@/content/brokers.json")).default;
+    const first = brokers.brokers[0];
+    brokers.brokers.push(first);
     try {
       expect(validateContent()).toContainEqual(
-        `content/research.json: duplicate note slug "${first.slug}"`
+        `content/brokers.json: duplicate broker short id "${first.name.slug}"`
       );
     } finally {
-      research.notes.pop();
+      brokers.brokers.pop();
     }
     expect(validateContent()).toEqual([]);
   });
@@ -106,27 +120,25 @@ describe("loaders (lib/site, lib/data)", () => {
     }
   });
 
-  it("give every note a body, with links in callouts as {href, label}", () => {
-    for (const r of REPORTS) expect(REPORT_BODIES[r.slug], r.slug).toBeDefined();
-    const callouts = Object.values(REPORT_BODIES).flatMap((b) =>
-      b.blocks.filter((x) => x.kind === "callout")
-    );
-    expect(callouts.length).toBeGreaterThan(0);
-    for (const c of callouts) {
-      if (c.kind === "callout" && c.link) expect(c.link.href.startsWith("/")).toBe(true);
+  it("give every post an author, a body and cards that only hold plain data", () => {
+    for (const p of getAllPosts()) {
+      expect(p.author, p.slug).toBeDefined();
+      expect(p.words, p.slug).toBeGreaterThan(50);
+      expect(p.dateLabel).toMatch(/^\d{1,2} [A-Z][a-z]{2} \d{4}$/);
     }
-    // Keystatic stores an empty table cell as null; the renderer gets "".
-    for (const b of Object.values(REPORT_BODIES)) {
-      for (const x of b.blocks) {
-        if (x.kind === "table") {
-          for (const cell of [...x.head, ...x.rows.flat()]) expect(typeof cell).toBe("string");
-        }
-      }
+  });
+
+  it("keep the old Report shape for the pages that still list notes", () => {
+    expect(REPORTS.length).toBeGreaterThan(0);
+    for (const r of REPORTS) {
+      expect(r.href).toBe(`/blog/${r.slug}`);
+      expect(r.label.length).toBeGreaterThan(0);
     }
   });
 
   it("keep the Hormuz brief linked from route tables", () => {
-    expect(getReportBySlug(HORMUZ_NOTE_PATH.replace("/research/", ""))).toBeDefined();
+    expect(HORMUZ_NOTE_PATH.startsWith("/blog/")).toBe(true);
+    expect(getReportBySlug(HORMUZ_NOTE_PATH.replace("/blog/", ""))).toBeDefined();
   });
 
   it("keep site settings usable by the client components", () => {
@@ -141,7 +153,7 @@ describe("loaders (lib/site, lib/data)", () => {
     }
   });
 
-  it("offer the same research categories as the /research filter", () => {
+  it("keep the legacy research category keys in step with lib/schemas", () => {
     expect([...REPORT_CATEGORIES].sort()).toEqual(
       ResearchCategorySchema.options.filter((c) => c !== "all").sort()
     );

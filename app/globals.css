@@ -2,26 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Design tokens =====
- * One light theme. Navy + brass brand, warm white canvas.
- * Text colours are chosen to pass WCAG AA on their intended backgrounds:
- *   --brass-ink on --bg (5.1:1), --slate on --bg (6.4:1), --navy on --brass (5.3:1).
- */
+/* ==========================================================================
+   LEVANTER — design tokens and site chrome (DESIGN-V2 §4, §5, §8, §9, §12)
+
+   CONTRACT FOR PAGE BUILDERS (stable names; inner pages, blog and stage
+   consume them):
+
+   Colour (§4.1)  --navy-deep --navy --navy-2 --brass --brass-light
+                  --brass-ink --sand --paper --line --line-ink --line-night
+                  --slate --mist --fog --tide (glows only)
+                  Tailwind: navy / navy-deep / navy-2 / brass / brass-ink /
+                  brass-light / sand / paper / line / slate / mist / fog / tide
+   Ground         data-ground="dark|light" on a section sets --ink (text),
+                  --ink-2 (secondary), --ink-3 (labels), --ink-accent (the one
+                  accent word), --hair (hairlines), --focus (focus ring).
+                  Every t-* class and lv-btn/lv-link reads them.
+   Type (§4.2)    .t-hero .t-display .t-statement .t-h3 .t-card .t-sub
+                  .t-lead .t-label .t-data .t-counter .t-letter .t-quote
+                  .t-menu .t-word  · .acc = the accent word
+                  fonts: --font-display (Inter Tight) --font-body (Inter)
+                  --font-serif (Source Serif 4) --font-mono (IBM Plex Mono)
+                  --font-arabic (IBM Plex Sans Arabic, display on /ar)
+   Space (§4.3)   --edge (content edge from the viewport: 72px desktop, 24px
+                  phone) --inset (card inset 12/8) --gutter 24px
+                  --content-max 1296px --sec-pad (128/72) --r-card (28/22)
+                  --r-media (18/14) --r-letter 4px --r-duty 14px
+   Motion (§5)    --ease-tide --ease-swell --ease-quick
+                  --dur-hover 180ms --dur-reveal 420ms --dur-sheet 640ms
+                  --dur-plate 900ms --dur-intro 1200ms
+   Chrome         --hdr-h: the fixed header band (content starts below it).
+                  <main> is padded by --hdr-h unless the page holds an element
+                  with [data-header-overlay] (a hero/masthead that runs under
+                  the header and pads its own top by var(--hdr-h)).
+   Buttons        .lv-btn + --cta (brass, navy arrow badge) | --ink | --ghost
+                  (follows the ground) | --sm | --block, arrow: .lv-btn__arrow
+                  .lv-link (text link, brass rule, arrow) .lv-chip (paper pill
+                  with brass dot) .lv-pill (small pill) .lv-glow--brass/--tide
+   ========================================================================== */
+
 :root {
-  --navy: #0a1f33;
+  /* ---- Colour (§4.1) ---- */
   --navy-deep: #051624;
+  --navy: #0a1f33;
+  --navy-2: #0d2740;
   --navy-soft: #13304a;
   --brass: #b8893a;
-  --brass-ink: #8a6420;
   --brass-light: #d9b071;
+  --brass-ink: #8a6420;
   --sand: #f3efe4;
+  --paper: #fbfaf7;
   --line: #e4ddcc;
+  --line-ink: rgba(10, 31, 51, 0.14);
+  --line-night: rgba(243, 239, 228, 0.12);
   --slate: #4a5e6e;
+  --mist: #b7c2ca;
   --fog: #a9b6bf;
-  --bg: #fbfaf7;
+  --tide: #5696a6;
+  --bg: var(--paper);
   --fg: var(--navy);
 
-  /* Legacy tokens — used by shadcn/Radix primitives */
+  /* Legacy tokens — used by shadcn/Radix primitives and tailwind.config.ts */
   --ink-deep-petrol: #0a1f33;
   --ink-midnight: #051624;
   --ink-abyss: #020b14;
@@ -45,49 +85,109 @@
   --hairline: var(--line);
   --accent-copper: var(--accent-brass);
 
-  /* Chrome and homepage geometry, after the reference's frame: the gutter
-     (`--edge`) holds the mark and the rail, copy starts at `--colA`, bands end
-     at the right chart line (`--rightline`, `--pad-end` from the right edge). */
-  --edge: clamp(16px, 5.25vw, 80px);
-  --hdr-h: max(var(--edge), 56px);
-  --colA: clamp(20px, 7.6vw, 132px);
-  --rightline: 84%;
-  --pad-end: calc(16vw + 24px);
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  /* ---- Space, grid, shape (§4.3) ---- */
+  --inset: 12px;
+  --edge: clamp(24px, 5vw, 72px);
+  --gutter: 24px;
+  --content-max: 1296px;
+  --sec-pad: 128px;
+  --r-card: 28px;
+  --r-media: 18px;
+  --r-letter: 4px;
+  --r-duty: 14px;
+  --shadow-float: 0 40px 90px rgba(0, 0, 0, 0.55);
 
-  /* Type scale of the display system (.lv-hero, .lv-display, …). */
-  --t-hero: clamp(56px, 8.4vw, 150px);
-  --t-display: clamp(44px, 6.2vw, 112px);
-  --t-statement: clamp(36px, 4.6vw, 80px);
-  --t-h3: clamp(22px, 1.75vw, 28px);
-  --t-lead: clamp(15.5px, 1.12vw, 17px);
+  /* ---- Motion: "the tide" (§5) ---- */
+  --ease-tide: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-swell: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-quick: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease: var(--ease-tide);
+  --ease-io: var(--ease-swell);
+  --dur-hover: 180ms;
+  --dur-reveal: 420ms;
+  --dur-sheet: 640ms;
+  --dur-plate: 900ms;
+  --dur-intro: 1200ms;
+
+  /* ---- Header band (§8): bar 26px from the top, 52px tall; frame line at 104 ---- */
+  --hdr-top: calc(var(--inset) + 14px);
+  --hdr-bar: 52px;
+  --hdr-h: 104px;
+
+  /* ---- Type sizes (§4.2) ---- */
+  --t-hero: clamp(46px, 8.6vw, 128px);
+  --t-display: clamp(38px, 5.4vw, 84px);
+  --t-statement: clamp(26px, 3.15vw, 48px);
+  --t-h3: clamp(26px, 3vw, 46px);
+  --t-card: clamp(20px, 1.6vw, 24px);
+  --t-sub: 18px;
+  --t-lead: 17px;
   --t-label: 11.5px;
-  --t-data: clamp(14px, 1vw, 16px);
-  --t-btn: 13.5px;
+  --t-data: 12.5px;
+  --t-counter: clamp(96px, 13vw, 200px);
+  --t-letter: 60px;
+  --t-quote: 30px;
+  --t-menu: clamp(36px, 4.6vw, 66px);
+
+  /* Light ground by default (paper). */
+  --ink: var(--navy);
+  --ink-2: var(--slate);
+  --ink-3: var(--slate);
+  --ink-accent: var(--brass-ink);
+  --hair: var(--line-ink);
+  --focus: var(--brass-ink);
 
   color-scheme: light;
 }
-@media (max-width: 1023px) and (min-aspect-ratio: 19/20) {
+@media (max-width: 1023px) {
   :root {
-    --rightline: calc(100% - var(--edge));
-    --pad-end: calc(var(--edge) + 24px);
+    --hdr-top: calc(var(--inset) + 8px);
+    --hdr-bar: 44px;
+    --hdr-h: 76px;
+    --sec-pad: 96px;
   }
 }
-@media (max-aspect-ratio: 19/20) {
+@media (max-width: 767px) {
   :root {
-    --rightline: calc(100% - var(--edge));
-    --colA: calc(var(--edge) + 4px);
-    --pad-end: var(--colA);
+    --inset: 8px;
+    --r-card: 22px;
+    --r-media: 14px;
+    --sec-pad: 72px;
+    --t-hero: 46px;
+    --t-display: clamp(38px, 10.2vw, 40px);
+    --t-statement: 26px;
+    --t-h3: 26px;
+    --t-card: 20px;
+    --t-sub: 16px;
+    --t-lead: 16px;
+    --t-data: 12px;
+    --t-counter: 88px;
+    --t-letter: 38px;
+    --t-quote: 24px;
+    --t-menu: 40px;
   }
 }
-@media (max-width: 599px) {
-  :root {
-    --colA: 20px;
-    --t-statement: 35px;
-    --t-display: 44px;
-    --t-lead: 15.5px;
-  }
+
+/* ---- Grounds: what is under the copy (§2) ---- */
+[data-ground="dark"],
+.on-night {
+  --ink: var(--sand);
+  --ink-2: var(--mist);
+  --ink-3: var(--fog);
+  --ink-accent: var(--brass-light);
+  --hair: var(--line-night);
+  --focus: var(--brass-light);
+  color: var(--ink);
+}
+[data-ground="light"],
+.on-paper {
+  --ink: var(--navy);
+  --ink-2: var(--slate);
+  --ink-3: var(--slate);
+  --ink-accent: var(--brass-ink);
+  --hair: var(--line-ink);
+  --focus: var(--brass-ink);
+  color: var(--ink);
 }
 
 /* ===== Base ===== */
@@ -95,16 +195,18 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
-    /* Keep anchor targets and keyboard focus clear of the sticky 64px header
-       (top) and the floating WhatsApp button (bottom) — WCAG 2.4.11. These add
-       to any per-element scroll-margin, so sections need none of their own. */
-    scroll-padding-top: 5rem;
+    /* Anchor targets and keyboard focus stay clear of the fixed header (top)
+       and the floating WhatsApp button (bottom) — WCAG 2.4.11. */
+    scroll-padding-top: calc(var(--hdr-h) + 8px);
     scroll-padding-bottom: 5.5rem;
   }
   body {
     @apply bg-background font-body text-foreground antialiased;
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.65;
+    font-feature-settings:
+      "cv11" 1,
+      "ss01" 0;
   }
   h1,
   h2,
@@ -113,7 +215,7 @@
     @apply text-balance;
   }
   :focus-visible {
-    outline: 2px solid var(--brass);
+    outline: 2px solid var(--focus, var(--brass-ink));
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -130,16 +232,26 @@
   }
 }
 
+/* The fixed header covers the top band: content starts below it, unless the
+   page's first scene runs under the header and pads itself. */
+main:not(:has([data-header-overlay])) {
+  padding-top: var(--hdr-h);
+}
+/* The blog's night masthead runs under the header. */
+.bl-mast[data-header-overlay] {
+  padding-top: calc(var(--hdr-h) + clamp(20px, 3vw, 44px));
+}
+
 @layer components {
-  /* Long-form article text (research, legal pages). */
+  /* Long-form article text (legal pages, guides). */
   .lv-prose {
-    @apply max-w-prose text-[17px] leading-[1.75] text-navy/90;
+    @apply max-w-prose text-[17px] leading-[1.72] text-navy/90;
   }
   .lv-prose > :first-child {
     @apply mt-0;
   }
   .lv-prose h2 {
-    @apply mb-3 mt-12 font-display text-[28px] leading-tight tracking-tight text-navy;
+    @apply mb-3 mt-12 font-display text-[28px] font-semibold leading-tight tracking-[-0.02em] text-navy;
   }
   .lv-prose h3 {
     @apply mb-2 mt-8 text-lg font-semibold text-navy;
@@ -155,9 +267,7 @@
   .lv-prose ol {
     @apply list-decimal space-y-2 pl-5 marker:text-brass-ink;
   }
-  /* Links: the kit's .uv-link look (uiverse.css) — hairline brass rule, solid
-     brass underline grows across on hover/focus. Restated here because prose
-     links come from content and can't carry the class. */
+  /* Links: hairline brass rule, solid brass underline grows on hover/focus. */
   .lv-prose a {
     @apply font-medium text-navy no-underline;
     padding-bottom: 2px;
@@ -181,65 +291,1169 @@
     @apply font-semibold text-navy;
   }
 
-  /* Tabular figures for market data. */
+  /* Tabular figures for data. */
   .tnum {
     font-feature-settings: "tnum";
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* ===== Localized landing pages =====
- * The display face (Inter Tight) has no CJK or Arabic glyphs. CJK headings
- * fall back to the system CJK sans (PingFang / Hiragino / Apple SD Gothic /
- * Noto Sans CJK), which keeps the grotesque voice; Inter Tight still draws
- * the Latin letters and digits. Arabic uses the system sans. Tracking goes
- * back to 0 (negative tracking crowds CJK and breaks Arabic joining) and
- * leading opens up. `:lang()` matches the element's own (nearest) language,
- * so English chrome marked lang="en" inside a zh/ja/ko/ar document keeps the
- * Latin face. Applies to `font-display` and the display system classes. */
-:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):is(
-    :lang(zh),
-    :lang(ja),
-    :lang(ko),
-    :lang(ar)
-  ) {
-  letter-spacing: 0;
+/* ===== Type system (§4.2) ===== */
+.t-hero,
+.t-display,
+.t-statement,
+.t-h3,
+.t-card,
+.t-sub,
+.t-counter,
+.t-menu,
+.t-word {
+  margin: 0;
+  font-family: var(--font-display), "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "kern", "liga", "calt";
+  color: var(--ink);
 }
-.font-display:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
+.t-hero {
+  font-size: var(--t-hero);
+  font-weight: 700;
+  letter-spacing: -0.046em;
+  line-height: 0.9;
+}
+.t-display {
+  font-size: var(--t-display);
   font-weight: 600;
-  line-height: 1.3;
+  letter-spacing: -0.044em;
+  line-height: 0.95;
 }
-:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(zh) {
-  font-family: var(--font-display), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
-    "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
-}
-:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ja) {
-  font-family: var(--font-display), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
-    YuGothic, "Noto Sans JP", "Noto Sans CJK JP", "Source Han Sans JP", Meiryo, sans-serif;
-}
-:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ko) {
-  font-family: var(--font-display), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
-    "Noto Sans CJK KR", "Source Han Sans K", sans-serif;
-}
-:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ar) {
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Tahoma,
-    sans-serif;
-}
-:is(.lv-hero, .lv-display, .lv-statement):is(:lang(zh), :lang(ja), :lang(ko)) {
+.t-statement {
+  font-size: var(--t-statement);
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 1.12;
 }
-:is(.lv-hero, .lv-display, .lv-statement):lang(ar) {
+.t-h3 {
+  font-size: var(--t-h3);
+  font-weight: 600;
+  letter-spacing: -0.036em;
+  line-height: 1;
+}
+.t-card {
+  font-size: var(--t-card);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+/* "— Who we are": a 36px rule, then the sub line in the accent colour. */
+.t-sub {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: var(--t-sub);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--ink-accent);
+}
+.t-sub::before {
+  content: "";
+  flex: none;
+  width: 36px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+.t-sub--plain {
+  color: var(--ink);
+  opacity: 0.92;
+}
+.t-lead {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--t-lead);
+  font-weight: 400;
+  letter-spacing: -0.003em;
+  line-height: 1.62;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.t-label {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.t-data {
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-data);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.t-counter {
+  font-size: var(--t-counter);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+.t-letter {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: var(--t-letter);
+  font-weight: 600;
+  font-variation-settings: "opsz" 60;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.t-quote {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: var(--t-quote);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   line-height: 1.25;
 }
+.t-menu {
+  font-size: var(--t-menu);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+}
+.t-word {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.acc {
+  color: var(--ink-accent);
+}
+@media (max-width: 767px) {
+  .t-word {
+    font-size: 13px;
+    letter-spacing: 0.28em;
+  }
+}
 
-/* CJK body copy: Manrope has U+2014/U+2026 with Latin metrics, so the
+/* ===== Buttons and links (§4.3: pills, brass CTA with navy arrow badge) ===== */
+.lv-btn {
+  --btn-h: 48px;
+  --btn-badge: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: var(--btn-h);
+  padding-block: 0;
+  padding-inline: 22px 6px;
+  border: 0;
+  border-radius: 999px;
+  font:
+    600 15px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--ink);
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+.lv-btn__arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--btn-badge);
+  height: var(--btn-badge);
+  border-radius: 999px;
+}
+.lv-btn__arrow svg {
+  width: 15px;
+  height: 15px;
+}
+[dir="rtl"] .lv-btn__arrow svg,
+[dir="rtl"] .lv-link svg {
+  transform: scaleX(-1);
+}
+.lv-btn--cta {
+  color: var(--navy-deep);
+  background: var(--brass);
+}
+.lv-btn--cta .lv-btn__arrow {
+  color: var(--brass-light);
+  background: var(--navy-deep);
+}
+.lv-btn--ink {
+  color: var(--sand);
+  background: var(--navy);
+}
+.lv-btn--ink .lv-btn__arrow {
+  color: var(--navy-deep);
+  background: var(--brass);
+}
+/* Ghost: an outline in the ground's ink (sand on night, navy on paper). */
+.lv-btn--ghost {
+  padding-inline: 22px;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 34%, transparent);
+}
+[data-ground="dark"] .lv-btn--ghost {
+  background: rgba(5, 22, 36, 0.28);
+}
+.lv-btn--ghost:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 70%, transparent);
+}
+.lv-btn--sm {
+  --btn-h: 40px;
+  --btn-badge: 30px;
+  gap: 10px;
+  padding-inline-start: 18px;
+  font-size: 14px;
+}
+.lv-btn--sm.lv-btn--ghost {
+  padding-inline: 18px;
+}
+.lv-btn--block {
+  display: flex;
+  width: 100%;
+}
+.lv-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.lv-btn:active {
+  transform: scale(0.98);
+}
+
+/* Text link with a brass rule and an arrow ("About LEVANTER →"). */
+.lv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font:
+    600 15px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  color: var(--ink);
+  text-decoration: none;
+}
+.lv-link > span {
+  padding-bottom: 5px;
+  background:
+    linear-gradient(var(--brass), var(--brass)) 0 100% / 0% 2px no-repeat,
+    linear-gradient(var(--brass), var(--brass)) 0 100% / 100% 1px no-repeat;
+}
+[dir="rtl"] .lv-link > span {
+  background-position:
+    100% 100%,
+    100% 100%;
+}
+.lv-link:is(:hover, :focus-visible) > span {
+  background-size:
+    100% 2px,
+    100% 1px;
+}
+.lv-link svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--ink-accent);
+}
+.lv-link--accent {
+  font-weight: 500;
+  font-size: 13.5px;
+  color: var(--ink-accent);
+}
+.lv-link--accent > span {
+  padding-bottom: 3px;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0% 1px no-repeat;
+}
+.lv-link--accent:is(:hover, :focus-visible) > span {
+  background-size: 100% 1px;
+}
+
+/* Paper chip with a brass dot (class chips on paper). */
+.lv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font:
+    500 13.5px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  color: var(--navy);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(10, 31, 51, 0.12);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.lv-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brass);
+}
+a.lv-chip:hover {
+  box-shadow: inset 0 0 0 1px rgba(10, 31, 51, 0.32);
+}
+.lv-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font:
+    500 12.5px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+}
+
+/* Glows (§4.1): night grounds only, at most two per viewport. */
+.lv-glow {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.lv-glow--brass {
+  width: 760px;
+  height: 760px;
+  inset-inline-end: -120px;
+  top: -180px;
+  background: radial-gradient(closest-side, rgba(217, 176, 113, 0.18), rgba(217, 176, 113, 0));
+}
+.lv-glow--tide {
+  width: 900px;
+  height: 900px;
+  inset-inline-start: -300px;
+  bottom: -480px;
+  background: radial-gradient(closest-side, rgba(86, 150, 166, 0.2), rgba(86, 150, 166, 0));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lv-btn {
+    transition:
+      transform var(--dur-hover) var(--ease-quick),
+      box-shadow var(--dur-hover) var(--ease-quick),
+      background-color var(--dur-hover) var(--ease-quick);
+  }
+  .lv-btn__arrow svg {
+    transition: translate 0.42s var(--ease-tide);
+  }
+  .lv-btn:hover .lv-btn__arrow svg {
+    translate: 2px 0;
+  }
+  [dir="rtl"] .lv-btn:hover .lv-btn__arrow svg {
+    translate: -2px 0;
+  }
+  .lv-link > span,
+  .lv-link--accent > span {
+    transition: background-size 0.42s var(--ease-tide);
+  }
+  .lv-chip {
+    transition: box-shadow var(--dur-hover) var(--ease-quick);
+  }
+}
+
+/* ===== Header (§8): brand, glass/paper nav pill, language pill, brass CTA.
+ * Fixed on every page; colours follow the data-ground of the section under
+ * its centre line (Nav.tsx writes data-ground on the header). ===== */
+.hdr {
+  --hdr-glass: rgba(251, 250, 247, 0.74);
+  --hdr-glass-edge: rgba(10, 31, 51, 0.1);
+  position: fixed;
+  z-index: 50;
+  top: var(--hdr-top);
+  inset-inline: calc(var(--inset) + 14px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--hdr-bar);
+  color: var(--ink);
+  pointer-events: none;
+}
+.hdr > * {
+  pointer-events: auto;
+}
+.hdr[data-ground="dark"] {
+  --hdr-glass: rgba(5, 22, 36, 0.34);
+  --hdr-glass-edge: rgba(243, 239, 228, 0.14);
+}
+.hdr[data-hidden="true"] {
+  transform: translateY(calc(-100% - var(--hdr-top) - 8px));
+}
+.hdr__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-inline-end: auto;
+  padding: 4px;
+  margin-inline-start: -4px;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+}
+.hdr__brand svg {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+.hdr__glass {
+  background: var(--hdr-glass);
+  box-shadow: inset 0 0 0 1px var(--hdr-glass-edge);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+.hdr__nav {
+  display: none;
+  height: 46px;
+  padding: 0 6px;
+  border-radius: 999px;
+}
+.hdr__nav ul {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hdr__nav a {
+  position: relative;
+  display: block;
+  padding: 0 14px;
+  border-radius: 999px;
+  font:
+    500 14px/46px var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.005em;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.hdr__nav a::after {
+  content: "";
+  position: absolute;
+  inset-inline: 14px;
+  bottom: 11px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+[dir="rtl"] .hdr__nav a::after {
+  transform-origin: 100% 50%;
+}
+.hdr__nav a:hover::after,
+.hdr__nav a:focus-visible::after,
+.hdr__nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+.hdr__nav a[aria-current="page"]::after {
+  background: var(--brass);
+}
+.hdr__lang {
+  position: relative;
+  display: none;
+}
+.hdr__lang > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font:
+    500 13px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  text-transform: uppercase;
+  color: inherit;
+}
+.hdr__lang > summary svg {
+  width: 15px;
+  height: 15px;
+}
+.hdr__pop {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 10px);
+  z-index: 50;
+  width: 264px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--paper);
+  color: var(--navy);
+  box-shadow:
+    0 0 0 1px rgba(10, 31, 51, 0.1),
+    0 24px 60px -24px rgba(5, 22, 36, 0.5);
+}
+.hdr__pop p {
+  margin: 0;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--slate);
+}
+.hdr__pop ul {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+.hdr__pop a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--navy);
+  text-decoration: none;
+}
+.hdr__pop a:is(:hover, :focus-visible) {
+  background: var(--sand);
+}
+.hdr__pop a:focus-visible {
+  outline: 2px solid var(--brass-ink);
+  outline-offset: -2px;
+}
+.hdr__pop a[aria-current="true"] {
+  font-weight: 600;
+}
+.hdr__pop a span:first-child {
+  flex: 1;
+}
+.hdr__pop code {
+  font:
+    400 11px/1 var(--font-mono),
+    monospace;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+.hdr__cta {
+  display: none;
+}
+/* Phone and narrow desktop: square brass CTA + four-dot menu, both 44px. */
+.hdr__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.hdr__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.hdr__icon--cta {
+  color: var(--navy-deep);
+  background: var(--brass);
+}
+[dir="rtl"] .hdr__icon--cta svg {
+  transform: scaleX(-1);
+}
+.lv-dots {
+  display: grid;
+  grid-template-columns: 5px 5px;
+  gap: 5px;
+}
+.lv-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 99px;
+  background: currentColor;
+}
+.hdr :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (min-width: 1024px) {
+  .hdr__nav,
+  .hdr__lang {
+    display: block;
+  }
+  .hdr__cta {
+    display: inline-flex;
+  }
+  .hdr__icon {
+    display: none;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1180px) {
+  .hdr__nav a {
+    padding: 0 10px;
+  }
+  .hdr__nav a::after {
+    inset-inline: 10px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hdr {
+    transition:
+      transform var(--dur-reveal) var(--ease-tide),
+      color 0.5s var(--ease-tide);
+  }
+  .hdr__glass {
+    transition:
+      background-color 0.5s var(--ease-tide),
+      box-shadow 0.5s var(--ease-tide);
+  }
+  .hdr__nav a::after {
+    transition: transform 0.42s var(--ease-tide);
+  }
+}
+
+/* ===== Full-screen menu (§8): night, static contours at 6%, one brass glow ===== */
+.menu {
+  --focus: var(--brass-light);
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--edge) calc(28px + env(safe-area-inset-bottom));
+  background: var(--navy-deep);
+  color: var(--sand);
+  visibility: hidden;
+  clip-path: inset(100% 0 0 0);
+  isolation: isolate;
+}
+.menu[data-open="true"] {
+  visibility: visible;
+  clip-path: inset(0);
+}
+.menu__bathy {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.06;
+  background-size: cover;
+  background-position: 50% 50%;
+  pointer-events: none;
+}
+.menu__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: calc(var(--hdr-bar) + var(--hdr-top) * 2);
+}
+.menu__top .hdr__brand {
+  color: var(--sand);
+}
+.menu__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--sand);
+  background: rgba(5, 22, 36, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.16);
+  cursor: pointer;
+}
+.menu__close svg {
+  width: 20px;
+  height: 20px;
+}
+.menu__list {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 3vh 0 4vh;
+  list-style: none;
+}
+.menu__list a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 16px;
+  font:
+    600 44px/1.05 var(--font-display),
+    sans-serif;
+  letter-spacing: -0.035em;
+  color: var(--sand);
+  text-decoration: none;
+}
+.menu__list a small {
+  min-width: 2.2em;
+  font:
+    400 12px/1 var(--font-mono),
+    monospace;
+  letter-spacing: 0.02em;
+  color: var(--brass-light);
+}
+.menu__list a:is(:hover, [aria-current="page"]) {
+  color: var(--brass-light);
+}
+.menu__foot {
+  display: grid;
+  gap: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-night);
+}
+.menu__offices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 18px 24px;
+}
+.menu__offices p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mist);
+}
+.menu__offices a {
+  color: var(--sand);
+}
+.menu__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lv-social {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lv-social a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--sand);
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.28);
+}
+.lv-social a:hover {
+  color: var(--navy-deep);
+  background: var(--brass-light);
+  box-shadow: none;
+}
+.lv-social svg {
+  width: 17px;
+  height: 17px;
+}
+.lv-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lv-langs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  color: var(--sand);
+  text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.22);
+}
+.lv-langs a[aria-current="true"] {
+  color: var(--brass-light);
+  box-shadow: inset 0 0 0 1px var(--brass-light);
+}
+.menu :focus-visible {
+  outline: 2px solid var(--brass-light);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .menu {
+    transition:
+      clip-path 0.52s var(--ease-swell),
+      visibility 0s linear 0.52s;
+  }
+  .menu[data-open="true"] {
+    transition: clip-path 0.52s var(--ease-swell);
+  }
+  .menu__list li {
+    overflow: hidden;
+  }
+  .menu__list a {
+    transform: translateY(105%);
+    transition:
+      transform 0.64s var(--ease-tide),
+      color var(--dur-hover);
+  }
+  .menu[data-open="true"] .menu__list a {
+    transform: none;
+    transition-delay: calc(0.18s + var(--i, 0) * 40ms), 0s;
+  }
+}
+
+/* ===== Footer (§9): a card-shaped window on the night-ocean plate ===== */
+.ftr {
+  --focus: var(--brass-light);
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  color: var(--sand);
+  background: transparent;
+}
+/* Pages without the stage (or without V-ocean on it) show the graded poster. */
+.ftr__poster {
+  position: absolute;
+  inset: var(--inset);
+  z-index: -2;
+  overflow: hidden;
+  border-radius: var(--r-card);
+  background: #020a12;
+}
+.ftr__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
+  display: none;
+}
+.ftr__glow {
+  position: absolute;
+  inset: var(--inset);
+  z-index: -1;
+  border-radius: var(--r-card);
+  background: radial-gradient(
+    80% 60% at 70% 0%,
+    rgba(86, 150, 166, 0.16),
+    rgba(86, 150, 166, 0) 70%
+  );
+  pointer-events: none;
+}
+.ftr__inner {
+  position: relative;
+  max-width: calc(var(--content-max) + 2 * var(--edge));
+  margin-inline: auto;
+  padding: clamp(72px, 9vw, 120px) var(--edge) 0;
+}
+.ftr__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 48px;
+}
+.ftr__brand-col {
+  grid-column: 1;
+  grid-row: 1;
+}
+.ftr__menu-wrap {
+  grid-column: 2;
+  grid-row: 1;
+}
+.ftr__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--sand);
+  text-decoration: none;
+}
+.ftr__brand svg {
+  width: 40px;
+  height: 40px;
+}
+.ftr__brand .t-word {
+  font-size: 17px;
+}
+.ftr__tag {
+  max-width: 26em;
+  margin: 18px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mist);
+}
+.ftr__offices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+.ftr__offices .t-label {
+  margin-bottom: 10px;
+  color: var(--brass-light);
+}
+.ftr__offices p:not(.t-label) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #c6cfd5;
+}
+.ftr__offices a,
+.ftr__rows a,
+.ftr__legal a {
+  color: var(--sand);
+  text-decoration: underline;
+  text-decoration-color: rgba(217, 176, 113, 0.5);
+  text-underline-offset: 3px;
+}
+.ftr__menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: end;
+}
+.ftr__menu a {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  color: var(--sand);
+  text-decoration: none;
+}
+.ftr__menu svg {
+  width: 0.5em;
+  height: 0.5em;
+  color: var(--brass-light);
+  opacity: 0;
+}
+.ftr__menu a:is(:hover, :focus-visible) {
+  color: var(--brass-light);
+}
+.ftr__menu a:is(:hover, :focus-visible) svg {
+  opacity: 1;
+}
+.ftr__rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 40px;
+  margin-top: 56px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-night);
+}
+.ftr__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 22px;
+}
+.ftr__row--wide {
+  flex-basis: 100%;
+}
+.ftr__row .t-label {
+  color: var(--fog);
+}
+.ftr__row ul,
+.ftr__legal ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ftr__rows a,
+.ftr__legal a {
+  font-size: 13.5px;
+  color: #c6cfd5;
+  text-decoration-color: transparent;
+}
+.ftr__rows a:hover,
+.ftr__legal a:hover {
+  color: var(--sand);
+  text-decoration-color: var(--brass-light);
+}
+.ftr__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin-top: 18px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line-night);
+  font-size: 13px;
+  color: var(--fog);
+}
+.ftr__legal p {
+  margin: 0;
+}
+.ftr__pause {
+  margin-inline-start: auto;
+}
+.ftr__plate {
+  margin: 34px 0 0;
+  text-align: center;
+  white-space: nowrap;
+  color: rgba(243, 239, 228, 0.085);
+  user-select: none;
+  pointer-events: none;
+}
+.ftr__plate b {
+  display: block;
+  margin-inline-end: -0.3em;
+  font:
+    600 12.4vw/0.9 var(--font-display),
+    sans-serif;
+  letter-spacing: 0.3em;
+}
+.ftr__plate span {
+  display: block;
+  margin-top: 1.2vw;
+  margin-inline-end: -0.9em;
+  padding-bottom: calc(2.6vw + var(--inset));
+  font:
+    600 2.6vw/1 var(--font-display),
+    sans-serif;
+  letter-spacing: 0.9em;
+}
+.ftr :focus-visible {
+  outline: 2px solid var(--brass-light);
+  outline-offset: 3px;
+}
+@media (max-width: 1023px) {
+  .ftr__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ftr__brand-col,
+  .ftr__menu-wrap {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .ftr__menu {
+    text-align: start;
+  }
+}
+@media (max-width: 767px) {
+  .ftr__inner {
+    padding-top: 64px;
+  }
+  .ftr__offices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ftr__plate b {
+    font-size: 11.4vw;
+  }
+  .ftr__plate span {
+    font-size: 3vw;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ftr__menu a,
+  .ftr__menu svg {
+    transition:
+      color var(--dur-hover) var(--ease-quick),
+      opacity var(--dur-hover) var(--ease-quick);
+  }
+}
+
+/* ===== Skip link (a11y) ===== */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -64px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: top 150ms;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ===== Localized pages (§12) =====
+ * Negative tracking is for Latin/Greek/Cyrillic only. CJK: tracking 0, display
+ * leading 1.2, body 1.8, system CJK sans for the display (Inter Tight still
+ * draws the Latin letters and digits). Arabic: IBM Plex Sans Arabic for the
+ * display, tracking 0, leading 1.25, labels without letter-spacing. Greek:
+ * negative tracking capped at −0.03em. `:lang()` matches the element's own
+ * language, so English chrome marked lang="en" keeps the Latin faces. */
+:is(
+    .font-display,
+    .t-hero,
+    .t-display,
+    .t-statement,
+    .t-h3,
+    .t-card,
+    .t-sub,
+    .t-counter,
+    .t-menu,
+    .t-letter
+  ):is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
+  letter-spacing: 0;
+}
+:is(.t-hero, .t-display, .t-statement, .t-h3):is(:lang(zh), :lang(ja), :lang(ko)) {
+  line-height: 1.2;
+}
+:is(.t-hero, .t-display, .t-statement, .t-h3, .t-card):lang(ar) {
+  line-height: 1.25;
+}
+/* Arabic and CJK set larger on the body: the hero steps down to keep three lines clear of the lead. */
+.t-hero:lang(ar) {
+  font-size: clamp(42px, 6.2vw, 92px);
+}
+.t-hero:is(:lang(zh), :lang(ja), :lang(ko)) {
+  font-size: clamp(42px, 6.6vw, 100px);
+}
+:is(.t-hero, .t-display, .t-h3, .t-counter, .t-menu):lang(el) {
+  letter-spacing: -0.03em;
+}
+.t-label:is(:lang(ar), :lang(zh), :lang(ja), :lang(ko)) {
+  letter-spacing: 0;
+}
+:is(.font-display, .t-hero, .t-display, .t-statement, .t-h3, .t-card, .t-sub, .t-menu):lang(zh) {
+  font-family: var(--font-display), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+  font-weight: 700;
+}
+:is(.font-display, .t-hero, .t-display, .t-statement, .t-h3, .t-card, .t-sub, .t-menu):lang(ja) {
+  font-family: var(--font-display), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+    YuGothic, "Noto Sans JP", "Noto Sans CJK JP", "Source Han Sans JP", Meiryo, sans-serif;
+  font-weight: 700;
+}
+:is(.font-display, .t-hero, .t-display, .t-statement, .t-h3, .t-card, .t-sub, .t-menu):lang(ko) {
+  font-family: var(--font-display), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
+    "Noto Sans CJK KR", "Source Han Sans K", sans-serif;
+  font-weight: 700;
+}
+:is(.font-display, .t-hero, .t-display, .t-statement, .t-h3, .t-card, .t-sub, .t-menu):lang(ar) {
+  font-family: var(--font-display), var(--font-arabic), "Noto Kufi Arabic", system-ui, sans-serif;
+  font-weight: 600;
+}
+.t-statement:is(:lang(zh), :lang(ja), :lang(ko)) {
+  font-weight: 500;
+}
+:is(p, li, .t-lead):is(:lang(zh), :lang(ja), :lang(ko)) {
+  line-height: 1.8;
+}
+main:lang(ar) {
+  font-family: var(--font-body), var(--font-arabic), system-ui, sans-serif;
+}
+
+/* CJK body copy: Inter has U+2014/U+2026 with Latin metrics, so the
  * Chinese/Japanese double dash "——" draws as two short, separated dashes.
- * Route only those code points to a CJK system face on CJK pages; every
- * other glyph still comes from Manrope. */
+ * Route only those code points to a CJK system face on CJK pages. */
 @font-face {
   font-family: "CJK Punct";
   src: local("PingFang SC"), local("PingFangSC-Regular"), local("Hiragino Sans GB"),
@@ -254,709 +1468,21 @@ main:is(:lang(zh), :lang(ja)) {
 .uppercase:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
   letter-spacing: 0.04em;
 }
-/* Korean wraps between words, not inside them (유조선과 stays whole);
-   break-word (not anywhere) so min-content sizing is left alone. */
+/* Korean wraps between words, not inside them; Japanese at phrase boundaries. */
 :lang(ko) {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
-/* Japanese: break at phrase boundaries where supported (Chromium 119+). */
 :is(h1, h2, h3, p):lang(ja) {
   word-break: auto-phrase;
 }
 
-/* Inner-page headings on the display face pick up the homepage's display
- * voice (semi-bold, tight) unless they set their own weight or tracking:
- * the specificity of a bare element (preflight's `h1 { font-weight: inherit }`
- * is beaten by source order), so any utility on the element still wins. */
+/* Inner-page headings on the display face pick up the display voice
+ * (semi-bold, tight) unless they set their own weight or tracking. */
 :where(.font-display),
 :where(.font-display):is(h1, h2, h3, h4, h5, h6) {
   font-weight: 600;
-  letter-spacing: -0.022em;
-}
-
-/* ===== Display type system =====
- * After the reference's .t-hero / .t-statement / .t-display / .t-sub /
- * .t-lead / .t-label / .t-data / .t-h3. Colours come from the copy block's
- * tone (`.on-light` / `.on-dark`): navy display on light scenes (brass for one
- * accent word at most), sand on dark scenes. */
-.on-light {
-  color: var(--navy);
-  --c-display: var(--navy);
-  --c-body: var(--navy);
-  --c-sub: var(--navy);
-  --c-label: var(--slate);
-  --c-hair: rgba(10, 31, 51, 0.24);
-  --focus: var(--navy);
-}
-.on-dark {
-  color: var(--sand);
-  --c-display: var(--sand);
-  --c-body: var(--sand);
-  --c-sub: var(--sand);
-  --c-label: rgba(243, 239, 228, 0.86);
-  --c-hair: rgba(243, 239, 228, 0.34);
-  --focus: var(--brass-light);
-}
-.lv-hero,
-.lv-display,
-.lv-statement {
-  margin: 0;
-  font-family: var(--font-display), "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  font-optical-sizing: auto;
-  color: var(--c-display, var(--navy));
-  font-feature-settings: "kern", "liga", "calt";
-  text-wrap: balance;
-}
-.lv-hero {
-  font-size: var(--t-hero);
-  font-weight: 640;
-  letter-spacing: -0.048em;
-  line-height: 0.92;
-}
-.lv-display {
-  font-size: var(--t-display);
-  letter-spacing: -0.042em;
-  line-height: 0.96;
-}
-.lv-statement {
-  font-size: var(--t-statement);
-  letter-spacing: -0.034em;
-  line-height: 1;
-}
-.lv-h3 {
-  margin: 0;
-  font-family: var(--font-display), "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  font-size: var(--t-h3);
-  letter-spacing: -0.022em;
-  line-height: 1.1;
-  color: var(--c-display, var(--navy));
-}
-.lv-accent {
-  color: var(--brass-ink);
-}
-/* "— sub" line: a short rule, then a medium-weight line in the copy colour. */
-.lv-sub {
-  --t-sub: clamp(20px, 2.15vw, 38px);
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  width: max-content;
-  max-width: 100%;
-  margin: 0.5em 0 0;
-  font:
-    500 var(--t-sub) / 1.15 var(--font-display),
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
-  letter-spacing: -0.022em;
-  color: var(--c-sub, var(--c-body, var(--navy)));
-}
-.lv-sub::before {
-  content: "";
-  flex: none;
-  width: 1.1em;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.75;
-}
-.lv-hero + .lv-sub {
-  --t-sub: clamp(22px, 2.85vw, 50px);
-  margin-top: 0.6em;
-}
-.lv-statement + .lv-sub {
-  --t-sub: clamp(19px, 1.8vw, 32px);
-}
-@media (max-aspect-ratio: 19/20) {
-  .lv-sub {
-    --t-sub: clamp(20px, 3.5vw, 30px);
-  }
-  .lv-hero + .lv-sub {
-    --t-sub: clamp(23px, 4.3vw, 38px);
-  }
-  .lv-statement + .lv-sub {
-    --t-sub: clamp(18px, 3.1vw, 26px);
-  }
-}
-.lv-lead {
-  margin: 0;
-  max-width: 36em;
-  font-family: var(--font-body), system-ui, sans-serif;
-  font-size: var(--t-lead);
-  line-height: 1.55;
-  color: var(--c-body, var(--navy));
-  text-wrap: pretty;
-}
-.lv-label {
-  margin: 0;
-  font-family: var(--font-body), system-ui, sans-serif;
-  font-weight: 600;
-  font-size: var(--t-label);
-  line-height: 1.4;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--c-label, var(--slate));
-}
-.lv-data {
-  margin: 0;
-  font-family: var(--font-body), system-ui, sans-serif;
-  font-weight: 500;
-  font-size: var(--t-data);
-  line-height: 1.6;
-  letter-spacing: 0.004em;
-  color: var(--c-body, var(--navy));
-}
-/* Data links: a full hairline that wipes away on hover. */
-.lv-data a,
-a.lv-data-link {
-  color: inherit;
-  text-decoration: none;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
-  padding-bottom: 1px;
-}
-.lv-data a:hover,
-a.lv-data-link:hover {
-  background-position: 100% 100%;
-  background-size: 0 1px;
-}
-
-/* ===== Buttons: solid ink with a boxed arrow (reference .btn / .btn__arrow) ===== */
-.lv-btn {
-  --btn-edge: rgba(243, 239, 228, 0.28);
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 36px;
-  padding-block: 6px;
-  padding-inline: 15px 6px;
-  border: 1px solid var(--btn-edge);
-  border-radius: 4px;
-  background: var(--navy);
-  color: var(--sand);
-  font:
-    600 var(--t-btn) / 1 var(--font-body),
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.004em;
-  white-space: nowrap;
-  text-decoration: none;
-  cursor: pointer;
-}
-.lv-btn__arrow {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border: 1px solid rgba(243, 239, 228, 0.3);
-  border-radius: 3px;
-}
-.lv-btn__arrow svg {
-  width: 12px;
-  height: 12px;
-}
-[dir="rtl"] .lv-btn__arrow svg {
-  transform: scaleX(-1);
-}
-.lv-btn:hover .lv-btn__arrow {
-  border-color: var(--brass-light);
-  background: var(--brass-light);
-  color: var(--navy);
-}
-.lv-btn:active {
-  transform: scale(0.98);
-}
-.lv-btn:focus-visible {
-  outline: 2px solid var(--focus, var(--navy));
-  outline-offset: 3px;
-}
-.lv-btn--lg {
-  gap: 18px;
-  min-height: 44px;
-  padding-block: 8px;
-  padding-inline: 18px 8px;
-  font-size: 15px;
-}
-.lv-btn--lg .lv-btn__arrow {
-  width: 26px;
-  height: 26px;
-}
-/* Secondary action on the water: outlined in sand. */
-.lv-btn--ghost {
-  --btn-edge: rgba(243, 239, 228, 0.62);
-  background: rgba(5, 22, 36, 0.28);
-}
-.lv-btn--ghost:hover {
-  background: rgba(5, 22, 36, 0.5);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .lv-btn {
-    transition:
-      transform 0.2s var(--ease),
-      border-color 0.3s var(--ease),
-      background-color 0.3s var(--ease);
-  }
-  .lv-btn__arrow {
-    transition:
-      background-color 0.3s var(--ease),
-      border-color 0.3s var(--ease),
-      color 0.3s var(--ease);
-  }
-  .lv-btn__arrow svg {
-    transition: translate 0.35s var(--ease);
-  }
-  .lv-btn:hover .lv-btn__arrow svg {
-    translate: 2px 0;
-  }
-  [dir="rtl"] .lv-btn:hover .lv-btn__arrow svg {
-    translate: -2px 0;
-  }
-}
-
-/* ===== Header (reference .hdr): mark in the gutter, links in a paper pill,
- * the language menu, the ink CTA. Fixed and clear over the homepages' stage
- * (`data-variant="stage"`), sticky and solid on every other page. ===== */
-.lv-hdr {
-  --hdr-fg: var(--navy);
-  --hdr-scrim: 243 239 228;
-  --hdr-scrim-a: 0.42;
-  --chip-a: 0.72;
-  --focus: var(--navy);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  height: 4rem;
-  padding-inline: var(--edge);
-  color: var(--hdr-fg);
-}
-.lv-hdr[data-tone="dark"] {
-  --hdr-fg: var(--sand);
-  --hdr-scrim: 5 22 36;
-  --hdr-scrim-a: 0.6;
-  --chip-a: 0.74;
-  --focus: var(--brass-light);
-}
-.lv-hdr[data-variant="stage"] {
-  position: fixed;
-  inset-inline: 0;
-  height: var(--hdr-h);
-  pointer-events: none;
-}
-.lv-hdr[data-variant="stage"] > * {
-  pointer-events: auto;
-}
-/* Clear over the stage: a soft scrim from the top edge keeps the chrome legible. */
-.lv-hdr::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: -1;
-  height: calc(var(--hdr-h) * 1.7);
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--hdr-scrim) / var(--hdr-scrim-a)),
-    rgb(var(--hdr-scrim) / calc(var(--hdr-scrim-a) * 0.62)) 58%,
-    rgb(var(--hdr-scrim) / 0)
-  );
-}
-/* Solid: inner pages, and the homepages once a sheet (research, FAQ) or the
-   footer is under the header. */
-.lv-hdr[data-solid] {
-  --hdr-fg: var(--navy);
-  --hdr-scrim: 243 239 228;
-  --chip-a: 1;
-  --focus: var(--navy);
-}
-.lv-hdr[data-solid]::before {
-  height: 100%;
-  border-bottom: 1px solid var(--line);
-  background: rgba(251, 250, 247, 0.96);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
-  backdrop-filter: blur(12px) saturate(1.5);
-}
-.lv-hdr[data-solid][data-scrolled]::before {
-  box-shadow: 0 10px 30px -20px rgba(10, 31, 51, 0.4);
-}
-.lv-hdr__brand {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 12px;
-  margin-inline-start: calc(var(--edge) * -0.5 - 16px);
-  border-radius: 4px;
-  color: inherit;
-  text-decoration: none;
-}
-.lv-hdr__brand svg {
-  width: 32px;
-  height: 32px;
-}
-.lv-hdr__word {
-  font:
-    600 15px/1 var(--font-display),
-    sans-serif;
-  letter-spacing: 0.24em;
-}
-.lv-hdr[data-variant="stage"]:not([data-solid]) .lv-hdr__word {
-  display: none;
-}
-.lv-hdr__nav {
-  display: none;
-  margin-inline-start: auto;
-}
-.lv-hdr__nav ul {
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 2vw, 32px);
-  min-height: 36px;
-  margin: 0;
-  padding: 0 16px;
-  border-radius: 4px;
-  list-style: none;
-  background: rgb(var(--hdr-scrim) / var(--chip-a));
-}
-.lv-hdr__nav a {
-  position: relative;
-  display: block;
-  padding: 8px 0;
-  color: var(--hdr-fg);
-  font:
-    500 var(--t-btn) / 1 var(--font-body),
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.004em;
-  text-decoration: none;
-}
-.lv-hdr__nav a::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 2px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: 100% 50%;
-}
-.lv-hdr__nav a:hover::after,
-.lv-hdr__nav a[aria-current="page"]::after {
-  transform: scaleX(1);
-  transform-origin: 0 50%;
-}
-.lv-hdr__nav a[aria-current="page"]::after {
-  height: 2px;
-  background: var(--brass);
-}
-.lv-hdr__nav a:focus-visible,
-.lv-hdr__brand:focus-visible,
-.lv-hdr__menu:focus-visible,
-.lv-hdr__lang summary:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-.lv-hdr__lang {
-  display: none;
-  position: relative;
-}
-.lv-hdr__lang summary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 0 10px;
-  border-radius: 4px;
-  background: rgb(var(--hdr-scrim) / var(--chip-a));
-  color: var(--hdr-fg);
-  font:
-    600 12px/1 var(--font-body),
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.lv-hdr__lang summary svg {
-  width: 14px;
-  height: 14px;
-}
-.lv-hdr__cta {
-  margin-inline-start: clamp(16px, 2.4vw, 40px);
-}
-.lv-hdr__menu {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-inline-start: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--hdr-fg);
-  cursor: pointer;
-}
-.lv-hdr__menu i {
-  display: grid;
-  grid-template-columns: 4px 4px;
-  gap: 4px;
-}
-.lv-hdr__menu b {
-  width: 4px;
-  height: 4px;
-  border-radius: 1px;
-  background: currentColor;
-}
-@media (min-width: 1024px) {
-  .lv-hdr__nav,
-  .lv-hdr__lang {
-    display: block;
-  }
-  .lv-hdr__lang {
-    margin-inline-start: -14px;
-  }
-  .lv-hdr__menu {
-    display: none;
-  }
-}
-@media (max-width: 1023px) {
-  .lv-hdr__cta {
-    margin-inline-start: 8px;
-  }
-}
-@media (max-width: 520px) {
-  .lv-hdr {
-    gap: 8px;
-  }
-  .lv-hdr__brand {
-    margin-inline-start: 0;
-  }
-  .lv-hdr__brand svg {
-    width: 30px;
-    height: 30px;
-  }
-  .lv-hdr__cta .lv-btn__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .lv-hdr__cta.lv-btn {
-    gap: 0;
-    padding: 5px;
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .lv-hdr {
-    transition: color 0.6s var(--ease);
-  }
-  .lv-hdr::before {
-    transition:
-      background 0.6s var(--ease),
-      box-shadow 0.3s;
-  }
-  .lv-hdr__nav ul,
-  .lv-hdr__lang summary {
-    transition: background-color 0.6s var(--ease);
-  }
-  .lv-hdr__nav a::after {
-    transition: transform 0.4s var(--ease);
-  }
-}
-
-/* ===== Full-screen menu (phones and tablets; reference .menu) ===== */
-.lv-menu {
-  --focus: var(--brass-light);
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0 var(--edge) calc(var(--edge) * 0.6 + env(safe-area-inset-bottom));
-  background: var(--navy-deep);
-  color: var(--sand);
-  visibility: hidden;
-  opacity: 0;
-}
-.lv-menu[data-open="true"] {
-  visibility: visible;
-  opacity: 1;
-}
-.lv-menu__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: max(var(--edge), 56px);
-}
-.lv-menu__top a,
-.lv-menu__close {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: inherit;
-}
-.lv-menu__top svg {
-  width: 30px;
-  height: 30px;
-}
-.lv-menu__close svg {
-  width: 22px;
-  height: 22px;
-}
-.lv-menu__list {
-  display: grid;
-  align-self: center;
-  gap: clamp(8px, 1.6vh, 18px);
-  margin: 0;
-  padding: 4vh 0;
-  list-style: none;
-}
-.lv-menu__list a {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 18px;
-  color: var(--sand);
-  font:
-    600 clamp(34px, 6vw, 84px) / 1 var(--font-display),
-    sans-serif;
-  letter-spacing: -0.022em;
-  text-decoration: none;
-}
-.lv-menu__list a:hover,
-.lv-menu__list a[aria-current="page"] {
-  color: var(--brass-light);
-}
-.lv-menu__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: 14px 32px;
-  --c-label: rgba(243, 239, 228, 0.72);
-  --c-body: var(--sand);
-}
-.lv-menu__offices {
-  display: grid;
-  gap: 10px;
-}
-.lv-menu :focus-visible {
-  outline: 2px solid var(--brass-light);
-  outline-offset: 3px;
-}
-.lv-social {
-  display: flex;
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.lv-social a {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid currentColor;
-  border-radius: 4px;
-  color: inherit;
-  opacity: 0.85;
-}
-.lv-social a:hover {
-  border-color: var(--brass-light);
-  background: var(--brass-light);
-  color: var(--navy);
-  opacity: 1;
-}
-.lv-social svg {
-  width: 16px;
-  height: 16px;
-}
-.lv-langs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.lv-langs a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid rgba(243, 239, 228, 0.3);
-  border-radius: 4px;
-  color: var(--sand);
-  font-size: 13px;
-  text-decoration: none;
-}
-.lv-langs a[aria-current="true"] {
-  border-color: var(--brass-light);
-  color: var(--brass-light);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .lv-menu {
-    transition:
-      opacity 0.5s var(--ease),
-      visibility 0s linear 0.5s;
-  }
-  .lv-menu[data-open="true"] {
-    transition: opacity 0.5s var(--ease);
-  }
-  .lv-menu__list a {
-    opacity: 0;
-    transform: translateY(18px);
-    transition:
-      transform 0.7s var(--ease),
-      opacity 0.7s var(--ease),
-      color 0.3s;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list a {
-    opacity: 1;
-    transform: none;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(2) a {
-    transition-delay: 50ms;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(3) a {
-    transition-delay: 0.1s;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(4) a {
-    transition-delay: 0.15s;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(5) a {
-    transition-delay: 0.2s;
-  }
-  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(6) a {
-    transition-delay: 0.25s;
-  }
-}
-
-/* ===== Skip link (a11y) ===== */
-.skip-link {
-  position: absolute;
-  left: 12px;
-  top: -48px;
-  z-index: 100;
-  padding: 10px 16px;
-  background: var(--navy);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 4px;
-  transition: top 150ms;
-}
-.skip-link:focus {
-  top: 12px;
+  letter-spacing: -0.03em;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -965,17 +1491,24 @@ a.lv-data-link:hover {
   }
 }
 
-/* ===== Print =====
- * Nav, footer and the floating contact button carry .site-chrome; CTA bands,
- * breadcrumbs and article asides carry print:hidden, and kit buttons are
- * dropped below. Research notes and legal pages print as plain documents, and
- * navy heroes print as dark text on white (backgrounds are usually off). */
+/* ===== Print (§14): chrome and stage drop out, cards flatten, text navy =====
+ * Nav, footer and the floating contact button carry .site-chrome. */
 @media print {
   .site-chrome {
     display: none !important;
   }
+  main {
+    padding-top: 0 !important;
+  }
   body {
     background: #fff;
+  }
+  [data-ground="dark"] {
+    --ink: var(--navy);
+    --ink-2: var(--slate);
+    --ink-3: var(--slate);
+    --ink-accent: var(--brass-ink);
+    color: var(--navy);
   }
   .bg-navy,
   .bg-navy-deep {
@@ -988,10 +1521,10 @@ a.lv-data-link:hover {
   :is(.bg-navy, .bg-navy-deep) .text-brass-light {
     color: var(--brass-ink) !important;
   }
-  .uv-hero-pattern {
+  .uv-hero-pattern,
+  .lv-glow {
     display: none;
   }
-  /* Calls to action do nothing on paper (and ghost buttons would print white on white). */
   :is(.uv-btn, .uv-btn-outline, .uv-btn-ghost-light, .uv-fab) {
     display: none !important;
   }

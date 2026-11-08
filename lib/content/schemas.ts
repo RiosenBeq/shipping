@@ -9,14 +9,23 @@
  * client bundles that read lib/site or lib/data.
  */
 import { z } from "zod";
+import { stills, type StillKey } from "@/lib/media";
 import {
   ARTICLES,
   AVATAR_KINDS,
+  BLOG_CATEGORIES,
+  BLOG_DESKS,
+  CURRENCY_PATTERN,
+  DESK_CHIP_SETS,
   E164_PATTERN,
+  FACT_ICONS,
   GLOSSARY_GROUP_KEYS,
+  HOME_HERO_PLATES,
+  HOME_LETTER_PLATES,
+  HOME_LIMITS,
+  HOME_PROCESS_PLATES,
+  INTERNAL_PATH_PATTERN,
   OFFICE_NAMES,
-  REPORT_CATEGORIES,
-  REPORT_DESKS,
   SLUG_PATTERN,
   TANKER_FAMILIES,
   TEAM_KEYS,
@@ -42,6 +51,16 @@ const titled = z.object({ title: text, body: text }).strict();
 
 const desk = z.object({ label: text, email: z.string().email() }).strict();
 
+/** An IANA time zone the runtime knows (office clocks on the homepage and /contact). */
+const timeZone = z.string().refine((tz) => {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: tz });
+    return /^[A-Za-z_]+\/[A-Za-z_]+/.test(tz);
+  } catch {
+    return false;
+  }
+}, "An IANA time zone such as Europe/Istanbul");
+
 export const siteFileSchema = z
   .object({
     name: text,
@@ -59,6 +78,15 @@ export const siteFileSchema = z
     whatsapp: z.string().regex(E164_PATTERN, "E.164 without spaces, e.g. +905330000000"),
     whatsappDisplay: text,
     hours: text,
+    /** After-hours duty line (DESIGN-V2 §7.9): the letter scene and /contact. */
+    duty: z
+      .object({
+        label: text,
+        whatsapp: z.string().regex(E164_PATTERN, "E.164 without spaces, e.g. +905330000000"),
+        display: text,
+        hours: text,
+      })
+      .strict(),
     desks: z.object({ tankers: desk, lpg: desk, research: desk }).strict(),
     address: z
       .object({
@@ -74,9 +102,177 @@ export const siteFileSchema = z
         longitude: z.number().min(-180).max(180),
       })
       .strict(),
-    offices: z.array(z.object({ city: text, country: text, role: text }).strict()).min(1),
+    offices: z
+      .array(z.object({ city: text, country: text, role: text, timeZone }).strict())
+      .min(1),
     twitter: z.string().regex(/^@\w+$/, "Handle with the @"),
     socials: z.object({ linkedin: z.string().url(), twitter: z.string().url() }).strict(),
+  })
+  .strict();
+
+/* ---------- homepage (content/home.json) ---------- */
+
+const STILL_KEY_ENUM = z.enum(Object.keys(stills) as [StillKey, ...StillKey[]]);
+const internalPath = z
+  .string()
+  .regex(INTERNAL_PATH_PATTERN, "A site path starting with /, e.g. /tankers or /blog/my-post");
+/** Text with at most `max` characters (line breaks not counted). */
+const upTo = (max: number) =>
+  text.refine((v) => v.replace(/\n/g, "").length <= max, `At most ${max} characters`);
+const section = { show: z.boolean(), rail: z.string().min(1).max(24) };
+
+export const homeFileSchema = z
+  .object({
+    hero: z
+      .object({
+        rail: z.string().min(1).max(24),
+        plate: z.enum(HOME_HERO_PLATES),
+        headline: upTo(HOME_LIMITS.heroHeadline).refine(
+          (v) => v.split("\n").length <= 3,
+          "Three lines at most"
+        ),
+        accent: optionalText,
+        sub: z.string().min(1).max(60),
+        lead: upTo(240),
+        inquiry: z.string().min(1).max(28),
+        whatsapp: z.string().min(1).max(28),
+        scene: z.string().min(1).max(36),
+      })
+      .strict()
+      .refine((h) => !h.accent || h.headline.includes(h.accent), {
+        message: "The accent must be a word of the headline",
+        path: ["accent"],
+      }),
+    who: z
+      .object({
+        ...section,
+        sub: text,
+        statement: upTo(HOME_LIMITS.statement),
+        more: text,
+        pin: z.string().min(1).max(32),
+        scene: z.string().min(1).max(48),
+        facts: z
+          .array(
+            z
+              .object({
+                icon: z.enum(FACT_ICONS),
+                title: upTo(40),
+                text: upTo(120),
+                linkLabel: text,
+                href: internalPath,
+              })
+              .strict()
+          )
+          .length(4, "Exactly four facts"),
+        badge: optionalText,
+        badgeLink: optionalText,
+      })
+      .strict(),
+    desks: z
+      .object({
+        ...section,
+        sub: text,
+        headline: upTo(40),
+        lead: upTo(220),
+        more: text,
+        rows: z
+          .array(
+            z
+              .object({
+                title: upTo(40),
+                text: upTo(HOME_LIMITS.rowLead),
+                linkLabel: text,
+                href: internalPath,
+                chips: z.enum(DESK_CHIP_SETS),
+                still: STILL_KEY_ENUM,
+                caption: z.string().min(1).max(40),
+              })
+              .strict()
+          )
+          .length(4, "Exactly four rows"),
+      })
+      .strict(),
+    ships: z
+      .object({
+        ...section,
+        sub: text,
+        headline: upTo(48),
+        tankers: z.string().min(1).max(16),
+        gas: z.string().min(1).max(16),
+        classGuide: z.string().min(1).max(24),
+      })
+      .strict(),
+    process: z
+      .object({
+        ...section,
+        plate: z.enum(HOME_PROCESS_PLATES),
+        sub: text,
+        headline: upTo(48),
+        steps: z
+          .array(z.object({ title: upTo(20), text: upTo(90) }).strict())
+          .length(4, "Exactly four steps"),
+      })
+      .strict(),
+    reach: z
+      .object({
+        ...section,
+        sub: text,
+        headline: upTo(40),
+        counters: z
+          .array(
+            z
+              .object({
+                value: z.number().int().min(0).max(9999),
+                caption: upTo(HOME_LIMITS.counterCaption).refine(
+                  (v) => !CURRENCY_PATTERN.test(v),
+                  "No prices, rates or currency symbols in counters"
+                ),
+              })
+              .strict()
+          )
+          .length(4, "Exactly four counters"),
+        lanes: z
+          .array(
+            z
+              .object({
+                code: upTo(HOME_LIMITS.laneCode).refine(
+                  (v) => !CURRENCY_PATTERN.test(v),
+                  "No prices or rates"
+                ),
+                lane: upTo(HOME_LIMITS.laneLine),
+                href: internalPath,
+                still: STILL_KEY_ENUM,
+              })
+              .strict()
+          )
+          .length(6, "Exactly six lanes"),
+      })
+      .strict(),
+    team: z
+      .object({ ...section, sub: text, headline: upTo(48), lead: upTo(160), more: text })
+      .strict(),
+    notes: z
+      .object({
+        ...section,
+        sub: text,
+        headline: upTo(40),
+        count: z.number().int().min(1).max(6),
+        faqHeadline: upTo(48),
+        faqMore: text,
+        faqCount: z.number().int().min(0).max(8),
+      })
+      .strict(),
+    letter: z
+      .object({
+        ...section,
+        plate: z.enum(HOME_LETTER_PLATES),
+        label: z.string().min(1).max(32),
+        headline: upTo(48),
+        line: upTo(160),
+        sub: text,
+        inquiry: z.string().min(1).max(28),
+      })
+      .strict(),
   })
   .strict();
 
@@ -111,71 +307,77 @@ export const brokersFileSchema = z
   })
   .strict();
 
-/* ---------- research ---------- */
+/* ---------- blog posts (content/blog/*.mdoc frontmatter) ---------- */
 
-const block = z.discriminatedUnion("discriminant", [
-  z.object({ discriminant: z.literal("p"), value: text }).strict(),
-  z.object({ discriminant: z.literal("h2"), value: text }).strict(),
-  z.object({ discriminant: z.literal("ul"), value: textList.min(1) }).strict(),
-  z.object({ discriminant: z.literal("ol"), value: textList.min(1) }).strict(),
+const STILL_KEYS = Object.keys(stills) as [StillKey, ...StillKey[]];
+
+/** A public path under /images/blog/ (Keystatic saves uploads to public/images/blog/). */
+const blogImage = z
+  .string()
+  .regex(
+    /^\/images\/blog\/[\w./-]+\.(jpe?g|png|webp|avif|gif|svg)$/i,
+    "Images live in public/images/blog/"
+  );
+
+export const postCoverSchema = z.discriminatedUnion("discriminant", [
   z
     .object({
-      discriminant: z.literal("callout"),
+      discriminant: z.literal("type"),
       value: z
         .object({
-          label: text,
-          text,
-          linkHref: z
-            .string()
-            .regex(/^\/(?!\/)/, "A path on this site, starting with /")
-            .optional(),
-          linkLabel: optionalText,
+          code: z.string().min(1).max(12, "Keep the cover code short (12 characters at most)"),
+          caption: optionalText,
+          seed: z.number().int().min(1).max(9999).optional(),
         })
-        .strict()
-        .refine((v) => !v.linkHref === !v.linkLabel, "Give the link both a path and a text"),
+        .strict(),
     })
     .strict(),
   z
     .object({
-      discriminant: z.literal("table"),
+      discriminant: z.literal("still"),
       value: z
         .object({
-          caption: text,
-          head: z.array(cell).min(1),
-          rows: z.array(z.object({ cells: z.array(cell) }).strict()).min(1),
+          media: z.enum(["none", ...STILL_KEYS]),
+          image: blogImage.optional(),
+          alt: text,
+          caption: optionalText,
         })
         .strict()
         .refine(
-          (t) => t.rows.every((r) => r.cells.length === t.head.length),
-          "Every row needs one cell per column heading"
+          (v) => v.media !== "none" || Boolean(v.image),
+          "Pick a still from the library or upload an image"
         ),
     })
     .strict(),
 ]);
 
-export const researchNoteSchema = z
+/**
+ * A post's frontmatter as Keystatic writes it (keystatic.config.ts → posts):
+ * the slug is the file name, not a field.
+ */
+export const postFrontmatterSchema = z
   .object({
-    slug,
     title: text,
-    seoTitle: optionalText,
-    desc: z.string().min(1).max(160),
-    desk: z.enum(REPORT_DESKS),
-    cat: z.enum(REPORT_CATEGORIES),
-    catLabel: text,
-    iss: text,
+    draft: z.boolean(),
+    seoTitle: z.string().min(1).max(60).optional(),
+    description: z.string().min(1).max(160),
+    dek: text,
+    category: z.enum(BLOG_CATEGORIES),
+    format: optionalText,
+    desk: z.enum(BLOG_DESKS),
+    author: slug,
     date: isoDate,
     updated: isoDate.optional(),
-    author: text,
-    read: z.number().int().positive(),
+    issue: optionalText,
+    tags: textList,
+    readingTime: z.number().int().positive().optional(),
     gated: z.boolean(),
-    label: text,
-    dek: text,
     summary: optionalText,
-    blocks: z.array(block),
+    keyTakeaways: textList,
+    cover: postCoverSchema,
+    faq: z.array(faq),
   })
   .strict();
-
-export const researchFileSchema = z.object({ notes: z.array(researchNoteSchema) }).strict();
 
 /* ---------- reference lists ---------- */
 
@@ -298,9 +500,9 @@ export const turkishStraitsFileSchema = z
   .strict();
 
 export type SiteFile = z.infer<typeof siteFileSchema>;
+export type HomeFile = z.infer<typeof homeFileSchema>;
 export type BrokersFile = z.infer<typeof brokersFileSchema>;
-export type ResearchFile = z.infer<typeof researchFileSchema>;
-export type ResearchNoteFile = z.infer<typeof researchNoteSchema>;
+export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
 export type FaqsFile = z.infer<typeof faqsFileSchema>;
 export type GlossaryFile = z.infer<typeof glossaryFileSchema>;
 export type TankerClassesFile = z.infer<typeof tankerClassesFileSchema>;
