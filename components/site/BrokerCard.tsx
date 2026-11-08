@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Languages, Mail, MapPin, MessageCircle } from "lucide-react";
 import { TEAM_LABEL, type Broker } from "@/lib/data/brokers";
 import { siteConfig, whatsappUrl } from "@/lib/site";
@@ -12,6 +13,9 @@ function luminance(hex: string) {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
+
+/** The round avatar: a photo when the broker has one (set in /keystatic), initials otherwise. */
+const AVATAR = "h-14 w-14 shrink-0 rounded-full shadow-[0_0_0_3px_#fff,0_0_0_4px_#B8893A]";
 
 const BRASS_LIGHT = "#D9B071";
 const NAVY = "#0A1F33";
@@ -52,13 +56,26 @@ export function BrokerCard({
       {/* items-start + a two-line role slot: a wrapping role no longer shifts
           the name up or the chips down against its neighbours in the row. */}
       <div className="flex items-start gap-4">
-        <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full font-display text-lg tracking-wide shadow-[0_0_0_3px_#fff,0_0_0_4px_#B8893A]"
-          style={{ background: broker.color, color: initialsColor(broker.color) }}
-          aria-hidden="true"
-        >
-          {broker.initials}
-        </div>
+        {broker.photo ? (
+          <Image
+            src={broker.photo}
+            alt={broker.name}
+            width={56}
+            height={56}
+            className={cn(AVATAR, "bg-sand object-cover")}
+          />
+        ) : (
+          <div
+            className={cn(
+              AVATAR,
+              "flex items-center justify-center font-display text-lg tracking-wide"
+            )}
+            style={{ background: broker.color, color: initialsColor(broker.color) }}
+            aria-hidden="true"
+          >
+            {broker.initials}
+          </div>
+        )}
         <div className="min-w-0">
           {showTeam && (
             <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brass-ink">

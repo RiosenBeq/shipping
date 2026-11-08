@@ -15,6 +15,12 @@ export type StorageMode = "local" | "github";
 
 export const GITHUB_REPO = { owner: "RiosenBeq", name: "shipping" } as const;
 
+/**
+ * The branch Vercel deploys to production. Keystatic would otherwise open the
+ * repository's default branch, which on RiosenBeq/shipping is an older one.
+ */
+export const GITHUB_BRANCH = "main";
+
 /** Server-side secrets and the public app slug that GitHub mode needs. */
 export const GITHUB_ENV_VARS = [
   "KEYSTATIC_GITHUB_CLIENT_ID",

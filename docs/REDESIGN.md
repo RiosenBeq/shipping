@@ -224,40 +224,59 @@ Masaüstü 1440 px tam sayfa, mobil 390 × 844 ilk ekran.
 | العربية | ![](screenshots/after/ar-desktop.webp) | ![](screenshots/after/ar-mobile.webp) |
 | 404 | ![](screenshots/after/not-found-desktop.webp) | ![](screenshots/after/not-found-mobile.webp) |
 
-## 11. Voyage: three.js sahne arka planı (Kasım 2026)
+## 11. Voyage: three.js sahnesi ve gnbshipbrokers.com ile 1:1 ana sayfa (Kasım 2026)
 
-Ana sayfa ve 10 dildeki açılış sayfaları artık sabit, kaydırmaya bağlı bir three.js sahnesinin önünde akıyor. Fikir [gnbshipbrokers.com](https://gnbshipbrokers.com/) (Green & Black Shipbrokers) sitesinden uyarlandı. O sitede sabit bir "sahne" var; sayfa kaydıkça kamera boyalı deniz manzaralarında ilerliyor; üstte kâğıt/keten dokusu, ince harita çerçevesi çizgileri, "+" işaretleri, sahneyle hareket eden bir ufuk çizgisi ve solda küçük gemili bir ilerleme çubuğu var.
+Ana sayfa ve 10 dildeki açılış sayfaları sabit, kaydırmaya bağlı bir three.js sahnesinin önünde akıyor. Müşteri ana sayfanın [gnbshipbrokers.com](https://gnbshipbrokers.com/) (Green & Black Shipbrokers) ile "1:1 aynı" olmasını istedi. Bu turda üzerinde anlaşılan yorum: referansın **yapısı, sahne temposu, yerleşimi, tipografi sistemi, header/menü kabuğu, sahne çubuğu (rail), beliriş hareketleri, telefonda sayfa sayfa ilerleme, ekip şeridi ve kapanıştaki "mektup" iletişim sahnesi** birebir alındı; **marka, içerik ve görseller LEVANTER'in kendisi**. Green & Black'in görselleri, videoları, logosu, metinleri ve kodu kullanılmadı.
 
-**LEVANTER uyarlaması.** Görseller video ya da yapay zekâ resmi değil; tarayıcıda canlı çiziliyor (harici görsel yok, CSP ile uyumlu). Lacivert, pirinç ve kum paletinde beş sahne bir günü anlatıyor:
+**Sahne akışı.** Her blok tam ekran (min. `100svh`) bir "sahne"; metin blokları sahnenin üstünde sabit yerlerde durur: başlık gökyüzünde, gövde metni suyun üstünde, bantlar denizin üstünde. Yolculuğun içinde opak içerik kartı yok. Sahneler `components/site/voyage/types.ts` içindeki `VOYAGE_SCENES` listesinden gelir; her sahnenin motor zaman çizelgesindeki yeri `at` değeridir:
 
-| Sahne | Bölüm | An |
-| --- | --- | --- |
-| `hero` | Giriş | Boğaz'da şafak: Avrupa ve Asya yakası siluetleri, Galata benzeri kule, camiler, Boğaz Köprüsü, Kız Kulesi, geçen bir tanker |
-| `desks` | İki masa | Marmara'da açık deniz: tanker ve basınçlı LPG gemisi |
-| `straits` | Neden LEVANTER | Köprünün altında altın saat |
-| `process` | Çalışma şeklimiz | Marmara'da alacakaranlık, şehir ışıkları, demirli gemiler |
-| `contact` | İletişim | Kız Kulesi'nde gece: ay, yakamoz, ışıklı kule |
+| Sahne (`data-voyage-scene`) | `at` | Ton | İçerik | Referanstaki karşılığı |
+| --- | --- | --- | --- | --- |
+| `hero` (#overview) | 0 | açık | Kısa başlık "Brokered from the Bosphorus." + "— LEVANTER"; açıklama, butonlar ve koordinat suyun üstünde | "We Carry Beyond" |
+| `what` (#what) | .14 | açık | "Liquid cargoes. Nothing else." + "What we do", suyun üstünde açıklama ve "Find out more" | "You Trade, We Carry" |
+| `services` (#desks) | .28 | açık | Deniz üstünde koyu bant, üç sütun: tankerler, LPG/amonyak, Türk Boğazları (sınıf etiketleriyle) | Liquid Bulk / Gas / Dry Bulk |
+| `who` (#why) | .52 | açık | "A boutique desk with local depth." + "Who we are"; açıklama ve dört "neden" maddesi koyu zeminde | "Choose Your Shark" |
+| `team` (#team) | .64 | açık | "Speak to the broker, not a switchboard." + "Our team"; yana kayan portre şeridi (tüm brokerlar) ve "Meet the team" | "Meet Our Sharks" |
+| `process` (#process) | .76 | koyu | "Four steps, one broker throughout." + "How we work"; dört adım koyu bantta | (referansta yok; LEVANTER içeriği) |
+| `offices` (#offices) | .88 | koyu | "Three offices, one desk." + "Where we are"; açıklama ve İstanbul/Londra/Singapur suyun üstündeki bantta | Istanbul + Dubai (tek sahnede tüm ofisler) |
+| `letter` (#contact) | 1 | koyu | Gece denizinde hafif eğik kâğıt mektup ("Have a cargo or a ship to fix?" + LEVANTER imzası); sağda işaret + e-posta, talep butonu, masa hatları, ofisler, sosyal ve yasal bağlantılar | "You trade, we carry." mektubu |
 
-**Seçim süreci.** İki sanat yönü prototiplendi: "Oil on linen" (yağlı boya / keten) ve "Engraved chart" (gravür / harita). Üç ayrı jüri değerlendirdi: sanat yönetimi, okunabilirlik (gerçek piksellerde WCAG kontrastı) ve mühendislik (performans, bellek, mobil risk). Referansın havasına en yakın ve metin altında en okunaklı olan "Oil on linen" seçildi. Mühendislik jürisinin bulguları (ör. modül yüklenirken 256 MB ayıran gürültü tablosu) seçilen motorda düzeltildi.
+Ardından opak "sayfa"lar gelir: Araştırma (3 not, yalnız İngilizce sayfada), SSS ve footer.
 
-**Mimari** (`components/site/voyage/`):
+**Motor ile ilişki.** Motorun beş kompozisyon karesi (`VOYAGE_KEYFRAMES`: hero 0, desks .28, straits .52, process .76, contact 1) değişmedi. Sahnelerden beşi bu karelerin üstüne oturur; `what`, `team` ve `offices` iki karenin arasındaki uçuş anına düşer (sonraki turda motora bu değerlerde kendi kareleri eklenecek). `progress.ts` her sahnenin kaydırma çapasını sahnenin kendi `at` değerine eşler (sahne sayısından bağımsız); sahneden uzun bölümler (sabitlenen ekip sahnesi) kaydırıldıkları sürece sahnede tutulur. Statik arka planda (`app/voyage.css`) her sahnenin bir katmanı var; ara sahnelerin renkleri canlı ara karelerden yaklaşık alındı.
 
-- `types.ts`: motor sözleşmesi ve beş sahne (`VOYAGE_SCENES`).
-- `progress.ts`: kaydırma → yolculuk ilerlemesi. Her "pencere" bölüm (`data-voyage-scene`) bir sahneye çapalanır; çapa civarında kamera durur, aralarda yumuşakça uçar. Testleri `progress.test.ts`'te.
-- `quality.ts`: cihaz ipuçlarından kalite kademesi (high / medium / low) ve piksel bütçesine göre DPR. Veri tasarrufu, 2G ve çok düşük bellek → statik arka plan. Testleri `quality.test.ts`'te.
-- `VoyageStage.tsx`: sahnenin React sarmalayıcısı. Motoru sayfa boşa çıkınca dinamik olarak yükler; sekme gizliyken ya da hiçbir pencere bölüm ekranda değilken çizimi durdurur; yazılım WebGL'de (performans uyarısı) statik arka planda kalır; "hareketi azalt" tercihinde sahne başına durağan kare gösterir; ufuk çizgisini her karede motorun hesapladığı ufka taşır.
-- `VoyageRail.tsx`: geniş ekranlarda soldaki bölüm çubuğu (küçük tanker ilerliyor, bölüm adı hover/odakta).
-- `engine/`: three.js motoru. Kamera kareleri, ışık ve renkler `engine/timeline.ts`'te (`SHOTS`, `DEFS`); ufuk konumu sahne başına `hz` (masaüstü) ve `pHz` (telefon) ile ayarlanır.
-- `app/voyage.css`: statik "boyalı" arka plan (sunucu çıktısı ve yedek), harita çerçevesi, ufuk çizgisi, okunabilirlik scrim'leri ve bantları, bölüm çubuğu, baskı kuralları.
+**Tipografi sistemi.** Referansın `.t-hero / .t-statement / .t-display / .t-sub / .t-lead / .t-label / .t-data / .t-h3` sistemi `lv-` önekiyle `app/globals.css`'te: başlık yazı tipi **Inter Tight** (değişken font, 600–640), harf aralığı hero −0.048em, display −0.042em, statement −0.034em; satır yüksekliği .92 / .96 / 1; önünde kısa çizgi olan "— alt satır" 500 ağırlıkta; gövde 15,5–17 px / 1,55; etiketler 11,5 px, 600, büyük harf, .1em. Açık sahnelerde başlık lacivert `#0A1F33` (en fazla bir kelime pirinç `#8A6420`), koyu sahnelerde kum `#F3EFE4`. Source Serif 4 yalnız mektup kartında, Manrope gövde metninde kalır. İç sayfalardaki `font-display` başlıklar da Inter Tight'a geçti (kendi ağırlığını belirtmeyenler 600). Çince, Japonca, Korece ve Arapça için `:lang()` yedekleri sistem sans fontlarına (PingFang, Hiragino, Apple SD Gothic, Noto Sans CJK; Arapçada system-ui) ayarlandı, bu dillerde negatif harf aralığı sıfırlanır.
 
-**Sayfa yapısı.** Giriş, iki masa, neden LEVANTER, çalışma şeklimiz ve kapanıştaki iletişim bölümü saydam pencerelerdir; ekip, araştırma ve SSS opak "sayfa"lar olarak sahnenin üstünden geçer. Girişte başlık gökyüzünde, açıklama ve butonlar suyun üstünde durur (referanstaki gibi). "Doğrudan masa hatları" kartı gece sahnesindeki iletişim bölümüne taşındı. Header giriş bölümünün üstünde saydamdır.
+**Header ve menü.** İşaret (BrandMark) en solda kenar boşluğunda; bağlantılar yarı saydam kâğıt bir "hap" içinde (alt çizgi animasyonu, geçerli sayfada pirinç çizgi); dil menüsü hapın yanında; ana buton kutulu oklu lacivert "Send inquiry". Ana sayfalarda header sabit ve sahnenin üstünde saydamdır, altındaki sahnenin tonunu alır; araştırma/SSS ve footer üstünde katılaşır. İç sayfalarda aynı kabuğun katı (solid), 64 px'lik sticky hâli var. 1024 px altında dört noktalı menü düğmesi ve kare ok butonu; menü tam ekran ve koyu: büyük bağlantılar, altta ofis blokları, e-posta, diller ve sosyal ikonlar. Odak tuzağı, Escape ile kapanma ve arkadaki sayfanın `inert` yapılması korunuyor.
+
+**Rail.** Sahneler kenar boşluğunda durak noktası; sahnenin kısa adı hover/odakta görünür; geçilen yol düz, önündeki yol noktalı çizgi; küçük tanker ilerlemeyle hareket eder ve sahne okunurken durakta bekler; tıklayınca sahneye atlar. Telefonda gizli (referanstaki gibi).
+
+**Beliriş hareketleri.** Hero başlığının harfleri yüklenirken yükselir (yalnız CSS; JS olmadan da çalışır ve görünür biter). Diğer sahnelerde başlıklar satır satır, bantlar okuma yönünde silinerek (wipe), küçük öğeler sırayla belirir; sahne ekrandan çıkarken metin söner. Gizli durumlar yalnız `HomeReveal` belgeyi işaretledikten sonra uygulanır (`html[data-reveal]`); yalnız transform, opacity ve clip-path hareket eder, yerleşim kayması yok. "Hareketi azalt" tercihinde hiçbiri yok.
+
+**Telefonda sayfa sayfa.** Dokunmatik ekranlarda yolculuk `scroll-snap-type: y proximity` ile sahne sahne ilerler; uzun sahneler hapsetmez. Masaüstünde serbest kaydırma.
+
+**Ekip şeridi.** Masaüstünde (hareket açıkken) ekip sahnesi 250vh yüksekliğinde sabitlenir ve kaydırdıkça portre şeridi yana kayar; klavyeyle bir karta gelince sayfa o kartı gösterecek yere kaydırılır. Telefonda ve "hareketi azalt"ta yerel yatay kaydırma (snap). Brokerların fotoğrafı yokken lacivert çerçevede pirinç baş harfler; `broker.photo` (CMS'ten, isteğe bağlı) varsa fotoğraf gösterilir. Kart broker'ın masa e-postasına ("Attn" konulu), köşedeki ikon WhatsApp'a gider.
+
+**Bilinçli sapmalar.** (1) Marka, renkler, metinler ve görseller LEVANTER'in; referansın fotoğraf/video sahneleri yerine canlı three.js sahnemiz. (2) Referansta footer yok; bizde araştırma, SSS ve footer yolculuktan sonra duruyor (iç bağlantılar ve SEO için). (3) Sayfada tek `h1` var: görünen kısa başlığın devamı (açıklayıcı metin) görsel olarak gizli; JSON-LD değişmedi; ana sayfa her masa ve sınıf sayfasına bağlantı veriyor. (4) Referanstaki "Darüşşafaka" sahnesinin karşılığı yok; yerine "How we work" sahnesi var. (5) Referans sahneleri JS ile sabit bir sahnede gösterip gizler; bizde sahneler normal akışta kayan bölümler, içerik JS'siz de eksiksiz.
+
+**Mimari** (`components/site/voyage/`, `components/site/home/`):
+
+- `voyage/types.ts`: motor sözleşmesi, motor kareleri (`VOYAGE_KEYFRAMES`) ve sekiz sayfa sahnesi (`VOYAGE_SCENES`).
+- `voyage/progress.ts`: kaydırma → yolculuk ilerlemesi (sahne çapaları, tutma aralıkları). Testleri `progress.test.ts`'te.
+- `voyage/quality.ts`: cihaz ipuçlarından kalite kademesi ve DPR. Veri tasarrufu, 2G ve çok düşük bellek → statik arka plan.
+- `voyage/VoyageStage.tsx`: sahnenin React sarmalayıcısı; motoru boşta yükler, görünmezken çizmez, yazılım WebGL'de statik kalır, "hareketi azalt"ta sahne başına durağan kare.
+- `voyage/VoyageRail.tsx`: sahne çubuğu.
+- `home/Journey.tsx`: sekiz sahne (İngilizce ve yerel ana sayfalar aynı bileşeni kullanır; metinler `HomeCopy` ile gelir). `home/Reveal.tsx` beliriş hareketleri, `home/TeamStrip.tsx` ekip şeridi, `home/text.tsx` satır/harf bölme.
+- `engine/`: three.js motoru (bu turda değişmedi).
+- `app/voyage.css`: statik arka plan, harita çerçevesi, ufuk çizgisi, sahne yerleşimleri, scrim ve bantlar, ekip şeridi, mektup, rail, beliriş durumları, baskı kuralları. Header, menü, butonlar ve tipografi sistemi `app/globals.css`'te.
+- Yerel sayfaların yeni metinleri `lib/i18n.ts` içinde `home` alanında (kısa hero başlığı, alt satırlar, Boğazlar sütunu, ekip ve ofis metinleri).
 
 **Performans ve erişilebilirlik.**
 
-- three.js yalnızca ana sayfalarda, sayfa yüklendikten sonra ayrı bir parça olarak iner. İlk yükleme JS'i değişmedi.
-- Görünmezken çizim yapılmaz.
-- Metin bloklarının arkasında motor "sakin bölge" uygular: başlık arkasında gökyüzü kâğıda açılır, girişteki açıklamanın altında su koyulaşır ve parıltı söner. Böylece kontrast WCAG AA'yı karşılar.
-- Baskıda sahne gizlenir ve metin koyu basılır.
+- three.js yalnız ana sayfalarda, sayfa yüklendikten sonra ayrı parça olarak iner; görünmezken çizim yapılmaz.
+- Metin bloklarının arkasında motorun "sakin bölge"leri ve sayfanın scrim/bantları var; kontrast canlı sahnenin ekran görüntülerinde ölçüldü (WCAG AA).
+- Her şey klavyeyle erişilebilir, odak görünür (açık sahnelerde lacivert, koyu sahnelerde pirinç halka). `/ar` sayfası aynalanır (yerleşim, rail, şerit yönü, sahne).
+- Baskıda sahne gizlenir, metin koyu basılır.
 
 **Test bayrakları.** `?voyage=1` canlı sahneyi zorlar (ör. yazılım WebGL kullanan headless tarayıcıda), `?voyage=0` statik arka planı zorlar.
 

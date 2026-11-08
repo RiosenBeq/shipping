@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig, whatsappUrl } from "@/lib/site";
-import { cn } from "@/lib/utils";
 import { Eyebrow } from "./Section";
 
 type Props = {
@@ -20,11 +19,6 @@ type Props = {
   /** Short note under the buttons, e.g. "The inquiry form is in English." on localized pages. */
   note?: string;
   id?: string;
-  /**
-   * Homepages: a transparent window onto the voyage stage's night scene
-   * instead of a navy band. The copy keeps its dark-band colours.
-   */
-  onStage?: boolean;
   /** Replaces the end column; the buttons then move under the text. */
   aside?: React.ReactNode;
 };
@@ -40,7 +34,6 @@ export function CtaBand({
   eyebrow,
   note,
   id,
-  onStage = false,
   aside,
 }: Props) {
   const actions = (
@@ -85,29 +78,16 @@ export function CtaBand({
     <section
       id={id}
       data-fab-hide=""
-      data-voyage-scene={onStage ? "contact" : undefined}
-      className={cn(
-        "relative isolate overflow-hidden text-white print:hidden",
-        !onStage && "bg-navy"
-      )}
+      className="relative isolate overflow-hidden bg-navy text-white print:hidden"
     >
-      {!onStage && (
-        <>
-          <div className="uv-hero-pattern" aria-hidden="true" />
-          {/* brass hairline across the top edge */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-0 top-0 z-[1] h-px bg-gradient-to-r from-transparent via-brass/70 to-transparent"
-          />
-        </>
-      )}
+      <div className="uv-hero-pattern" aria-hidden="true" />
+      {/* brass hairline across the top edge */}
       <div
-        className={cn(
-          "container relative z-[1] grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-16",
-          onStage ? "py-24 md:py-40" : "py-16 md:py-24"
-        )}
-      >
-        <div className={cn(onStage && "voyage-scrim voyage-scrim--ink")}>
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 z-[1] h-px bg-gradient-to-r from-transparent via-brass/70 to-transparent"
+      />
+      <div className="container relative z-[1] grid gap-10 py-16 md:py-24 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-16">
+        <div>
           {eyebrow && (
             <Eyebrow dark className="mb-4">
               {eyebrow}

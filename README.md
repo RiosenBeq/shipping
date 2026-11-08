@@ -1,6 +1,6 @@
 # LEVANTER — Tanker & LPG Shipbrokers
 
-Marketing site and free tools for an Istanbul-based tanker and LPG chartering broker. Next.js 14 (App Router), TypeScript, Tailwind CSS. Fully static; no backend.
+Marketing site and free tools for an Istanbul-based tanker and LPG chartering broker. Next.js 14 (App Router), TypeScript, Tailwind CSS. Static pages, no database; the only server code is the content admin's API (`/api/keystatic`).
 
 - **Desks:** `/tankers` (VLCC → MR) and `/lpg` (VLGC → pressurised), each with class guides; plus `/research`, `/glossary`, `/brokers`, `/contact`, `/about`, `/compliance` and the `/turkish-straits` transit guide.
 - **Tool:** an LPG cbm ↔ tonnes converter on `/lpg` (physical densities and a filling limit; reads `84,000`, `84.000` and `84.000,5` alike). No live market data, rate boards or estimators — anything that needs current freight, bunker or tariff data was retired.
@@ -11,18 +11,25 @@ Marketing site and free tools for an Istanbul-based tanker and LPG chartering br
 
 See [`docs/REDESIGN.md`](docs/REDESIGN.md) for the market research, design decisions and before/after screenshots, and [`docs/SEO-2026.md`](docs/SEO-2026.md) for the October 2026 SEO, AI-search and content update.
 
+## Content admin (CMS)
+
+Site data is edited in a [Keystatic](https://keystatic.com) admin at **`/keystatic`** and stored as JSON in `content/` — no database. `npm run dev` → <http://localhost:3000/keystatic> saves straight to the files (commit them as usual). On the live site, editors with write access to `RiosenBeq/shipping` sign in with GitHub; each save commits to `main` and Vercel redeploys in about 1–2 minutes. Production needs a GitHub App and four env vars (`KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET`, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`); until they are set, `/keystatic` shows a setup notice. Every file is checked by zod in `npm test` and at build time, so an invalid save fails the build instead of the site. Setup, sections and the CSP note: [`docs/CMS.md`](docs/CMS.md) (Turkish).
+
+`lib/site.ts` and `lib/data/*.ts` are typed loaders over `content/*.json` with the same exports as before; schema in `keystatic.config.ts`, validation in `lib/content/`.
+
 ## Edit content
 
 | What | Where |
 | --- | --- |
-| Company, contact details, offices | `lib/site.ts` |
-| Brokers | `lib/data/brokers.ts` |
-| Tanker / LPG class guides | `lib/data/tanker-classes.ts`, `lib/data/lpg-classes.ts` |
-| LPG converter densities | `lib/data/lpg-classes.ts` (`LPG_CARGO_DENSITY`) |
-| Research notes (authors, dates, bodies) | `lib/data/research.ts`, `lib/data/research-bodies.ts` |
-| Glossary | `lib/data/glossary.ts` |
-| FAQs (home, desks, about) | `lib/data/faqs.ts` |
-| Turkish Straits guide, compliance page | `lib/data/turkish-straits.ts`, `lib/data/compliance.ts` |
+| Company, contact details, offices | `/keystatic` → Site settings (`content/site.json`) |
+| Brokers (incl. optional photos) | `/keystatic` → Brokers (`content/brokers.json`, photos in `public/images/brokers/`) |
+| Tanker / LPG class guides | `/keystatic` → Tanker classes, LPG classes |
+| LPG converter densities | `/keystatic` → LPG converter cargoes (`content/lpg-cargoes.json`) |
+| Research notes (authors, dates, bodies) | `/keystatic` → Research notes (`content/research.json`) |
+| Glossary | `/keystatic` → Glossary |
+| FAQs (home, desks, about) | `/keystatic` → FAQs |
+| Turkish Straits guide, compliance page | `/keystatic` → Turkish Straits, Compliance |
+| Admin fields and choices | `keystatic.config.ts`, `lib/content/options.ts`, `lib/content/schemas.ts` |
 | Share cards (per-page OG images) | `lib/og-cards.ts` (rendered by `lib/og.tsx`) |
 | llms.txt / llms-full.txt, AI crawler list | `lib/llms.ts`, `lib/crawlers.ts` |
 | Translated landing pages | `lib/i18n.ts` (rendered by `app/[lang]/`) |

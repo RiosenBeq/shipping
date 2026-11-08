@@ -49,6 +49,25 @@ export type Dictionary = {
   formNote: string;
   /** Section rail on the homepage stage: its accessible name and two waypoint labels. */
   rail: { label: string; overview: string; contact: string };
+  /**
+   * The homepage's scene flow (1:1 with the reference): the strings it adds
+   * to the ones above. The other scenes reuse them (desks → what we do and
+   * the desks band, why → who we are, steps → how we work, cta → the letter).
+   */
+  home: {
+    /** Short hero headline (2–4 words); the full `h1` above stays as its hidden continuation. */
+    heroTitle: string;
+    /** "— sub" lines under the scene headings (how we work uses `stepsEyebrow`). */
+    subs: { what: string; who: string; team: string; offices: string };
+    /** Third column of the desks band, next to the two desks. */
+    straits: { title: string; text: string };
+    teamTitle: string;
+    teamLead: string;
+    /** Button to the (English) team page. */
+    teamCta: string;
+    officesTitle: string;
+    officesLead: string;
+  };
 };
 
 export type Locale = {
@@ -145,6 +164,21 @@ export const LOCALES: Locale[] = [
       fab: "通过WhatsApp联系经纪人",
       formNote: "询盘表格为英文。",
       rail: { label: "本页内容", overview: "概览", contact: "联系我们" },
+      home: {
+        heroTitle: "立足博斯普鲁斯。",
+        subs: { what: "我们做什么", who: "我们是谁", team: "我们的团队", offices: "我们在哪里" },
+        straits: {
+          title: "土耳其海峡",
+          text: "过峡时间、等待和海峡规则，计入我们报出的每一笔黑海租船。",
+        },
+        teamTitle: "直接对话经纪人，而不是总机。",
+        teamLead:
+          "伊斯坦布尔、伦敦和新加坡的经纪人，每人专注一个部门和一组航线。通过电子邮件或WhatsApp直接联系他们。",
+        teamCta: "认识团队（英文）",
+        officesTitle: "三个办公室，一个团队。",
+        officesLead:
+          "伊斯坦布尔覆盖地中海和黑海，伦敦覆盖大西洋，新加坡覆盖苏伊士以东——同一个团队，全天候跟进您的租船。",
+      },
     },
   },
   {
@@ -243,6 +277,21 @@ export const LOCALES: Locale[] = [
       fab: "WhatsAppでブローカーに相談",
       formNote: "引き合いフォームは英語です。",
       rail: { label: "このページの内容", overview: "概要", contact: "お問い合わせ" },
+      home: {
+        heroTitle: "ボスポラス海峡から。",
+        subs: { what: "私たちの仕事", who: "私たちについて", team: "チーム", offices: "拠点" },
+        straits: {
+          title: "トルコ海峡",
+          text: "通航時間、待機、海峡の規則を、黒海のすべての見積りに織り込みます。",
+        },
+        teamTitle: "交換台ではなく、ブローカーと直接。",
+        teamLead:
+          "イスタンブール、ロンドン、シンガポールのブローカーが、それぞれ一つのデスクと航路を担当します。メールやWhatsAppで直接ご連絡ください。",
+        teamCta: "チームを見る（英語）",
+        officesTitle: "3つの拠点、1つのデスク。",
+        officesLead:
+          "地中海と黒海はイスタンブール、大西洋はロンドン、スエズ以東はシンガポール。同じデスクが24時間体制で案件を追います。",
+      },
     },
   },
   {
@@ -335,6 +384,21 @@ export const LOCALES: Locale[] = [
       fab: "WhatsApp으로 브로커와 상담",
       formNote: "문의 양식은 영어로 되어 있습니다.",
       rail: { label: "이 페이지의 내용", overview: "개요", contact: "문의" },
+      home: {
+        heroTitle: "보스포루스에서 중개합니다.",
+        subs: { what: "하는 일", who: "회사 소개", team: "팀", offices: "사무소" },
+        straits: {
+          title: "터키 해협",
+          text: "통항 시간, 대기, 해협 규정을 모든 흑해 견적에 반영합니다.",
+        },
+        teamTitle: "교환대가 아닌 브로커와 직접.",
+        teamLead:
+          "이스탄불, 런던, 싱가포르의 브로커가 각자 하나의 데스크와 항로를 맡습니다. 이메일이나 WhatsApp으로 직접 연락하세요.",
+        teamCta: "팀 소개 (영문)",
+        officesTitle: "세 개의 사무소, 하나의 데스크.",
+        officesLead:
+          "지중해와 흑해는 이스탄불, 대서양은 런던, 수에즈 동쪽은 싱가포르가 맡습니다. 하나의 데스크가 24시간 거래를 챙깁니다.",
+      },
     },
   },
   {
@@ -437,6 +501,26 @@ export const LOCALES: Locale[] = [
       fab: "Μιλήστε με μεσίτη στο WhatsApp",
       formNote: "Η φόρμα ερωτήματος είναι στα αγγλικά.",
       rail: { label: "Σε αυτή τη σελίδα", overview: "Επισκόπηση", contact: "Επικοινωνία" },
+      home: {
+        heroTitle: "Από τον Βόσπορο.",
+        subs: {
+          what: "Τι κάνουμε",
+          who: "Ποιοι είμαστε",
+          team: "Η ομάδα μας",
+          offices: "Πού βρισκόμαστε",
+        },
+        straits: {
+          title: "Τουρκικά Στενά",
+          text: "Χρόνος διέλευσης, αναμονή και κανόνες των Στενών, σε κάθε ναύλωση Μαύρης Θάλασσας που προτείνουμε.",
+        },
+        teamTitle: "Μιλήστε με τον μεσίτη, όχι με τηλεφωνικό κέντρο.",
+        teamLead:
+          "Μεσίτες σε Κωνσταντινούπολη, Λονδίνο και Σιγκαπούρη, ο καθένας σε ένα γραφείο και συγκεκριμένα δρομολόγια. Γράψτε τους απευθείας, με email ή WhatsApp.",
+        teamCta: "Η ομάδα (στα αγγλικά)",
+        officesTitle: "Τρία γραφεία, μία ομάδα.",
+        officesLead:
+          "Κωνσταντινούπολη για Μεσόγειο και Μαύρη Θάλασσα, Λονδίνο για τον Ατλαντικό, Σιγκαπούρη για ανατολικά του Σουέζ — η ίδια ομάδα, όλο το εικοσιτετράωρο.",
+      },
     },
   },
   {
@@ -539,6 +623,26 @@ export const LOCALES: Locale[] = [
       fab: "Kontakt en megler på WhatsApp",
       formNote: "Forespørselsskjemaet er på engelsk.",
       rail: { label: "På denne siden", overview: "Oversikt", contact: "Kontakt" },
+      home: {
+        heroTitle: "Meglet fra Bosporos.",
+        subs: {
+          what: "Hva vi gjør",
+          who: "Hvem vi er",
+          team: "Teamet vårt",
+          offices: "Hvor vi er",
+        },
+        straits: {
+          title: "De tyrkiske stredene",
+          text: "Transittid, venting og stredenes regler regnes inn i hver Svartehavs-fiksering vi gir tall på.",
+        },
+        teamTitle: "Snakk med megleren, ikke et sentralbord.",
+        teamLead:
+          "Meglere i Istanbul, London og Singapore, hver på én desk og ett sett med handler. Skriv direkte til dem, på e-post eller WhatsApp.",
+        teamCta: "Møt teamet (engelsk)",
+        officesTitle: "Tre kontorer, én desk.",
+        officesLead:
+          "Istanbul for Middelhavet og Svartehavet, London for Atlanterhavet, Singapore øst for Suez — én desk som følger fiksturen din døgnet rundt.",
+      },
     },
   },
   {
@@ -632,6 +736,26 @@ export const LOCALES: Locale[] = [
       fab: "Skriv til en mægler på WhatsApp",
       formNote: "Forespørgselsformularen er på engelsk.",
       rail: { label: "På denne side", overview: "Oversigt", contact: "Kontakt" },
+      home: {
+        heroTitle: "Formidlet fra Bosporus.",
+        subs: {
+          what: "Hvad vi laver",
+          who: "Hvem vi er",
+          team: "Vores team",
+          offices: "Hvor vi er",
+        },
+        straits: {
+          title: "De tyrkiske stræder",
+          text: "Transittid, ventetid og strædernes regler indgår i hver befragtning i Sortehavet, vi regner på.",
+        },
+        teamTitle: "Tal med mægleren, ikke et omstillingsbord.",
+        teamLead:
+          "Mæglere i Istanbul, London og Singapore, hver på én desk og ét sæt ruter. Skriv direkte til dem, på e-mail eller WhatsApp.",
+        teamCta: "Mød teamet (engelsk)",
+        officesTitle: "Tre kontorer, én desk.",
+        officesLead:
+          "Istanbul til Middelhavet og Sortehavet, London til Atlanten, Singapore øst for Suez — én desk, der følger din befragtning døgnet rundt.",
+      },
     },
   },
   {
@@ -736,6 +860,26 @@ export const LOCALES: Locale[] = [
       fab: "Kontakta en mäklare på WhatsApp",
       formNote: "Förfrågningsformuläret är på engelska.",
       rail: { label: "På den här sidan", overview: "Översikt", contact: "Kontakt" },
+      home: {
+        heroTitle: "Mäklat från Bosporen.",
+        subs: {
+          what: "Vad vi gör",
+          who: "Vilka vi är",
+          team: "Vårt team",
+          offices: "Var vi finns",
+        },
+        straits: {
+          title: "Turkiska sunden",
+          text: "Transittid, väntan och sundens regler räknas in i varje befraktning i Svarta havet som vi offererar.",
+        },
+        teamTitle: "Tala med mäklaren, inte en växel.",
+        teamLead:
+          "Mäklare i Istanbul, London och Singapore, var och en på en desk och en uppsättning rutter. Skriv direkt till dem, via e-post eller WhatsApp.",
+        teamCta: "Möt teamet (engelska)",
+        officesTitle: "Tre kontor, en desk.",
+        officesLead:
+          "Istanbul för Medelhavet och Svarta havet, London för Atlanten, Singapore öster om Suez — en desk som följer din befraktning dygnet runt.",
+      },
     },
   },
   {
@@ -842,6 +986,26 @@ export const LOCALES: Locale[] = [
       fab: "Makler per WhatsApp kontaktieren",
       formNote: "Das Anfrageformular ist auf Englisch.",
       rail: { label: "Auf dieser Seite", overview: "Überblick", contact: "Kontakt" },
+      home: {
+        heroTitle: "Vom Bosporus aus vermittelt.",
+        subs: {
+          what: "Was wir tun",
+          who: "Wer wir sind",
+          team: "Unser Team",
+          offices: "Wo wir sind",
+        },
+        straits: {
+          title: "Türkische Meerengen",
+          text: "Transitzeiten, Wartezeiten und die Regeln der Meerengen fließen in jede Schwarzmeer-Befrachtung ein, die wir anbieten.",
+        },
+        teamTitle: "Sprechen Sie mit dem Makler, nicht mit der Zentrale.",
+        teamLead:
+          "Makler in Istanbul, London und Singapur, jeder an einem Desk und in festen Fahrtgebieten. Schreiben Sie ihnen direkt, per E-Mail oder WhatsApp.",
+        teamCta: "Das Team (Englisch)",
+        officesTitle: "Drei Büros, ein Desk.",
+        officesLead:
+          "Istanbul für Mittelmeer und Schwarzes Meer, London für den Atlantik, Singapur für östlich von Suez — ein Desk, der Ihre Befrachtung rund um die Uhr begleitet.",
+      },
     },
   },
   {
@@ -945,6 +1109,26 @@ export const LOCALES: Locale[] = [
       fab: "Escriba a un corredor por WhatsApp",
       formNote: "El formulario de consulta está en inglés.",
       rail: { label: "En esta página", overview: "Resumen", contact: "Contacto" },
+      home: {
+        heroTitle: "Intermediado desde el Bósforo.",
+        subs: {
+          what: "Qué hacemos",
+          who: "Quiénes somos",
+          team: "Nuestro equipo",
+          offices: "Dónde estamos",
+        },
+        straits: {
+          title: "Estrechos turcos",
+          text: "Tiempos de tránsito, esperas y normas de los estrechos, incluidos en cada fletamento del mar Negro que cotizamos.",
+        },
+        teamTitle: "Hable con el bróker, no con una centralita.",
+        teamLead:
+          "Brókers en Estambul, Londres y Singapur, cada uno en una mesa y un conjunto de rutas. Escríbales directamente, por correo o WhatsApp.",
+        teamCta: "Conozca al equipo (en inglés)",
+        officesTitle: "Tres oficinas, una mesa.",
+        officesLead:
+          "Estambul para el Mediterráneo y el mar Negro, Londres para el Atlántico, Singapur para el este de Suez: una sola mesa que sigue su fletamento a toda hora.",
+      },
     },
   },
   {
@@ -1042,6 +1226,21 @@ export const LOCALES: Locale[] = [
       fab: "راسل وسيطًا عبر واتساب",
       formNote: "نموذج الطلب باللغة الإنجليزية.",
       rail: { label: "في هذه الصفحة", overview: "نظرة عامة", contact: "اتصل بنا" },
+      home: {
+        heroTitle: "وساطة من البوسفور.",
+        subs: { what: "ما نقوم به", who: "من نحن", team: "فريقنا", offices: "أين نحن" },
+        straits: {
+          title: "المضائق التركية",
+          text: "نُدرج زمن العبور والانتظار وقواعد المضائق في كل عرض تأجير نقدمه في البحر الأسود.",
+        },
+        teamTitle: "تحدث إلى الوسيط مباشرة، لا إلى مقسم هاتف.",
+        teamLead:
+          "وسطاء في إسطنبول ولندن وسنغافورة، لكل منهم قسم ومسارات محددة. راسلهم مباشرة عبر البريد الإلكتروني أو واتساب.",
+        teamCta: "تعرّف على الفريق (بالإنجليزية)",
+        officesTitle: "ثلاثة مكاتب، فريق واحد.",
+        officesLead:
+          "إسطنبول للبحر المتوسط والبحر الأسود، ولندن للأطلسي، وسنغافورة لشرق السويس — فريق واحد يتابع عملية التأجير على مدار الساعة.",
+      },
     },
   },
 ];

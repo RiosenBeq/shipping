@@ -11,6 +11,8 @@ export const OFFICE_NAMES = ["Istanbul", "London", "Singapore"] as const;
 export const AVATAR_KINDS = ["head", "broker"] as const;
 
 export const REPORT_DESKS = ["tankers", "lpg"] as const;
+/** The Strait of Hormuz brief that route tables and /compliance link to (HORMUZ_NOTE_PATH). */
+export const HORMUZ_NOTE_SLUG = "strait-of-hormuz-disruption-checklist-for-tanker-and-lpg-charterers";
 export const REPORT_CATEGORIES = ["weekly", "route", "reg", "guide"] as const satisfies readonly Exclude<
   ResearchCategory,
   "all"

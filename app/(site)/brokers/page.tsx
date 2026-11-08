@@ -43,6 +43,7 @@ export default function BrokersPage() {
         workLocation: { "@type": "Place", name: b.office },
         knowsLanguage: b.languages,
         knowsAbout: b.focus,
+        ...(b.photo ? { image: new URL(b.photo, siteConfig.url).toString() } : {}),
       },
     })),
   };

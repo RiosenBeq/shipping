@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { VOYAGE_SCENES } from "./types";
+import { anchorsFromSections, nearestScene, progressAt, type SceneAnchor } from "./progress";
+import { VOYAGE_SCENES, type VoyageSceneId } from "./types";
 
-export type RailItem = { id: string; label: string };
-
-const DARK_SCENES = new Set<string>(
-  VOYAGE_SCENES.filter((s) => s.tone === "dark").map((s) => s.id)
-);
+export type RailItem = {
+  /** The page scene this waypoint stands for. */
+  scene: VoyageSceneId;
+  /** Id of the scene's section (the waypoint's #fragment). */
+  id: string;
+  /** Short name, shown on hover and focus. */
+  label: string;
+};
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const AT = new Map(VOYAGE_SCENES.map((s) => [s.id, s.at] as const));
+const TONE = new Map(VOYAGE_SCENES.map((s) => [s.id, s.tone] as const));
 
 /** A tiny tanker in profile, bow to the inline end; the funnel band is brass. */
 function RailShip() {
@@ -25,52 +31,48 @@ function RailShip() {
 }
 
 /**
- * Progress rail along the inline-start edge of the homepages (from xl): one
- * waypoint per section, a small tanker sailing down the course as the page
- * scrolls, the section's name on hover or focus. Adapted from the scene rail
- * of the reference site.
- *
- * Waypoints sit at their section's share of the page's scroll length. The
- * colour follows what is behind the rail: sand over the dusk and night scenes,
- * navy elsewhere; it steps aside over the footer.
+ * The scene rail in the gutter of the homepages (reference .rail): one
+ * waypoint per scene, placed at the scene's own place on the journey (its
+ * `at`), the solid course behind the ship and the dotted course ahead of it.
+ * The ship follows the same scroll → progress mapping as the stage, so it
+ * rests on a waypoint while that scene is held and sails between them.
+ * Labels show on hover and focus; a click jumps to the scene. Hidden on
+ * phones (CSS), and it steps aside once the journey gives way to the sheets.
  */
 export function VoyageRail({ items, label }: { items: RailItem[]; label: string }) {
   const navRef = useRef<HTMLElement>(null);
-  const [stops, setStops] = useState<number[]>([]);
   const [active, setActive] = useState(0);
+  const [under, setUnder] = useState(0);
 
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
-    let starts: number[] = [];
+    let anchors: SceneAnchor[] = [];
     let frame = 0;
     let measureFrame = 0;
 
-    const elements = () =>
+    const sections = () =>
       items
-        .map((it) => document.getElementById(it.id))
-        .filter((el): el is HTMLElement => el !== null);
+        .map((it) => ({ it, el: document.getElementById(it.id) }))
+        .filter((s): s is { it: RailItem; el: HTMLElement } => s.el !== null);
 
     const update = () => {
       frame = 0;
-      if (starts.length < 2) return;
-      const y = window.scrollY;
-      const first = starts[0];
-      const last = starts[starts.length - 1];
-      nav.style.setProperty("--rail-p", clamp01((y - first) / (last - first)).toFixed(4));
-
-      // Section under the reading line (40% down the viewport).
-      const line = y + window.innerHeight * 0.4;
-      let idx = 0;
-      for (let i = 0; i < starts.length; i++) if (starts[i] <= line) idx = i;
+      const p = progressAt(window.scrollY, anchors);
+      const t = clamp01(p);
+      nav.style.setProperty("--rail-p", t.toFixed(4));
+      const scene = nearestScene(p);
+      const idx = Math.max(
+        0,
+        items.findIndex((it) => it.scene === scene.id)
+      );
       setActive(idx);
-
-      const els = elements();
-      const scene = els[idx]?.getAttribute("data-voyage-scene");
-      nav.dataset.tone = scene && DARK_SCENES.has(scene) ? "dark" : "light";
-      const footer = document.querySelector("footer");
+      // The waypoint under the ship hides its dot (it is the ship's berth).
+      setUnder(Math.abs((AT.get(items[idx]?.scene) ?? -1) - t) < 0.012 ? idx : -1);
+      nav.dataset.tone = TONE.get(scene.id) ?? "light";
+      const last = document.getElementById(items[items.length - 1]?.id ?? "");
       nav.dataset.away =
-        footer && footer.getBoundingClientRect().top < window.innerHeight * 0.75 ? "true" : "false";
+        last && last.getBoundingClientRect().bottom < window.innerHeight * 0.5 ? "true" : "false";
     };
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
@@ -79,12 +81,13 @@ export function VoyageRail({ items, label }: { items: RailItem[]; label: string 
     const measure = () => {
       measureFrame = 0;
       const sy = window.scrollY;
-      starts = elements().map((el) => Math.max(0, el.getBoundingClientRect().top + sy - 80));
-      if (starts.length > 1) {
-        const first = starts[0];
-        const span = starts[starts.length - 1] - first || 1;
-        setStops(starts.map((s) => (s - first) / span));
-      }
+      anchors = anchorsFromSections(
+        sections().map(({ it, el }) => {
+          const r = el.getBoundingClientRect();
+          return { id: it.scene, top: r.top + sy, height: r.height };
+        }),
+        window.innerHeight
+      );
       update();
     };
     const scheduleMeasure = () => {
@@ -107,8 +110,8 @@ export function VoyageRail({ items, label }: { items: RailItem[]; label: string 
 
   return (
     <nav ref={navRef} aria-label={label} className="voyage-rail site-chrome" data-tone="light">
-      <span className="voyage-rail__course" aria-hidden="true" />
       <span className="voyage-rail__done" aria-hidden="true" />
+      <span className="voyage-rail__ahead" aria-hidden="true" />
       <span className="voyage-rail__ship" aria-hidden="true">
         <RailShip />
       </span>
@@ -117,14 +120,13 @@ export function VoyageRail({ items, label }: { items: RailItem[]; label: string 
           <li
             key={it.id}
             className="voyage-rail__wp"
-            style={
-              { "--rail-t": stops[i] ?? i / Math.max(1, items.length - 1) } as React.CSSProperties
-            }
+            style={{ "--rail-t": AT.get(it.scene) ?? 0 } as React.CSSProperties}
           >
             <a
               href={`#${it.id}`}
-              aria-current={i === active ? "location" : undefined}
-              data-past={i < active ? "true" : undefined}
+              aria-current={i === active ? "step" : undefined}
+              data-past={i < active ? "" : undefined}
+              data-under={i === under ? "" : undefined}
             >
               <i aria-hidden="true" />
               <span>{it.label}</span>

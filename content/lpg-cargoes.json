@@ -1,0 +1,34 @@
+{
+  "cargoes": [
+    {
+      "key": "propane",
+      "label": "Propane",
+      "density": 0.582
+    },
+    {
+      "key": "butane",
+      "label": "n-Butane",
+      "density": 0.601
+    },
+    {
+      "key": "ammonia",
+      "label": "Ammonia",
+      "density": 0.682
+    },
+    {
+      "key": "propylene",
+      "label": "Propylene",
+      "density": 0.612
+    },
+    {
+      "key": "butadiene",
+      "label": "Butadiene",
+      "density": 0.65
+    },
+    {
+      "key": "vcm",
+      "label": "VCM",
+      "density": 0.969
+    }
+  ]
+}

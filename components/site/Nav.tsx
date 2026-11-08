@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronDown, Globe, Menu, MessageCircle, Phone, X } from "lucide-react";
+import { Check, ChevronDown, Globe, Linkedin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOCALES } from "@/lib/i18n";
 import { inquiryHrefFor } from "@/lib/inquiry";
-import { siteConfig, telUrl, whatsappUrl } from "@/lib/site";
+import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { BtnArrow, XGlyph } from "./home/icons";
 import { Eyebrow } from "./Section";
 
 const LINKS = [
@@ -31,6 +32,17 @@ const LANGUAGES = [
 
 /** Only the home page is translated; say so before a visitor switches mid-site. */
 const LANGUAGE_HINT = "Overview page in your language — the rest of the site is in English.";
+
+/** Offices for the menu's foot: label, one line, and a phone for the head office. */
+const OFFICES = siteConfig.offices.map((o) =>
+  o.city === siteConfig.address.locality
+    ? {
+        city: o.city,
+        line: `${siteConfig.address.street}, ${siteConfig.address.postalCode} ${o.city}, ${o.country}`,
+        phone: siteConfig.phone,
+      }
+    : { city: o.city, line: `${o.role} · ${o.country}`, phone: null }
+);
 
 /** Language switcher: native <details> disclosure, closes on Escape, outside click and focus loss. */
 function LanguageMenu({ current }: { current: string }) {
@@ -71,17 +83,17 @@ function LanguageMenu({ current }: { current: string }) {
   const hintId = useId();
 
   return (
-    <details ref={ref} className="group/lang relative">
-      <summary className="flex h-10 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-slate transition-colors hover:bg-sand hover:text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy group-open/lang:bg-sand group-open/lang:text-navy">
-        <Globe className="h-4 w-4" aria-hidden="true" />
+    <details ref={ref} className="lv-hdr__lang group/lang">
+      <summary>
+        <Globe aria-hidden="true" />
         <span className="sr-only">Language, current: </span>
-        <span>{active.code.toUpperCase()}</span>
+        <span>{active.code}</span>
         <ChevronDown
-          className="h-3.5 w-3.5 opacity-70 group-open/lang:rotate-180 motion-safe:transition-transform"
+          className="opacity-70 group-open/lang:rotate-180 motion-safe:transition-transform"
           aria-hidden="true"
         />
       </summary>
-      <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-[10px] border border-line bg-white shadow-[0_18px_40px_-20px_rgba(10,31,51,0.45)] motion-safe:duration-200 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1">
+      <div className="absolute end-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-[10px] border border-line bg-white text-navy shadow-[0_18px_40px_-20px_rgba(10,31,51,0.45)] motion-safe:duration-200 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1">
         <div className="border-b border-line px-4 pb-2.5 pt-3">
           <Eyebrow size="sm">Language</Eyebrow>
           <p id={hintId} className="mt-1.5 text-[12px] leading-snug text-slate">
@@ -107,7 +119,7 @@ function LanguageMenu({ current }: { current: string }) {
                 >
                   <span className="flex-1">{l.label}</span>
                   {isCurrent && <Check className="h-4 w-4 text-brass-ink" aria-hidden="true" />}
-                  <span className="w-6 text-right font-mono text-[11px] uppercase text-slate">
+                  <span className="w-6 text-end font-mono text-[11px] uppercase text-slate">
                     {l.code}
                   </span>
                 </Link>
@@ -120,18 +132,37 @@ function LanguageMenu({ current }: { current: string }) {
   );
 }
 
+type Tone = "light" | "dark";
+
+/**
+ * Site header, after the reference's chrome: the mark in the gutter, the main
+ * links in a translucent paper pill (animated underline, brass under the
+ * current page), the language menu next to it and the ink "Send inquiry"
+ * button with its boxed arrow.
+ *
+ * On the homepages it is fixed and clear over the voyage stage and takes the
+ * tone of the scene under it (navy on light scenes, sand on dark ones); over
+ * the research and FAQ sheets and the footer it turns solid. Every other page
+ * keeps a solid, sticky version of the same chrome.
+ *
+ * Below 1024px the links move into a full-screen dark menu behind a four-dot
+ * button (focus trap, Escape, the page behind made inert); the CTA becomes a
+ * square icon button on phones.
+ */
 export function Nav() {
   const pathname = usePathname() || "/";
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const drawerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const restoreFocus = useRef(false);
   const first = pathname.split("/")[1] ?? "";
   const current = LOCALES.some((l) => l.code === first) ? first : "en";
-  // Homepages (English and localized) open on the voyage stage: the header is
-  // clear over the hero's sky, like a chart frame, and turns solid below it.
+  // Homepages (English and localized) open on the voyage stage.
   const stagePage = pathname === "/" || LOCALES.some((l) => pathname === `/${l.code}`);
-  const [overHero, setOverHero] = useState(stagePage);
+  const [overStage, setOverStage] = useState(stagePage);
+  const [tone, setTone] = useState<Tone>("light");
   // "Send inquiry" keeps the page's context: tanker and LPG class pages
   // preselect their segment and ship size; the hubs (which span crude/clean,
   // and LPG/ammonia) leave the cargo for the visitor to pick.
@@ -140,14 +171,14 @@ export function Nav() {
   // ?segment= preselect) instead of reloading the page it is on.
   const onContact = pathname === "/contact" || pathname.startsWith("/contact/");
   const close = () => setOpen(false);
-  const drawerHintId = useId();
+  const menuHintId = useId();
 
   const toForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const target = document.getElementById("inquiry-title");
     if (!target) return; // no form here after all: follow the hash
     e.preventDefault();
     setOpen(false);
-    // Next frame: the drawer has closed, its scroll lock and `inert` are gone.
+    // Next frame: the menu has closed, its scroll lock and `inert` are gone.
     // Smooth or instant follows the html scroll-behavior (reduced motion aware).
     window.requestAnimationFrame(() => {
       target.scrollIntoView({ block: "start" });
@@ -161,17 +192,24 @@ export function Nav() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Hairline shadow once the page has scrolled under the header; on the
-  // homepages, clear while the hero is still under it.
+  // Which scene is under the header: its tone, or solid over sheets.
   useEffect(() => {
     let frame = 0;
     const update = () => {
       frame = 0;
       setScrolled(window.scrollY > 4);
-      const hero = stagePage
-        ? document.querySelector<HTMLElement>('[data-voyage-scene="hero"]')
-        : null;
-      setOverHero(hero ? hero.getBoundingClientRect().bottom > 72 : false);
+      if (!stagePage) return;
+      const probe = (headerRef.current?.offsetHeight ?? 64) / 2;
+      let scene: HTMLElement | null = null;
+      for (const el of document.querySelectorAll<HTMLElement>("[data-voyage-scene]")) {
+        const r = el.getBoundingClientRect();
+        if (r.top <= probe && r.bottom > probe) {
+          scene = el;
+          break;
+        }
+      }
+      setOverStage(scene !== null);
+      setTone(scene?.dataset.tone === "dark" ? "dark" : "light");
     };
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
@@ -186,7 +224,7 @@ export function Nav() {
     };
   }, [stagePage]);
 
-  // Close the drawer if the viewport grows to the desktop layout.
+  // Close the menu if the viewport grows to the desktop layout.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const onChange = () => mq.matches && setOpen(false);
@@ -194,102 +232,100 @@ export function Nav() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  // Drawer open: lock scroll, Escape closes, Tab stays inside header + drawer,
-  // and the page behind is made inert so screen-reader swipe/virtual cursor
-  // can't wander into content the drawer covers.
+  // Menu open: lock scroll, Escape closes, Tab stays inside the menu, and
+  // everything behind it (header included) is inert, so screen-reader
+  // swipe/virtual cursor can't wander into content the menu covers.
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const behind = ["content", "site-footer", "floating-contact"]
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null && !el.hasAttribute("inert"));
+    const behind = [
+      headerRef.current,
+      ...["content", "site-footer", "floating-contact"].map((id) => document.getElementById(id)),
+    ].filter((el): el is HTMLElement => el !== null && !el.hasAttribute("inert"));
     behind.forEach((el) => el.setAttribute("inert", ""));
-    drawerRef.current?.querySelector<HTMLElement>("a[href]")?.focus();
+    const menu = menuRef.current;
+    const toggle = toggleRef.current;
+    // After the visibility flip, so the link can take focus.
+    const focusFrame = window.requestAnimationFrame(() =>
+      menu?.querySelector<HTMLElement>(".lv-menu__list a[href]")?.focus()
+    );
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        restoreFocus.current = true;
         setOpen(false);
-        toggleRef.current?.focus();
         return;
       }
-      if (e.key !== "Tab" || !drawerRef.current || !toggleRef.current) return;
-      const items = [
-        toggleRef.current,
-        ...drawerRef.current.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
-      ];
+      if (e.key !== "Tab" || !menu) return;
+      const items = Array.from(
+        menu.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")
+      );
+      if (items.length === 0) return;
       const firstEl = items[0];
       const lastEl = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === firstEl) {
+      if (
+        e.shiftKey &&
+        (document.activeElement === firstEl || !menu.contains(document.activeElement))
+      ) {
         e.preventDefault();
         lastEl.focus();
-      } else if (!e.shiftKey && document.activeElement === lastEl) {
+      } else if (
+        !e.shiftKey &&
+        (document.activeElement === lastEl || !menu.contains(document.activeElement))
+      ) {
         e.preventDefault();
         firstEl.focus();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => {
+      window.cancelAnimationFrame(focusFrame);
       document.body.style.overflow = prev;
       behind.forEach((el) => el.removeAttribute("inert"));
       window.removeEventListener("keydown", onKey);
+      // The toggle sits in the header, which was inert until just now.
+      if (restoreFocus.current) {
+        restoreFocus.current = false;
+        toggle?.focus();
+      }
     };
   }, [open]);
 
+  const closeAndRestore = () => {
+    restoreFocus.current = true;
+    setOpen(false);
+  };
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const clear = overHero && !open;
+  const solid = !stagePage || !overStage;
+  const headerTone: Tone = solid ? "light" : tone;
 
   return (
-    <header
-      // English chrome inside localized documents.
-      lang="en"
-      dir="ltr"
-      data-clear={clear ? "" : undefined}
-      className={cn(
-        "site-chrome sticky top-0 z-50 border-b motion-safe:transition-[box-shadow,border-color] motion-safe:duration-300 print:hidden",
-        clear
-          ? "border-transparent shadow-none"
-          : scrolled || open
-            ? "border-line shadow-[0_10px_30px_-20px_rgba(10,31,51,0.4)]"
-            : "border-line/70 shadow-none"
-      )}
-    >
-      {/* Near-opaque backdrop on its own layer: a backdrop-filter on <header>
-          itself would become the containing block of the fixed mobile drawer.
-          Kept at ~95% ivory so navy bands and big headings scrolling beneath
-          never tint it grey or ghost through the wordmark; the scrolled shadow
-          and hairline mark the edge instead of translucency. */}
-      <div
-        aria-hidden="true"
-        className={cn(
-          "absolute inset-0 -z-10 motion-safe:transition-opacity motion-safe:duration-300",
-          open
-            ? "bg-background"
-            : "bg-background/[0.97] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/[0.94]",
-          clear && "opacity-0"
-        )}
-      />
-
-      <div className="container flex h-16 items-center justify-between gap-6">
-        <Link
-          href="/"
-          className="-ml-1 flex items-center gap-2.5 rounded-md px-1 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-          aria-label="LEVANTER home"
-          onClick={close}
-        >
-          <BrandMark className="h-7 w-7" />
-          <span className="font-display text-lg tracking-[0.2em] text-navy">LEVANTER</span>
+    <>
+      <header
+        ref={headerRef}
+        // English chrome inside localized documents; it follows the page's
+        // direction, so the mark keeps to the gutter on /ar too.
+        lang="en"
+        className="lv-hdr site-chrome print:hidden"
+        data-variant={stagePage ? "stage" : "page"}
+        data-tone={headerTone}
+        data-solid={solid ? "" : undefined}
+        data-scrolled={scrolled ? "" : undefined}
+      >
+        <Link href="/" className="lv-hdr__brand" aria-label="LEVANTER home" onClick={close}>
+          <BrandMark light={headerTone === "dark"} />
+          <span className="lv-hdr__word" aria-hidden="true">
+            LEVANTER
+          </span>
         </Link>
 
-        <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-7">
+        <nav aria-label="Main" className="lv-hdr__nav">
+          <ul>
             {LINKS.map((l) => (
               <li key={l.href}>
-                <Link
-                  href={l.href}
-                  aria-current={isActive(l.href) ? "page" : undefined}
-                  className="uv-nav-link"
-                >
+                <Link href={l.href} aria-current={isActive(l.href) ? "page" : undefined}>
                   {l.label}
                 </Link>
               </li>
@@ -297,153 +333,138 @@ export function Nav() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <LanguageMenu current={current} />
-          <Link {...inquiryLink} className="uv-btn uv-btn--sm">
-            Send inquiry
-            <ArrowRight aria-hidden="true" />
-          </Link>
-        </div>
+        <LanguageMenu current={current} />
 
-        {/* Phones and tablets: the main action stays one tap away next to the
-            menu (not on /contact, where the form is the page). */}
-        <div className="flex items-center gap-1.5 lg:hidden">
-          {/* Hidden while the drawer is open (its first action is the same
-              CTA) and below 360px, where it would push the toggle off-screen.
-              `!` because the kit's .uv-btn display loads after Tailwind. */}
-          {!onContact && !open && (
-            <Link
-              href={inquiryHref}
-              onClick={close}
-              className="uv-btn uv-btn--sm max-[359px]:!hidden"
-            >
-              Inquiry
-            </Link>
-          )}
-          <button
-            ref={toggleRef}
-            type="button"
-            className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? (
-              <X className="h-6 w-6" aria-hidden="true" />
-            ) : (
-              <Menu className="h-6 w-6" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
+        <button
+          ref={toggleRef}
+          type="button"
+          className="lv-hdr__menu"
+          aria-label="Open menu"
+          aria-expanded={open}
+          aria-controls="site-menu"
+          onClick={() => setOpen(true)}
+        >
+          <i aria-hidden="true">
+            <b />
+            <b />
+            <b />
+            <b />
+          </i>
+        </button>
+
+        <Link {...inquiryLink} className="lv-btn lv-hdr__cta">
+          <span className="lv-btn__label">Send inquiry</span>
+          <BtnArrow />
+        </Link>
+      </header>
 
       <div
-        ref={drawerRef}
-        id="mobile-menu"
-        className={cn(
-          "fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto overscroll-contain border-t border-line bg-background lg:hidden",
-          open
-            ? "block motion-safe:duration-200 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-2"
-            : "hidden"
-        )}
+        ref={menuRef}
+        id="site-menu"
+        className="lv-menu site-chrome print:hidden"
+        data-open={open ? "true" : "false"}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        lang="en"
       >
-        <nav aria-label="Mobile" className="container flex min-h-full flex-col pb-10 pt-4">
-          <ul className="border-b border-line">
-            {LINKS.map((l, i) => {
-              const active = isActive(l.href);
-              return (
-                <li key={l.href} className="border-t border-line first:border-t-0">
-                  <Link
-                    href={l.href}
-                    aria-current={active ? "page" : undefined}
-                    // Links to the current page don't change the pathname, so close explicitly.
-                    onClick={close}
-                    className="group flex min-h-[60px] items-center gap-4 rounded-md px-1 py-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-navy"
-                  >
-                    <span className="w-6 font-mono text-xs text-slate" aria-hidden="true">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className={cn(
-                        "flex-1 font-display text-2xl tracking-tight",
-                        active ? "text-brass-ink" : "text-navy"
-                      )}
-                    >
-                      {l.label}
-                    </span>
-                    {active ? (
-                      <span className="h-2 w-2 rounded-full bg-brass" aria-hidden="true" />
-                    ) : (
-                      <ArrowRight
-                        className="h-5 w-5 text-slate transition-transform group-hover:translate-x-0.5 group-hover:text-navy"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+        <div className="lv-menu__top">
+          <Link href="/" aria-label="LEVANTER home" onClick={close}>
+            <BrandMark light />
+          </Link>
+          <button
+            type="button"
+            className="lv-menu__close"
+            aria-label="Close menu"
+            onClick={closeAndRestore}
+          >
+            <X aria-hidden="true" />
+          </button>
+        </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <Link {...inquiryLink} className="uv-btn uv-btn--lg w-full">
-              Send inquiry
-              <ArrowRight aria-hidden="true" />
-            </Link>
-            <a
-              href={whatsappUrl()}
-              target="_blank"
-              rel="noopener"
-              className="uv-btn-outline uv-btn--lg w-full"
-              onClick={close}
-            >
-              <MessageCircle aria-hidden="true" />
-              WhatsApp the desk
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </div>
-          <p className="mt-5 flex items-center justify-center gap-2 text-sm text-slate">
-            <Phone className="h-4 w-4 text-brass-ink" aria-hidden="true" />
-            <a href={telUrl()} className="uv-link font-semibold text-navy" onClick={close}>
-              Call {siteConfig.phone}
-            </a>
-          </p>
-
-          <Eyebrow size="sm" className="mt-10">
-            Language
-          </Eyebrow>
-          <p id={drawerHintId} className="mt-2 text-[12px] leading-snug text-slate">
-            {LANGUAGE_HINT}
-          </p>
-          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {LANGUAGES.map((l) => {
-              const isCurrent = l.code === current;
-              return (
-                <li key={l.code}>
-                  <Link
-                    href={l.href}
-                    hrefLang={l.hreflang}
-                    lang={l.hreflang}
-                    aria-current={isCurrent ? "true" : undefined}
-                    aria-describedby={l.code === "en" ? undefined : drawerHintId}
-                    onClick={close}
-                    className={cn(
-                      "flex min-h-[48px] items-center justify-between gap-2 rounded-md border px-3.5 py-2 text-[15px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy",
-                      isCurrent
-                        ? "border-brass bg-sand font-semibold text-navy"
-                        : "border-line bg-white text-navy hover:border-navy/30 hover:bg-sand"
-                    )}
-                  >
-                    <span>{l.label}</span>
-                    <span className="font-mono text-[11px] uppercase text-slate">{l.code}</span>
-                  </Link>
-                </li>
-              );
-            })}
+        <nav aria-label="Menu">
+          <ul className="lv-menu__list">
+            {LINKS.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  aria-current={isActive(l.href) ? "page" : undefined}
+                  // Links to the current page don't change the pathname, so close explicitly.
+                  onClick={close}
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link {...inquiryLink}>Send inquiry</Link>
+            </li>
           </ul>
         </nav>
+
+        <div className="lv-menu__foot">
+          <div className="lv-menu__offices">
+            {OFFICES.map((o) => (
+              <div key={o.city}>
+                <p className="lv-label">{o.city}</p>
+                <p className="lv-data">
+                  {o.line}
+                  {o.phone && (
+                    <>
+                      <br />
+                      <a href={telUrl(o.phone)} onClick={close}>
+                        {o.phone}
+                      </a>
+                    </>
+                  )}
+                </p>
+              </div>
+            ))}
+            <div>
+              <p className="lv-label">E-mail</p>
+              <p className="lv-data">
+                <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+              </p>
+            </div>
+            <div>
+              <p className="lv-label">Language</p>
+              <p id={menuHintId} className="sr-only">
+                {LANGUAGE_HINT}
+              </p>
+              <ul className="lv-langs">
+                {LANGUAGES.map((l) => (
+                  <li key={l.code}>
+                    <Link
+                      href={l.href}
+                      hrefLang={l.hreflang}
+                      lang={l.hreflang}
+                      aria-current={l.code === current ? "true" : undefined}
+                      aria-describedby={l.code === "en" ? undefined : menuHintId}
+                      onClick={close}
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <ul className="lv-social" aria-label="Social media">
+            <li>
+              <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
+                <Linkedin aria-hidden="true" />
+                <span className="sr-only">LinkedIn (opens in a new tab)</span>
+              </a>
+            </li>
+            <li>
+              <a href={siteConfig.socials.twitter} target="_blank" rel="noopener">
+                <XGlyph />
+                <span className="sr-only">X, formerly Twitter (opens in a new tab)</span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </header>
+    </>
   );
 }

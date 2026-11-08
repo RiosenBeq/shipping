@@ -45,7 +45,49 @@
   --hairline: var(--line);
   --accent-copper: var(--accent-brass);
 
+  /* Chrome and homepage geometry, after the reference's frame: the gutter
+     (`--edge`) holds the mark and the rail, copy starts at `--colA`, bands end
+     at the right chart line (`--rightline`, `--pad-end` from the right edge). */
+  --edge: clamp(16px, 5.25vw, 80px);
+  --hdr-h: max(var(--edge), 56px);
+  --colA: clamp(20px, 7.6vw, 132px);
+  --rightline: 84%;
+  --pad-end: calc(16vw + 24px);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Type scale of the display system (.lv-hero, .lv-display, …). */
+  --t-hero: clamp(56px, 8.4vw, 150px);
+  --t-display: clamp(44px, 6.2vw, 112px);
+  --t-statement: clamp(36px, 4.6vw, 80px);
+  --t-h3: clamp(22px, 1.75vw, 28px);
+  --t-lead: clamp(15.5px, 1.12vw, 17px);
+  --t-label: 11.5px;
+  --t-data: clamp(14px, 1vw, 16px);
+  --t-btn: 13.5px;
+
   color-scheme: light;
+}
+@media (max-width: 1023px) and (min-aspect-ratio: 19/20) {
+  :root {
+    --rightline: calc(100% - var(--edge));
+    --pad-end: calc(var(--edge) + 24px);
+  }
+}
+@media (max-aspect-ratio: 19/20) {
+  :root {
+    --rightline: calc(100% - var(--edge));
+    --colA: calc(var(--edge) + 4px);
+    --pad-end: var(--colA);
+  }
+}
+@media (max-width: 599px) {
+  :root {
+    --colA: 20px;
+    --t-statement: 35px;
+    --t-display: 44px;
+    --t-lead: 15.5px;
+  }
 }
 
 /* ===== Base ===== */
@@ -147,38 +189,51 @@
 }
 
 /* ===== Localized landing pages =====
- * The serif display face has no CJK or Arabic glyphs. CJK headings keep the
- * editorial voice with a system CJK serif (Mincho / Song / Myeongjo) behind
- * Source Serif, which still draws the Latin letters and digits; Arabic uses
- * the system sans. Medium weight and open leading (this rule's 0,2,0
- * specificity beats the Latin `font-normal` / `leading-[1.12]` utilities) so
- * the headings stay as light as the English serif instead of poster-black.
- * `:lang()` matches the element's own (nearest) language, so English chrome
- * marked lang="en" inside a zh/ja/ko/ar document keeps the serif wordmark. */
-.font-display:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
-  font-weight: 500;
-  line-height: 1.3;
+ * The display face (Inter Tight) has no CJK or Arabic glyphs. CJK headings
+ * fall back to the system CJK sans (PingFang / Hiragino / Apple SD Gothic /
+ * Noto Sans CJK), which keeps the grotesque voice; Inter Tight still draws
+ * the Latin letters and digits. Arabic uses the system sans. Tracking goes
+ * back to 0 (negative tracking crowds CJK and breaks Arabic joining) and
+ * leading opens up. `:lang()` matches the element's own (nearest) language,
+ * so English chrome marked lang="en" inside a zh/ja/ko/ar document keeps the
+ * Latin face. Applies to `font-display` and the display system classes. */
+:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):is(
+    :lang(zh),
+    :lang(ja),
+    :lang(ko),
+    :lang(ar)
+  ) {
   letter-spacing: 0;
 }
-.font-display:lang(zh) {
-  font-family: var(--font-display), "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC",
-    "Songti SC", STSong, SimSun, serif;
+.font-display:is(:lang(zh), :lang(ja), :lang(ko), :lang(ar)) {
+  font-weight: 600;
+  line-height: 1.3;
 }
-.font-display:lang(ja) {
-  font-family: var(--font-display), "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP",
-    "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(zh) {
+  font-family: var(--font-display), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
 }
-.font-display:lang(ko) {
-  font-family: var(--font-display), "Noto Serif KR", "Noto Serif CJK KR", "Source Han Serif K",
-    AppleMyungjo, Batang, serif;
+:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ja) {
+  font-family: var(--font-display), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+    YuGothic, "Noto Sans JP", "Noto Sans CJK JP", "Source Han Sans JP", Meiryo, sans-serif;
 }
-.font-display:lang(ar) {
+:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ko) {
+  font-family: var(--font-display), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
+    "Noto Sans CJK KR", "Source Han Sans K", sans-serif;
+}
+:is(.font-display, .lv-hero, .lv-display, .lv-statement, .lv-h3, .lv-sub):lang(ar) {
   font-family:
     system-ui,
     -apple-system,
     "Segoe UI",
+    Tahoma,
     sans-serif;
-  line-height: 1.35;
+}
+:is(.lv-hero, .lv-display, .lv-statement):is(:lang(zh), :lang(ja), :lang(ko)) {
+  line-height: 1.12;
+}
+:is(.lv-hero, .lv-display, .lv-statement):lang(ar) {
+  line-height: 1.25;
 }
 
 /* CJK body copy: Manrope has U+2014/U+2026 with Latin metrics, so the
@@ -208,6 +263,682 @@ main:is(:lang(zh), :lang(ja)) {
 /* Japanese: break at phrase boundaries where supported (Chromium 119+). */
 :is(h1, h2, h3, p):lang(ja) {
   word-break: auto-phrase;
+}
+
+/* Inner-page headings on the display face pick up the homepage's display
+ * voice (semi-bold, tight) unless they set their own weight or tracking:
+ * the specificity of a bare element (preflight's `h1 { font-weight: inherit }`
+ * is beaten by source order), so any utility on the element still wins. */
+:where(.font-display),
+:where(.font-display):is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+  letter-spacing: -0.022em;
+}
+
+/* ===== Display type system =====
+ * After the reference's .t-hero / .t-statement / .t-display / .t-sub /
+ * .t-lead / .t-label / .t-data / .t-h3. Colours come from the copy block's
+ * tone (`.on-light` / `.on-dark`): navy display on light scenes (brass for one
+ * accent word at most), sand on dark scenes. */
+.on-light {
+  color: var(--navy);
+  --c-display: var(--navy);
+  --c-body: var(--navy);
+  --c-sub: var(--navy);
+  --c-label: var(--slate);
+  --c-hair: rgba(10, 31, 51, 0.24);
+  --focus: var(--navy);
+}
+.on-dark {
+  color: var(--sand);
+  --c-display: var(--sand);
+  --c-body: var(--sand);
+  --c-sub: var(--sand);
+  --c-label: rgba(243, 239, 228, 0.86);
+  --c-hair: rgba(243, 239, 228, 0.34);
+  --focus: var(--brass-light);
+}
+.lv-hero,
+.lv-display,
+.lv-statement {
+  margin: 0;
+  font-family: var(--font-display), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-optical-sizing: auto;
+  color: var(--c-display, var(--navy));
+  font-feature-settings: "kern", "liga", "calt";
+  text-wrap: balance;
+}
+.lv-hero {
+  font-size: var(--t-hero);
+  font-weight: 640;
+  letter-spacing: -0.048em;
+  line-height: 0.92;
+}
+.lv-display {
+  font-size: var(--t-display);
+  letter-spacing: -0.042em;
+  line-height: 0.96;
+}
+.lv-statement {
+  font-size: var(--t-statement);
+  letter-spacing: -0.034em;
+  line-height: 1;
+}
+.lv-h3 {
+  margin: 0;
+  font-family: var(--font-display), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-size: var(--t-h3);
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+  color: var(--c-display, var(--navy));
+}
+.lv-accent {
+  color: var(--brass-ink);
+}
+/* "— sub" line: a short rule, then a medium-weight line in the copy colour. */
+.lv-sub {
+  --t-sub: clamp(20px, 2.15vw, 38px);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  width: max-content;
+  max-width: 100%;
+  margin: 0.5em 0 0;
+  font:
+    500 var(--t-sub) / 1.15 var(--font-display),
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  letter-spacing: -0.022em;
+  color: var(--c-sub, var(--c-body, var(--navy)));
+}
+.lv-sub::before {
+  content: "";
+  flex: none;
+  width: 1.1em;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.75;
+}
+.lv-hero + .lv-sub {
+  --t-sub: clamp(22px, 2.85vw, 50px);
+  margin-top: 0.6em;
+}
+.lv-statement + .lv-sub {
+  --t-sub: clamp(19px, 1.8vw, 32px);
+}
+@media (max-aspect-ratio: 19/20) {
+  .lv-sub {
+    --t-sub: clamp(20px, 3.5vw, 30px);
+  }
+  .lv-hero + .lv-sub {
+    --t-sub: clamp(23px, 4.3vw, 38px);
+  }
+  .lv-statement + .lv-sub {
+    --t-sub: clamp(18px, 3.1vw, 26px);
+  }
+}
+.lv-lead {
+  margin: 0;
+  max-width: 36em;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--t-lead);
+  line-height: 1.55;
+  color: var(--c-body, var(--navy));
+  text-wrap: pretty;
+}
+.lv-label {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: var(--t-label);
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-label, var(--slate));
+}
+.lv-data {
+  margin: 0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: var(--t-data);
+  line-height: 1.6;
+  letter-spacing: 0.004em;
+  color: var(--c-body, var(--navy));
+}
+/* Data links: a full hairline that wipes away on hover. */
+.lv-data a,
+a.lv-data-link {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  padding-bottom: 1px;
+}
+.lv-data a:hover,
+a.lv-data-link:hover {
+  background-position: 100% 100%;
+  background-size: 0 1px;
+}
+
+/* ===== Buttons: solid ink with a boxed arrow (reference .btn / .btn__arrow) ===== */
+.lv-btn {
+  --btn-edge: rgba(243, 239, 228, 0.28);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 36px;
+  padding-block: 6px;
+  padding-inline: 15px 6px;
+  border: 1px solid var(--btn-edge);
+  border-radius: 4px;
+  background: var(--navy);
+  color: var(--sand);
+  font:
+    600 var(--t-btn) / 1 var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.004em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.lv-btn__arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(243, 239, 228, 0.3);
+  border-radius: 3px;
+}
+.lv-btn__arrow svg {
+  width: 12px;
+  height: 12px;
+}
+[dir="rtl"] .lv-btn__arrow svg {
+  transform: scaleX(-1);
+}
+.lv-btn:hover .lv-btn__arrow {
+  border-color: var(--brass-light);
+  background: var(--brass-light);
+  color: var(--navy);
+}
+.lv-btn:active {
+  transform: scale(0.98);
+}
+.lv-btn:focus-visible {
+  outline: 2px solid var(--focus, var(--navy));
+  outline-offset: 3px;
+}
+.lv-btn--lg {
+  gap: 18px;
+  min-height: 44px;
+  padding-block: 8px;
+  padding-inline: 18px 8px;
+  font-size: 15px;
+}
+.lv-btn--lg .lv-btn__arrow {
+  width: 26px;
+  height: 26px;
+}
+/* Secondary action on the water: outlined in sand. */
+.lv-btn--ghost {
+  --btn-edge: rgba(243, 239, 228, 0.62);
+  background: rgba(5, 22, 36, 0.28);
+}
+.lv-btn--ghost:hover {
+  background: rgba(5, 22, 36, 0.5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lv-btn {
+    transition:
+      transform 0.2s var(--ease),
+      border-color 0.3s var(--ease),
+      background-color 0.3s var(--ease);
+  }
+  .lv-btn__arrow {
+    transition:
+      background-color 0.3s var(--ease),
+      border-color 0.3s var(--ease),
+      color 0.3s var(--ease);
+  }
+  .lv-btn__arrow svg {
+    transition: translate 0.35s var(--ease);
+  }
+  .lv-btn:hover .lv-btn__arrow svg {
+    translate: 2px 0;
+  }
+  [dir="rtl"] .lv-btn:hover .lv-btn__arrow svg {
+    translate: -2px 0;
+  }
+}
+
+/* ===== Header (reference .hdr): mark in the gutter, links in a paper pill,
+ * the language menu, the ink CTA. Fixed and clear over the homepages' stage
+ * (`data-variant="stage"`), sticky and solid on every other page. ===== */
+.lv-hdr {
+  --hdr-fg: var(--navy);
+  --hdr-scrim: 243 239 228;
+  --hdr-scrim-a: 0.42;
+  --chip-a: 0.72;
+  --focus: var(--navy);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 4rem;
+  padding-inline: var(--edge);
+  color: var(--hdr-fg);
+}
+.lv-hdr[data-tone="dark"] {
+  --hdr-fg: var(--sand);
+  --hdr-scrim: 5 22 36;
+  --hdr-scrim-a: 0.6;
+  --chip-a: 0.74;
+  --focus: var(--brass-light);
+}
+.lv-hdr[data-variant="stage"] {
+  position: fixed;
+  inset-inline: 0;
+  height: var(--hdr-h);
+  pointer-events: none;
+}
+.lv-hdr[data-variant="stage"] > * {
+  pointer-events: auto;
+}
+/* Clear over the stage: a soft scrim from the top edge keeps the chrome legible. */
+.lv-hdr::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: calc(var(--hdr-h) * 1.7);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--hdr-scrim) / var(--hdr-scrim-a)),
+    rgb(var(--hdr-scrim) / calc(var(--hdr-scrim-a) * 0.62)) 58%,
+    rgb(var(--hdr-scrim) / 0)
+  );
+}
+/* Solid: inner pages, and the homepages once a sheet (research, FAQ) or the
+   footer is under the header. */
+.lv-hdr[data-solid] {
+  --hdr-fg: var(--navy);
+  --hdr-scrim: 243 239 228;
+  --chip-a: 1;
+  --focus: var(--navy);
+}
+.lv-hdr[data-solid]::before {
+  height: 100%;
+  border-bottom: 1px solid var(--line);
+  background: rgba(251, 250, 247, 0.96);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  backdrop-filter: blur(12px) saturate(1.5);
+}
+.lv-hdr[data-solid][data-scrolled]::before {
+  box-shadow: 0 10px 30px -20px rgba(10, 31, 51, 0.4);
+}
+.lv-hdr__brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  margin-inline-start: calc(var(--edge) * -0.5 - 16px);
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+.lv-hdr__brand svg {
+  width: 32px;
+  height: 32px;
+}
+.lv-hdr__word {
+  font:
+    600 15px/1 var(--font-display),
+    sans-serif;
+  letter-spacing: 0.24em;
+}
+.lv-hdr[data-variant="stage"]:not([data-solid]) .lv-hdr__word {
+  display: none;
+}
+.lv-hdr__nav {
+  display: none;
+  margin-inline-start: auto;
+}
+.lv-hdr__nav ul {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 32px);
+  min-height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  border-radius: 4px;
+  list-style: none;
+  background: rgb(var(--hdr-scrim) / var(--chip-a));
+}
+.lv-hdr__nav a {
+  position: relative;
+  display: block;
+  padding: 8px 0;
+  color: var(--hdr-fg);
+  font:
+    500 var(--t-btn) / 1 var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.004em;
+  text-decoration: none;
+}
+.lv-hdr__nav a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+}
+.lv-hdr__nav a:hover::after,
+.lv-hdr__nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+.lv-hdr__nav a[aria-current="page"]::after {
+  height: 2px;
+  background: var(--brass);
+}
+.lv-hdr__nav a:focus-visible,
+.lv-hdr__brand:focus-visible,
+.lv-hdr__menu:focus-visible,
+.lv-hdr__lang summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.lv-hdr__lang {
+  display: none;
+  position: relative;
+}
+.lv-hdr__lang summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 4px;
+  background: rgb(var(--hdr-scrim) / var(--chip-a));
+  color: var(--hdr-fg);
+  font:
+    600 12px/1 var(--font-body),
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.lv-hdr__lang summary svg {
+  width: 14px;
+  height: 14px;
+}
+.lv-hdr__cta {
+  margin-inline-start: clamp(16px, 2.4vw, 40px);
+}
+.lv-hdr__menu {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--hdr-fg);
+  cursor: pointer;
+}
+.lv-hdr__menu i {
+  display: grid;
+  grid-template-columns: 4px 4px;
+  gap: 4px;
+}
+.lv-hdr__menu b {
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+}
+@media (min-width: 1024px) {
+  .lv-hdr__nav,
+  .lv-hdr__lang {
+    display: block;
+  }
+  .lv-hdr__lang {
+    margin-inline-start: -14px;
+  }
+  .lv-hdr__menu {
+    display: none;
+  }
+}
+@media (max-width: 1023px) {
+  .lv-hdr__cta {
+    margin-inline-start: 8px;
+  }
+}
+@media (max-width: 520px) {
+  .lv-hdr {
+    gap: 8px;
+  }
+  .lv-hdr__brand {
+    margin-inline-start: 0;
+  }
+  .lv-hdr__brand svg {
+    width: 30px;
+    height: 30px;
+  }
+  .lv-hdr__cta .lv-btn__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .lv-hdr__cta.lv-btn {
+    gap: 0;
+    padding: 5px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lv-hdr {
+    transition: color 0.6s var(--ease);
+  }
+  .lv-hdr::before {
+    transition:
+      background 0.6s var(--ease),
+      box-shadow 0.3s;
+  }
+  .lv-hdr__nav ul,
+  .lv-hdr__lang summary {
+    transition: background-color 0.6s var(--ease);
+  }
+  .lv-hdr__nav a::after {
+    transition: transform 0.4s var(--ease);
+  }
+}
+
+/* ===== Full-screen menu (phones and tablets; reference .menu) ===== */
+.lv-menu {
+  --focus: var(--brass-light);
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--edge) calc(var(--edge) * 0.6 + env(safe-area-inset-bottom));
+  background: var(--navy-deep);
+  color: var(--sand);
+  visibility: hidden;
+  opacity: 0;
+}
+.lv-menu[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+}
+.lv-menu__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: max(var(--edge), 56px);
+}
+.lv-menu__top a,
+.lv-menu__close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+.lv-menu__top svg {
+  width: 30px;
+  height: 30px;
+}
+.lv-menu__close svg {
+  width: 22px;
+  height: 22px;
+}
+.lv-menu__list {
+  display: grid;
+  align-self: center;
+  gap: clamp(8px, 1.6vh, 18px);
+  margin: 0;
+  padding: 4vh 0;
+  list-style: none;
+}
+.lv-menu__list a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 18px;
+  color: var(--sand);
+  font:
+    600 clamp(34px, 6vw, 84px) / 1 var(--font-display),
+    sans-serif;
+  letter-spacing: -0.022em;
+  text-decoration: none;
+}
+.lv-menu__list a:hover,
+.lv-menu__list a[aria-current="page"] {
+  color: var(--brass-light);
+}
+.lv-menu__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px 32px;
+  --c-label: rgba(243, 239, 228, 0.72);
+  --c-body: var(--sand);
+}
+.lv-menu__offices {
+  display: grid;
+  gap: 10px;
+}
+.lv-menu :focus-visible {
+  outline: 2px solid var(--brass-light);
+  outline-offset: 3px;
+}
+.lv-social {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lv-social a {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  color: inherit;
+  opacity: 0.85;
+}
+.lv-social a:hover {
+  border-color: var(--brass-light);
+  background: var(--brass-light);
+  color: var(--navy);
+  opacity: 1;
+}
+.lv-social svg {
+  width: 16px;
+  height: 16px;
+}
+.lv-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.lv-langs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(243, 239, 228, 0.3);
+  border-radius: 4px;
+  color: var(--sand);
+  font-size: 13px;
+  text-decoration: none;
+}
+.lv-langs a[aria-current="true"] {
+  border-color: var(--brass-light);
+  color: var(--brass-light);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lv-menu {
+    transition:
+      opacity 0.5s var(--ease),
+      visibility 0s linear 0.5s;
+  }
+  .lv-menu[data-open="true"] {
+    transition: opacity 0.5s var(--ease);
+  }
+  .lv-menu__list a {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      transform 0.7s var(--ease),
+      opacity 0.7s var(--ease),
+      color 0.3s;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list a {
+    opacity: 1;
+    transform: none;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(2) a {
+    transition-delay: 50ms;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(3) a {
+    transition-delay: 0.1s;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(4) a {
+    transition-delay: 0.15s;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(5) a {
+    transition-delay: 0.2s;
+  }
+  .lv-menu[data-open="true"] .lv-menu__list li:nth-child(6) a {
+    transition-delay: 0.25s;
+  }
 }
 
 /* ===== Skip link (a11y) ===== */

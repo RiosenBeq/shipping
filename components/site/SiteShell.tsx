@@ -9,11 +9,12 @@ import { Nav } from "./Nav";
 
 /**
  * Display face (`font-display`, the homepages' hero/statement/display system):
- * a bold, tight grotesque, after the reference's type system.
+ * a bold, tight grotesque, after the reference's type system. The variable
+ * font: one file per subset covers the 500 sub line, the 600 display and the
+ * 640 hero weight.
  */
 const interTight = Inter_Tight({
   subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
