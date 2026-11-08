@@ -175,10 +175,21 @@ export function StageHero({
         style={{ inset: AP_INSET, borderRadius: AP_RADIUS }}
       />
       <div className="ip-wrap">
-        <div {...calm(k)} className="ip-hero__head">
-          {crumbs && crumbs.length > 0 && <Crumbs crumbs={crumbs} className="ip-hero__crumbs" />}
-          {sub && <Sub className="ip-rise">{sub}</Sub>}
+        {/* One calm zone per line group, each hugging its words: a single zone round the
+            whole head would darken the empty plate beside the short crumbs and sub line. */}
+        <div className="ip-hero__head">
+          {crumbs && crumbs.length > 0 && (
+            <div {...calm(k)} className="ip-hero__calm ip-hero__crumbs">
+              <Crumbs crumbs={crumbs} />
+            </div>
+          )}
+          {sub && (
+            <div {...calm(k)} className="ip-hero__calm">
+              <Sub className="ip-rise">{sub}</Sub>
+            </div>
+          )}
           <h1
+            {...calm(k)}
             id="page-title"
             className={cn("t-display ip-rise ip-rise--2", long && "ip-display--long")}
           >

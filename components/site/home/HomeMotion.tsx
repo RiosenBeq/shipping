@@ -24,6 +24,10 @@ const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
  *   bleed from 45%; without a pin they take `data-ground-to` outright.
  * - `[data-stack]` cards get `--stack` (0..1) as the next card slides over them
  *   (scale .965, dim 25% in CSS).
+ * - `[data-pin-fit]` pins hold only what fits: when the sticky frame (which grows
+ *   with its copy) is taller than the screen — narrow columns, a long locale, a
+ *   short laptop — the section gets `data-pin="off"` and scrolls normally, so
+ *   nothing waits below the fold for the length of the pin.
  *
  * Reduced motion: none of the above hides anything; pins are normal flow.
  */
@@ -130,30 +134,56 @@ export function HomeMotion() {
         el.style.setProperty("--stack", k.toFixed(3));
       }
     };
+    // Pins that must fit the screen. The frame's height is the same pinned or not (auto, at
+    // least one screen), so switching never feeds back into the measurement.
+    const fitting = Array.from(document.querySelectorAll<HTMLElement>("[data-pin-fit]"));
+    const fit = () => {
+      for (const sec of fitting) {
+        const pin = sec.querySelector<HTMLElement>(".h-sticky");
+        const off = pinned.matches && !!pin && pin.offsetHeight > window.innerHeight + 1;
+        if (off !== (sec.dataset.pin === "off")) {
+          if (off) sec.dataset.pin = "off";
+          else delete sec.dataset.pin;
+        }
+      }
+    };
+    const fitRo = new ResizeObserver(fit);
+    for (const sec of fitting) {
+      const pin = sec.querySelector(".h-sticky");
+      if (pin) fitRo.observe(pin);
+    }
+
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    const onResize = () => {
+      fit();
+      onScroll();
     };
     const onFocus = (e: FocusEvent) => {
       const el = (e.target as Element | null)?.closest?.<HTMLElement>("[data-reveal]");
       if (el) enter(el);
     };
 
+    fit();
     start();
     update();
     motion.addEventListener("change", start);
-    pinned.addEventListener("change", onScroll);
+    pinned.addEventListener("change", onResize);
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     document.addEventListener("focusin", onFocus);
     return () => {
       io?.disconnect();
+      fitRo.disconnect();
       timers.forEach((t) => window.cancelAnimationFrame(t));
       if (frame) window.cancelAnimationFrame(frame);
       motion.removeEventListener("change", start);
-      pinned.removeEventListener("change", onScroll);
+      pinned.removeEventListener("change", onResize);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("focusin", onFocus);
+      for (const sec of fitting) delete sec.dataset.pin;
       delete html.dataset.homeMotion;
     };
   }, []);

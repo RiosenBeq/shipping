@@ -1393,16 +1393,16 @@ a.ip-chip:hover {
 }
 /* A soft scrim on the copy side of the aperture (geometry inline, same as the
    aperture's): AA even before the calm zones arrive, and without JavaScript. */
+/* The first layer is the header band (as on the homepage hero): footage is often brightest at
+   the top (sky, shoreline), and the glass nav pill, wordmark and language pill stay AA over any
+   plate an editor picks. */
 .ip-hero__scrim {
   position: absolute;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(
-    100deg,
-    rgba(5, 22, 36, 0.6) 0%,
-    rgba(5, 22, 36, 0.34) 40%,
-    rgba(5, 22, 36, 0) 68%
-  );
+  background:
+    linear-gradient(180deg, rgba(5, 22, 36, 0.7), rgba(5, 22, 36, 0.42) 110px, rgba(5, 22, 36, 0) 240px),
+    linear-gradient(100deg, rgba(5, 22, 36, 0.6) 0%, rgba(5, 22, 36, 0.34) 40%, rgba(5, 22, 36, 0) 68%);
 }
 .ip-hero__crumbs {
   margin-bottom: clamp(24px, 3.6vw, 44px);
@@ -1414,8 +1414,12 @@ a.ip-chip:hover {
   max-width: 15em;
 }
 .ip-hero__head {
-  /* The calm zone hugs the words (poster mode draws it as a feathered box). */
   align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+}
+/* Calm zones hug the words (the lens and poster mode feather them 96px). */
+.ip-hero__calm {
   width: fit-content;
   max-width: 100%;
 }
@@ -3663,7 +3667,9 @@ a.ip-chip:hover {
   padding-bottom: clamp(56px, 6vw, 88px);
 }
 .ip-hero__scrim--strong {
-  background: linear-gradient(180deg, rgba(5, 22, 36, 0.5), rgba(5, 22, 36, 0) 45%),
+  background:
+    linear-gradient(180deg, rgba(5, 22, 36, 0.7), rgba(5, 22, 36, 0.42) 110px, rgba(5, 22, 36, 0) 240px),
+    linear-gradient(180deg, rgba(5, 22, 36, 0.5), rgba(5, 22, 36, 0) 45%),
     linear-gradient(
       100deg,
       rgba(5, 22, 36, 0.74) 0%,

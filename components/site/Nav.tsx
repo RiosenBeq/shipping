@@ -161,7 +161,9 @@ export function Nav({
 }) {
   const pathname = usePathname() || "/";
   const [open, setOpen] = useState(false);
-  const [ground, setGround] = useState<Ground>("light");
+  // Every page opens on a dark window or night masthead: the server render (and a visit
+  // without JavaScript) starts on the glass-navy pill; the effect below corrects it on scroll.
+  const [ground, setGround] = useState<Ground>("dark");
   const [hidden, setHidden] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);

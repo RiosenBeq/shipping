@@ -6,7 +6,7 @@
  * rects flipped to a bottom-left origin by the compositor.
  */
 import { GLSL3, Matrix3, ShaderMaterial, Vector2, Vector3, Vector4, type Texture } from "three";
-import { CALM_MAX } from "../calm";
+import { CALM_FEATHER, CALM_MAX } from "../calm";
 import { FULLSCREEN_VERT, GRADE, NOISE } from "./glsl";
 
 const LAYER_UNIFORMS = /* glsl */ `
@@ -86,9 +86,9 @@ void main() {
   vec2 px = gl_FragCoord.xy;
   float domY = uRes.y - px.y;
 
-  // Calm zones: navy-deep pull inside, feathered 48 CSS px.
+  // Calm zones: navy-deep pull inside, feathered ${CALM_FEATHER} CSS px.
   float calm = 0.0;
-  float feather = 48.0 * uDpr;
+  float feather = ${CALM_FEATHER.toFixed(1)} * uDpr;
   for (int i = 0; i < ${CALM_MAX}; i++) {
     if (i >= uCalmCount) break;
     vec4 r = uCalm[i];

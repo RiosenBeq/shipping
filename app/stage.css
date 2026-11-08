@@ -118,7 +118,10 @@
   transition: visibility 0s 0.45s;
 }
 
-/* Calm zones in poster mode: navy-deep at the zone's strength, feathered. */
+/* Calm zones in poster mode: navy-deep at the zone's strength, feathered like the lens
+   (calm.ts CALM_FEATHER, 96px). The shadow is as wide as it is blurred (spread 48 = blur 48,
+   σ 24px): ~98% at the zone's edge, half at 48px, gone by 96px — no step anywhere, so a zone
+   reads as shade, never as a box over a bright plate. */
 .stage__calm > i {
   position: absolute;
   top: 0;
@@ -126,9 +129,9 @@
   width: 0;
   height: 0;
   opacity: 0;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--stage-navy-deep);
-  box-shadow: 0 0 44px 26px var(--stage-navy-deep);
+  box-shadow: 0 0 48px 48px var(--stage-navy-deep);
   will-change: transform;
 }
 .stage__vignette {

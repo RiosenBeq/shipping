@@ -18,8 +18,11 @@ export interface CalmRect {
 }
 
 export const CALM_MAX = 6;
-/** Feather around each rect (CSS px). */
-export const CALM_FEATHER = 48;
+/**
+ * Feather around each rect (CSS px): wide enough that a zone reads as soft shade, never as a
+ * box, even on a bright day-graded plate (V-strait's skyline).
+ */
+export const CALM_FEATHER = 96;
 export const CALM_K_DEFAULT = 0.45;
 export const CALM_K_MIN = 0.35;
 export const CALM_K_MAX = 0.55;

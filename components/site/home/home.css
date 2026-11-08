@@ -110,11 +110,25 @@ html[data-home-motion="on"] [data-reveal="type"][data-in] .type > span {
   .h-who.h-pinned {
     height: 160vh;
   }
+  /* Who's frame grows with its copy (narrow columns, long locales, editor text): the facts can
+     never hang below a 100vh frame, under the next card. When it outgrows the screen, HomeMotion
+     drops the pin (data-pin="off") and the section scrolls like any other. */
+  .h-who.h-pinned .h-sticky {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100lvh;
+  }
   .h-process.h-pinned {
     height: 220vh;
   }
   .h-team.h-pinned {
     height: 240vh;
+  }
+  .h-pinned.h-pinned[data-pin="off"] {
+    height: auto;
+  }
+  .h-pinned[data-pin="off"] .h-sticky {
+    position: relative;
   }
 }
 
@@ -160,6 +174,23 @@ html[data-home-motion="on"] [data-reveal="type"][data-in] .type > span {
   border-end-start-radius: 0;
   border-end-end-radius: 0;
   background: linear-gradient(rgba(5, 22, 36, 0.7), rgba(5, 22, 36, 0.42) 42%, rgba(5, 22, 36, 0));
+}
+/* Phones: the plate's ships sit low in the portrait crop, right where a longer localized lead
+   starts (the German, Spanish… leads run 3–5 lines). A scrim under the foot keeps the lead,
+   note and CTAs AA over the brightest deck (§16); the band between the sub line and the lead,
+   where the ship crosses, stays clear. */
+@media (max-width: 600px) {
+  .h-hero__ap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      rgba(5, 22, 36, 0) 42%,
+      rgba(5, 22, 36, 0.46) 58%,
+      rgba(5, 22, 36, 0.6)
+    );
+  }
 }
 .h-hero__head {
   position: relative;
@@ -401,6 +432,33 @@ html[data-home-motion="on"] .h-who .fill {
   border-inline-start: 1px solid var(--line-night);
   font-size: 13.5px;
   color: var(--mist);
+}
+/* Short laptops (1366×768, 1280×800): a tighter facts grid keeps the pinned frame one screen tall. */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .h-who__lead {
+    padding-top: calc(var(--hdr-h) + 40px);
+  }
+  .h-who__statement {
+    margin-top: 22px;
+  }
+  .h-who__more {
+    margin-top: 26px;
+  }
+  .h-fact {
+    padding: 26px 28px;
+  }
+  .h-fact__title {
+    margin: 16px 0 8px;
+    font-size: 22px;
+  }
+  .h-fact__text {
+    margin-bottom: 10px;
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .h-who .h-scene {
+    padding-bottom: 28px;
+  }
 }
 /* facts rise one by one as the window settles in (desktop with motion) */
 @media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
@@ -1356,12 +1414,19 @@ html[data-home-motion="on"] .h-map__lanes path {
   padding: 2px 0;
   list-style: none;
 }
+/* Driven by the page scroll (TeamStrip): the card's --stage-pin rescaled to the frame's stuck
+   span (--team-a, --team-b), so the strip only slides while the frame is pinned. `clip`, not
+   `hidden`: focus must never scroll the strip sideways behind the transform's back. */
+.team__viewport[data-driven] {
+  --team-q: clamp(0, calc((var(--stage-pin, 0) - var(--team-a, 0)) * var(--team-b, 1)), 1);
+  overflow: clip;
+}
 .team__viewport[data-driven] .team__track {
-  transform: translateX(calc(var(--stage-pin, 0) * var(--team-max, 0px) * -1));
+  transform: translateX(calc(var(--team-q) * var(--team-max, 0px) * -1));
   will-change: transform;
 }
 [dir="rtl"] .team__viewport[data-driven] .team__track {
-  transform: translateX(calc(var(--stage-pin, 0) * var(--team-max, 0px)));
+  transform: translateX(calc(var(--team-q) * var(--team-max, 0px)));
 }
 .member {
   display: flex;

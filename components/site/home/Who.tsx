@@ -36,6 +36,7 @@ export function Who({
       className="h-who h-pinned"
       aria-labelledby="who-title"
       data-snap=""
+      data-pin-fit=""
     >
       <div className="h-who__pin h-sticky">
         <div className="h-glows" aria-hidden="true">
