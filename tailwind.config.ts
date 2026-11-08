@@ -50,7 +50,8 @@ const config: Config = {
         card: { DEFAULT: "#ffffff", foreground: "var(--fg)" },
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
+        display: ["var(--font-display)", "Helvetica Neue", "Arial", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },

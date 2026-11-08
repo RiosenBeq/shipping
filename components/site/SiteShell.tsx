@@ -1,4 +1,4 @@
-import { Manrope, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Inter_Tight, Manrope, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { organizationLd, websiteLd } from "@/lib/seo";
@@ -7,11 +7,27 @@ import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav } from "./Nav";
 
-const sourceSerif = Source_Serif_4({
+/**
+ * Display face (`font-display`, the homepages' hero/statement/display system):
+ * a bold, tight grotesque, after the reference's type system.
+ */
+const interTight = Inter_Tight({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
+  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
+});
+
+/**
+ * The editorial serif, kept for the letter card of the homepage contact scene
+ * (`font-serif`). Not preloaded: only pages that set it fetch it.
+ */
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "600"],
+  variable: "--font-serif",
+  display: "swap",
+  preload: false,
 });
 
 const manrope = Manrope({
@@ -47,7 +63,7 @@ export function SiteShell({
     <html
       lang={lang}
       dir={dir}
-      className={`${sourceSerif.variable} ${manrope.variable} ${ibmPlexMono.variable}`}
+      className={`${interTight.variable} ${sourceSerif.variable} ${manrope.variable} ${ibmPlexMono.variable}`}
     >
       <body>
         {/* "Back to top" target (footer). A real, focusable element — not the

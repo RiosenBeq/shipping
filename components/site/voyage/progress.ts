@@ -3,11 +3,12 @@ import { VOYAGE_SCENES, type VoyageScene, type VoyageSceneId } from "./types";
 /**
  * Scroll → journey progress.
  *
- * Every "window" section on the page (transparent, the 3D stage shows through)
- * names its scene with `data-voyage-scene`. Each scene gets a scroll anchor: the
- * scroll position at which the section is framed. Between two anchors the
- * camera flies from one keyframe to the next; near each anchor it holds still,
- * so a scene settles while its copy is being read.
+ * Every scene on the page (transparent, the 3D stage shows through) names
+ * itself with `data-voyage-scene`. Each scene gets a scroll anchor: the scroll
+ * span over which the section is framed and its `at` value is held. Between
+ * two anchors the camera flies from one scene's `at` to the next; near each
+ * anchor it holds still, so a scene settles while its copy is being read.
+ * Works with any number of scenes: each maps onto its own `at`.
  */
 
 export interface SectionBox {
@@ -19,8 +20,14 @@ export interface SectionBox {
 
 export interface SceneAnchor {
   id: VoyageSceneId;
-  /** Scroll position (px) at which this scene is fully framed. */
+  /** Scroll position (px) at which this scene becomes fully framed. */
   y: number;
+  /**
+   * Scroll position (px) up to which it stays framed: a section taller than
+   * the viewport (the pinned team strip) holds its scene while it scrolls by.
+   * Equal to `y` for a section that fits the viewport.
+   */
+  y2: number;
   /** Journey progress of this scene (0..1). */
   at: number;
 }
@@ -48,6 +55,14 @@ export function anchorFor(box: SectionBox, viewportHeight: number, first: boolea
 }
 
 /**
+ * Last scroll position that still frames a section: its bottom edge at the
+ * viewport's bottom. Never before the anchor itself.
+ */
+export function anchorEndFor(box: SectionBox, viewportHeight: number, start: number): number {
+  return Math.max(start, box.top + box.height - viewportHeight);
+}
+
+/**
  * Anchors for the sections present on the page, in journey order. Scenes
  * without a section are skipped (progress then flies straight past them).
  * Anchors are forced to increase so a short page can't fold the journey back.
@@ -64,8 +79,9 @@ export function anchorsFromSections(
     if (!box) continue;
     let y = anchorFor(box, viewportHeight, anchors.length === 0);
     if (y <= lastY) y = lastY + 1;
-    anchors.push({ id: scene.id, y, at: scene.at });
-    lastY = y;
+    const y2 = anchorEndFor(box, viewportHeight, y);
+    anchors.push({ id: scene.id, y, y2, at: scene.at });
+    lastY = y2;
   }
   return anchors;
 }
@@ -74,20 +90,21 @@ export function anchorsFromSections(
 export function progressAt(scrollY: number, anchors: readonly SceneAnchor[], hold = HOLD): number {
   if (anchors.length === 0) return 0;
   const first = anchors[0];
-  if (scrollY <= first.y) return first.at;
+  if (scrollY <= first.y2) return first.at;
   for (let i = 1; i < anchors.length; i++) {
     const a = anchors[i - 1];
     const b = anchors[i];
     if (scrollY <= b.y) {
-      const u = (scrollY - a.y) / (b.y - a.y);
+      const u = (scrollY - a.y2) / (b.y - a.y2);
       const travel = clamp01((u - hold) / (1 - 2 * hold));
       return a.at + (b.at - a.at) * smootherstep(travel);
     }
+    if (scrollY <= b.y2) return b.at;
   }
   return anchors[anchors.length - 1].at;
 }
 
-/** The keyframe nearest to a progress value (reduced motion snaps to these). */
+/** The scene nearest to a progress value (reduced motion snaps to these). */
 export function nearestScene(
   progress: number,
   scenes: readonly VoyageScene[] = VOYAGE_SCENES

@@ -25,8 +25,23 @@ export const VOYAGE_KEYFRAMES: readonly VoyageKeyframe[] = [
   { id: "contact", at: 1 },
 ];
 
-/** Page scenes: what a window section names in `data-voyage-scene`. */
-export type VoyageSceneId = "hero" | "desks" | "straits" | "process" | "contact";
+/**
+ * Page scenes: the homepage's full-viewport scenes, in page order, and what each
+ * names in `data-voyage-scene`. They follow the reference's scene rhythm
+ * (docs/REDESIGN.md §11) and map onto the engine timeline by `at`: hero,
+ * services, who, process and letter sit on the five composed keyframes; what,
+ * team and offices sit between two (the engine flies through them until it
+ * gets keyframes of its own).
+ */
+export type VoyageSceneId =
+  | "hero"
+  | "what"
+  | "services"
+  | "who"
+  | "team"
+  | "process"
+  | "offices"
+  | "letter";
 
 export type VoyageTone = "light" | "dark";
 
@@ -38,13 +53,16 @@ export interface VoyageScene {
   tone: VoyageTone;
 }
 
-/** Keyframes of the scroll journey, in page order. Progress interpolates between them. */
+/** The page scenes in journey order. Progress interpolates between their `at` values. */
 export const VOYAGE_SCENES: readonly VoyageScene[] = [
   { id: "hero", at: 0, tone: "light" },
-  { id: "desks", at: 0.28, tone: "light" },
-  { id: "straits", at: 0.52, tone: "light" },
+  { id: "what", at: 0.14, tone: "light" },
+  { id: "services", at: 0.28, tone: "light" },
+  { id: "who", at: 0.52, tone: "light" },
+  { id: "team", at: 0.64, tone: "light" },
   { id: "process", at: 0.76, tone: "dark" },
-  { id: "contact", at: 1, tone: "dark" },
+  { id: "offices", at: 0.88, tone: "dark" },
+  { id: "letter", at: 1, tone: "dark" },
 ];
 
 export function voyageScene(id: VoyageSceneId): VoyageScene {
