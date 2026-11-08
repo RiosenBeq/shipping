@@ -233,11 +233,14 @@ function funnel(
   );
 }
 
+/** Hull length (m) per ship type, before a staging's scale. */
+export const HULL_LENGTH: Record<ShipKind, number> = { tanker: 250, gas: 112, ferry: 72 };
+
 /** White lamp colour, red port, green starboard. */
 const NAV = { white: [1, 0.95, 0.85], red: [1, 0.18, 0.12], green: [0.15, 1, 0.45] } as const;
 
 function tanker(b: Builder, si: number, n: number): ShipModel {
-  const s: HullSpec = { L: 250, B: 44, F: 8.5, bowLen: 46, sternLen: 34, rake: 7 };
+  const s: HullSpec = { L: HULL_LENGTH.tanker, B: 44, F: 8.5, bowLen: 46, sternLen: 34, rake: 7 };
   const g = hullGeometry(s, n);
   b.add(g.side, new THREE.Matrix4(), COL.hull, KIND.hull, si);
   b.add(g.deck, new THREE.Matrix4(), COL.deck, KIND.deck, si);
@@ -296,7 +299,7 @@ function tanker(b: Builder, si: number, n: number): ShipModel {
 }
 
 function gasCarrier(b: Builder, si: number, n: number): ShipModel {
-  const s: HullSpec = { L: 112, B: 19, F: 6.2, bowLen: 24, sternLen: 16, rake: 4 };
+  const s: HullSpec = { L: HULL_LENGTH.gas, B: 19, F: 6.2, bowLen: 24, sternLen: 16, rake: 4 };
   const g = hullGeometry(s, n);
   b.add(g.side, new THREE.Matrix4(), COL.hullRed, KIND.hull, si);
   b.add(g.deck, new THREE.Matrix4(), COL.deckGreen, KIND.deck, si);
@@ -338,7 +341,14 @@ function gasCarrier(b: Builder, si: number, n: number): ShipModel {
 }
 
 function ferry(b: Builder, si: number, n: number): ShipModel {
-  const s: HullSpec = { L: 72, B: 13.5, F: 3.2, bowLen: 16, sternLen: 14, rake: 2.5 };
+  const s: HullSpec = {
+    L: HULL_LENGTH.ferry,
+    B: 13.5,
+    F: 3.2,
+    bowLen: 16,
+    sternLen: 14,
+    rake: 2.5,
+  };
   const g = hullGeometry(s, n);
   b.add(g.side, new THREE.Matrix4(), COL.hullWhite, KIND.hull, si);
   b.add(g.deck, new THREE.Matrix4(), COL.grey, KIND.deck, si);
@@ -517,12 +527,14 @@ export const FLEET: readonly Staging[] = [
     scale: 1,
     show: [0, 0.16],
   },
-  // desks: tanker in 3/4 view bow-right, a pressurised gas carrier further off
+  // desks: tanker in 3/4 view bow-right, a pressurised gas carrier further off; both
+  // head up toward the strait, so the gas carrier's low bow (not its house) faces the
+  // tanker's accommodation across a gap of open water
   {
     kind: "tanker",
     shot: 1,
-    bearing: 17,
-    dist: 1250,
+    bearing: 17.2,
+    dist: 1360,
     heading: 112,
     speed: 4.5,
     scale: 1,
@@ -531,11 +543,11 @@ export const FLEET: readonly Staging[] = [
   {
     kind: "gas",
     shot: 1,
-    bearing: 6.8,
+    bearing: 6.6,
     dist: 1300,
-    heading: -84,
+    heading: 98,
     speed: 4,
-    scale: 1.6,
+    scale: 1.5,
     show: [0.1, 0.42],
   },
   // straits: a gas carrier coming down the strait under the bridge

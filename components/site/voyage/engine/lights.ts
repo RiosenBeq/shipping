@@ -152,6 +152,8 @@ export interface Lights {
   mesh: THREE.Mesh;
   material: THREE.ShaderMaterial;
   uniforms: LightUniforms;
+  /** Switch level (0..1): below the lowest lamp's switch-on point no instance is drawn. */
+  setLevel(level: number): void;
 }
 
 export function createLights(
@@ -307,5 +309,12 @@ export function createLights(
   const mesh = new THREE.Mesh(geo, material);
   mesh.frustumCulled = false;
   mesh.renderOrder = 20;
-  return { mesh, material, uniforms };
+  // by day every lamp is still switched off: draw no instances (the program stays compiled,
+  // so dusk doesn't stall on a shader compile mid-scroll)
+  const minOn = lamps.reduce((m, l) => Math.min(m, l.onAt), 1);
+  const setLevel = (level: number): void => {
+    uniforms.uLights.value = level;
+    geo.instanceCount = level > minOn ? n : 0;
+  };
+  return { mesh, material, uniforms, setLevel };
 }

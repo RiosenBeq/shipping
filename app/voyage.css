@@ -37,14 +37,26 @@
   --voyage-mark: rgba(243, 239, 228, 0.55);
 }
 /* Horizon of every scene, matching the engine's framing (engine/timeline.ts
-   SHOTS hz / pHz): portrait values first, landscape below. The hairline uses
-   the active scene's value; each backdrop layer keeps its own. */
+   SHOTS hz / mob.hz): portrait values first, landscape below. The hairline
+   uses the active scene's value; each backdrop layer keeps its own. The sun
+   and moon sit where the engine paints them, and the dusk sea darkens sooner
+   on a phone, which looks further down at the water. */
 .voyage-stage {
-  --hz-hero: 52%;
+  --hz-hero: 53.5%;
   --hz-desks: 43%;
   --hz-straits: 30%;
   --hz-process: 30%;
-  --hz-contact: 66%;
+  --hz-contact: 68.5%;
+  --sun-hero-x: 116%;
+  --sun-hero-y: 47%;
+  --sun-straits-x: 43%;
+  --sun-straits-y: 10.5%;
+  --moon-x: 69%;
+  --moon-y: 64.8%;
+  --sea-desks: #234f62;
+  --sea-straits: #50625f;
+  --sea-straits-far: #435d64;
+  --sea-process: #0b293f;
 }
 @media (min-aspect-ratio: 1/1) {
   .voyage-stage {
@@ -53,6 +65,30 @@
     --hz-straits: 43%;
     --hz-process: 81%;
     --hz-contact: 75%;
+    --sun-hero-x: 90%;
+    --sun-hero-y: 37.5%;
+    --sun-straits-x: 26%;
+    --sun-straits-y: 18%;
+    --moon-x: 51.5%;
+    --moon-y: 16.6%;
+    --sea-desks: #4b6472;
+    --sea-straits: #8a7d6d;
+    --sea-straits-far: #6a7671;
+    --sea-process: #454e57;
+  }
+}
+/* Right-to-left pages set their copy on the right: the engine mirrors the
+   painting there, and so does the static backdrop. */
+[dir="rtl"] .voyage-stage {
+  --sun-hero-x: -16%;
+  --sun-straits-x: 57%;
+  --moon-x: 31%;
+}
+@media (min-aspect-ratio: 1/1) {
+  [dir="rtl"] .voyage-stage {
+    --sun-hero-x: 10%;
+    --sun-straits-x: 74%;
+    --moon-x: 48.5%;
   }
 }
 .voyage-stage[data-scene="hero"] {
@@ -87,85 +123,136 @@
 .voyage-stage[data-scene="contact"] [data-for="contact"] {
   opacity: 1;
 }
-/* Dawn on the Bosphorus: paper sky, brass haze low on the right, navy water. */
+/* The layers follow the live engine's first frame of each scene (sampled
+   from it), so the cross-fade to the canvas and the hairline don't jump. */
+/* Dawn on the Bosphorus: paper sky, the sun just over the Asian ridge with its
+   glitter below, deep teal water under the pitch. */
 [data-for="hero"] {
   background: radial-gradient(
-      42% 26% at 78% var(--hz-hero),
-      rgba(217, 176, 113, 0.55),
-      rgba(217, 176, 113, 0) 72%
+      circle 46px at var(--sun-hero-x) var(--sun-hero-y),
+      rgba(252, 245, 226, 0.95),
+      rgba(252, 245, 226, 0) 72%
+    ),
+    radial-gradient(
+      38% 44% at var(--sun-hero-x) calc(var(--sun-hero-y) + 6%),
+      rgba(226, 195, 142, 0.62),
+      rgba(226, 195, 142, 0) 72%
+    ),
+    radial-gradient(
+      96px 32% at var(--sun-hero-x) calc(var(--hz-hero) + 24%),
+      rgba(226, 214, 186, 0.72),
+      rgba(226, 214, 186, 0) 72%
     ),
     linear-gradient(
-      #e6e0d2 0%,
-      #efe9dc 32%,
-      #ecdcc0 calc(var(--hz-hero) - 0.4%),
-      #34505e var(--hz-hero),
-      #1c3949 calc(var(--hz-hero) + 12%),
-      #0a1f33 100%
+      #dcd8cc 0%,
+      #f1eee6 14%,
+      #f2eee5 calc(var(--hz-hero) - 12%),
+      #e4cfac calc(var(--hz-hero) - 3%),
+      #a99d89 calc(var(--hz-hero) - 0.4%),
+      #3d5d6b var(--hz-hero),
+      #2a5164 calc(var(--hz-hero) + 5%),
+      #264e61 72%,
+      #1f485c 100%
     );
 }
-/* Open water: high horizon, morning light. */
+/* Open water: high horizon, the morning sun behind the camera, slate chop. */
 [data-for="desks"] {
   background: radial-gradient(
-      34% 22% at 70% var(--hz-desks),
-      rgba(243, 239, 228, 0.7),
-      rgba(243, 239, 228, 0) 72%
+      46% 36% at 88% 14%,
+      rgba(180, 190, 184, 0.55),
+      rgba(180, 190, 184, 0) 72%
     ),
     linear-gradient(
-      #e3e3dc 0%,
-      #ece9df calc(var(--hz-desks) * 0.6),
-      #e2dac6 calc(var(--hz-desks) - 0.4%),
-      #3a5866 var(--hz-desks),
-      #1e3c4e calc(var(--hz-desks) + 20%),
-      #0a1f33 100%
+      #e3e2da 0%,
+      #f1eee6 12%,
+      #efece3 calc(var(--hz-desks) - 2%),
+      #c6c8bc calc(var(--hz-desks) - 0.4%),
+      #b2b8b2 var(--hz-desks),
+      #98a19f calc(var(--hz-desks) + 4%),
+      #879394 calc(var(--hz-desks) + 14%),
+      #687a82 calc(var(--hz-desks) + 36%),
+      var(--sea-desks) 100%
     );
 }
-/* Golden hour under the bridge: low sun upper left, above the heading. */
+/* Golden hour under the bridge: low sun upper left, above the heading, its
+   glitter path running down to the band. */
 [data-for="straits"] {
   background: radial-gradient(
-      30% 24% at 20% 18%,
-      rgba(226, 168, 88, 0.55),
-      rgba(226, 168, 88, 0) 72%
+      circle 44px at var(--sun-straits-x) var(--sun-straits-y),
+      rgba(253, 236, 202, 0.95),
+      rgba(253, 236, 202, 0) 72%
+    ),
+    radial-gradient(
+      32% 28% at var(--sun-straits-x) var(--sun-straits-y),
+      rgba(238, 192, 126, 0.5),
+      rgba(238, 192, 126, 0) 72%
+    ),
+    radial-gradient(
+      100px 36% at var(--sun-straits-x) calc(var(--hz-straits) + 22%),
+      rgba(246, 222, 178, 0.72),
+      rgba(246, 222, 178, 0) 72%
     ),
     linear-gradient(
-      #e9dfca 0%,
-      #eed7ae calc(var(--hz-straits) * 0.75),
-      #e1b273 calc(var(--hz-straits) - 0.4%),
-      #4c4d4a var(--hz-straits),
-      #2b3b45 calc(var(--hz-straits) + 16%),
-      #0e2233 100%
+      #d8bc97 0%,
+      #e2c59b 14%,
+      #ecdcc3 calc(var(--hz-straits) - 14%),
+      #e1d4c4 calc(var(--hz-straits) - 4%),
+      #c8b39b calc(var(--hz-straits) - 0.4%),
+      #b09981 var(--hz-straits),
+      #a58d74 calc(var(--hz-straits) + 8%),
+      var(--sea-straits) calc(var(--hz-straits) + 22%),
+      var(--sea-straits-far) calc(var(--hz-straits) + 38%),
+      #4a6266 100%
     );
 }
-/* Dusk on the Marmara: blue hour above a brass afterglow. */
+/* Dusk on the Marmara: slate-blue hour above a rose-brass afterglow. */
 [data-for="process"] {
   background: radial-gradient(
-      60% 22% at 50% var(--hz-process),
-      rgba(192, 128, 92, 0.42),
-      rgba(192, 128, 92, 0) 72%
+      70% 22% at 28% calc(var(--hz-process) - 10%),
+      rgba(158, 124, 112, 0.45),
+      rgba(158, 124, 112, 0) 72%
     ),
     linear-gradient(
-      #0a1a2b 0%,
-      #172a43 calc(var(--hz-process) * 0.45),
-      #4a4258 calc(var(--hz-process) * 0.8),
-      #b98256 calc(var(--hz-process) - 0.4%),
-      #10202f var(--hz-process),
-      #081624 calc(var(--hz-process) + 10%),
-      #051624 100%
+      #2a3b4d 0%,
+      #283e52 16%,
+      #33475a calc(var(--hz-process) * 0.5),
+      #4c5361 calc(var(--hz-process) * 0.7),
+      #7c6e6e calc(var(--hz-process) - 8%),
+      #87736f calc(var(--hz-process) - 2.4%),
+      #5a5654 calc(var(--hz-process) - 0.4%),
+      #6a625f var(--hz-process),
+      #4f5359 calc(var(--hz-process) + 5%),
+      var(--sea-process) calc(var(--hz-process) + 16%),
+      var(--sea-process) 100%
     );
 }
-/* Night watch: moon high in the middle, dark water. */
+/* Night watch: the moon over Maiden's Tower, its path on the dark water. */
 [data-for="contact"] {
   background: radial-gradient(
-      4% 6% at 50% 18%,
-      rgba(243, 239, 228, 0.55),
-      rgba(243, 239, 228, 0) 70%
+      circle 13px at var(--moon-x) var(--moon-y),
+      rgba(246, 242, 228, 0.95) 55%,
+      rgba(246, 242, 228, 0) 100%
     ),
-    radial-gradient(26% 26% at 50% 18%, rgba(169, 182, 191, 0.14), rgba(169, 182, 191, 0) 70%),
+    radial-gradient(
+      circle 140px at var(--moon-x) var(--moon-y),
+      rgba(169, 182, 191, 0.22),
+      rgba(169, 182, 191, 0) 100%
+    ),
+    radial-gradient(
+      72px 20% at var(--moon-x) calc(var(--hz-contact) + 10%),
+      rgba(214, 208, 186, 0.4),
+      rgba(214, 208, 186, 0) 72%
+    ),
     linear-gradient(
-      #03101b 0%,
-      #071a2b calc(var(--hz-contact) * 0.75),
-      #0f2a40 calc(var(--hz-contact) - 0.4%),
-      #061522 var(--hz-contact),
-      #030d17 100%
+      #142b3d 0%,
+      #132d42 8%,
+      #142f44 32%,
+      #19354a calc(var(--hz-contact) - 14%),
+      #1d3a50 calc(var(--hz-contact) - 4%),
+      #233c4e calc(var(--hz-contact) - 0.4%),
+      #1d384d var(--hz-contact),
+      #152f45 calc(var(--hz-contact) + 4%),
+      #0d293e 100%
     );
 }
 

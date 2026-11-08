@@ -263,9 +263,11 @@ type LookDef = Record<LookNum, number> & Record<LookCol, number>;
  */
 const DEFS: readonly LookDef[] = [
   // hero — dawn: pale sand-blue sky, brass haze over the Asian hills, a deep cool near sea.
+  // On landscape screens the sun has just cleared the Asian ridge behind it (at 3.4° the
+  // disc sat behind the hill while its glitter path still showed); phones keep it low.
   {
     sunAz: 27,
-    sunEl: 3.4,
+    sunEl: 7.8,
     sunElP: 3.4,
     sunI: 1.3,
     sunR: 0.85,
@@ -679,8 +681,11 @@ export function evaluate(p: number, aspect: number, out: FrameState): FrameState
   out.calm.lift.copy(r4(ca.lift, ca.liftM, k, calmA)).lerp(r4(cb.lift, cb.liftM, k, calmB), e);
   out.calm.pool.copy(r4(ca.pool, ca.poolM, k, calmA)).lerp(r4(cb.pool, cb.poolM, k, calmB), e);
   // copy only sits still near a keyframe; mid-flight it scrolls past, so the masks
-  // relax instead of hazing whatever land the camera passes
-  const relax = 1 - 0.8 * smoothstep(0.12, 0.4, e) * (1 - smoothstep(0.6, 0.88, e));
+  // relax instead of hazing whatever land the camera passes. The page holds each
+  // keyframe while its heading scrolls into place (progress.ts HOLD), so the masks of
+  // the next scene come back only at the very end of the flight: earlier, they read as
+  // a pale bar of fog in an empty sky
+  const relax = 1 - 0.8 * smoothstep(0.12, 0.4, e) * (1 - smoothstep(0.78, 0.98, e));
   out.calm.amount.set(
     lerp(ca.liftS, cb.liftS, e) * relax,
     lerp(ca.poolS, cb.poolS, e) * relax,
@@ -737,6 +742,29 @@ export function setLens(
   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   camera.fov = (c.vfov * 180) / Math.PI;
   camera.aspect = aspect;
+}
+
+/** Unit direction for an azimuth (deg, 0 = north = −z, 90 = east) and an elevation (deg). */
+export function dirFromAzEl(az: number, el: number, out: THREE.Vector3): THREE.Vector3 {
+  const a = (az * Math.PI) / 180;
+  const e = (el * Math.PI) / 180;
+  return out.set(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e));
+}
+
+/**
+ * Sun and moon directions of a look on a screen of this aspect: the portrait
+ * overrides (sunElP, moonAzP, moonElP) blend exactly like the portrait camera
+ * they were set for. Shared by the engine and the framing tests.
+ */
+export function lightDirections(
+  L: Look,
+  aspect: number,
+  sun: THREE.Vector3,
+  moon: THREE.Vector3
+): void {
+  const k = landscapeWeight(aspect);
+  dirFromAzEl(L.sunAz, lerp(L.sunElP, L.sunEl, k), sun);
+  dirFromAzEl(lerp(L.moonAzP, L.moonAz, k), lerp(L.moonElP, L.moonEl, k), moon);
 }
 
 /** Brand colours the post pass compresses toward (kept here so the grade lives with the timeline). */

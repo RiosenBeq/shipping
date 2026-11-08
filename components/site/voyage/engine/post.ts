@@ -42,6 +42,7 @@ uniform vec4 uCalm;  // x lift strength, y pool strength, z pool share on sky/la
 uniform vec4 uCalmF; // feathers (viewport heights): lift across/vertical, pool across/vertical
 uniform vec3 uLiftCol;
 uniform vec3 uPoolCol;
+uniform float uMirror; // 1 on right-to-left pages: the painting (and its calm zones) is mirrored
 varying vec2 vUv;
 
 const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
@@ -77,9 +78,12 @@ float rectMask(vec2 uv, vec4 r, vec2 f, float aspect) {
 void main() {
   vec2 fc = gl_FragCoord.xy;
   vec2 q = fc / uDpr;
-  vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+  // scene-space coordinates: mirrored on right-to-left pages, so the copy column (on the
+  // right there) keeps calm sky and water while the subjects move to the free left side
+  vec2 sUv = vec2(mix(vUv.x, 1.0 - vUv.x, uMirror), vUv.y);
+  vec2 uv = vec2(sUv.x, 1.0 - sUv.y);
   float aspect = uRes.x / uRes.y;
-  vec4 c0 = texture2D(tScene, vUv);
+  vec4 c0 = texture2D(tScene, sUv);
   // material class from the scene alpha: sky < .2, solids .24-.4, land .5, sea 1;
   // lamps add +2 (float targets only) so their pixels stay crisp
   float lit = smoothstep(1.15, 1.6, c0.a);
@@ -112,7 +116,7 @@ void main() {
     float t = float(i) / float(TAPS);
     float w = 1.0 - abs(t) * 0.5;
     vec2 o = (dir * t * 5.5 * strength + disp) * uDpr / uRes;
-    vec4 sc = texture2D(tScene, vUv + o);
+    vec4 sc = texture2D(tScene, sUv + o);
     // unlit pixels never gather lamp light, so reflections stay 1-3 px wide
     float wl = w * (1.0 - step(1.15, sc.a) * (1.0 - lit));
     acc += sc.rgb * wl;
@@ -218,6 +222,7 @@ function postUniforms(noise: THREE.Texture) {
     /** Display-space (sRGB) colours: the calm zones act after the grade. */
     uLiftCol: { value: new THREE.Color(0xf6 / 255, 0xf3 / 255, 0xeb / 255) },
     uPoolCol: { value: new THREE.Color(0x0f / 255, 0x30 / 255, 0x46 / 255) },
+    uMirror: { value: 0 },
   };
 }
 export type PostUniforms = ReturnType<typeof postUniforms>;

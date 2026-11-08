@@ -7,6 +7,9 @@ import {
   createFrameState,
   evaluate,
   flightPoint,
+  dirFromAzEl,
+  landscapeWeight,
+  lightDirections,
   setLens,
   type FrameState,
 } from "./timeline";
@@ -112,12 +115,18 @@ function checkFlightsOverWater(samples = 96, margin = 120): void {
   }
 }
 
-const dirFromAzEl = (az: number, el: number, out: THREE.Vector3): THREE.Vector3 =>
-  out.set(
-    Math.sin(az * DEG) * Math.cos(el * DEG),
-    Math.sin(el * DEG),
-    -Math.cos(az * DEG) * Math.cos(el * DEG)
-  );
+/**
+ * Right-to-left pages (Arabic) set their copy column on the right: the post pass mirrors
+ * the painting there, so the subjects, the sun's glitter and the calm zones swap sides
+ * with the copy instead of sitting under it.
+ */
+function isRightToLeft(el: HTMLElement): boolean {
+  try {
+    return getComputedStyle(el).direction === "rtl";
+  } catch {
+    return false;
+  }
+}
 
 /** Gull flock target on screen (fractions from the top-left): the free upper-right sky. */
 const FLOCK_LAND = new THREE.Vector2(0.8, 0.2);
@@ -179,6 +188,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
   );
   const post = createPost(noise, tier.taps);
   const pu = post.uniforms;
+  pu.uMirror.value = isRightToLeft(canvas) ? 1 : 0;
 
   let cssW = 1;
   let cssH = 1;
@@ -255,14 +265,9 @@ export function createEngine(opts: VoyageOptions): Voyage {
     const u = shared;
     u.uTime.value = time;
     u.uNight.value = L.night;
-    const kLand = clamp((cssW / cssH - 0.7) / 0.65, 0, 1);
-    dirFromAzEl(L.sunAz, lerp(L.sunElP, L.sunEl, kLand), sunDir);
+    const kLand = landscapeWeight(cssW / cssH);
+    lightDirections(L, cssW / cssH, sunDir, u.uMoonDir.value);
     u.uSunCol.value.copy(L.sunCol).multiplyScalar(L.sunI);
-    dirFromAzEl(
-      lerp(L.moonAzP, L.moonAz, kLand),
-      lerp(L.moonElP, L.moonEl, kLand),
-      u.uMoonDir.value
-    );
     u.uMoonCol.value.copy(L.moonCol).multiplyScalar(L.moonI);
     u.uZenith.value.copy(L.zenith);
     u.uSkyMid.value.copy(L.mid);
@@ -295,7 +300,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
     (ou.uFoamCol.value as THREE.Color).copy(L.foamCol);
 
     const lu = lights.uniforms;
-    lu.uLights.value = L.lights;
+    lights.setLevel(L.lights);
     lu.uTime.value = time;
     lu.uRes.value.set(cssW, cssH);
     lu.uStreak.value = 0.6 + L.waveAmp * 0.5;
@@ -458,6 +463,7 @@ export function createEngine(opts: VoyageOptions): Voyage {
       pu.tScene.value = rt.texture;
       pu.uRes.value.set(Math.round(cssW * dpr), Math.round(cssH * dpr));
       pu.uDpr.value = dpr;
+      pu.uMirror.value = isRightToLeft(canvas) ? 1 : 0;
       dirty = true;
     },
     setTime(seconds: number) {

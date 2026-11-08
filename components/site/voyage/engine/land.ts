@@ -95,9 +95,15 @@ void main() {
 
   // city: rows of houses stepping up the hill. Cells run along the shore (arc length) and
   // up in height, so on a slope a row of roofs stays a row instead of smearing downhill.
+  float cityMask = smoothstep(0.25, 0.6, zone + (b1 - 0.5) * 0.5);
   vec3 cityAvg = ${glslColor(0x8a705a)};
   vec3 cityCol = cityAvg;
 #if QUALITY > 0
+  // detail fades with distance, and in low light (a speckled hill reads as snow at night)
+  float detail = (1.0 - smoothstep(2.0, 6.0, foot)) * (1.0 - 0.7 * uNight);
+  // the house mosaic only where it can show (not under the woods, the scrub or the haze):
+  // elsewhere its contribution is below a quarter of a percent, so skip the cell search
+  if (detail * cityMask * (1.0 - treeAmt) > 0.0025) {
   // An irregular mosaic of houses (jittered cells) laid out along the shore (arc length) and
   // up in height, so a row of roofs on a slope stays a row instead of smearing downhill.
   vec2 cq = vec2(vLand.y / 7.5, vPos.y / 4.2);
@@ -132,11 +138,9 @@ void main() {
   house *= mix(0.78, 1.0, seam);
   // gardens and courtyard trees between the houses
   house = mix(house, ${glslColor(0x2f3d33)}, step(0.84, hash12(cell + 21.7)));
-  // detail fades with distance, and in low light (a speckled hill reads as snow at night)
-  float detail = (1.0 - smoothstep(2.0, 6.0, foot)) * (1.0 - 0.7 * uNight);
   cityCol = mix(cityAvg, house, detail);
+  }
 #endif
-  float cityMask = smoothstep(0.25, 0.6, zone + (b1 - 0.5) * 0.5);
   vec3 alb = mix(veg, cityCol, cityMask);
   alb = mix(alb, treeCol, treeAmt);
   // quay and shore road in grey stone, wet and dark at the water's edge

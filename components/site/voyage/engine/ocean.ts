@@ -57,6 +57,8 @@ export function sampleSwell(x: number, z: number, t: number, ampScale: number): 
 /** Maiden's Tower as two vertical cylinders (tower; base buildings) for its reflection. */
 const [TX, TZ] = SITES.maiden;
 const TK = MAIDEN.scale;
+const T_AXIS_X = TX - 4 * TK;
+const T_AXIS_Z = TZ - 2 * TK;
 const TOWER_GLSL = /* glsl */ `
 const vec2 T_AXIS = vec2(${(TX - 4 * TK).toFixed(1)}, ${(TZ - 2 * TK).toFixed(1)});
 const vec2 T_BASE = vec2(${(TX + 1 * TK).toFixed(1)}, ${(TZ + 5 * TK).toFixed(1)});
@@ -116,6 +118,7 @@ uniform vec3 uFoamCol;
 uniform vec4 uShipA[${MAX_WAKES}];   // x, z, heading, length
 uniform vec4 uShipB[${MAX_WAKES}];   // beam, speed (m/s), wake strength, freeboard
 uniform int uShipN;
+uniform float uTower;       // 1 while Maiden's Tower can be in view (its reflection with it)
 varying vec2 vP0;
 varying vec3 vPos;
 varying vec3 vHaze;
@@ -298,7 +301,7 @@ void main() {
   vec3 refl = skyColor(R) * mix(0.6, 1.0, smoothstep(120.0, 2200.0, dist));
 
   // Maiden's Tower in the water: lit stone by day, warm windows and floodlight at night
-  vec4 th = towerReflection(vec3(p.x, 0.0, p.y), R, min(sqrt(m2), 0.05));
+  vec4 th = uTower > 0.5 ? towerReflection(vec3(p.x, 0.0, p.y), R, min(sqrt(m2), 0.05)) : vec4(0.0);
   if (th.w > 0.0) {
     vec3 tn = vec3(th.x, 0.0, th.y);
     float lit = smoothstep(-0.1, 0.45, dot(tn, uKeyDir));
@@ -431,6 +434,7 @@ export function createOcean(
       uShipA: { value: Array.from({ length: MAX_WAKES }, () => new THREE.Vector4()) },
       uShipB: { value: Array.from({ length: MAX_WAKES }, () => new THREE.Vector4()) },
       uShipN: { value: 0 },
+      uTower: { value: 1 },
     },
   });
   const mesh = new THREE.Mesh(geo, material);
@@ -448,6 +452,14 @@ export function createOcean(
         alphaMax,
         Math.atan(h / SEA_RADIUS)
       );
+      // the tower's reflection lies straight below it on screen: skip the per-pixel ray test
+      // while the tower is outside the sea fan (which already has a 9° margin) or far away
+      const dx = T_AXIS_X - camPos.x;
+      const dz = T_AXIS_Z - camPos.z;
+      const rel = Math.atan2(dx, -dz) - yaw;
+      const off = Math.abs(Math.atan2(Math.sin(rel), Math.cos(rel)));
+      material.uniforms.uTower.value =
+        off < halfAngle + 3 * DEG && dx * dx + dz * dz < 2.5e8 ? 1 : 0;
     },
   };
 }
