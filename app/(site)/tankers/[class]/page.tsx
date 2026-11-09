@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
 import { ClassGuide } from "@/components/site/inner/ClassGuide";
+import { guideLinksFor } from "@/lib/guides/guides";
 import { BtnLabel, LinkArrow } from "@/components/site/inner/ui";
 import { FREIGHT_PATH } from "@/lib/freight/constants";
 import { StageProvider, type ShipClassSlug } from "@/components/site/stage";
@@ -131,6 +132,7 @@ export default function TankerClassPage({ params }: Params) {
 
       <ClassGuide
         slug={t.slug as ShipClassSlug}
+        guides={guideLinksFor(`/tankers/${t.slug}`)}
         crumbs={[
           { name: "Tankers", path: "/tankers" },
           { name: t.shortName, path: `/tankers/${t.slug}` },

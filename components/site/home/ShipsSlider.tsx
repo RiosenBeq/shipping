@@ -4,23 +4,33 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { EmblaCarouselType } from "embla-carousel";
-import { ShipLines } from "@/components/site/stage/ShipLines";
+import { ShipLinesFrame } from "@/components/site/stage/ShipLinesFrame";
 import { DrawIn } from "@/components/site/drawings/DrawIn";
-import { ClassArt } from "@/components/site/drawings/Ship";
+import type { ShipProfile as ShipProfileFn } from "@/components/site/drawings/Ship";
 import { Arrow, ICON_STROKE } from "./icons";
 import type { HomeView } from "./types";
 import { useDesktopRail } from "./useDesktopRail";
 
 type Ships = NonNullable<HomeView["ships"]>;
 
-/** The class's general-arrangement profile with a light ribbon along its waterline. */
-function CardArt({ slug }: { slug: string }) {
-  return (
-    <span className="ship-card__art" aria-hidden="true" data-draw="">
-      <ClassArt slug={slug} ribbon="ship-card__ribbon" />
-    </span>
+/**
+ * The GA drawing model, loaded once on demand: the cards' profiles and the first class's lines
+ * are server-rendered (`Ships`), so the model is only needed to draw another class's lines.
+ */
+let model: Promise<typeof ShipProfileFn> | null = null;
+function loadModel() {
+  model ??= import("@/components/site/drawings/Ship").then(
+    (m) => m.ShipProfile,
+    (err) => {
+      model = null; // offline or a failed chunk: try again on the next change
+      throw err;
+    }
   );
+  return model;
 }
+
+/** Fetch the model ahead of a class change: the visitor is about to use the rail. */
+const warmModel = () => void loadModel().catch(() => {});
 
 /** A small route glyph for the calculator link: two ports and a passage between them. */
 function CalcGlyph() {
@@ -70,13 +80,20 @@ export function ShipsSlider({
   ships,
   header,
   linkLang,
+  arts,
+  firstLines,
 }: {
   ships: Ships;
   header: React.ReactNode;
   linkLang?: string;
+  /** Each card's general-arrangement profile (server-rendered, same order as the cards). */
+  arts: React.ReactNode[];
+  /** The first class's lines-plan profile (server-rendered). */
+  firstLines: React.ReactNode;
 }) {
   const cards = ships.cards;
   const [active, setActive] = useState(0);
+  const [Profile, setProfile] = useState<typeof ShipProfileFn | null>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
   const rootRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -84,6 +101,7 @@ export function ShipsSlider({
   const emblaRef = useRef<EmblaCarouselType | null>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const card = cards[active] ?? cards[0];
+  const first = card === cards[0];
   const firstGas = cards.findIndex((c) => c.family === "gas");
   const atStart = active === 0 && edges.start;
   const atEnd = active === cards.length - 1 && edges.end;
@@ -162,6 +180,20 @@ export function ShipsSlider({
     } else reveal(n, focus);
   };
 
+  // Another class is active: load the drawing model (once) to draw its lines. Until it is
+  // here the frame is empty; the profile then draws itself in, as a class change does.
+  useEffect(() => {
+    if (first || Profile) return;
+    let live = true;
+    loadModel().then(
+      (f) => live && setProfile(() => f),
+      () => {}
+    );
+    return () => {
+      live = false;
+    };
+  }, [first, Profile]);
+
   // Native mode: progress hairline, button ends, and (phones) the card in view is the active one.
   useEffect(() => {
     const track = trackRef.current;
@@ -239,7 +271,13 @@ export function ShipsSlider({
   };
 
   return (
-    <div className="ships" ref={rootRef}>
+    <div
+      className="ships"
+      ref={rootRef}
+      onPointerEnter={warmModel}
+      onTouchStart={warmModel}
+      onFocus={warmModel}
+    >
       <DrawIn />
       <div className="ships__top">
         {header}
@@ -258,7 +296,19 @@ export function ShipsSlider({
       </div>
 
       <div className="ships__stage">
-        <ShipLines ship={card.slug} className="ships__lines" />
+        <ShipLinesFrame ship={card.slug} className="ships__lines">
+          {first ? (
+            firstLines
+          ) : Profile ? (
+            <Profile
+              key={card.slug}
+              ship={card.slug}
+              detail="stage"
+              className="stage-lines__art"
+              ribbon="stage-lines__ribbon"
+            />
+          ) : null}
+        </ShipLinesFrame>
         <p className="ships__caption" aria-live="polite">
           <span className="t-data" dir="ltr">
             {String(active + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}
@@ -294,7 +344,9 @@ export function ShipsSlider({
                 {/* The class guide is the card's main link (stretched over the card); the
                   calculator link sits above it, so the two never nest. */}
                 <div className="ship-card" onMouseEnter={() => point(i)}>
-                  <CardArt slug={c.slug} />
+                  <span className="ship-card__art" aria-hidden="true" data-draw="">
+                    {arts[i]}
+                  </span>
                   <Link
                     href={c.href}
                     hrefLang={linkLang}

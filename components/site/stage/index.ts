@@ -14,9 +14,10 @@ export { StageProvider, type StageProviderProps } from "./StageProvider";
 export { StageWindow, type StageWindowProps } from "./StageWindow";
 export { StageAperture, type StageApertureProps } from "./StageAperture";
 export { Card, type CardProps } from "./Card";
-// ShipLines is a client component that pulls in the GA drawing model: import it directly from
-// "@/components/site/stage/ShipLines" — re-exporting it here would ship the model to every page
-// that imports this barrel (the footer does, so every page would).
+// ShipLines pulls in the GA drawing model: import it directly from
+// "@/components/site/stage/ShipLines" (server components) — re-exporting it here would put the
+// model in the bundle of every client component that imports this barrel. Client islands use
+// "./ShipLinesFrame" with a server-rendered profile.
 export { PauseMotion } from "./PauseMotion";
 export { StageRail, type RailItem } from "./StageRail";
 // The plate registry (with the media manifest) is server-side: import "./plates" directly.

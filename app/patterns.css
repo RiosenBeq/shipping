@@ -108,7 +108,8 @@
     animation: stage-ribbon 12s linear infinite;
   }
 }
-html[data-motion="paused"] .duty-ribbon rect {
+html[data-motion="paused"] .duty-ribbon rect,
+.duty-ribbon[data-offscreen] rect {
   animation-play-state: paused;
 }
 

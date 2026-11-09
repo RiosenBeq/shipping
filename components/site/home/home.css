@@ -811,7 +811,8 @@ html[data-home-motion="on"] .h-who .fill {
   .h-calc__route path {
     animation: h-calc-route 2.4s linear infinite;
   }
-  html[data-motion="paused"] .h-calc__route path {
+  html[data-motion="paused"] .h-calc__route path,
+  .h-calc__route[data-offscreen] path {
     animation-play-state: paused;
   }
 }
@@ -1267,7 +1268,8 @@ html[data-home-motion="on"] .h-who .fill {
   filter: drop-shadow(0 0 2.5px rgba(217, 176, 113, 0.9));
   animation: stage-ribbon 1.6s linear infinite;
 }
-html[data-motion="paused"] .ship-card__ribbon path {
+html[data-motion="paused"] .ship-card__ribbon path,
+.ship-card[data-offscreen] .ship-card__ribbon path {
   animation-play-state: paused;
 }
 

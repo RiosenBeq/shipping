@@ -1527,6 +1527,18 @@ a.ip-chip:hover {
     transform: translate3d(0, 28px, 0);
   }
 }
+/* The hero's heading and lead (each inner page's LCP element) rise but are never hidden: a fade
+   from 0 holds the LCP until the main thread paints again, after hydration. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(.t-display, .t-lead, .ip-hero__copy).ip-rise {
+    animation-name: ip-rise-shown;
+  }
+}
+@keyframes ip-rise-shown {
+  from {
+    transform: translate3d(0, 28px, 0);
+  }
+}
 
 /* ---------- static night masthead (legal, team) ---------- */
 .ip-mast {

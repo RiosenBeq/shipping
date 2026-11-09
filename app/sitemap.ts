@@ -9,6 +9,9 @@ import { LOCALES, homeLanguages } from "@/lib/i18n";
 import { assertValidContent } from "@/lib/content/validate";
 import { FREIGHT_DATA } from "@/lib/content/freight";
 import { FREIGHT_PATH } from "@/lib/freight/constants";
+import { getGuides, guideLanguages, guidesUpdated } from "@/lib/guides/guides";
+import { GUIDES_PATH } from "@/lib/guides/meta";
+import { assertValidGuides } from "@/lib/guides/validate";
 
 /** siteConfig.contentUpdated: bumped when content changes, not a fake "now" per build. */
 const CONTENT_UPDATED = new Date(siteConfig.contentUpdated);
@@ -24,6 +27,7 @@ const url = (path: string) => new URL(path, siteConfig.url).toString();
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   assertValidContent();
+  assertValidGuides();
 
   // The 11 homepages point at each other, plus x-default (the English home), as in their <head>.
   const homeAlternates = {
@@ -70,7 +74,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         ? lastmod(blogLastmod)
         : p.path === FREIGHT_PATH
           ? lastmod(freightUpdated)
-          : CONTENT_UPDATED,
+          : p.path === GUIDES_PATH && guidesUpdated()
+            ? lastmod(guidesUpdated())
+            : CONTENT_UPDATED,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
     ...(p.path === "/" ? { alternates: { languages: homeAlternates } } : {}),
@@ -94,5 +100,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     alternates: { languages: homeAlternates },
   }));
 
-  return [...pages, ...localized, ...classes, ...categories, ...posts];
+  // Guides: lastmod is the "last reviewed" date; a page with a translation lists both (+ x-default).
+  const guides: MetadataRoute.Sitemap = getGuides().map((g) => {
+    const languages = guideLanguages(g);
+    return {
+      url: url(g.href),
+      lastModified: lastmod(g.updated),
+      changeFrequency: "monthly" as const,
+      priority: g.kind === "landing" ? 0.8 : 0.7,
+      ...(languages
+        ? {
+            alternates: {
+              languages: {
+                ...Object.fromEntries(Object.entries(languages).map(([l, p]) => [l, url(p)])),
+                "x-default": url(languages.en ?? g.href),
+              },
+            },
+          }
+        : {}),
+    };
+  });
+
+  return [...pages, ...localized, ...classes, ...guides, ...categories, ...posts];
 }

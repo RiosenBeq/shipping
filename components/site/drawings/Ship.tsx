@@ -1,5 +1,3 @@
-"use client";
-
 import "@/app/drawings.css";
 import { isDrawnClass, particulars, type ShipClassSlug } from "./particulars";
 import { profile } from "./profile";
@@ -20,9 +18,9 @@ export function profileView(ship: ShipClassSlug, detail: Detail = "thumb"): View
 }
 
 /*
- * Client components on purpose: the server sends only the class slug in the RSC payload (not
- * the path data twice); the SVG is still rendered into the HTML on the server, so it is there
- * without JavaScript, and the model is cached with the page's JavaScript.
+ * Shared (no directive): server components render these on the server, so the GA drawing
+ * model stays out of the pages' JavaScript (the SVG is in the HTML and the RSC payload). A
+ * client island that changes the class (the homepage's ships rail) loads it on demand.
  */
 
 /**

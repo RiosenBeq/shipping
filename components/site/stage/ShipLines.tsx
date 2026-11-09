@@ -1,5 +1,6 @@
 import { ShipProfile } from "@/components/site/drawings/Ship";
 import type { ShipClassSlug } from "./lines/classes";
+import { ShipLinesFrame } from "./ShipLinesFrame";
 
 /**
  * Where `P-lines` draws the active class's 3D lines plan (DESIGN-V2 §6.3, §7.4). Place it in a
@@ -11,21 +12,14 @@ import type { ShipClassSlug } from "./lines/classes";
  */
 export function ShipLines({ ship, className }: { ship: ShipClassSlug; className?: string }) {
   return (
-    <div
-      aria-hidden="true"
-      data-stage-lines=""
-      data-class={ship}
-      className={className ? `stage-lines ${className}` : "stage-lines"}
-    >
-      <div className="stage-lines__svg" data-draw="">
-        <ShipProfile
-          key={ship}
-          ship={ship}
-          detail="stage"
-          className="stage-lines__art"
-          ribbon="stage-lines__ribbon"
-        />
-      </div>
-    </div>
+    <ShipLinesFrame ship={ship} className={className}>
+      <ShipProfile
+        key={ship}
+        ship={ship}
+        detail="stage"
+        className="stage-lines__art"
+        ribbon="stage-lines__ribbon"
+      />
+    </ShipLinesFrame>
   );
 }

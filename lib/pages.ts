@@ -77,6 +77,15 @@ export const PAGES: PageEntry[] = [
     changeFrequency: "monthly",
   },
   {
+    path: "/guides",
+    title: "Chartering Guides",
+    summary:
+      "Evergreen guides and desk pages: voyage vs time charter vs COA, how to charter a tanker, tanker charter party forms, Turkish ports, Black Sea crude, ammonia carriers, plus Turkish-language pages for the home market.",
+    group: "primary",
+    priority: 0.8,
+    changeFrequency: "monthly",
+  },
+  {
     path: "/freight-calculator",
     title: "Freight Calculator",
     summary:

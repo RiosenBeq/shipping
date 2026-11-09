@@ -19,7 +19,21 @@ const nextConfig = {
   compress: true,
 
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Posters, stills, footage and LUTs: file names are not content-hashed (an editor may
+      // replace one in place), so a day fresh, then served from cache while it revalidates.
+      // /_next/static is hashed and already immutable for a year (Next's default).
+      {
+        source: "/media/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=2592000",
+          },
+        ],
+      },
+    ];
   },
 
   // Sections removed in the tanker + LPG refocus. Permanent redirects keep

@@ -1,8 +1,16 @@
+import * as React from "react";
 import Link from "next/link";
 import { BLOG_PATH } from "@/lib/blog/meta";
 import { breadcrumbsLd, type Crumb } from "@/lib/seo";
 import { JsonLd } from "@/components/site/JsonLd";
 import { cn } from "@/lib/utils";
+
+/** React 18 knows `fetchpriority` only lowercase; the App Router's canary React knows `fetchPriority`. */
+const HIGH_PRIORITY = (
+  typeof (React as unknown as { use?: unknown }).use === "function"
+    ? { fetchPriority: "high" }
+    : { fetchpriority: "high" }
+) as Record<string, string>;
 
 /**
  * Night masthead of every blog page: static contour lines (the P-bathy plate
@@ -37,6 +45,8 @@ export function BlogMasthead({
         width={1600}
         height={480}
         decoding="async"
+        // The LCP element of every blog page: ahead of the fonts and the cards' covers.
+        {...HIGH_PRIORITY}
       />
       <div className="bl-mast__glow" aria-hidden="true" />
       <div className="bl-mast__glow bl-mast__glow--tide" aria-hidden="true" />

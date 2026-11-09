@@ -1,0 +1,210 @@
+/*
+ * Guides (/guides, /guides/[slug]): the inner-page system (ip-*) plus what a
+ * Markdoc body needs inside .ip-prose — the blog's callout, table, pull quote
+ * and figure (lib/blog/markdoc.ts emits the bl-* classes) — and the hub cards.
+ */
+.gd-prose {
+  --gd-paper: #fbfaf7;
+  --gd-line: rgba(10, 31, 51, 0.14);
+}
+.gd-prose > p:first-child {
+  color: var(--navy);
+  font-size: 1.08em;
+}
+
+.gd-prose .bl-callout {
+  position: relative;
+  margin: 2em 0;
+  padding: 22px 26px 20px;
+  border-radius: 14px;
+  background: var(--gd-paper);
+  box-shadow: inset 0 0 0 1px var(--gd-line);
+  font:
+    400 16.5px/1.6 var(--ip-f-text, system-ui),
+    system-ui,
+    sans-serif;
+}
+.gd-prose .bl-callout::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--brass);
+}
+.gd-prose .bl-callout p {
+  margin: 0;
+}
+.gd-prose .bl-callout p + p,
+.gd-prose .bl-callout ul,
+.gd-prose .bl-callout ol {
+  margin-top: 0.7em;
+  margin-bottom: 0;
+}
+.gd-prose .bl-callout .bl-callout__label {
+  margin-bottom: 8px;
+  color: var(--brass-ink);
+  font-weight: 600;
+  font-size: 11.5px;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.gd-prose .bl-callout .bl-callout__link {
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.gd-prose .bl-table {
+  margin: 2em 0;
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--gd-paper);
+  box-shadow: inset 0 0 0 1px var(--gd-line);
+}
+.gd-prose .bl-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font:
+    400 15px/1.45 var(--ip-f-text, system-ui),
+    system-ui,
+    sans-serif;
+}
+.gd-prose .bl-table caption {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gd-line);
+  color: var(--slate);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-align: start;
+  text-transform: uppercase;
+}
+.gd-prose .bl-table th,
+.gd-prose .bl-table td {
+  padding: 12px 18px;
+  text-align: start;
+  vertical-align: top;
+}
+.gd-prose .bl-table thead th {
+  color: var(--navy);
+  font-weight: 600;
+  border-bottom: 1px solid var(--gd-line);
+}
+.gd-prose .bl-table tbody tr + tr {
+  border-top: 1px solid var(--gd-line);
+}
+.gd-prose .bl-table tbody th {
+  color: var(--navy);
+  font-weight: 500;
+}
+.gd-prose .bl-table td {
+  color: var(--slate);
+}
+
+.gd-prose .bl-quote {
+  margin: 2.2em 0;
+  padding: 0 0 0 28px;
+  border-left: 2px solid var(--brass);
+}
+.gd-prose .bl-quote blockquote {
+  margin: 0;
+}
+.gd-prose .bl-quote p {
+  margin: 0;
+  color: var(--navy);
+  font-style: italic;
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.25;
+}
+
+.gd-prose .bl-figure {
+  margin: 2em 0;
+}
+.gd-prose .bl-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+}
+.gd-prose .bl-figure figcaption {
+  margin-top: 10px;
+  color: var(--slate);
+  font: 400 13px/1.5 var(--ip-f-mono);
+}
+
+/* the other-language link in the byline */
+.gd-alt {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--brass);
+  text-underline-offset: 3px;
+}
+
+/* hub: a grid of guide cards */
+.gd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 18px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gd-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  transition: box-shadow 0.3s var(--ip-ease);
+}
+.gd-card:hover,
+.gd-card:focus-within {
+  box-shadow: inset 0 0 0 1px var(--brass);
+}
+.gd-card h3 {
+  margin: 0;
+  color: var(--navy);
+  font: 600 21px/1.2 var(--ip-f-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.gd-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+/* the whole card is the link's hit area */
+.gd-card h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.gd-card h3 a:focus-visible {
+  outline: none;
+}
+.gd-card:has(a:focus-visible) {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+.gd-card p {
+  margin: 0;
+  color: var(--slate);
+  line-height: 1.55;
+}
+.gd-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: auto !important;
+  padding-top: 8px;
+  color: var(--ink-2) !important;
+  font: 400 12.5px/1.4 var(--ip-f-mono);
+}
+.gd-section + .gd-section {
+  margin-top: clamp(56px, 7vw, 96px);
+}

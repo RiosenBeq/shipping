@@ -34,6 +34,7 @@ import { stills, type StillKey } from "@/lib/media";
 import { GITHUB_REPO, keystaticStorageMode, type StorageMode } from "@/lib/content/storage";
 import { homeNavigation, homeSingletons } from "@/lib/content/keystatic-home";
 import { freightNavigation, freightSingletons } from "@/lib/content/keystatic-freight";
+import { guidesCollection, guidesNavigation } from "@/lib/content/keystatic-guides";
 
 /* ---------- shared field helpers ---------- */
 
@@ -741,6 +742,7 @@ export function keystaticConfig(mode: StorageMode) {
         ...homeNavigation,
         Company: ["site", "brokers"],
         Blog: ["posts"],
+        ...guidesNavigation,
         "Desks & reference": [
           "tankerClasses",
           "lpgClasses",
@@ -754,7 +756,7 @@ export function keystaticConfig(mode: StorageMode) {
       },
     },
     singletons,
-    collections: { posts },
+    collections: { posts, guides: guidesCollection(blogComponents) },
   });
 }
 

@@ -23,6 +23,7 @@ import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
+import { guideLinksFor } from "@/lib/guides/guides";
 
 const PATH = "/turkish-straits";
 const TITLE = "Turkish Straits Transit Guide for Tankers & LPG";
@@ -250,7 +251,7 @@ export default function TurkishStraitsPage() {
               <Faq items={STRAITS_FAQ} />
             </div>
           </section>
-          <RelatedGuides current={PATH} />
+          <RelatedGuides current={PATH} guides={guideLinksFor(PATH)} />
         </div>
       </Card>
 

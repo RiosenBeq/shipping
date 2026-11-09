@@ -12,6 +12,8 @@ import { COMPLIANCE_FAQ, COMPLIANCE_STEPS, SCREENING } from "@/lib/data/complian
 import { LOCALES } from "@/lib/i18n";
 import { freightCalculatorMd } from "@/lib/freight/llms";
 import { companyFacts } from "@/lib/facts";
+import { getGuides, type Guide } from "@/lib/guides/guides";
+import { formatGuideDate, GUIDE_LANG_LABELS } from "@/lib/guides/meta";
 
 /**
  * Generators for /llms.txt (https://llmstxt.org/) and /llms-full.txt. Both are
@@ -39,8 +41,13 @@ const KEY_FACTS = () => [
   "The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator works from dated reference values, and current numbers come from the desks.",
 ];
 
+/** A guide or desk page in a list: title, summary, language (Turkish pages say so). */
+const guideLine = (g: Guide) =>
+  `- [${g.title}](${url(g.href)}): ${g.description} (${g.kind === "landing" ? "Desk page" : "Guide"}${g.lang !== "en" ? `, in ${GUIDE_LANG_LABELS[g.lang]}` : ""}, reviewed ${formatGuideDate(g.updated)}${g.author ? `, by ${g.author.name}` : ""})`;
+
 export function llmsTxt(): string {
   const posts = getPosts();
+  const guidePages = getGuides();
   const guides = posts.filter(isGuide);
   const briefs = posts.filter((p) => !isGuide(p));
   const postLine = (p: Post) =>
@@ -76,6 +83,8 @@ ${LPG_CLASSES.map((c) => `- [${c.name} chartering](${url(`/lpg/${c.slug}`)}): ${
 
 ## Guides
 
+- ${link("/guides")}
+${guidePages.map(guideLine).join("\n")}
 - ${link("/turkish-straits")}
 ${guides.map(postLine).join("\n")}
 - ${link("/glossary")}
@@ -154,6 +163,19 @@ ${c.watchpoints.map((w) => `- ${w.title}: ${w.body}`).join("\n")}
 ${faqMd(c.faq)}`
   ).join("\n\n");
 
+  const guidePages = getGuides()
+    .map(
+      (g) => `### ${g.title}
+
+Source: ${url(g.href)}
+${g.kind === "landing" ? "Desk page" : "Guide"} · ${GUIDE_LANG_LABELS[g.lang]} · ${g.desk === "lpg" ? "LPG & ammonia desk" : "Tanker desk"}${g.author ? ` · by ${g.author.name}, ${g.author.title}` : ""} · last reviewed ${formatGuideDate(g.updated)}
+
+${g.dek}
+
+${g.text}${g.faq.length ? `\n\n${faqMd(g.faq)}` : ""}`
+    )
+    .join("\n\n");
+
   const posts = getPosts();
   const blog = posts
     .map(
@@ -181,7 +203,7 @@ ${p.text}${p.faq.length ? `\n\n${faqMd(p.faq)}` : ""}`
 
 > ${siteConfig.tagline}. ${siteConfig.description}
 
-This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, compliance screening, all blog posts, FAQs and the glossary. Each section names its source URL; please cite that URL.
+This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, the chartering guides (English and Turkish), compliance screening, all blog posts, FAQs and the glossary. Each section names its source URL; please cite that URL.
 
 ## ${siteConfig.name} at a glance
 
@@ -239,6 +261,12 @@ ${STRAITS_SECTIONS.map(
 
 ${faqMd(STRAITS_FAQ)}
 
+## Chartering guides and desk pages
+
+Source: ${url("/guides")}
+
+${guidePages}
+
 ## Sanctions and compliance screening
 
 Source: ${url("/compliance")}
@@ -267,6 +295,6 @@ ${glossary}
 
 - The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator's reference prices carry their date. Ask the desks for current numbers.
 - Blog posts are dated; market commentary reflects conditions at publication.
-- Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages and the inquiry form are in English.
+- Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages, guides (${url("/guides")}) and the inquiry form are in English.
 `;
 }

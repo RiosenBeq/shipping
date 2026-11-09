@@ -20,7 +20,12 @@ const LINKS = [
   { href: "/blog", label: "Blog" },
   { href: FREIGHT_CALCULATOR_PATH, label: "Calculator" },
 ];
-const MENU_LINKS = [...LINKS, { href: "/contact", label: "Contact" }];
+// The menu also lists the guides (kept off the desktop pill, which is full).
+const MENU_LINKS = [
+  ...LINKS,
+  { href: "/guides", label: "Guides" },
+  { href: "/contact", label: "Contact" },
+];
 
 export type NavLanguage = { code: string; href: string; label: string; hreflang: string };
 

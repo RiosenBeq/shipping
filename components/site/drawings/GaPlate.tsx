@@ -1,5 +1,3 @@
-"use client";
-
 import "@/app/drawings.css";
 import { DrawIn } from "./DrawIn";
 import { isDrawnClass, particulars, type ShipClassSlug } from "./particulars";

@@ -35,6 +35,7 @@ const TOOLS = [
 ];
 
 const READ = [
+  { href: "/guides", label: "Chartering guides" },
   { href: "/about", label: "About" },
   { href: "/glossary", label: "Glossary" },
   { href: "/compliance", label: "Compliance" },

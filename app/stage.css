@@ -435,7 +435,8 @@ html[data-stage="live"][data-stage-lines="3d"] .stage-lines__svg {
     stroke-dashoffset: 0;
   }
 }
-html[data-motion="paused"] .stage-lines__ribbon path {
+html[data-motion="paused"] .stage-lines__ribbon path,
+.stage-lines[data-offscreen] .stage-lines__ribbon path {
   animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {

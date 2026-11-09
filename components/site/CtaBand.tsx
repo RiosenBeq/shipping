@@ -13,8 +13,18 @@ type Props = {
   text?: string;
   /** Desk inbox shown large on the end side. Defaults to the main desk. */
   email?: string;
-  /** Button labels — overridden on localized landing pages. */
-  labels?: { inquiry?: string; email?: string; newTab?: string; whatsapp?: string };
+  /** Button labels — overridden on localized landing pages (and the contact/duty lines). */
+  labels?: {
+    inquiry?: string;
+    email?: string;
+    newTab?: string;
+    whatsapp?: string;
+    contact?: string;
+    dutyLabel?: string;
+    dutyLead?: string;
+    dutyHours?: string;
+    dutyNewTab?: string;
+  };
   /** Contact form link; desk and class pages preselect cargo and ship size. */
   inquiryHref?: string;
   whatsappText?: string;
@@ -77,7 +87,7 @@ export function CtaBand({
           </div>
 
           <div className="ip-contact">
-            <Sub className="!mb-0">Contact</Sub>
+            <Sub className="!mb-0">{labels?.contact ?? "Contact"}</Sub>
             {/* The address as plain, selectable text too, for people without a mail client. */}
             <a href={`mailto:${email}`} className="ip-contact__email" dir="ltr">
               {email}
@@ -103,13 +113,16 @@ export function CtaBand({
               <DutyRibbon />
               <span className="ip-duty__dot" aria-hidden="true" />
               <p>
-                <b>{siteConfig.duty.label}</b>
-                WhatsApp the duty broker —{" "}
+                <b>{labels?.dutyLabel ?? siteConfig.duty.label}</b>
+                {labels?.dutyLead ?? "WhatsApp the duty broker"} —{" "}
                 <a href={dutyWhatsappUrl()} target="_blank" rel="noopener" dir="ltr">
                   {siteConfig.duty.display}
-                  <span className="sr-only"> (WhatsApp, opens in a new tab)</span>
+                  <span className="sr-only">
+                    {" "}
+                    {labels?.dutyNewTab ?? "(WhatsApp, opens in a new tab)"}
+                  </span>
                 </a>
-                . {siteConfig.duty.hours}
+                . {labels?.dutyHours ?? siteConfig.duty.hours}
               </p>
             </div>
             {aside}

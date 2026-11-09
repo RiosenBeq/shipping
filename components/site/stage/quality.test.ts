@@ -3,6 +3,7 @@ import {
   DPR_CAP,
   FpsGovernor,
   downgrade,
+  isSoftwareRenderer,
   lowReason,
   pickTier,
   renderDpr,
@@ -61,6 +62,23 @@ describe("pickTier", () => {
     ])
       expect(pickTier(h)).toBe("low");
     expect(lowReason(desktop)).toBeNull();
+  });
+
+  it("names software rasterisers by their renderer string (no performance caveat on ANGLE)", () => {
+    for (const r of [
+      "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "llvmpipe (LLVM 15.0.7, 256 bits)",
+      "ANGLE (Microsoft, Microsoft Basic Render Driver Direct3D11 vs_5_0 ps_5_0)",
+    ])
+      expect(isSoftwareRenderer(r)).toBe(true);
+    for (const r of [
+      "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+      "Adreno (TM) 610",
+      "ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "",
+      null,
+    ])
+      expect(isSoftwareRenderer(r)).toBe(false);
   });
 
   it("switches features per tier and steps down one tier at a time", () => {

@@ -30,6 +30,7 @@ import { LpgConverter } from "./LpgConverter";
 import { LPG_FAQ } from "@/lib/data/faqs";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
+import { guideLinksFor } from "@/lib/guides/guides";
 
 const TITLE = "LPG Shipbroker — VLGC, MGC & Ammonia Chartering";
 const DESCRIPTION =
@@ -301,7 +302,7 @@ export default function LpgPage() {
               <Faq items={LPG_FAQ} />
             </div>
           </section>
-          <RelatedGuides current="/lpg" />
+          <RelatedGuides current="/lpg" guides={guideLinksFor("/lpg")} />
         </div>
       </Card>
 

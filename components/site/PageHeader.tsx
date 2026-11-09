@@ -13,8 +13,17 @@ import { JsonLd } from "./JsonLd";
 import { Glows, Sub } from "./inner/ui";
 
 /** Breadcrumb trail (mono, DESIGN-V2 §10) plus its BreadcrumbList JSON-LD. Home is prepended. */
-export function Crumbs({ crumbs, className }: { crumbs: Crumb[]; className?: string }) {
-  const trail: Crumb[] = [{ name: "Home", path: "/" }, ...crumbs];
+export function Crumbs({
+  crumbs,
+  className,
+  homeLabel = "Home",
+}: {
+  crumbs: Crumb[];
+  className?: string;
+  /** "Home" in the page's language. */
+  homeLabel?: string;
+}) {
+  const trail: Crumb[] = [{ name: homeLabel, path: "/" }, ...crumbs];
   return (
     <>
       <JsonLd data={breadcrumbsLd(trail)} />
@@ -56,6 +65,8 @@ type Props = {
   lead?: React.ReactNode;
   /** Breadcrumb trail, excluding Home. Also emitted as BreadcrumbList JSON-LD. */
   crumbs?: Crumb[];
+  /** "Home" in the page's language (the first crumb). */
+  homeLabel?: string;
   /** Kept for older callers: the masthead is always night now. */
   tone?: "light" | "dark";
   /** A row under the heading (chips, a date pill, buttons). */
@@ -79,6 +90,7 @@ export function PageHeader({
   title,
   lead,
   crumbs,
+  homeLabel,
   children,
   childrenClassName,
   aside,
@@ -96,7 +108,7 @@ export function PageHeader({
       <BathyPicture className="ip-mast__art" />
       <Glows />
       <div className="ip-wrap">
-        {crumbs && crumbs.length > 0 && <Crumbs crumbs={crumbs} />}
+        {crumbs && crumbs.length > 0 && <Crumbs crumbs={crumbs} homeLabel={homeLabel} />}
         <div className={cn("ip-mast__grid", !end && "ip-mast__grid--solo")}>
           <div>
             {eyebrow && <Sub className="ip-rise">{eyebrow}</Sub>}
