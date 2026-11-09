@@ -1205,8 +1205,8 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   line-height: 1.6;
   color: var(--mist);
 }
-/* As many office columns as fit a desk e-mail on one line: three on wide screens, two beside the
-   huge menu on laptops (1024–1300px), never overlapping. */
+/* As many office columns as fit a desk e-mail on one line (three on wide screens; laptops get
+   three narrow columns below), never overlapping. */
 .ftr__offices {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 176px), 1fr));
@@ -1360,6 +1360,13 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   }
   .ftr__menu {
     text-align: start;
+  }
+}
+/* Laptops: three narrow office columns beside the chart, so Singapore never sits alone. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .ftr__offices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
   }
 }
 @media (max-width: 767px) {

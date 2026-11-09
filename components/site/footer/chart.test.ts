@@ -150,6 +150,21 @@ describe("buildChart (footer view)", () => {
     }
   });
 
+  it("rests every ship clear of the bridge decks (at least 20 view units)", () => {
+    const toSegment = (p: Pt, a: Pt, b: Pt) => {
+      const [dx, dy] = [b[0] - a[0], b[1] - a[1]];
+      const t = Math.max(
+        0,
+        Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy))
+      );
+      return dist(p, [a[0] + t * dx, a[1] + t * dy]);
+    };
+    expect(c.bridges).toHaveLength(3);
+    for (const pose of [generated.SHIP, ...generated.AMBIENT]) {
+      for (const b of c.bridges) expect(toSegment(pose.at, b.a, b.b)).toBeGreaterThanOrEqual(20);
+    }
+  });
+
   it("places every label and tick inside the view", () => {
     for (const l of c.labels) expect(inView(l.at)).toBe(true);
     for (const t of c.graticule.ticks) expect(inView(t.at)).toBe(true);

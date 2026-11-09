@@ -70,7 +70,7 @@ export const SHIP: Pose = { at: [64, 549.2], heading: 101.5 };
 
 /** The ambient ships at rest. */
 export const AMBIENT: readonly Pose[] = [
-  { at: [146.6, 492.1], heading: -41.9 },
+  { at: [161.2, 472], heading: -68.3 },
   { at: [226.7, 315.6], heading: -79.8 },
   { at: [243.4, 163.9], heading: -30.9 },
 ];
@@ -85,8 +85,8 @@ export const LABELS: readonly ChartLabel[] = [
   { id: "arnavutkoy", lines: ["ARNAVUTKÖY"], at: [147.9, 439.2], anchor: "end", kind: "place" },
   { id: "kandilli", lines: ["KANDİLLİ"], at: [188.5, 428.2], anchor: "start", kind: "place" },
   { id: "yenikoy", lines: ["YENİKÖY"], at: [193.6, 309.7], anchor: "end", kind: "place" },
-  { id: "b1", lines: ["15 JULY MARTYRS"], at: [153.8, 504.2], anchor: "start", kind: "bridge" },
-  { id: "b2", lines: ["FATIH SULTAN MEHMET"], at: [201.1, 384], anchor: "start", kind: "bridge" },
+  { id: "b1", lines: ["15 TEMMUZ ŞEHİTLER"], at: [153.8, 504.2], anchor: "start", kind: "bridge" },
+  { id: "b2", lines: ["FATİH SULTAN MEHMET"], at: [201.1, 384], anchor: "start", kind: "bridge" },
   { id: "b3", lines: ["YAVUZ SULTAN SELİM"], at: [256.8, 109.7], anchor: "end", kind: "bridge" },
 ];
 

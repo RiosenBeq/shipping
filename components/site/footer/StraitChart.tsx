@@ -16,7 +16,7 @@ const pct = (v: number) => `${Math.round(v * 10000) / 100}%`;
 const ALT =
   "Night chart of the Bosphorus, north up, from the Sea of Marmara to the Black Sea, with the " +
   "traffic lanes, the three bridges, Maiden's Tower and the bends at Arnavutköy, Kandilli and " +
-  "Yeniköy. A tanker sails south through the strait as the page scrolls.";
+  "Yeniköy. A brass tanker marks the southbound lane; Europe lies west of the strait, Asia east.";
 
 /**
  * The footer's "Strait transit" (docs/REDESIGN.md §11): a night nautical chart of the Bosphorus in
@@ -31,30 +31,35 @@ const ALT =
 export function StraitChart({ className }: { className?: string }) {
   const { compass, scale } = FURNITURE;
   return (
-    <figure className={className ? `${s.chart} ${className}` : s.chart} data-strait="">
+    <figure
+      className={className ? `${s.chart} ${className}` : s.chart}
+      data-strait=""
+      aria-label="Strait transit: night chart of the Bosphorus"
+    >
       <p className={s.status}>
-        <span className={s.key}>Daylight transits</span>
+        <span className={s.key}>Daylight transits · indicative</span>
+        <span className="sr-only">: </span>
         <span className={s.rule}>
-          Tankers of 200&nbsp;m and over pass the Bosphorus in daylight
-          {/* Filled in after hydration (transit.ts) and hidden from screen readers until then.
-              Same-width placeholders in a monospace face: nothing moves when the times arrive. */}
-          <span aria-hidden="true" data-sun="">
-            {" · "}
-            {/* Non-breaking spaces keep "today sunrise 07:44," and "sunset 17:51 Istanbul"
-                whole, so the line breaks between them on a phone. */}
-            <span className={s.today}>
-              today&nbsp;sunrise&nbsp;
-              <time data-sun="rise" suppressHydrationWarning>
-                --:--
-              </time>
-              , sunset&nbsp;
-              <time data-sun="set" suppressHydrationWarning>
-                --:--
-              </time>
-              &nbsp;Istanbul
-            </span>
-            {" · "}indicative
-          </span>
+          Tankers of 200&nbsp;m and over pass the Bosphorus in daylight.
+        </span>
+        {/* Filled in after hydration (transit.ts) and hidden from screen readers until then.
+            Same-width placeholders in a monospace face: nothing moves when the times arrive.
+            Each "· value" group stays whole, so a line never ends on a separator. */}
+        <span className={s.today} aria-hidden="true" data-sun="">
+          <span>Today</span>{" "}
+          <span>
+            · sunrise{" "}
+            <time data-sun="rise" suppressHydrationWarning>
+              --:--
+            </time>
+          </span>{" "}
+          <span>
+            · sunset{" "}
+            <time data-sun="set" suppressHydrationWarning>
+              --:--
+            </time>
+          </span>{" "}
+          <span>· Istanbul</span>
         </span>
         <Link href="/turkish-straits" className={s.guide}>
           Turkish Straits guide <span aria-hidden="true">→</span>
