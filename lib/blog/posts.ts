@@ -33,7 +33,8 @@ import {
 import { assignHeadingIds, bodyText, parseMarkdoc, wordCount, type Heading } from "./markdoc";
 
 export const POSTS_DIR = "content/blog";
-const ABS_DIR = path.join(process.cwd(), POSTS_DIR);
+// A literal path (not POSTS_DIR) so the server file tracer packs only this folder.
+const ABS_DIR = path.join(process.cwd(), "content/blog");
 
 export type Post = PostCardData & {
   seoTitle?: string;

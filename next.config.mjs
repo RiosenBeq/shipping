@@ -17,12 +17,16 @@ const nextConfig = {
   experimental: {
     // Server code reads content with paths built from imported constants
     // (path.join(process.cwd(), POSTS_DIR)), which the file tracer cannot resolve, so it
-    // used to pack the whole project into every function (~160 MB: .git, public/media,
-    // docs). Functions only ever read content/**; public/ is served by the CDN.
+    // used to pack the whole project into every function (386 MB on Vercel: .git, the
+    // restored .next/cache, public/media, docs), over the 250 MB limit. Functions only ever
+    // read content/**; public/ is served by the CDN.
     outputFileTracingIncludes: { "*": ["./content/**/*"] },
     outputFileTracingExcludes: {
       "*": [
         ".git/**",
+        // The build cache Vercel restores before building (hundreds of MB).
+        ".next/cache/**",
+        "node_modules/.cache/**",
         "docs/**",
         "public/**",
         "scripts/**",

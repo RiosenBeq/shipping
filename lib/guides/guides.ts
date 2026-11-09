@@ -28,7 +28,8 @@ import {
   type GuideSegment,
 } from "./meta";
 
-const ABS_DIR = path.join(process.cwd(), GUIDES_DIR);
+// A literal path (not GUIDES_DIR) so the server file tracer packs only this folder.
+const ABS_DIR = path.join(process.cwd(), "content/guides");
 
 export type Guide = {
   slug: string;
