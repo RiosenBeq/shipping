@@ -95,6 +95,11 @@
     transform-origin: var(--fx-phone) var(--fy-phone);
   }
 }
+/* P-hero mirrors on right-to-left pages (the hull stays in the column free of copy), like the
+   live plate. Its focal points are centred, so object-position needs no mirroring. */
+html[dir="rtl"] .stage__layer[data-stage-layer="P-hero"] img {
+  transform: scale(var(--zoom)) scaleX(-1);
+}
 /* P-lines has no picture: night ground; the hull is DOM (ShipLines) or WebGL. */
 .stage__layer[data-stage-layer="P-lines"] {
   background: radial-gradient(60% 50% at 50% 46%, rgba(13, 39, 64, 0.9), transparent 70%),

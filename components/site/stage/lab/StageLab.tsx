@@ -88,23 +88,27 @@ function Tag({ plate }: { plate: PlateId }) {
   );
 }
 
-/** Bake mode: one full-screen P-bathy window, no pin, no calm, no chrome (static fallback). */
-function Bake() {
+/**
+ * Bake mode: one full-screen procedural window, no pin, no calm, no chrome (static fallback):
+ * `?bake=bathy` (P-bathy) or `?bake=hero` (P-hero at p = 0 — its poster; set the clock to 0
+ * with `__stage.setClock(0)` before the screenshot).
+ */
+function Bake({ plate }: { plate: "P-bathy" | "P-hero" }) {
   useLayoutEffect(() => {
     document.documentElement.setAttribute("data-stage-bake", "");
     return () => document.documentElement.removeAttribute("data-stage-bake");
   }, []);
   return (
     <>
-      <StageProvider plates={["P-bathy"]} frame={false} />
-      <StageWindow plate="P-bathy" className="h-[100lvh]" />
+      <StageProvider plates={[plate]} frame={false} />
+      <StageWindow plate={plate} className="h-[100lvh]" />
     </>
   );
 }
 
-export function StageLab({ bake }: { bake: "bathy" | null }) {
+export function StageLab({ bake }: { bake: "bathy" | "hero" | null }) {
   const [ship, setShip] = useState<ShipClassSlug>("vlgc");
-  if (bake === "bathy") return <Bake />;
+  if (bake) return <Bake plate={bake === "hero" ? "P-hero" : "P-bathy"} />;
   return (
     <div className="text-[#F3EFE4]">
       <StageProvider plates={LAB_PLATES} />

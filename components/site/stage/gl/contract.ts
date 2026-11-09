@@ -32,6 +32,13 @@ export interface LayerState {
   lines: (Rect & { slug: ShipClassSlug }) | null;
   /** P-bathy: the sonar ping's origin (viewport px). */
   pin: { x: number; y: number } | null;
+  /**
+   * The window's scroll progress, unsmoothed: 0 with its top at the viewport top, 1 once its
+   * bottom has reached it, clamped to 0..1.3 (P-hero's camera; spring/heroProgress).
+   */
+  scrolled: number;
+  /** The page is right-to-left (P-hero mirrors so the hull stays in the free column). */
+  rtl: boolean;
 }
 
 export interface FrameState {

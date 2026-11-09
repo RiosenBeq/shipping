@@ -15,6 +15,7 @@ export type PlateId =
   | "V-ocean"
   | "P-bathy"
   | "P-lines"
+  | "P-hero"
   | "none";
 
 /** Every plate id, in §6.1 order (kept here, free of media data, for client code). */
@@ -27,6 +28,7 @@ export const PLATE_ID_LIST: readonly PlateId[] = [
   "V-ocean",
   "P-bathy",
   "P-lines",
+  "P-hero",
   "none",
 ];
 
@@ -68,7 +70,7 @@ export interface PlateFrame {
 }
 
 /** Plates that never get a grade: the procedural ones are already drawn in brand colours. */
-export const UNGRADED: ReadonlySet<PlateId> = new Set<PlateId>(["P-bathy", "P-lines", "none"]);
+export const UNGRADED: ReadonlySet<PlateId> = new Set<PlateId>(["P-bathy", "P-lines", "P-hero", "none"]);
 
 /** True for plates backed by a licensed video loop. */
 export function isVideoPlate(p: PlateId): p is VideoPlateId {

@@ -43,6 +43,7 @@ import {
 } from "./types";
 import { isShipClass, type ShipClassSlug } from "./lines/classes";
 import type { Compositor, CreateCompositor, FrameState, LayerState } from "./gl/contract";
+import { heroProgress } from "./gl/hero/spring";
 
 const WINDOW = "[data-stage-window]";
 const FALLBACK_FRAME: PlateFrame = {
@@ -561,6 +562,8 @@ export class StageRuntime {
             ? { x: lr.left, y: lr.top, w: lr.width, h: lr.height, slug: slug as ShipClassSlug }
             : null,
         pin: pr ? { x: pr.left + pr.width / 2, y: pr.top + pr.height / 2 } : null,
+        scrolled: heroProgress(r.top, r.bottom - r.top),
+        rtl,
       };
     };
 
