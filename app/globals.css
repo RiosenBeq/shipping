@@ -713,6 +713,15 @@ a.lv-chip:hover {
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
 }
+/* Over page content the brand sits on the same glass as the nav pill (paint only: no box
+   changes, so no layout shift). */
+.hdr[data-floating="true"] .hdr__brand {
+  border-radius: 999px;
+  background: var(--hdr-glass);
+  box-shadow: inset 0 0 0 1px var(--hdr-glass-edge);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
 .hdr__nav {
   display: none;
   height: 46px;
@@ -910,7 +919,8 @@ a.lv-chip:hover {
       transform var(--dur-reveal) var(--ease-tide),
       color 0.5s var(--ease-tide);
   }
-  .hdr__glass {
+  .hdr__glass,
+  .hdr__brand {
     transition:
       background-color 0.5s var(--ease-tide),
       box-shadow 0.5s var(--ease-tide);

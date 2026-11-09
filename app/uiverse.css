@@ -1986,6 +1986,16 @@ a.ip-chip:hover {
   top: var(--ip-top);
   align-self: start;
 }
+/* At 320 px the panel's long button label ("Request Pressurised LPG tonnage") wraps rather
+   than widening the aside's grid track past the viewport. */
+.ip-article__aside {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ip-panel .lv-btn--block {
+  white-space: normal;
+  line-height: 1.2;
+  padding-block: 6px;
+}
 @media (max-width: 1180px) {
   .ip-article {
     grid-template-columns: minmax(0, 1fr) minmax(0, 280px);

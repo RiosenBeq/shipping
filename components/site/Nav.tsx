@@ -179,6 +179,9 @@ export function Nav({
   // without JavaScript) starts on the glass-navy pill; the effect below corrects it on scroll.
   const [ground, setGround] = useState<Ground>("dark");
   const [hidden, setHidden] = useState(false);
+  // Over page content (past the lead section): the brand gets the same glass as the pill so
+  // copy scrolling under the fixed header never shows through the wordmark.
+  const [floating, setFloating] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -242,6 +245,7 @@ export function Nav({
       const clearOf = lead
         ? lead.getBoundingClientRect().bottom + sy - header.offsetHeight
         : window.innerHeight * 0.6;
+      setFloating(sy >= Math.max(clearOf, 120));
       if (pinned.current.focus || pinned.current.lang || sy < Math.max(clearOf, 120)) {
         setHidden(false);
       } else if (dy > 6) setHidden(true);
@@ -359,6 +363,7 @@ export function Nav({
         className="hdr site-chrome print:hidden"
         data-ground={ground}
         data-hidden={hidden && !open ? "true" : undefined}
+        data-floating={floating ? "true" : undefined}
       >
         <Link
           href="/"
