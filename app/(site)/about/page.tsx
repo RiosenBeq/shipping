@@ -13,6 +13,7 @@ import { ABOUT_FAQ } from "@/lib/data/faqs";
 import { LOCALES } from "@/lib/i18n";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const PATH = "/about";
 const TITLE = "About LEVANTER — Tanker & LPG Shipbrokers";
@@ -197,7 +198,7 @@ export default function AboutPage() {
               <li key={title} className="ip-glass ip-service">
                 <div className="ip-service__top">
                   <span className="ip-icon">
-                    <Icon aria-hidden="true" />
+                    <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
                   </span>
                   <span className="t-data" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}

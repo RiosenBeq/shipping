@@ -19,6 +19,7 @@ import {
 import { HORMUZ_NOTE_PATH } from "@/lib/data/research";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const PATH = "/compliance";
 const TITLE = "Sanctions & Compliance Screening for Charters";
@@ -80,7 +81,11 @@ export default function CompliancePage() {
             <BtnLabel>Send an inquiry</BtnLabel>
           </Link>
           <a href={`mailto:${siteConfig.email}`} className="lv-btn lv-btn--ghost gap-2.5">
-            <Mail aria-hidden="true" className="h-[17px] w-[17px]" />
+            <Mail
+              aria-hidden="true"
+              className="h-[17px] w-[17px]"
+              strokeWidth={ICON_STROKE.inline}
+            />
             <span>Email the desk</span>
           </a>
         </div>
@@ -106,7 +111,7 @@ export default function CompliancePage() {
                 <li key={s.title} className="ip-panel">
                   <div className="flex items-center justify-between">
                     <span className="ip-icon">
-                      <Icon aria-hidden="true" />
+                      <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
                     </span>
                     <span className="t-data" aria-hidden="true">
                       {String(i + 1).padStart(2, "0")}

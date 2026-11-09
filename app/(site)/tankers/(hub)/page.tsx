@@ -19,6 +19,7 @@ import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { TANKERS_FAQ } from "@/lib/data/faqs";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const TITLE = "Tanker Broker — Crude & Product Tanker Chartering";
 const DESCRIPTION =
@@ -130,7 +131,7 @@ export default function TankersPage() {
             </Link>
             {/* labelled like the class pages; the address is printed in the letter and footer */}
             <a href={`mailto:${siteConfig.desks.tankers.email}`} className="lv-btn lv-btn--ghost">
-              <Mail aria-hidden="true" />
+              <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>
                 Email the tanker desk
                 <span className="sr-only"> ({siteConfig.desks.tankers.email})</span>
@@ -203,7 +204,7 @@ export default function TankersPage() {
               <li key={title} className="ip-glass ip-service">
                 <div className="ip-service__top">
                   <span className="ip-icon">
-                    <Icon aria-hidden="true" />
+                    <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
                   </span>
                   <span className="t-data" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}

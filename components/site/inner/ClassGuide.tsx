@@ -17,6 +17,7 @@ import type { StillKey } from "@/lib/media";
 import type { Crumb } from "@/lib/seo";
 import { Toc, TocMobile } from "./Toc";
 import { BtnLabel, Glows, LinkArrow, StillFigure, Sub } from "./ui";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Route = { code: string; lane: string; note: string; hormuz?: boolean };
 
@@ -289,7 +290,7 @@ export function ClassGuide(p: ClassGuideProps) {
               <span className="t-label">Next class</span>
               <span className="ip-next__name">
                 {p.next.name}
-                <ArrowUpRight aria-hidden="true" />
+                <ArrowUpRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
               </span>
             </Link>
           </nav>

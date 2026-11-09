@@ -66,6 +66,11 @@ function ReachMap({ view }: { view: HomeView }) {
             <path key={i} d={arc(ist, pt(lon, lat))} pathLength={1} style={{ "--i": i } as Style} />
           ))}
         </g>
+        <g className="h-map__pulses">
+          {LANES.map(([lon, lat], i) => (
+            <path key={i} d={arc(ist, pt(lon, lat))} pathLength={1} style={{ "--i": i } as Style} />
+          ))}
+        </g>
         <g className="h-map__pins">
           {LANES.map(([lon, lat], i) => {
             const [x, y] = pt(lon, lat);
@@ -84,6 +89,11 @@ function ReachMap({ view }: { view: HomeView }) {
         <g className="h-map__lanes">
           {LANES.slice(0, 4).map(([lon, lat], i) => (
             <path key={i} d={arc(ist, pt(lon, lat))} />
+          ))}
+        </g>
+        <g className="h-map__pulses">
+          {LANES.slice(0, 4).map(([lon, lat], i) => (
+            <path key={i} d={arc(ist, pt(lon, lat))} pathLength={1} style={{ "--i": i } as Style} />
           ))}
         </g>
         <circle className="h-map__ist" cx={ist[0]} cy={ist[1]} r=".7" />

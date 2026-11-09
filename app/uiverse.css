@@ -1761,7 +1761,6 @@ a.ip-chip:hover {
 .ip-icon svg {
   width: 20px;
   height: 20px;
-  stroke-width: 1.6;
 }
 .ip-services {
   display: grid;
@@ -2719,7 +2718,6 @@ a.ip-chip:hover {
 .ip-iconbtn svg {
   width: 17px;
   height: 17px;
-  stroke-width: 1.7;
 }
 .ip-broker__mail {
   flex: 1 1 12em;

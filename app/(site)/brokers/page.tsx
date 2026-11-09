@@ -11,6 +11,7 @@ import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import brokersFile from "@/content/brokers.json";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** name → slug (content/brokers.json): card anchors for the blog's /brokers#slug bylines. */
 const SLUG = new Map(brokersFile.brokers.map((b) => [b.name.name, b.name.slug]));
@@ -84,7 +85,11 @@ export default function BrokersPage() {
                     <span className="sr-only"> brokers</span>
                   </b>
                   {/* in-page jump: the arrow says it's a link */}
-                  <ArrowDown className="h-3 w-3 text-brass-light" aria-hidden="true" />
+                  <ArrowDown
+                    className="h-3 w-3 text-brass-light"
+                    aria-hidden="true"
+                    strokeWidth={ICON_STROKE.cta}
+                  />
                 </a>
               </li>
             ))}
@@ -147,7 +152,11 @@ export default function BrokersPage() {
                       href={`mailto:${desk.email}`}
                       className="lv-btn lv-btn--ghost lv-btn--sm gap-2.5"
                     >
-                      <Mail aria-hidden="true" className="h-4 w-4" />
+                      <Mail
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                        strokeWidth={ICON_STROKE.inline}
+                      />
                       <span>
                         Email the desk<span className="sr-only"> ({desk.email})</span>
                       </span>

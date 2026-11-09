@@ -1,0 +1,130 @@
+/* ==========================================================================
+   Patterns shared by every page (the polish round, DESIGN-V2 §4–5): ideas seen in
+   free collections — Magic UI (MIT) above all — re-implemented on LEVANTER's tokens,
+   with no third-party code and no animation runtime (docs/UI-CREDITS.md).
+
+   P1  spotlight glass on night cards       (Spotlight.tsx writes --mx / --my)
+   P2  the light ribbon round the duty line (DutyRibbon.tsx)
+   P10 paper grain on paper cards
+
+   Rules: glass and glow on night grounds only, never on paper (§16); every loop stops
+   under prefers-reduced-motion and under html[data-motion="paused"] (Pause motion,
+   WCAG 2.2.2); nothing here prints.
+   ========================================================================== */
+
+/* ---- P1 · spotlight glass (idea: Magic UI "magic card") -------------------
+   A brass glow under the pointer and a brighter 1px ring near it, on the night glass:
+   the ships rail's class cards, the team strip, and the inner pages' `.ip-glass`
+   (services, broker cards, the 404's links) — not the duty box, which has the ribbon.
+   Both layers sit under the card's content (isolation + z-index −1). Fine pointers
+   only; touch screens get a still glow in the top-right corner (§4.1). */
+:is(.ship-card, .member, .ip-glass:not(.ip-duty)) {
+  --mx: 85%;
+  --my: 0%;
+  isolation: isolate;
+}
+:is(.ship-card, .member, .ip-glass:not(.ip-duty))::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    rgba(217, 176, 113, 0.2),
+    rgba(217, 176, 113, 0.06) 45%,
+    transparent 70%
+  );
+  opacity: 0.55;
+  transition: opacity var(--dur-reveal, 420ms) var(--ease-tide, ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.ship-card, .member, .ip-glass:not(.ip-duty))::after {
+    opacity: 0;
+  }
+  :is(.ship-card, .member, .ip-glass:not(.ip-duty))::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      200px circle at var(--mx) var(--my),
+      rgba(217, 176, 113, 0.78),
+      rgba(243, 239, 228, 0.12) 60%,
+      transparent
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity var(--dur-reveal, 420ms) var(--ease-tide, ease);
+  }
+  :is(.ship-card, .member, .ip-glass:not(.ip-duty)):hover::after,
+  :is(.ship-card, .member, .ip-glass:not(.ip-duty)):hover::before {
+    opacity: 1;
+  }
+}
+
+/* ---- P2 · the duty line's ribbon (idea: Magic UI "border beam") -----------
+   The site's own light ribbon (the ships' waterline motif: brass-white dash, glow,
+   `stage-ribbon`) travelling round the after-hours duty box. An SVG rect with
+   pathLength 100 rather than offset-path (Safari 18+). One per page. Reduced motion:
+   none (the box keeps its still hairline); Pause motion holds it where it is. */
+.duty-ribbon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.duty-ribbon rect {
+  x: 0.75px;
+  y: 0.75px;
+  width: calc(100% - 1.5px);
+  height: calc(100% - 1.5px);
+  rx: calc(var(--r-duty, 14px) - 0.75px);
+  fill: none;
+  stroke: #f6e3b4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 10 90;
+  filter: drop-shadow(0 0 2.5px rgba(217, 176, 113, 0.9));
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .duty-ribbon rect {
+    opacity: 1;
+    animation: stage-ribbon 7s linear infinite;
+  }
+}
+html[data-motion="paused"] .duty-ribbon rect {
+  animation-play-state: paused;
+}
+
+/* ---- P10 · paper grain (idea: Magic UI "noise texture") -------------------
+   A still, tiled grey noise soft-lit into the sand of every paper card: grain without a
+   tint, and centred on the sand (sRGB filter maths, so the noise averages mid-grey). Measured
+   on rendered pixels: mean colour = flat sand (243,239,228), σ ≈ 0.9 levels; brass-ink on it
+   4.67:1 mean, 4.61:1 at the darkest 5% (flat sand: 4.66:1). */
+.stage-card--paper {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='.45' intercept='.3'/><feFuncG type='linear' slope='.45' intercept='.3'/><feFuncB type='linear' slope='.45' intercept='.3'/><feFuncA type='table' tableValues='1 1'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  background-size: 240px 240px;
+  background-blend-mode: soft-light;
+}
+
+@media print {
+  :is(.ship-card, .member, .ip-glass)::before,
+  :is(.ship-card, .member, .ip-glass)::after,
+  .duty-ribbon {
+    display: none !important;
+  }
+}

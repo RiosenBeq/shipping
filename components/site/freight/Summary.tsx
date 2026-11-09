@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowDown, Check, Link2, Printer } from "lucide-react";
 import { BtnLabel } from "@/components/site/inner/btn";
+import { FlowNumber, useSettled } from "@/components/site/inner/FlowNumber";
 import { fmtDays, fmtNum, fmtUsd, fmtUsdShort } from "@/lib/freight/format";
 import type { Resolved } from "@/lib/freight/state";
 import type { VoyageResult } from "@/lib/freight/types";
 import { cn } from "@/lib/utils";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Actions = {
   askHref: string;
@@ -39,6 +41,12 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
   const reverse = r.basis === "tce";
   const m = e.money;
   const dim = !e.complete;
+  // The headline, the voyage result and the days roll (NumberFlow) once typing pauses.
+  const tce = useSettled(m.tce);
+  const perTonne = useSettled(m.perTonne);
+  const head = reverse ? perTonne : tce;
+  const result = useSettled(m.result);
+  const days = useSettled(e.days.total);
 
   // The live region speaks after a pause, not on every keystroke.
   const text = sentence(r, e);
@@ -57,17 +65,12 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
       </p>
       {/* Incomplete: no headline figure (a half-entered voyage gives a misleading one). */}
       <p className={cn("fc-sum__figure tnum", dim && "is-dim")} aria-hidden="true">
-        {reverse ? (
-          <>
-            {dim || m.perTonne === null ? "—" : fmtUsd(m.perTonne, 2)}
-            <small>/t</small>
-          </>
+        {dim || head === null ? (
+          "—"
         ) : (
-          <>
-            {dim ? "—" : perDay(m.tce)}
-            <small>/day</small>
-          </>
+          <FlowNumber value={head} unit="$" digits={reverse ? 2 : 0} fixed />
         )}
+        <small>{reverse ? "/t" : "/day"}</small>
       </p>
       <p className="fc-sum__sub tnum" aria-hidden="true">
         {dim
@@ -83,12 +86,14 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
       <dl className={cn("fc-sum__rows tnum", dim && "is-dim")}>
         <div>
           <dt>Voyage result</dt>
-          <dd className={m.result < 0 ? "is-neg" : undefined}>{fmtUsd(m.result)}</dd>
+          <dd className={m.result < 0 ? "is-neg" : undefined}>
+            <FlowNumber value={result} unit="$" />
+          </dd>
         </div>
         <div>
           <dt>Total time</dt>
           <dd>
-            {fmtDays(e.days.total)} days
+            <FlowNumber value={days} digits={1} fixed /> days
             <small>
               sea {fmtDays(e.days.sea)} · port {fmtDays(e.days.port)} · idle{" "}
               {fmtDays(e.days.waiting + e.days.passages + e.days.demurrage)}
@@ -138,13 +143,13 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
         <ul className="fc-sum__notes">
           {e.issues.map((t) => (
             <li key={t} className="is-issue">
-              <AlertCircle aria-hidden="true" />
+              <AlertCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>{t}</span>
             </li>
           ))}
           {[...r.warnings, ...e.warnings].map((t) => (
             <li key={t}>
-              <AlertCircle aria-hidden="true" />
+              <AlertCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>{t}</span>
             </li>
           ))}
@@ -165,7 +170,11 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
             className="lv-btn lv-btn--ghost lv-btn--sm"
             onClick={actions.onCopy}
           >
-            {actions.copied ? <Check aria-hidden="true" /> : <Link2 aria-hidden="true" />}
+            {actions.copied ? (
+              <Check aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
+            ) : (
+              <Link2 aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
+            )}
             <span>{actions.copied ? "Link copied" : "Copy link"}</span>
           </button>
           <button
@@ -173,7 +182,7 @@ export function Summary({ r, e, actions }: { r: Resolved; e: VoyageResult; actio
             className="lv-btn lv-btn--ghost lv-btn--sm"
             onClick={actions.onPrint}
           >
-            <Printer aria-hidden="true" />
+            <Printer aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
             <span>Print / PDF</span>
           </button>
         </div>
@@ -212,7 +221,7 @@ export function PhoneBar({ r, e }: { r: Resolved; e: VoyageResult }) {
       </div>
       <a href="#fc-summary" tabIndex={-1} className="fc-bar__go">
         Results
-        <ArrowDown aria-hidden="true" />
+        <ArrowDown aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
       </a>
     </div>
   );

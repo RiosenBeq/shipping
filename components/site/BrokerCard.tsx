@@ -3,6 +3,7 @@ import { Mail, MessageCircle } from "lucide-react";
 import { TEAM_LABEL, type Broker } from "@/lib/data/brokers";
 import { siteConfig, whatsappUrl } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** WCAG relative luminance of a #rrggbb colour. */
 function luminance(hex: string) {
@@ -94,7 +95,7 @@ export function BrokerCard({
             href={`mailto:${deskEmail}?subject=${encodeURIComponent(`Attn ${broker.name}`)}`}
             className="ip-iconbtn"
           >
-            <Mail aria-hidden="true" />
+            <Mail aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
             <span className="sr-only">Email {broker.name}</span>
           </a>
           <a
@@ -103,7 +104,7 @@ export function BrokerCard({
             rel="noopener"
             className="ip-iconbtn"
           >
-            <MessageCircle aria-hidden="true" />
+            <MessageCircle aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
             <span className="sr-only">WhatsApp {broker.name} (opens in a new tab)</span>
           </a>
           <p className="ip-broker__mail m-0">

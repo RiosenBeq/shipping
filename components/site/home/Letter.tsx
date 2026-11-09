@@ -3,6 +3,7 @@ import { PauseMotion, StageAperture, StageWindow, calm } from "@/components/site
 import { Arrow, BtnArrow, Stamp } from "./icons";
 import { OfficeClock } from "./OfficeClock";
 import type { HomeView } from "./types";
+import { DutyRibbon } from "@/components/site/DutyRibbon";
 
 /**
  * 9 · Contact — the letter (DESIGN-V2 §7.9): a window on the night plate.
@@ -62,6 +63,7 @@ export function Letter({ view, id }: { view: HomeView; id: string }) {
             ))}
           </ul>
           <a className="h-duty" href={letter.duty.href} target="_blank" rel="noopener">
+            <DutyRibbon />
             <i aria-hidden="true" />
             <span>
               <b>{letter.duty.title}</b>

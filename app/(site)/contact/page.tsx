@@ -19,6 +19,8 @@ import { Card, PauseMotion, StageProvider, StageWindow, calm } from "@/component
 import { buildPageMetadata, localBusinessLd, webPageLd } from "@/lib/seo";
 import { dutyWhatsappUrl, siteConfig, telUrl, whatsappUrl } from "@/lib/site";
 import { CopyButton, InquiryForm } from "./InquiryForm";
+import { ICON_STROKE } from "@/components/site/iconStroke";
+import { DutyRibbon } from "@/components/site/DutyRibbon";
 
 const TITLE = "Contact — Send a Tanker or LPG Charter Inquiry";
 const DESCRIPTION =
@@ -124,7 +126,7 @@ export default function ContactPage() {
                   { Icon: Ship, text: "Tankers, LPG and ammonia" },
                 ].map(({ Icon, text }) => (
                   <li key={text}>
-                    <Icon aria-hidden="true" />
+                    <Icon aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                     {text}
                   </li>
                 ))}
@@ -167,12 +169,13 @@ export default function ContactPage() {
                         <span className="t-label">{l.label}</span>
                         <b dir="ltr">{l.value}</b>
                       </span>
-                      <ArrowRight aria-hidden="true" />
+                      <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
                     </a>
                   </li>
                 ))}
               </ul>
               <div className="ip-duty ip-glass">
+                <DutyRibbon />
                 <span className="ip-duty__dot" aria-hidden="true" />
                 <p>
                   <b>{siteConfig.duty.label}</b>
@@ -215,19 +218,19 @@ export default function ContactPage() {
                 <ul className="ip-chips mt-6 lg:!hidden" aria-label="Or contact us directly">
                   <li>
                     <a href={telUrl()} className={LINK_CHIP}>
-                      <Phone aria-hidden="true" />
+                      <Phone aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                       Call<span className="sr-only"> {siteConfig.phone}</span>
                     </a>
                   </li>
                   <li>
                     <a href={whatsappUrl()} target="_blank" rel="noopener" className={LINK_CHIP}>
-                      <MessageCircle aria-hidden="true" />
+                      <MessageCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                       WhatsApp<span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   </li>
                   <li>
                     <a href={`mailto:${siteConfig.email}`} className={LINK_CHIP}>
-                      <Mail aria-hidden="true" />
+                      <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                       Email<span className="sr-only"> {siteConfig.email}</span>
                     </a>
                   </li>
@@ -253,7 +256,7 @@ export default function ContactPage() {
                       className="flex items-center gap-4 border-t border-[var(--hair)] px-4 py-4 first:border-t-0 sm:px-5"
                     >
                       <span className="ip-icon !h-10 !w-10" aria-hidden="true">
-                        <Icon className="!h-[18px] !w-[18px]" />
+                        <Icon className="!h-[18px] !w-[18px]" strokeWidth={ICON_STROKE.inline} />
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] leading-snug text-slate">{label}</p>
@@ -272,7 +275,11 @@ export default function ContactPage() {
                   ))}
                 </ul>
                 <p className="mt-4 flex items-start gap-2.5 text-sm leading-relaxed text-slate">
-                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-brass-ink" aria-hidden="true" />
+                  <Clock
+                    className="mt-0.5 h-4 w-4 shrink-0 text-brass-ink"
+                    aria-hidden="true"
+                    strokeWidth={ICON_STROKE.inline}
+                  />
                   {siteConfig.hours}
                 </p>
               </section>
@@ -297,7 +304,11 @@ export default function ContactPage() {
                 </ul>
                 <OfficeClocks offices={siteConfig.offices} className="mt-4" />
                 <address className="mt-6 flex gap-3 text-sm not-italic leading-relaxed text-slate">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brass-ink" aria-hidden="true" />
+                  <MapPin
+                    className="mt-0.5 h-4 w-4 shrink-0 text-brass-ink"
+                    aria-hidden="true"
+                    strokeWidth={ICON_STROKE.inline}
+                  />
                   <span>
                     <span className="font-semibold text-navy">{siteConfig.legalEntity}</span>
                     <br />

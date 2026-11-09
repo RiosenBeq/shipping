@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, RotateCcw } from "lucide-react";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** The P-bathy static (lib/media.ts proceduralStatics.bathy), inlined: this is a client view. */
 const BATHY = {
@@ -87,12 +88,16 @@ export function ErrorView({
           >
             <span>{retrying ? "Retrying…" : "Try again"}</span>
             <span className="lv-btn__arrow" aria-hidden="true">
-              {retrying ? <span className="uv-loader uv-loader--sm" /> : <RotateCcw />}
+              {retrying ? (
+                <span className="uv-loader uv-loader--sm" />
+              ) : (
+                <RotateCcw strokeWidth={ICON_STROKE.inline} />
+              )}
             </span>
           </button>
           <Link href="/" className="lv-btn lv-btn--ghost gap-2.5">
             Back to home
-            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4" strokeWidth={ICON_STROKE.cta} />
           </Link>
         </div>
 

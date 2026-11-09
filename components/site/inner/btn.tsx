@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /*
  * Button and link arrows, in a module of their own: client components (the freight
@@ -11,7 +12,7 @@ export function BtnLabel({ children }: { children: React.ReactNode }) {
     <>
       <span>{children}</span>
       <span className="lv-btn__arrow" aria-hidden="true">
-        <ArrowRight />
+        <ArrowRight strokeWidth={ICON_STROKE.cta} />
       </span>
     </>
   );
@@ -19,5 +20,5 @@ export function BtnLabel({ children }: { children: React.ReactNode }) {
 
 /** Inline arrow for `.lv-link` text links: `<a className="lv-link"><span>…</span><LinkArrow/></a>`. */
 export function LinkArrow() {
-  return <ArrowRight aria-hidden="true" />;
+  return <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />;
 }

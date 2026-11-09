@@ -8,6 +8,7 @@ import { Arrow, WhatsAppGlyph } from "./icons";
 import { TeamStrip } from "./TeamStrip";
 import { Lines } from "./text";
 import type { HomeView } from "./types";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** A glass portrait card: photo or a navy portrait with brass initials, name, role, desk, two actions. */
 function Member({ broker, view }: { broker: Broker; view: HomeView }) {
@@ -34,7 +35,7 @@ function Member({ broker, view }: { broker: Broker; view: HomeView }) {
           className="member__btn"
           href={`mailto:${deskEmail}?subject=${encodeURIComponent(`Attn ${broker.name}`)}`}
         >
-          <Mail aria-hidden="true" strokeWidth={1.6} />
+          <Mail aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
           <span className="sr-only">{team.email.replace("{name}", broker.name)}</span>
         </a>
         <a
@@ -43,7 +44,7 @@ function Member({ broker, view }: { broker: Broker; view: HomeView }) {
           target="_blank"
           rel="noopener"
         >
-          <WhatsAppGlyph />
+          <WhatsAppGlyph weight="ring" />
           <span className="sr-only">
             {team.whatsapp.replace("{name}", broker.name)} {view.newTab}
           </span>

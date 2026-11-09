@@ -7,6 +7,7 @@ import { Arrow } from "./icons";
 import { PINNED_QUERY } from "./HomeMotion";
 import { TypeTitle } from "./text";
 import type { LinkItem, SplitMode } from "./types";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 export type DeskRow = {
   title: string;
@@ -177,7 +178,7 @@ export function DeskRows({
                 >
                   <TypeTitle text={r.title} mode={mode} />
                   <span className="drow__plus" aria-hidden="true">
-                    <Plus strokeWidth={1.6} />
+                    <Plus strokeWidth={ICON_STROKE.inline} />
                   </span>
                 </button>
               </h3>

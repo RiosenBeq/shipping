@@ -20,6 +20,7 @@ import type { StillKey } from "@/lib/media";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { VESSEL_BY_CLASS, inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Params = { params: { class: string } };
 
@@ -146,7 +147,7 @@ export default function TankerClassPage({ params }: Params) {
               href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent(`${t.shortName} inquiry`)}`}
               className="lv-btn lv-btn--ghost"
             >
-              <Mail aria-hidden="true" />
+              <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>Email the tanker desk</span>
             </a>
             <Link href={`${FREIGHT_PATH}?class=${t.slug}`} className="lv-link">
