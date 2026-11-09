@@ -12,7 +12,9 @@ export function FocusStrip(props: ComponentPropsWithoutRef<"ul">) {
     <ul
       {...props}
       onFocus={(e) => {
-        (e.target as Element).closest("li")?.scrollIntoView({ block: "nearest", inline: "nearest" });
+        (e.target as Element)
+          .closest("li")
+          ?.scrollIntoView({ block: "nearest", inline: "nearest" });
       }}
     />
   );
