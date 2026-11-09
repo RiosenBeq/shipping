@@ -24,8 +24,9 @@ export type RailEvents = {
  * Embla Carousel 8.6.0 + the wheel-gestures plugin 8.1.0 (both MIT, © David Jerleke /
  * © Felix Leupold) on the ships rail, loaded after idle and only where `DESKTOP_RAIL` matches:
  * inertia and fling on mouse drags, rubber-band ends, horizontal trackpad swipes (vertical
- * page scrolling is never taken). Its chunk (≈10.7 kB gz) is a dynamic import, so the
- * homepage's first-load JS does not change and phones never download it.
+ * page scrolling is never taken). Everything Embla — the libraries and the wiring
+ * (`rail-embla.ts`) — is one dynamic import (≈11 kB gz), so phones never download it and the
+ * homepage's first load only carries this small scheduler.
  *
  * `viewport` is the carousel root; its first child (the `ul`) is the container, its `li`s the
  * slides, so list semantics and the crawlable card links are untouched. While Embla runs the
@@ -44,46 +45,12 @@ export function useDesktopRail(viewport: React.RefObject<HTMLElement>, events: R
     let dead = false;
     let idle = 0;
 
-    const report = (a: EmblaCarouselType) =>
-      on.current.scroll?.(a.scrollProgress(), !a.canScrollPrev(), !a.canScrollNext());
-
     const start = async () => {
       if (api || dead || !mq.matches) return;
-      const [{ default: Embla }, { WheelGesturesPlugin }] = await Promise.all([
-        import("embla-carousel"),
-        import("embla-carousel-wheel-gestures"),
-      ]);
+      const { mountRail } = await import("./rail-embla");
       if (dead || api || !mq.matches) return;
-      const track = root.firstElementChild as HTMLElement | null;
-      if (!track) return;
-      track.scrollLeft = 0; // leave native mode cleanly
-      root.dataset.rail = "embla";
-      api = Embla(
-        root,
-        {
-          align: "start",
-          // A snap per card (so the snapped index is the card's), contained at both ends.
-          containScroll: "keepSnaps",
-          direction: getComputedStyle(root).direction === "rtl" ? "rtl" : "ltr",
-          // Attraction physics, not ms (docs: 20–60): tuned by eye against the 640ms tide.
-          duration: 32,
-          skipSnaps: true,
-        },
-        [WheelGesturesPlugin()]
-      );
-      api.on("select", (a) => on.current.select?.(a.selectedScrollSnap()));
-      api.on("scroll", report);
-      api.on("reInit", report);
-      api.on("pointerDown", () => {
-        root.dataset.dragging = "";
-      });
-      api.on("pointerUp", () => {
-        delete root.dataset.dragging;
-      });
-      report(api);
-      on.current.api?.(api);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (process.env.NODE_ENV !== "production") (window as any).__rail = api; // DEBUG-RAIL
+      api = mountRail(root, on);
+      if (api) on.current.api?.(api);
     };
     const stop = () => {
       if (!api) return;

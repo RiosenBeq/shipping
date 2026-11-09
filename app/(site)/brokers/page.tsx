@@ -96,25 +96,27 @@ export default function BrokersPage() {
           </ul>
         </nav>
         {/* The team strip (GNB): every broker, a jump to their card below. */}
-        <ul className="ip-strip" aria-label="The team">
-          {TEAM_ORDER.flatMap((team) => brokersByTeam(team)).map((b) => (
-            <li key={b.name}>
-              <a href={`#${SLUG.get(b.name) ?? ""}`} className="ip-strip__item ip-glass">
-                <span
-                  className="ip-strip__av"
-                  aria-hidden="true"
-                  style={{ background: b.color, color: initialsColor(b.color) }}
-                >
-                  {b.initials}
-                </span>
-                <span className="min-w-0">
-                  <b>{b.name}</b>
-                  <small>{b.title}</small>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="ip-strip-wrap">
+          <ul className="ip-strip" aria-label="The team">
+            {TEAM_ORDER.flatMap((team) => brokersByTeam(team)).map((b) => (
+              <li key={b.name}>
+                <a href={`#${SLUG.get(b.name) ?? ""}`} className="ip-strip__item ip-glass">
+                  <span
+                    className="ip-strip__av"
+                    aria-hidden="true"
+                    style={{ background: b.color, color: initialsColor(b.color) }}
+                  >
+                    {b.initials}
+                  </span>
+                  <span className="min-w-0">
+                    <b>{b.name}</b>
+                    <small>{b.title}</small>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </PageHeader>
 
       {/* The desks on night glass (DESIGN-V2 §10: BrokerCard as glass portrait cards). */}

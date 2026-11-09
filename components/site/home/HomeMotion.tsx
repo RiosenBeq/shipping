@@ -88,15 +88,16 @@ export function HomeMotion() {
           strips.forEach((st) => st.style.setProperty("--v", st.dataset.to ?? "0"))
         )
       );
-      // Back to plain text once the last digit has landed (crisp, and as served).
-      const done = window.setTimeout(
-        () => {
-          el.classList.remove("odo");
-          el.textContent = value;
-        },
-        COUNT_MS + strips.length * DIGIT_STAGGER + 120
-      );
-      timeouts.add(done);
+      // Back to plain text once the last digit has landed (crisp, and as served); a timeout
+      // in case the transition never ends (tab hidden, element removed).
+      const last = strips[strips.length - 1];
+      const land = () => {
+        last.removeEventListener("transitionend", land);
+        el.classList.remove("odo");
+        el.textContent = value;
+      };
+      last.addEventListener("transitionend", land);
+      timeouts.add(window.setTimeout(land, 2 * COUNT_MS + strips.length * DIGIT_STAGGER));
     };
 
     const enter = (el: HTMLElement) => {

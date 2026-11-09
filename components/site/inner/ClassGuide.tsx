@@ -281,6 +281,7 @@ export function ClassGuide(p: ClassGuideProps) {
                 <li key={o.href}>
                   <Link href={o.href}>
                     <b>{o.name}</b>
+                    <ArrowUpRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
                     <span>{o.size}</span>
                   </Link>
                 </li>

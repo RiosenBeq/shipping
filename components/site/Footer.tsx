@@ -9,6 +9,8 @@ import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { shippedVideos, videos } from "@/lib/media";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { StraitChart } from "./footer/StraitChart";
+import strait from "./footer/strait.module.css";
 
 /** The huge footer menu (§9). */
 const MENU = [
@@ -79,6 +81,8 @@ function offices() {
  * the left, the huge menu on the right; ship classes, reading, languages and
  * the legal row (with Pause motion) below; the stern nameplate — LEVANTER over
  * ISTANBUL, as a ship's name and port are painted on her transom — at the foot.
+ * "Strait transit" (./footer): a night chart of the Bosphorus in the left column on
+ * desktop (the menu and the brand block move right), after the menu on phones.
  *
  * On pages without the stage (or whose stage does not list V-ocean) the
  * footer shows the graded ocean poster itself.
@@ -123,7 +127,7 @@ export function Footer() {
       <span className="ftr__glow" aria-hidden="true" />
 
       <div className="ftr__inner">
-        <div className="ftr__grid">
+        <div className={`ftr__grid ${strait.grid}`}>
           <nav aria-label="Footer" className="ftr__menu-wrap">
             <ul className="ftr__menu">
               {MENU.map((m) => (
@@ -136,6 +140,9 @@ export function Footer() {
               ))}
             </ul>
           </nav>
+          {/* "Strait transit": the night chart of the Bosphorus (left column on desktop; after
+              the menu on phones). */}
+          <StraitChart />
           {/* A calm zone: the brand line and the offices' small type over the ocean's crests. */}
           <div className="ftr__brand-col" {...calm(0.5)}>
             <Link href="/" className="ftr__brand" aria-label="LEVANTER home">

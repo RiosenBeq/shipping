@@ -206,6 +206,9 @@ export type Station = {
   e: Pt;
   /** Shore to shore along the normal, km (uncapped when both shores are hit). */
   width: number;
+  /** Distance to the nearest European and Asian shore point, km. */
+  dw: number;
+  de: number;
 };
 
 /** Half-width cap at the open ends (Marmara, Black Sea) and across inlets, km. */
@@ -216,32 +219,53 @@ export const STATION_STEP = 0.2;
 const EU_KM: Pt[] = EUROPE.map((p) => toKm(p));
 const AS_KM: Pt[] = ASIA.map((p) => toKm(p));
 
+/** Nearest point on a polyline. */
+export function nearestOn(p: Pt, line: Pt[]): Pt {
+  let best: Pt = line[0];
+  let bd = Infinity;
+  for (let i = 1; i < line.length; i++) {
+    const a = line[i - 1];
+    const ab = sub(line[i], a);
+    const l2 = ab[0] * ab[0] + ab[1] * ab[1];
+    const t = l2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * ab[0] + (p[1] - a[1]) * ab[1]) / l2)) : 0;
+    const q = add(a, mul(ab, t));
+    const d = len(sub(p, q));
+    if (d < bd) {
+      bd = d;
+      best = q;
+    }
+  }
+  return best;
+}
+
 /**
  * The channel: stations every 200 m from the Marmara approach to the Black Sea. The guide line
- * is re-centred between the shores four times (each pass moves every station to the midpoint
- * of its normal's shore hits, then smooths), so the centreline follows the real channel through
- * the bends.
+ * is re-centred between the shores three times — each station moves to the midpoint of the
+ * nearest European and nearest Asian shore point (a medial line, robust through the bends; at
+ * the open ends a shore further than 1.5 km counts as 1.5 km), then the line is lightly smoothed
+ * and resampled. Widths are measured along each station's normal.
  */
 export function channel(): Station[] {
   let c = resample(sampleBeziers(catmullRom(GUIDE.map((p) => toKm(p))), 12), STATION_STEP);
-  const hits = (q: Pt[]) =>
-    q.map((ci, i) => {
-      const t = tangent(q, i);
-      const left: Pt = [-t[1], t[0]]; // west of a northbound heading
-      const right: Pt = [t[1], -t[0]];
-      const w = rayHit(ci, left, EU_KM, 6);
-      const e = rayHit(ci, right, AS_KM, 6);
-      return { ci, left, right, w, e };
+  for (let pass = 0; pass < 3; pass++) {
+    const moved = c.map((ci) => {
+      const capped = (q: Pt) => {
+        const d = sub(q, ci);
+        const l = len(d);
+        return l > MAX_HALF ? add(ci, mul(d, MAX_HALF / l)) : q;
+      };
+      const w = capped(nearestOn(ci, EU_KM));
+      const e = capped(nearestOn(ci, AS_KM));
+      return lerp(w, e, 0.5);
     });
-  for (let pass = 0; pass < 4; pass++) {
-    const moved = hits(c).map(({ ci, right, w, e }) => {
-      const hw = Math.min(w ? len(sub(w, ci)) : MAX_HALF, MAX_HALF);
-      const he = Math.min(e ? len(sub(e, ci)) : MAX_HALF, MAX_HALF);
-      return add(ci, mul(right, (he - hw) / 2));
-    });
-    c = resample(smooth(moved, 4), STATION_STEP);
+    c = resample(smooth(moved, 2), STATION_STEP);
   }
-  const st = hits(c).map(({ ci, left, right, w, e }) => {
+  const st = c.map((ci, i) => {
+    const t = tangent(c, i);
+    const left: Pt = [-t[1], t[0]]; // west of a northbound heading
+    const right: Pt = [t[1], -t[0]];
+    const w = rayHit(ci, left, EU_KM, 6);
+    const e = rayHit(ci, right, AS_KM, 6);
     const hw = Math.min(w ? len(sub(w, ci)) : MAX_HALF, MAX_HALF);
     const he = Math.min(e ? len(sub(e, ci)) : MAX_HALF, MAX_HALF);
     return {
@@ -249,6 +273,8 @@ export function channel(): Station[] {
       w: add(ci, mul(left, hw)),
       e: add(ci, mul(right, he)),
       width: w && e ? len(sub(e, w)) : hw + he,
+      dw: len(sub(nearestOn(ci, EU_KM), ci)),
+      de: len(sub(nearestOn(ci, AS_KM), ci)),
     };
   });
   // Shore points jump where a normal slips into an inlet; the streak frame wants them calm.
@@ -263,13 +289,18 @@ export function channel(): Station[] {
   return st.map((s, i) => ({ ...s, w: ws[i], e: es[i] }));
 }
 
-/** Lane centre lines (km): northbound keeps to the Asian side, southbound to the European. */
+/**
+ * Lane centre lines (km): northbound keeps to the Asian side, southbound to the European — half
+ * way to that side's shore along the normal, at most 420 m out, and never past half the distance
+ * to the nearest point of that shore (a cape such as Kandilli).
+ */
 export function lanes(st: Station[]) {
   const lane = (side: "w" | "e") =>
     smooth(
       st.map((s) => {
         const half = len(sub(s[side], s.c));
-        const off = Math.min(0.48 * half, 0.42);
+        const near = side === "w" ? s.dw : s.de;
+        const off = Math.min(0.48 * half, 0.42, 0.5 * near);
         return add(s.c, mul(norm(sub(s[side], s.c)), off));
       }),
       3
@@ -303,22 +334,44 @@ export function bridgeDeck(b: Bridge, over = 0.12): [Pt, Pt] {
 
 /* ---------- SVG path strings ---------- */
 
-const f = (n: number) => {
-  const r = Math.round(n * 10) / 10;
-  return Object.is(r, -0) ? "0" : String(r);
+/** Tenths of a px, as integers: paths are written from these so relative steps never drift. */
+const T = (n: number) => Math.round(n * 10);
+const num = (t: number) => {
+  const v = t / 10;
+  const s = String(v);
+  return s.startsWith("0.") ? s.slice(1) : s.startsWith("-0.") ? `-${s.slice(2)}` : s;
 };
-const P = (p: Pt) => `${f(p[0])} ${f(p[1])}`;
+/** Numbers joined with the fewest separators the path grammar allows. */
+const nums = (ts: number[]) =>
+  ts
+    .map(num)
+    .reduce((acc, n, i) => acc + (i && !n.startsWith("-") ? " " : "") + n, "");
 
-/** Polyline → smoothed cubic path. */
-export function smoothPath(p: Pt[]): string {
-  if (p.length < 2) return "";
-  const segs = catmullRom(p);
-  return `M${P(segs[0][0])}` + segs.map(([, b, c, d]) => `C${P(b)} ${P(c)} ${P(d)}`).join("");
+/** Cubic Bézier segments → compact relative path ("M… c… c…"), optionally closed through `close`. */
+export function bezierPath(segs: [Pt, Pt, Pt, Pt][], close: Pt[] = []): string {
+  if (!segs.length) return "";
+  let cx = T(segs[0][0][0]);
+  let cy = T(segs[0][0][1]);
+  let out = `M${nums([cx, cy])}`;
+  for (const [, b, c, d] of segs) {
+    const q = [T(b[0]), T(b[1]), T(c[0]), T(c[1]), T(d[0]), T(d[1])];
+    out += `c${nums([q[0] - cx, q[1] - cy, q[2] - cx, q[3] - cy, q[4] - cx, q[5] - cy])}`;
+    cx = q[4];
+    cy = q[5];
+  }
+  for (const p of close) {
+    const x = T(p[0]);
+    const y = T(p[1]);
+    out += `l${nums([x - cx, y - cy])}`;
+    cx = x;
+    cy = y;
+  }
+  return close.length ? `${out}z` : out;
 }
 
-/** Polyline → straight-segment path. */
-export function linePath(p: Pt[]): string {
-  return p.map((q, i) => `${i ? "L" : "M"}${P(q)}`).join("");
+/** Polyline → smoothed compact path. */
+export function smoothPath(p: Pt[]): string {
+  return p.length < 2 ? "" : bezierPath(catmullRom(p));
 }
 
 /** Whether a view point lies within the view expanded by `m` px. */
@@ -326,191 +379,242 @@ const within = (view: ChartView, q: Pt, m: number) =>
   q[0] >= -m && q[1] >= -m && q[0] <= view.width + m && q[1] <= view.height + m;
 
 /**
- * A shore in view px: simplified finely where it can be seen and coarsely elsewhere, smoothed
- * once. `stroke` holds only the visible runs (the hairline); `fill` closes the full line through
- * `close` (points far inland) for the land tint. Both share the same curves.
+ * A shore as one closed path in view px: the coast simplified finely where it can be seen and
+ * coarsely elsewhere, smoothed, then closed through `close` (points far inland). Filled, it is the
+ * land tint; stroked, the coastline (the closing lines lie far outside the view).
  */
-export function shorePaths(view: ChartView, line: readonly LatLon[], close: LatLon[]) {
+export function shorePath(view: ChartView, line: readonly LatLon[], close: LatLon[]) {
   const pr = projector(view);
   const pts = line.map((p) => pr(toKm(p)));
   const M = 40;
-  // Split into runs inside / outside the padded view, simplify each at its own tolerance.
   const runs: { inside: boolean; p: Pt[] }[] = [];
   pts.forEach((q, i) => {
     const inside = within(view, q, M);
     const last = runs[runs.length - 1];
-    if (!last || last.inside !== inside) {
-      // Each run starts at the previous run's last point, so they join exactly.
-      runs.push({ inside, p: i ? [pts[i - 1], q] : [q] });
-    } else last.p.push(q);
+    // Each run starts at the previous run's last point, so they join exactly.
+    if (!last || last.inside !== inside) runs.push({ inside, p: i ? [pts[i - 1], q] : [q] });
+    else last.p.push(q);
   });
   const simple: Pt[] = [];
   for (const r of runs) {
-    const s = simplify(r.p, r.inside ? 0.45 : 8);
+    const s = simplify(r.p, r.inside ? 0.4 : 8);
     simple.push(...(simple.length ? s.slice(1) : s));
   }
-  const segs = catmullRom(simple);
-  let stroke = "";
-  let open = false;
-  for (const [a, b, c, d] of segs) {
-    const show = within(view, a, M) || within(view, d, M);
-    if (show) {
-      if (!open) stroke += `M${P(a)}`;
-      stroke += `C${P(b)} ${P(c)} ${P(d)}`;
-    }
-    open = show;
-  }
-  const fill =
-    `M${P(segs[0][0])}` +
-    segs.map(([, b, c, d]) => `C${P(b)} ${P(c)} ${P(d)}`).join("") +
-    close.map((p) => `L${P(pr(toKm(p)))}`).join("") +
-    "Z";
-  return { stroke, fill };
+  return bezierPath(
+    catmullRom(simple),
+    close.map((p) => pr(toKm(p)))
+  );
 }
 
 export type ChartLabel = {
   id: string;
-  text: string;
-  /** Anchor in view px. */
+  /** One or two lines. */
+  lines: string[];
   at: Pt;
+  anchor: "start" | "middle" | "end";
   kind: "sea" | "land" | "place" | "bridge" | "mark";
 };
 
+/** A ship's pose: position (view px) and heading (degrees clockwise from +x, y down). */
+export type Pose = { at: Pt; heading: number };
+
 export type Chart = {
   view: ChartView;
-  europe: { stroke: string; fill: string };
-  asia: { stroke: string; fill: string };
-  /** Lanes as smoothed paths (view px). `north` starts abeam Maiden's Tower. */
-  north: string;
-  south: string;
+  /** Closed shore paths (fill: land tint; stroke: coastline). */
+  europe: string;
+  asia: string;
+  /** Traffic separation line (the channel's centreline), dashed on the chart. */
   separation: string;
-  /** Bridge decks (view px). */
   bridges: { id: Bridge["id"]; name: string; a: Pt; b: Pt }[];
-  maidensTower: Pt;
-  /** Station frame for the current streaks: [wx, wy, ex, ey] per station, view px. */
+  tower: Pt;
+  /** The tanker's track: southbound lane, Black Sea → abeam Maiden's Tower (view px). */
+  route: Pt[];
+  /** Northbound lane, Marmara → Black Sea, for the ambient ships (view px). */
+  traffic: Pt[];
+  /** Streak frame, north → south: [cx, cy, hx, hy] per station — the centre and the half-width
+   * vector toward Asia (capped), view px. */
   frame: [number, number, number, number][];
-  /** Width of the channel at each frame station, km. */
+  /** Channel width at each frame station, km. */
   widths: number[];
-  /** The tanker at rest: abeam Maiden's Tower, heading (degrees, view, clockwise from +x). */
-  ship: { at: Pt; heading: number };
-  /** Southbound ships at rest (fractions of the southbound lane), with headings. */
-  ambient: { at: Pt; heading: number }[];
-  /** Direction-of-traffic chevrons: points and headings on each lane. */
-  arrows: { at: Pt; heading: number; lane: "north" | "south" }[];
-  /** Surface current marks (north → south), on the separation line. */
-  current: { at: Pt; heading: number }[];
+  /** The tanker at rest (end of `route`), and the ambient ships at rest. */
+  ship: Pose;
+  ambient: Pose[];
+  /** Lane direction marks, and surface-current marks (north → south). */
+  arrows: Pose[];
+  current: Pose[];
+  graticule: { d: string; ticks: { text: string; at: Pt; anchor: "start" | "end" | "middle" }[] };
   labels: ChartLabel[];
-  /** North in the view (unit vector, y down). */
-  north0: Pt;
-  /** Narrowest width found, km (for the text alternative and tests). */
+  /** North in the view (unit vector, y down) and the length of one nautical mile, px. */
+  north: Pt;
+  nm: number;
+  /** Narrowest channel width, km. */
   narrowest: number;
 };
 
 const headingOf = (a: Pt, b: Pt) => (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
 
-/** Point and heading at fraction `t` (0..1) of a view-px polyline. */
-export function along(p: Pt[], t: number): { at: Pt; heading: number } {
+/** Pose at fraction `t` (0..1) of a polyline. */
+export function along(p: Pt[], t: number): Pose {
   const total = polyLength(p);
   let d = Math.max(0, Math.min(1, t)) * total;
   for (let i = 1; i < p.length; i++) {
     const l = len(sub(p[i], p[i - 1]));
     if (d <= l || i === p.length - 1) {
-      return { at: lerp(p[i - 1], p[i], l ? Math.min(1, d / l) : 0), heading: headingOf(p[i - 1], p[i]) };
+      return {
+        at: lerp(p[i - 1], p[i], l ? Math.min(1, d / l) : 0),
+        heading: headingOf(p[i - 1], p[i]),
+      };
     }
     d -= l;
   }
   return { at: p[0], heading: 0 };
 }
 
-/** Everything the chart component draws, for one view. */
-export function buildChart(view: ChartView): Chart {
+const round1 = (p: Pt): Pt => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10];
+
+/** The Black Sea entrance, midway between Rumelifeneri and Anadolufeneri: where the tanker waits. */
+const ENTRANCE: LatLon = [
+  (PLACES.rumelifeneri[0] + PLACES.anadolufeneri[0]) / 2,
+  (PLACES.rumelifeneri[1] + PLACES.anadolufeneri[1]) / 2,
+];
+
+/**
+ * The footer's view: north up, the strait from Seraglio Point and Kadıköy to the Black Sea
+ * entrance, 400 × 640 (shown at about 340–470 px wide).
+ */
+export const FOOTER_VIEW: ChartView = {
+  width: 400,
+  height: 640,
+  rotate: 0,
+  scale: 21.6,
+  center: toKm([41.118, 29.068]),
+};
+
+/** Everything the footer chart draws, for one view. */
+export function buildChart(view: ChartView = FOOTER_VIEW): Chart {
   const pr = projector(view);
   const st = channel();
   const ln = lanes(st);
-  const mt = toKm(MAIDENS_TOWER);
-  const i0 = nearestStation(st, mt);
-  const northPx = ln.north.slice(i0).map(pr);
-  const southPx = ln.south.map(pr).reverse();
-  const sepPx = ln.separation.map(pr);
-  const lanePx = (p: Pt[]) => simplify(p, 0.3);
+  const inView = (q: Pt, m = 0) => within(view, q, -m);
+  const tower = toKm(MAIDENS_TOWER);
+  const iTower = nearestStation(st, tower);
 
-  const europe = shorePaths(view, EUROPE, [
-    [41.32, 28.5],
-    [40.9, 28.5],
-  ]);
-  const asia = shorePaths(view, ASIA, [
-    [41.3, 29.7],
-    [40.85, 29.7],
-  ]);
+  // The tanker: southbound lane from the Black Sea entrance (between the two lighthouses) down to
+  // abeam the tower (stations run south → north).
+  const south = ln.south.map(pr);
+  const iTop = Math.max(nearestStation(st, toKm(ENTRANCE)), iTower + 2);
+  const route = simplify(south.slice(iTower, iTop + 1).reverse(), 0.25).map(round1);
+  // Ambient traffic: the whole visible northbound lane.
+  const north = ln.north.map(pr).filter((q) => inView(q, -6));
+  const traffic = simplify(north, 0.25).map(round1);
+  const sep = ln.separation.map(pr).filter((q) => inView(q, -2));
 
-  const startDir = norm(sub(northPx[1], northPx[0]));
-  const ship = { at: northPx[0], heading: (Math.atan2(startDir[1], startDir[0]) * 180) / Math.PI };
-  const ambient = [0.22, 0.55, 0.83].map((t) => along(southPx, t));
-
-  const arrows: Chart["arrows"] = [];
-  for (const t of [0.2, 0.5, 0.8]) {
-    arrows.push({ ...along(northPx, t), lane: "north" });
-    arrows.push({ ...along(southPx, 1 - t), lane: "south" });
-  }
-  const current = [0.3, 0.62].map((t) => {
-    const a = along(sepPx, t);
-    return { at: a.at, heading: a.heading + 180 };
+  const end = route[route.length - 1];
+  const ship: Pose = { at: end, heading: headingOf(route[route.length - 2], end) };
+  const ambient = [0.2, 0.52, 0.8].map((t) => along(traffic, t));
+  const arrows = [0.3, 0.62].flatMap((t) => [along(route, t), along(traffic, 1 - t)]);
+  const current = [0.16, 0.47, 0.78].map((t) => {
+    const a = along(sep, t);
+    // South along the channel: the lane runs north → south in `route` order.
+    const s = along(route, t);
+    return { at: a.at, heading: s.heading };
   });
 
-  const frame = st
-    .filter((_, i) => i % 2 === 0)
+  // Streak frame: centre and a half-width vector toward Asia, capped (0.42 of the width, at most
+  // 600 m) so the streaks keep to the channel, clear of the shores and out of the bays.
+  const frameSt = st.filter((s, i) => i % 2 === 0 && inView(pr(s.c), -24));
+  const frame = frameSt
     .map((s) => {
-      const w = pr(s.w);
-      const e = pr(s.e);
-      return [w[0], w[1], e[0], e[1]].map((n) => Math.round(n * 10) / 10) as [
-        number,
-        number,
-        number,
-        number,
-      ];
-    });
-  const widths = st.filter((_, i) => i % 2 === 0).map((s) => Math.round(s.width * 100) / 100);
-  // The narrows: only where both shores were hit, away from the open ends.
+      const c0 = pr(s.c);
+      const half = Math.min(0.42 * s.width, 0.6);
+      const e = pr(add(s.c, mul(norm(sub(s.e, s.c)), half)));
+      return [...round1(c0), ...round1(sub(e, c0))] as [number, number, number, number];
+    })
+    .reverse();
+  const widths = frameSt.map((s) => Math.round(s.width * 100) / 100).reverse();
   const narrowest = Math.min(...st.slice(5, -5).map((s) => s.width));
 
-  const label = (id: string, text: string, p: LatLon, kind: ChartLabel["kind"]) => ({
-    id,
-    text,
-    at: pr(toKm(p)),
-    kind,
+  // Graticule every 5′ of arc, with ticks on the west and south edges.
+  const lines: string[] = [];
+  const ticks: Chart["graticule"]["ticks"] = [];
+  const dm = (v: number, h: string) => {
+    const d = Math.floor(v + 1e-9);
+    const m = Math.round((v - d) * 60);
+    return `${d}°${String(m).padStart(2, "0")}′${h}`;
+  };
+  // Parallels labelled on the west edge, meridians on the south edge, clear of the corners.
+  for (let k = -1; k < 5; k++) {
+    const v = 41 + k / 12;
+    const y = pr(toKm([v, 29]))[1];
+    if (y < 8 || y > view.height - 8) continue;
+    lines.push(`M0 ${num(T(y))}H${view.width}`);
+    if (y > 40 && y < view.height - 60) ticks.push({ text: dm(v, "N"), at: [6, y - 5], anchor: "start" });
+  }
+  for (let k = 0; k < 4; k++) {
+    const v = 29 + (k - 1) / 12;
+    const x = pr(toKm([41.1, v]))[0];
+    if (x < 8 || x > view.width - 8) continue;
+    lines.push(`M${num(T(x))} 0V${view.height}`);
+    // Clear of the Marmara label (bottom left) and the scale bar (bottom right).
+    if (x > 170 && x < 270) ticks.push({ text: dm(v, "E"), at: [x + 4, view.height - 8], anchor: "start" });
+  }
+
+  const L = (
+    id: string,
+    lines: string[],
+    p: LatLon,
+    anchor: ChartLabel["anchor"],
+    kind: ChartLabel["kind"],
+    dx = 0,
+    dy = 0
+  ): ChartLabel => {
+    const q = pr(toKm(p));
+    return { id, lines, at: round1([q[0] + dx, q[1] + dy]), anchor, kind };
+  };
+  const b = BRIDGES.map((x) => {
+    const [a, c] = bridgeDeck(x);
+    return { id: x.id, name: x.name, a: round1(pr(a)), b: round1(pr(c)) };
   });
+  const [b1, b2, b3] = b;
   const labels: ChartLabel[] = [
-    label("marmara", "SEA OF MARMARA", [40.997, 28.999], "sea"),
-    label("blacksea", "BLACK SEA", [41.252, 29.14], "sea"),
-    label("europe", "EUROPE", [41.15, 29.0], "land"),
-    label("asia", "ASIA", [41.07, 29.12], "land"),
-    label("tower", "MAIDEN'S TOWER", MAIDENS_TOWER, "mark"),
-    label("arnavutkoy", "ARNAVUTKÖY", PLACES.arnavutkoy, "place"),
-    label("kandilli", "KANDİLLİ", PLACES.kandilli, "place"),
-    label("yenikoy", "YENİKÖY", PLACES.yenikoy, "place"),
-    ...BRIDGES.map((b) => label(b.id, b.name.toUpperCase(), b.at, "bridge")),
+    L("blacksea", ["BLACK SEA"], [41.247, 29.142], "middle", "sea"),
+    L("marmara", ["SEA OF", "MARMARA"], [40.9955, 28.992], "middle", "sea"),
+    L("europe", ["EUROPE"], [41.152, 28.995], "middle", "land"),
+    L("asia", ["ASIA"], [41.052, 29.135], "middle", "land"),
+    L("tower", ["MAIDEN’S TOWER"], MAIDENS_TOWER, "start", "mark", 8, 0),
+    L("arnavutkoy", ["ARNAVUTKÖY"], PLACES.arnavutkoy, "end", "place", -7, 0),
+    L("kandilli", ["KANDİLLİ"], PLACES.kandilli, "start", "place", 7, 1),
+    L("yenikoy", ["YENİKÖY"], PLACES.yenikoy, "end", "place", -8, 0),
+    { id: "b1", lines: ["15 JULY MARTYRS"], at: round1([b1.b[0] + 5, b1.b[1] + 5]), anchor: "start", kind: "bridge" },
+    { id: "b2", lines: ["FATIH SULTAN MEHMET"], at: round1([b2.b[0] + 5, b2.b[1]]), anchor: "start", kind: "bridge" },
+    { id: "b3", lines: ["YAVUZ SULTAN SELİM"], at: round1([b3.a[0] - 5, b3.a[1]]), anchor: "end", kind: "bridge" },
   ];
 
   return {
     view,
-    europe,
-    asia,
-    north: smoothPath(lanePx(northPx)),
-    south: smoothPath(lanePx(southPx)),
-    separation: smoothPath(lanePx(sepPx)),
-    bridges: BRIDGES.map((b) => {
-      const [a, c] = bridgeDeck(b);
-      return { id: b.id, name: b.name, a: pr(a), b: pr(c) };
-    }),
-    maidensTower: pr(mt),
+    europe: shorePath(view, EUROPE, [
+      [41.4, 28.4],
+      [40.85, 28.4],
+    ]),
+    asia: shorePath(view, ASIA, [
+      [41.4, 29.8],
+      [40.8, 29.8],
+    ]),
+    separation: smoothPath(simplify(sep, 0.3)),
+    bridges: b,
+    tower: round1(pr(tower)),
+    route,
+    traffic,
     frame,
     widths,
     ship,
     ambient,
     arrows,
     current,
+    graticule: { d: lines.join(""), ticks },
     labels,
-    north0: bearingInView(view, 0),
+    north: bearingInView(view, 0),
+    nm: 1.852 * view.scale,
     narrowest,
   };
 }

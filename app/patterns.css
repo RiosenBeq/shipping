@@ -85,6 +85,8 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  /* its own layer: the dash repaints every frame, the glass under it does not */
+  will-change: transform;
 }
 .duty-ribbon rect {
   x: 0.75px;
@@ -111,14 +113,13 @@ html[data-motion="paused"] .duty-ribbon rect {
 }
 
 /* ---- P10 · paper grain (idea: Magic UI "noise texture") -------------------
-   A still, tiled grey noise soft-lit into the sand of every paper card: grain without a
-   tint, and centred on the sand (sRGB filter maths, so the noise averages mid-grey). Measured
-   on rendered pixels: mean colour = flat sand (243,239,228), σ ≈ 0.9 levels; brass-ink on it
-   4.67:1 mean, 4.61:1 at the darkest 5% (flat sand: 4.66:1). */
+   A still, seamless 128px grain baked onto the sand (public/media/stage/paper-grain.webp,
+   4.6 KB, WebP lossless): mean colour = flat sand (243,239,228), σ ≈ 1.1 levels. A bitmap,
+   not an SVG turbulence filter: any repaint inside a card (a ribbon, a ticker) then costs a
+   tile copy instead of re-running the noise. Brass-ink on it stays ≥ 4.6:1 (flat: 4.66:1). */
 .stage-card--paper {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='.45' intercept='.3'/><feFuncG type='linear' slope='.45' intercept='.3'/><feFuncB type='linear' slope='.45' intercept='.3'/><feFuncA type='table' tableValues='1 1'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
-  background-size: 240px 240px;
-  background-blend-mode: soft-light;
+  background-image: url("/media/stage/paper-grain.webp");
+  background-size: 128px 128px;
 }
 
 @media print {
