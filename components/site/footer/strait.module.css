@@ -297,3 +297,19 @@
     box-shadow: inset 0 0 0 1px rgba(10, 31, 51, 0.3);
   }
 }
+
+/* Touch screens: the guide link and the map credit get a ≥ 24 px tap target (WCAG 2.5.8)
+   without moving anything. */
+@media (pointer: coarse) {
+  .guide {
+    position: relative;
+  }
+  .guide::after {
+    content: "";
+    position: absolute;
+    inset: -4px -2px;
+  }
+  .note a {
+    padding-block: 6px;
+  }
+}

@@ -546,6 +546,26 @@ main:not(:has([data-header-overlay])) {
   color: var(--ink);
   text-decoration: none;
 }
+/* Touch screens: text links get a ≥ 24 px tap target (WCAG 2.5.8) without moving anything —
+   an invisible hit area 6px taller above and below; no padding or margin changes. */
+@media (pointer: coarse) {
+  .lv-link,
+  .ip-crumbs a,
+  .bl-crumbs a,
+  .bl-chip,
+  .h-notes__cats a {
+    position: relative;
+  }
+  .lv-link::after,
+  .ip-crumbs a::after,
+  .bl-crumbs a::after,
+  .bl-chip::after,
+  .h-notes__cats a::after {
+    content: "";
+    position: absolute;
+    inset: -6px -2px;
+  }
+}
 .lv-link > span {
   padding-bottom: 5px;
   background:

@@ -263,7 +263,7 @@
 .fc-field__box--select select {
   padding-right: 36px;
   font:
-    500 15.5px/1.2 var(--font-body),
+    500 16px/1.2 var(--font-body),
     system-ui,
     sans-serif;
   appearance: none;
