@@ -69,8 +69,8 @@ export function CtaBand({
             <p className="ip-letter__text">{text}</p>
             <div className="ip-letter__sign">
               <p className="ip-letter__mark m-0">
-                <b>LEVANTER</b>
-                <span>Beşiktaş, Istanbul</span>
+                <b>{siteConfig.wordmark}</b>
+                <span>{siteConfig.place}</span>
               </p>
               <Stamp />
             </div>

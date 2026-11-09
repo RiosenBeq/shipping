@@ -5,7 +5,7 @@ import { englishHome } from "@/components/site/home/view";
 import { buildPageMetadata, localBusinessLd, serviceLd, webPageLd } from "@/lib/seo";
 import { homeLanguages } from "@/lib/i18n";
 
-const TITLE = "LEVANTER — Tanker & LPG Shipbrokers in Istanbul";
+const TITLE = "OBM Shipping — Tanker & LPG Shipbrokers in Istanbul";
 const DESCRIPTION =
   "Istanbul tanker and LPG shipbrokers: crude, clean products, LPG and ammonia on spot, time charter and COA. Direct broker access, first reply in 60 minutes.";
 

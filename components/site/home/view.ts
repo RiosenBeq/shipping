@@ -272,7 +272,7 @@ export function englishHome(file: HomeFile = HOME): HomeView {
       label: letter.label,
       headline: letter.headline,
       line: letter.line,
-      place: "Beşiktaş, Istanbul",
+      place: siteConfig.place,
       stamp: "FIRST REPLY · 60 MIN · ISTANBUL ·",
       sub: letter.sub,
       email: siteConfig.email,

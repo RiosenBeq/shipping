@@ -182,8 +182,8 @@ export function gradeVectors(g: Grade): [Rgb, Rgb, Rgb, Rgb] {
 export function cubeLut(id: GradePreset, size = 33): string {
   const g = GRADES[id];
   const lines = [
-    `# LEVANTER lens grade "${id}" (components/site/stage/grades.ts), sRGB in/out`,
-    `TITLE "LEVANTER ${id}"`,
+    `# OBM Shipping lens grade "${id}" (components/site/stage/grades.ts), sRGB in/out`,
+    `TITLE "OBM Shipping ${id}"`,
     `LUT_3D_SIZE ${size}`,
     "DOMAIN_MIN 0.0 0.0 0.0",
     "DOMAIN_MAX 1.0 1.0 1.0",

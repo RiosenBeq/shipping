@@ -30,7 +30,7 @@ const verification: Metadata["verification"] = {
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: defaultTitle, template: `%s — ${siteConfig.name}` },
+  title: { default: defaultTitle, template: `%s · ${siteConfig.name}` },
   description: siteConfig.description,
   applicationName: siteConfig.name,
   referrer: "origin-when-cross-origin",
@@ -51,7 +51,7 @@ export const rootMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: siteConfig.twitter,
+    ...(siteConfig.twitter ? { site: siteConfig.twitter } : {}),
     title: defaultTitle,
     description: siteConfig.description,
     images: [siteConfig.ogImage],

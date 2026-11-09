@@ -8,6 +8,7 @@ import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { inquiryHrefFor } from "@/lib/inquiry";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { Wordmark } from "./brand/Wordmark";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** Main links (§8): the pill on desktop, the full-screen menu below 1024px. */
@@ -178,6 +179,9 @@ export function Nav({
   // without JavaScript) starts on the glass-navy pill; the effect below corrects it on scroll.
   const [ground, setGround] = useState<Ground>("dark");
   const [hidden, setHidden] = useState(false);
+  // Over page content (past the lead section): the brand gets the same glass as the pill so
+  // copy scrolling under the fixed header never shows through the wordmark.
+  const [floating, setFloating] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -241,6 +245,7 @@ export function Nav({
       const clearOf = lead
         ? lead.getBoundingClientRect().bottom + sy - header.offsetHeight
         : window.innerHeight * 0.6;
+      setFloating(sy >= Math.max(clearOf, 120));
       if (pinned.current.focus || pinned.current.lang || sy < Math.max(clearOf, 120)) {
         setHidden(false);
       } else if (dy > 6) setHidden(true);
@@ -358,12 +363,16 @@ export function Nav({
         className="hdr site-chrome print:hidden"
         data-ground={ground}
         data-hidden={hidden && !open ? "true" : undefined}
+        data-floating={floating ? "true" : undefined}
       >
-        <Link href="/" className="hdr__brand" aria-label="LEVANTER home" onClick={close}>
-          <BrandMark light={ground === "dark"} />
-          <span className="t-word" aria-hidden="true">
-            LEVANTER
-          </span>
+        <Link
+          href="/"
+          className="hdr__brand"
+          aria-label={`${siteConfig.name} home`}
+          onClick={close}
+        >
+          <BrandMark light={ground === "dark"} ripple />
+          <Wordmark />
         </Link>
 
         <nav aria-label="Main" className="hdr__nav hdr__glass">
@@ -422,11 +431,14 @@ export function Nav({
         <div className="menu__bathy" aria-hidden="true" style={{ backgroundImage: bathyBg }} />
         <span className="lv-glow lv-glow--brass" aria-hidden="true" />
         <div className="menu__top">
-          <Link href="/" className="hdr__brand" aria-label="LEVANTER home" onClick={close}>
-            <BrandMark light />
-            <span className="t-word" aria-hidden="true">
-              LEVANTER
-            </span>
+          <Link
+            href="/"
+            className="hdr__brand"
+            aria-label={`${siteConfig.name} home`}
+            onClick={close}
+          >
+            <BrandMark light ripple />
+            <Wordmark />
           </Link>
           <button
             type="button"
@@ -497,20 +509,27 @@ export function Nav({
                 </li>
               ))}
             </ul>
-            <ul className="lv-social" aria-label="Social media">
-              <li>
-                <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
-                  <Linkedin aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
-                  <span className="sr-only">LinkedIn (opens in a new tab)</span>
-                </a>
-              </li>
-              <li>
-                <a href={siteConfig.socials.twitter} target="_blank" rel="noopener">
-                  <XGlyph />
-                  <span className="sr-only">X, formerly Twitter (opens in a new tab)</span>
-                </a>
-              </li>
-            </ul>
+            {/* Only the profiles filled in under Site settings; none until they exist. */}
+            {(siteConfig.socials.linkedin || siteConfig.socials.twitter) && (
+              <ul className="lv-social" aria-label="Social media">
+                {siteConfig.socials.linkedin && (
+                  <li>
+                    <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
+                      <Linkedin aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
+                      <span className="sr-only">LinkedIn (opens in a new tab)</span>
+                    </a>
+                  </li>
+                )}
+                {siteConfig.socials.twitter && (
+                  <li>
+                    <a href={siteConfig.socials.twitter} target="_blank" rel="noopener">
+                      <XGlyph />
+                      <span className="sr-only">X, formerly Twitter (opens in a new tab)</span>
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
           <p className="sr-only">{LANGUAGE_HINT}</p>
         </div>

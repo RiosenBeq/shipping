@@ -1,6 +1,6 @@
 {
   "notice": "Example values, not live market prices.",
-  "sources": "Sea distances: great-circle legs between standard sea-lane waypoints (traffic separation schemes, capes, straits, canal ends), computed by LEVANTER and rounded to 5 nm; on benchmark lanes they agree with commonly quoted port-to-port distances within about 2%. Where a charter party names a distance, use that. ECA share: the part of each route inside SOx Emission Control Areas (the Mediterranean from 1 May 2025, the North Sea and English Channel, North America). Port and passage costs are for an Aframax-size ship; each class scales them by its size factor.",
+  "sources": "Sea distances: great-circle legs between standard sea-lane waypoints (traffic separation schemes, capes, straits, canal ends), computed by OBM Shipping and rounded to 5 nm; on benchmark lanes they agree with commonly quoted port-to-port distances within about 2%. Where a charter party names a distance, use that. ECA share: the part of each route inside SOx Emission Control Areas (the Mediterranean from 1 May 2025, the North Sea and English Channel, North America). Port and passage costs are for an Aframax-size ship; each class scales them by its size factor.",
   "staleAfterDays": 30,
   "fuels": {
     "vlsfo": {

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   LEVANTER — design tokens and site chrome (DESIGN-V2 §4, §5, §8, §9, §12)
+   OBM Shipping — design tokens and site chrome (DESIGN-V2 §4, §5, §8, §9, §12)
 
    CONTRACT FOR PAGE BUILDERS (stable names; inner pages, blog and stage
    consume them):
@@ -534,7 +534,7 @@ main:not(:has([data-header-overlay])) {
   transform: scale(0.98);
 }
 
-/* Text link with a brass rule and an arrow ("About LEVANTER →"). */
+/* Text link with a brass rule and an arrow ("About OBM Shipping →"). */
 .lv-link {
   display: inline-flex;
   align-items: center;
@@ -648,18 +648,11 @@ a.lv-chip:hover {
   .lv-btn {
     transition:
       transform var(--dur-hover) var(--ease-quick),
+      translate var(--dur-hover) var(--ease-quick),
       box-shadow var(--dur-hover) var(--ease-quick),
       background-color var(--dur-hover) var(--ease-quick);
   }
-  .lv-btn__arrow svg {
-    transition: translate 0.42s var(--ease-tide);
-  }
-  .lv-btn:hover .lv-btn__arrow svg {
-    translate: 2px 0;
-  }
-  [dir="rtl"] .lv-btn:hover .lv-btn__arrow svg {
-    translate: -2px 0;
-  }
+  /* the arrow's slide through its badge, the lift and the press: app/brand-motion.css (B6) */
   .lv-link > span,
   .lv-link--accent > span {
     transition: background-size 0.42s var(--ease-tide);
@@ -701,7 +694,9 @@ a.lv-chip:hover {
   align-items: center;
   gap: 12px;
   margin-inline-end: auto;
-  padding: 4px;
+  /* the wordmark's trailing tracking is trimmed (brand-motion.css): the end padding gives
+     the focus ring the same air after the last letter as round the mark */
+  padding: 4px 12px 4px 4px;
   margin-inline-start: -4px;
   border-radius: 999px;
   color: inherit;
@@ -713,6 +708,15 @@ a.lv-chip:hover {
   flex: none;
 }
 .hdr__glass {
+  background: var(--hdr-glass);
+  box-shadow: inset 0 0 0 1px var(--hdr-glass-edge);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+/* Over page content the brand sits on the same glass as the nav pill (paint only: no box
+   changes, so no layout shift). */
+.hdr[data-floating="true"] .hdr__brand {
+  border-radius: 999px;
   background: var(--hdr-glass);
   box-shadow: inset 0 0 0 1px var(--hdr-glass-edge);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
@@ -915,7 +919,8 @@ a.lv-chip:hover {
       transform var(--dur-reveal) var(--ease-tide),
       color 0.5s var(--ease-tide);
   }
-  .hdr__glass {
+  .hdr__glass,
+  .hdr__brand {
     transition:
       background-color 0.5s var(--ease-tide),
       box-shadow 0.5s var(--ease-tide);
@@ -1030,6 +1035,8 @@ a.lv-chip:hover {
 }
 .menu__offices a {
   color: var(--sand);
+  /* Long addresses (desk@…) break instead of running past a phone's edge. */
+  overflow-wrap: anywhere;
 }
 .menu__row {
   display: flex;
@@ -1333,9 +1340,11 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   font:
     600 12.4vw/0.9 var(--font-display),
     sans-serif;
+  /* ~0.87em per tracked capital: 90% of the window for the whole name (Footer sets the length). */
+  font-size: min(12.4vw, calc(90vw / (var(--plate-len, 8) * 0.87)));
   letter-spacing: 0.3em;
 }
-.ftr__plate span {
+.ftr__plate > span {
   display: block;
   margin-top: 1.2vw;
   margin-inline-end: -0.9em;
@@ -1377,9 +1386,9 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .ftr__plate b {
-    font-size: 11.4vw;
+    font-size: min(11.4vw, calc((100vw - 60px) / (var(--plate-len, 8) * 0.87)));
   }
-  .ftr__plate span {
+  .ftr__plate > span {
     font-size: 3vw;
   }
 }

@@ -19,7 +19,7 @@ const SLUG = new Map(brokersFile.brokers.map((b) => [b.name.name, b.name.slug]))
 
 const TITLE = "Our Brokers — Tanker & LPG Chartering Team";
 const DESCRIPTION =
-  "Meet LEVANTER's tanker and LPG brokers in Istanbul, London and Singapore. Direct email and WhatsApp for crude, clean products, LPG and ammonia.";
+  "Meet OBM Shipping's tanker and LPG brokers in Istanbul, London and Singapore. Direct email and WhatsApp for crude, clean products, LPG and ammonia.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -38,7 +38,7 @@ export default function BrokersPage() {
   const peopleLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "LEVANTER brokers",
+    name: "OBM Shipping brokers",
     itemListElement: BROKERS.map((b, i) => ({
       "@type": "ListItem",
       position: i + 1,

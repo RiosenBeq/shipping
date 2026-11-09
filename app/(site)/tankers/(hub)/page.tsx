@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarClock, Compass, FileCheck2, Mail, Repeat } from "lucide-react";
+import { FileCheck2, Mail } from "lucide-react";
+import {
+  CleanIcon,
+  CoaIcon,
+  CrudeIcon,
+  SpotIcon,
+  TimeCharterIcon,
+} from "@/components/site/drawings/icons";
 import { JsonLd } from "@/components/site/JsonLd";
 import { StageHero } from "@/components/site/PageHeader";
 import { BrokerCard } from "@/components/site/BrokerCard";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
-import { TankerArt } from "@/components/site/VesselArt";
+import { ClassThumb } from "@/components/site/drawings/GaPlate";
 import { NotesStrip } from "@/components/site/blog/NotesStrip";
 import { ClassRows } from "@/components/site/inner/ClassRows";
 import { BtnLabel, Glows, LinkArrow, SectionHead, Sub } from "@/components/site/inner/ui";
@@ -20,6 +27,7 @@ import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { TANKERS_FAQ } from "@/lib/data/faqs";
 import { ICON_STROKE } from "@/components/site/iconStroke";
+import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 const TITLE = "Tanker Broker — Crude & Product Tanker Chartering";
 const DESCRIPTION =
@@ -45,11 +53,13 @@ export const metadata: Metadata = buildPageMetadata({
 const FAMILIES = [
   {
     key: "crude" as const,
+    Icon: CrudeIcon,
     title: "Crude",
     text: "Dirty tankers for crude oil and fuel oil. Our core: Black Sea and CPC Suezmaxes, cross-Med Aframaxes and VLCCs on the long-haul lanes East.",
   },
   {
     key: "clean" as const,
+    Icon: CleanIcon,
     title: "Clean products",
     text: "Coated tankers for gasoil, jet, gasoline and naphtha. LR1 and MR across the Med, the Atlantic basin and East of Suez.",
   },
@@ -57,17 +67,17 @@ const FAMILIES = [
 
 const SERVICES = [
   {
-    Icon: Compass,
+    Icon: SpotIcon,
     title: "Spot voyages",
     text: "Worldscale or lump sum, with laytime, demurrage and routing assumptions spelled out.",
   },
   {
-    Icon: CalendarClock,
+    Icon: TimeCharterIcon,
     title: "Time charters",
     text: "Short and long period business for oil majors, traders and refiners.",
   },
   {
-    Icon: Repeat,
+    Icon: CoaIcon,
     title: "COAs",
     text: "Programme cargoes — CPC, WAF or Med refinery supply — on a planned fleet.",
   },
@@ -160,7 +170,8 @@ export default function TankersPage() {
               // Group label is not a heading: the class names are the h3s under the h2.
               <div key={f.key} role="group" aria-labelledby={`family-${f.key}`}>
                 <div className="ip-rows__group">
-                  <p id={`family-${f.key}`} className="t-label acc">
+                  <p id={`family-${f.key}`} className="t-label acc ip-rows__family">
+                    <f.Icon aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                     {f.title} · {classes.length} {classes.length === 1 ? "size" : "sizes"}
                   </p>
                   <p>{f.text}</p>
@@ -175,7 +186,7 @@ export default function TankersPage() {
                     chips: t.routes.map((r) => r.code),
                     chipsLabel: "Key routes",
                     go: `${t.shortName} guide`,
-                    art: <TankerArt />,
+                    art: <ClassThumb slug={t.slug} />,
                     artWidth: ART_WIDTH[t.slug],
                   }))}
                 />
@@ -286,6 +297,7 @@ export default function TankersPage() {
               <Faq items={TANKERS_FAQ} />
             </div>
           </section>
+          <RelatedGuides current="/tankers" />
         </div>
       </Card>
 

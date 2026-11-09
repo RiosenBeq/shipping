@@ -70,7 +70,7 @@ export function blogFeedXml(posts: Post[]): string {
     ""
   );
   const lastBuild = newest ? rfc822(newest) : new Date(0).toUTCString();
-  const title = `${siteConfig.name} — ${BLOG_NAME.replace(/^LEVANTER /, "")}: Notes from the desk`;
+  const title = `${siteConfig.name} — ${BLOG_NAME.replace(`${siteConfig.name} `, "")}: Notes from the desk`;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">

@@ -16,6 +16,8 @@ import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav, type NavLanguage } from "./Nav";
 import { Spotlight } from "./Spotlight";
+import { BrandMotion } from "./brand/BrandMotion";
+import { INTRO_SCRIPT } from "./brand/intro";
 
 /*
  * One type system (DESIGN-V2 §4.2): Inter Tight (display) + Inter (text, UI)
@@ -113,8 +115,13 @@ export function SiteShell({
       lang={lang}
       dir={dir}
       className={`${interTight.variable} ${inter.variable} ${sourceSerif.variable} ${ibmPlexMono.variable} ${plexArabic.variable}`}
+      // The pre-paint script below may add data-brand-intro before React hydrates.
+      suppressHydrationWarning
     >
       <body>
+        {/* First view of a session: the mark draws itself (brand-motion.css). Before the
+            header is parsed, so the mark is never painted whole and then hidden. */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         {/* "Back to top" target (footer). A real, focusable element — not the
             fixed header — so keyboard focus moves up with the scroll and the
             next Tab lands on the skip link. */}
@@ -131,6 +138,7 @@ export function SiteShell({
         <Footer />
         <FloatingContact locales={FAB_LOCALES} />
         <Spotlight />
+        <BrandMotion />
         <Analytics />
         <SpeedInsights />
       </body>

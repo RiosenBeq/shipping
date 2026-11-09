@@ -25,9 +25,11 @@ const url = (path: string) => new URL(path, siteConfig.url).toString();
 export default function sitemap(): MetadataRoute.Sitemap {
   assertValidContent();
 
-  const homeAlternates = Object.fromEntries(
-    Object.entries(homeLanguages()).map(([lang, path]) => [lang, url(path)])
-  );
+  // The 11 homepages point at each other, plus x-default (the English home), as in their <head>.
+  const homeAlternates = {
+    ...Object.fromEntries(Object.entries(homeLanguages()).map(([lang, path]) => [lang, url(path)])),
+    "x-default": url("/"),
+  };
 
   // Blog: every post with its own last revision; the hub and each category
   // change when their newest post does. Empty categories are left out.

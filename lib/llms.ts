@@ -11,6 +11,7 @@ import { STRAITS_FACTS, STRAITS_FAQ, STRAITS_SECTIONS } from "@/lib/data/turkish
 import { COMPLIANCE_FAQ, COMPLIANCE_STEPS, SCREENING } from "@/lib/data/compliance";
 import { LOCALES } from "@/lib/i18n";
 import { freightCalculatorMd } from "@/lib/freight/llms";
+import { companyFacts } from "@/lib/facts";
 
 /**
  * Generators for /llms.txt (https://llmstxt.org/) and /llms-full.txt. Both are
@@ -31,15 +32,10 @@ const formatDate = (iso: string) => formatPostDate(iso);
 
 const faqMd = (items: FaqEntry[]) => items.map((f) => `**${f.q}**\n${f.a}`).join("\n\n");
 
+/** The /about "at a glance" facts, word for word, then the site's caveat. */
 const KEY_FACTS = () => [
-  `${siteConfig.legalEntity} (${siteConfig.name}) is a shipbroker founded in ${siteConfig.founded} and headquartered in ${siteConfig.address.locality}, Türkiye, on the Bosphorus.`,
-  `Offices: ${siteConfig.offices.map((o) => `${o.city} (${o.role})`).join("; ")}.`,
-  "Two desks: tankers (crude and clean products, VLCC to MR) and LPG & ammonia (VLGC to small pressurised gas carriers, plus petrochemical gases).",
-  "Services: spot voyages, time charters, contracts of affreightment (COA) and post-fixture (laytime, demurrage, claims), for charterers and owners.",
-  "Specialities: the Turkish Straits and Black Sea, small pressurised and semi-refrigerated LPG in the Mediterranean and Türkiye, and sanctions-screened fixtures.",
-  "Service promise: a broker replies within 60 minutes during business hours.",
-  `Contact: ${siteConfig.email} · tankers ${siteConfig.desks.tankers.email} · LPG ${siteConfig.desks.lpg.email} · phone ${siteConfig.phone} · WhatsApp ${siteConfig.whatsappDisplay}.`,
-  `Hours: ${siteConfig.hours}.`,
+  ...companyFacts().map((f) => `**${f.q}** ${f.a}`),
+  `Research and reports: ${siteConfig.desks.research.email}. After hours, live fixtures: WhatsApp ${siteConfig.duty.display} (${siteConfig.duty.hours.toLowerCase().replace(/\.$/, "")}).`,
   "The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator works from dated reference values, and current numbers come from the desks.",
 ];
 
@@ -187,7 +183,7 @@ ${p.text}${p.faq.length ? `\n\n${faqMd(p.faq)}` : ""}`
 
 This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, compliance screening, all blog posts, FAQs and the glossary. Each section names its source URL; please cite that URL.
 
-## Company
+## ${siteConfig.name} at a glance
 
 ${KEY_FACTS()
   .map((f) => `- ${f}`)

@@ -1,6 +1,6 @@
 /* ==========================================================================
    Patterns shared by every page (the polish round, DESIGN-V2 §4–5): ideas seen in
-   free collections — Magic UI (MIT) above all — re-implemented on LEVANTER's tokens,
+   free collections — Magic UI (MIT) above all — re-implemented on OBM Shipping's tokens,
    with no third-party code and no animation runtime (docs/UI-CREDITS.md).
 
    P1  spotlight glass on night cards       (Spotlight.tsx writes --mx / --my)

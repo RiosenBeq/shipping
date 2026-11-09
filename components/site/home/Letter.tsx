@@ -37,7 +37,7 @@ export function Letter({ view, id }: { view: HomeView; id: string }) {
           <p className="letter__line">{letter.line}</p>
           <div className="letter__sig">
             <div lang="en">
-              <b className="t-word">LEVANTER</b>
+              <b className="t-word">OBM SHIPPING</b>
               <span className="t-data">{letter.place}</span>
             </div>
             <Stamp text={letter.stamp} />

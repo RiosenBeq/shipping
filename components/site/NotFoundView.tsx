@@ -10,10 +10,12 @@ import {
 } from "@/components/site/stage";
 import { BtnLabel, Sub } from "./inner/ui";
 import { ICON_STROKE } from "@/components/site/iconStroke";
+import { OffChart } from "@/components/site/drawings/OffChart";
+import { InquiryIcon } from "@/components/site/drawings/icons";
 
 export const notFoundMetadata: Metadata = {
   title: "Page not found",
-  description: "The page you're looking for doesn't exist on the LEVANTER site.",
+  description: "The page you're looking for doesn't exist on the OBM Shipping site.",
   robots: { index: false, follow: false },
 };
 
@@ -65,10 +67,13 @@ export function NotFoundView() {
                 <BtnLabel>Back to home</BtnLabel>
               </Link>
               <Link href="/contact" className="lv-btn lv-btn--ghost">
+                <InquiryIcon aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                 Send an inquiry
               </Link>
             </div>
           </div>
+
+          <OffChart className="ip-nf__art" />
 
           <nav aria-labelledby="nf-links" className="ip-nf__links">
             <h2 id="nf-links" className="t-label">

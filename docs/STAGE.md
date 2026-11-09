@@ -18,9 +18,11 @@ z −1  STAGE                          graded poster (server) → WebGL canvas (
 
 ## 1. Quick start
 
-`StageProvider`, `StageWindow`, `StageAperture`, `Card` and `ShipLines` are server-safe (no
-hooks). `PauseMotion` and `StageRail` are client components. Import from
-`@/components/site/stage`.
+`StageProvider`, `StageWindow`, `StageAperture` and `Card` are server-safe (no hooks).
+`PauseMotion` and `StageRail` are client components. Import them from
+`@/components/site/stage`. `ShipLines` is a client component that carries the GA drawing
+model, so it is not in that barrel: import it from `@/components/site/stage/ShipLines` (the
+footer imports the barrel on every page, and a re-export would ship the model everywhere).
 
 ```tsx
 import { Card, PauseMotion, StageAperture, StageProvider, StageRail, StageWindow, calm } from "@/components/site/stage";
@@ -150,7 +152,8 @@ Where `P-lines` draws the active class's 3D lines plan, inside a `plate="P-lines
 Give it a size (e.g. `min-h-[38vh] flex-1`). Change `ship` (`"vlcc" | "suezmax" | "aframax" |
 "lr1" | "mr" | "vlgc" | "mgc" | "handysize" | "pressurised"`) to morph the hull (700 ms,
 ease-swell; instant while motion is paused). On phones, the low tier and until the
-compositor is live it shows the class's `VesselArt` with a light ribbon running along the
+compositor is live it shows the class's GA profile (`components/site/drawings`, the same
+parametric drawing as the class pages) with a light ribbon running along the real
 waterline (`html[data-stage-lines="svg"]`). Decorative (`aria-hidden`): the class cards
 (crawlable `<a>`s), the segmented control and the `aria-live="polite"` caption belong to the
 page. Class data for captions: `SHIP_CLASSES[slug].label` / `.longName`.
@@ -159,7 +162,7 @@ page. Class data for captions: `SHIP_CLASSES[slug].label` / `.longName`.
 
 WCAG 2.2.2. A real `<button>` whose label is the action ("Pause motion" / "Play motion").
 Every instance on a page shares one state, stored per viewer in `localStorage`
-(`levanter:motion-paused`, guarded) and mirrored on `<html data-motion="paused">`. Paused:
+(`obm:motion-paused`, guarded; the pre-rename key is migrated once) and mirrored on `<html data-motion="paused">`. Paused:
 video holds its frame, grain, sonar ping, ribbons and flowmap stop; scroll-linked changes
 (wipes, apertures) still follow the scroll. Put one bottom-right in the hero, one in the
 letter scene and one in the footer legal row. It adapts to `[data-ground="light"]`.

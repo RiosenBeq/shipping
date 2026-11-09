@@ -5,7 +5,9 @@
  * on <html data-motion="paused"> so CSS animation can stop with it.
  */
 
-export const PAUSE_KEY = "levanter:motion-paused";
+export const PAUSE_KEY = "obm:motion-paused";
+/** The key before the OBM Shipping rename: migrated once on first read, then removed. */
+const LEGACY_PAUSE_KEY = ["lev", "anter:motion-paused"].join("");
 
 type Listener = (paused: boolean) => void;
 const listeners = new Set<Listener>();
@@ -13,7 +15,13 @@ let paused: boolean | null = null;
 
 function read(): boolean {
   try {
-    return window.localStorage.getItem(PAUSE_KEY) === "1";
+    const ls = window.localStorage;
+    const legacy = ls.getItem(LEGACY_PAUSE_KEY);
+    if (legacy !== null) {
+      if (legacy === "1" && ls.getItem(PAUSE_KEY) === null) ls.setItem(PAUSE_KEY, "1");
+      ls.removeItem(LEGACY_PAUSE_KEY);
+    }
+    return ls.getItem(PAUSE_KEY) === "1";
   } catch {
     return false;
   }

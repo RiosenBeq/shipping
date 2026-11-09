@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarClock, Compass, FileCheck2, Mail, Repeat } from "lucide-react";
+import { FileCheck2, Mail } from "lucide-react";
+import {
+  AmmoniaIcon,
+  CoaIcon,
+  LpgIcon,
+  SpotIcon,
+  StraitsIcon,
+  TimeCharterIcon,
+} from "@/components/site/drawings/icons";
 import { JsonLd } from "@/components/site/JsonLd";
 import { StageHero } from "@/components/site/PageHeader";
 import { BrokerCard } from "@/components/site/BrokerCard";
 import { Faq } from "@/components/site/Faq";
 import { CtaBand } from "@/components/site/CtaBand";
-import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
+import { ClassThumb } from "@/components/site/drawings/GaPlate";
 import { NotesStrip } from "@/components/site/blog/NotesStrip";
 import { ClassRows } from "@/components/site/inner/ClassRows";
 import { BtnLabel, Glows, LinkArrow, SectionHead, Sub } from "@/components/site/inner/ui";
@@ -21,6 +29,7 @@ import { siteConfig } from "@/lib/site";
 import { LpgConverter } from "./LpgConverter";
 import { LPG_FAQ } from "@/lib/data/faqs";
 import { ICON_STROKE } from "@/components/site/iconStroke";
+import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 const TITLE = "LPG Shipbroker — VLGC, MGC & Ammonia Chartering";
 const DESCRIPTION =
@@ -46,17 +55,17 @@ export const metadata: Metadata = buildPageMetadata({
 
 const SERVICES = [
   {
-    Icon: Compass,
+    Icon: SpotIcon,
     title: "Spot voyages",
     text: "Single cargoes and relets, priced in $/mt with the routing and port-time assumptions shown.",
   },
   {
-    Icon: CalendarClock,
+    Icon: TimeCharterIcon,
     title: "Time charters",
     text: "Period business from 6 months to multi-year, for importers, traders and end-users.",
   },
   {
-    Icon: Repeat,
+    Icon: CoaIcon,
     title: "Contracts of affreightment",
     text: "Regular programmes — LPG distribution or ammonia supply — with a fleet that fits your terminals.",
   },
@@ -71,14 +80,17 @@ const CARGOES = ["Propane", "Butane", "Ammonia", "Propylene", "Butadiene", "VCM"
 
 const FOCUS = [
   {
+    Icon: StraitsIcon,
     title: "Med, Black Sea & Türkiye",
     text: "Small pressurised and semi-refrigerated LPG into Turkish, East Med and Black Sea terminals — with Straits timing priced in.",
   },
   {
+    Icon: LpgIcon,
     title: "VLGC export lanes",
     text: "US Gulf and Middle East Gulf exports to Asia and Europe, benchmarked against BLPG1–3 and priced Panama vs. Cape.",
   },
   {
+    Icon: AmmoniaIcon,
     title: "Ammonia & petchem gases",
     text: "MGC ammonia lanes and Handysize petrochemical parcels, including grade-switch planning.",
   },
@@ -148,21 +160,17 @@ export default function LpgPage() {
           />
           <ClassRows
             className="!border-t !border-t-[var(--ink)]"
-            rows={LPG_CLASSES.map((c, i) => {
-              // Pressurised coasters carry cylindrical deck tanks, not a refrigerated trunk deck.
-              const Art = c.slug === "pressurised" ? PressurisedGasArt : GasCarrierArt;
-              return {
-                href: `/lpg/${c.slug}`,
-                name: c.name,
-                sub: c.longName,
-                size: c.capacity.split(" — ")[0],
-                chips: c.cargoes.slice(0, 3),
-                chipsLabel: "Main cargoes",
-                go: `${c.name} guide`,
-                art: <Art />,
-                artWidth: ART_WIDTH[i],
-              };
-            })}
+            rows={LPG_CLASSES.map((c, i) => ({
+              href: `/lpg/${c.slug}`,
+              name: c.name,
+              sub: c.longName,
+              size: c.capacity.split(" — ")[0],
+              chips: c.cargoes.slice(0, 3),
+              chipsLabel: "Main cargoes",
+              go: `${c.name} guide`,
+              art: <ClassThumb slug={c.slug} />,
+              artWidth: ART_WIDTH[i],
+            }))}
           />
         </div>
       </Card>
@@ -215,7 +223,10 @@ export default function LpgPage() {
                     key={f.title}
                     className="border-t border-[var(--hair)] py-4 first:border-t-0 last:pb-0"
                   >
-                    <p className="font-semibold">{f.title}</p>
+                    <p className="ip-focus__title font-semibold">
+                      <f.Icon aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
+                      {f.title}
+                    </p>
                     <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--ink-2)]">
                       {f.text}
                     </p>
@@ -290,6 +301,7 @@ export default function LpgPage() {
               <Faq items={LPG_FAQ} />
             </div>
           </section>
+          <RelatedGuides current="/lpg" />
         </div>
       </Card>
 

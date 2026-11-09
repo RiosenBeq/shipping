@@ -12,13 +12,14 @@ import { BROKERS } from "@/lib/data/brokers";
 import { ABOUT_FAQ } from "@/lib/data/faqs";
 import { LOCALES } from "@/lib/i18n";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
+import { companyFacts } from "@/lib/facts";
 import { siteConfig } from "@/lib/site";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const PATH = "/about";
-const TITLE = "About LEVANTER — Tanker & LPG Shipbrokers";
+const TITLE = "About OBM Shipping — Tanker & LPG Shipbrokers";
 const DESCRIPTION =
-  "LEVANTER is a tanker and LPG shipbroker founded in Istanbul in 2024, with brokers in London and Singapore: two desks, senior brokers, compliance first.";
+  "OBM Shipping is a tanker and LPG shipbroker founded in Istanbul in 2024, with brokers in London and Singapore: two desks, senior brokers, compliance first.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -26,7 +27,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: PATH,
   absoluteTitle: true,
   keywords: [
-    "about LEVANTER",
+    "about OBM Shipping",
     "shipbroker Istanbul",
     "Turkish shipbroker",
     "tanker and LPG broker",
@@ -97,14 +98,14 @@ export default function AboutPage() {
           <Crumbs crumbs={[{ name: "About", path: PATH }]} className="ip-hero__crumbs" />
           <div className="ip-about__grid">
             <div {...calm(0.4)} className="ip-about__copy">
-              <Sub className="ip-rise">About LEVANTER</Sub>
+              <Sub className="ip-rise">About OBM Shipping</Sub>
               <h1 id="page-title" className="t-display ip-display--long ip-rise ip-rise--2">
                 A tanker and LPG broker, <span className="ip-quiet">built on the Bosphorus.</span>
               </h1>
               <p className="t-lead ip-rise ip-rise--3 !mt-7">
-                We started LEVANTER in Istanbul in 2024 because the Black Sea, the Mediterranean and
-                the Turkish Straits deserve a desk that lives with them every day. Today two desks
-                fix tankers and gas carriers worldwide from Istanbul, London and Singapore.
+                We started OBM Shipping in Istanbul in 2024 because the Black Sea, the Mediterranean
+                and the Turkish Straits deserve a desk that lives with them every day. Today two
+                desks fix tankers and gas carriers worldwide from Istanbul, London and Singapore.
               </p>
               <div className="ip-actions ip-actions--stack ip-rise ip-rise--4 !mt-8">
                 <Link href="/brokers" className="lv-btn lv-btn--cta">
@@ -162,8 +163,9 @@ export default function AboutPage() {
               <p>
                 Those trades reward local knowledge. Transit queues, terminal limits and regional
                 charterers decide whether a voyage earns money, and they change by the day. We built
-                LEVANTER around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul, with
-                brokers in London for the Atlantic basin and in Singapore for business East of Suez.
+                OBM Shipping around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul,
+                with brokers in London for the Atlantic basin and in Singapore for business East of
+                Suez.
               </p>
               <p>
                 We stay small and specialised. Clients talk to senior brokers, see the assumptions
@@ -171,6 +173,32 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
+          {/* The fact sheet: plain question-and-answer lines that people and AI answer engines
+              can quote. Same text as llms.txt (lib/facts.ts). */}
+          <section id="at-a-glance" aria-labelledby="glance-title" className="ip-factsheet">
+            <h2 id="glance-title" className="ip-h2">
+              {siteConfig.name} at a glance
+            </h2>
+            <dl>
+              {companyFacts().map((f) => (
+                <div key={f.q}>
+                  <dt>{f.q}</dt>
+                  <dd>
+                    {f.a}
+                    {f.href ? (
+                      <>
+                        {" "}
+                        <Link href={f.href} className="ip-factsheet__more">
+                          More
+                          <span className="sr-only">: {f.q}</span>
+                        </Link>
+                      </>
+                    ) : null}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         </div>
       </Card>
 
@@ -242,7 +270,7 @@ export default function AboutPage() {
                 <div>
                   <Sub>FAQ</Sub>
                   <h2 id="faq-title" className="ip-h2">
-                    About LEVANTER.
+                    About OBM Shipping.
                   </h2>
                 </div>
                 <Link href="/contact" className="lv-link">

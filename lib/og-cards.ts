@@ -36,7 +36,7 @@ export function shareCards(): Record<string, ShareCard> {
       footer: "Counterparties · Ships · Cargo · Voyage",
     },
     "/about": {
-      eyebrow: "About LEVANTER",
+      eyebrow: "About OBM Shipping",
       title: "A tanker and LPG broker, built on the Bosphorus.",
       footer: "Founded 2024 · Istanbul · London · Singapore",
     },

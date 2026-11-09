@@ -7,7 +7,7 @@ import type { Metadata } from "next";
  * robots.txt also disallows it. See docs/CMS.md.
  */
 export const metadata: Metadata = {
-  title: "LEVANTER — Content admin",
+  title: "OBM Shipping — Content admin",
   robots: {
     index: false,
     follow: false,

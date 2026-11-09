@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { calm } from "@/components/site/stage";
+import { particulars } from "@/components/site/drawings/particulars";
+import { deckGlyph } from "@/components/site/drawings/plan";
 import { poseTransform } from "./render";
 import { AMBIENT, FURNITURE, LABELS, SHIP, TICKS, VIEW } from "./strait-data";
 import { StraitTransit } from "./StraitTransit";
@@ -11,6 +13,17 @@ const { width: W, height: H } = VIEW;
 const CHART_SRC: string = (chartImage as { src: string }).src;
 
 const pct = (v: number) => `${Math.round(v * 10000) / 100}%`;
+
+/**
+ * The ships, top view in the drawings' language (components/site/drawings): an Aframax for the
+ * tanker; a product tanker, a gas carrier and a pressurised coaster for the northbound traffic.
+ */
+const TANKER = deckGlyph(particulars("aframax"), 22.6);
+const BOATS = [
+  deckGlyph(particulars("mr"), 13.5, 1.3),
+  deckGlyph(particulars("mgc"), 12.5, 1.3),
+  deckGlyph(particulars("pressurised"), 9.5, 1.35),
+];
 
 /** The chart's text alternative (the drawing itself is one image to assistive technology). */
 const ALT =
@@ -86,18 +99,29 @@ export function StraitChart({ className }: { className?: string }) {
               <stop offset="0" stopColor="#D9B071" stopOpacity=".3" />
               <stop offset="1" stopColor="#D9B071" stopOpacity="0" />
             </radialGradient>
-            {/* Tanker, top view, bow to +x: a soft halo, hull, accommodation aft, pipe rack. */}
+            {/* Tanker, top view, bow to +x: a soft halo, the deck edge, the accommodation and
+                bridge wings aft, catwalk, manifold and forecastle break. */}
             <g id="lv-tanker">
               <circle r="17" fill="url(#lv-halo)" />
-              <path d="M-11 -2.6H5.4Q10.6 -2.5 11.6 0Q10.6 2.5 5.4 2.6H-11Z" />
-              <rect x="-10.2" y="-2" width="3.4" height="4" rx=".6" className={s.house} />
-              <path d="M-5.6 0H6.4" className={s.rack} />
+              <path d={TANKER.hull} />
+              <path d={TANKER.house} className={s.house} />
+              <path d={TANKER.lines} className={s.rack} />
             </g>
-            <path id="lv-boat" d="M-6.5 -1.6H3.2Q6.6 -1.5 7 0Q6.6 1.5 3.2 1.6H-6.5Z" />
+            {BOATS.map((b, i) => (
+              <g key={i} id={`lv-boat-${i}`}>
+                <path d={b.hull} />
+                <path d={b.house} fill="rgba(5, 22, 36, 0.34)" />
+              </g>
+            ))}
           </defs>
           <g className={s.rest}>
             {AMBIENT.map((a, i) => (
-              <use key={i} href="#lv-boat" transform={poseTransform(a)} className={s.boat} />
+              <use
+                key={i}
+                href={`#lv-boat-${i % BOATS.length}`}
+                transform={poseTransform(a)}
+                className={s.boat}
+              />
             ))}
             <use href="#lv-tanker" transform={poseTransform(SHIP)} className={s.tanker} />
           </g>
@@ -109,7 +133,7 @@ export function StraitChart({ className }: { className?: string }) {
           {AMBIENT.map((a, i) => (
             <use
               key={i}
-              href="#lv-boat"
+              href={`#lv-boat-${i % BOATS.length}`}
               transform={poseTransform(a)}
               className={s.boat}
               data-boat=""

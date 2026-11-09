@@ -59,7 +59,9 @@ describe("migration from the research notes (November 2026)", () => {
       expect(post.text, note.slug).toBe(legacyBodyText(note));
       expect(post.title, note.slug).toBe(note.title);
       expect(post.dek, note.slug).toBe(note.dek);
-      expect(post.description, note.slug).toBe(note.desc);
+      // The meta description was rewritten for search snippets (140–160 characters) in
+      // the OBM Shipping SEO pass; the visible dek above keeps the note's own words.
+      expect(post.description.length, note.slug).toBeGreaterThanOrEqual(140);
       expect(post.seoTitle, note.slug).toBe(note.seoTitle);
     }
   });

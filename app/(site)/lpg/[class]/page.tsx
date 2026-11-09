@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
 import { ClassGuide } from "@/components/site/inner/ClassGuide";
 import { BtnLabel, LinkArrow } from "@/components/site/inner/ui";
 import { FREIGHT_PATH } from "@/lib/freight/constants";
@@ -13,7 +12,7 @@ import type { PostCardData } from "@/lib/blog/meta";
 import { relatedReports } from "@/lib/data/research";
 import { LPG_CLASSES, getLpgClassBySlug } from "@/lib/data/lpg-classes";
 import type { StillKey } from "@/lib/media";
-import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
+import { DESK_EXTRAS, buildPageMetadata, fitDescription, serviceLd, webPageLd } from "@/lib/seo";
 import { lpgClassInquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { ICON_STROKE } from "@/components/site/iconStroke";
@@ -29,11 +28,18 @@ export function generateStaticParams() {
 function copy(slug: string) {
   const c = getLpgClassBySlug(slug)!;
   return {
-    title: `${c.name} Chartering — ${c.longName}`,
-    description: `${c.name} chartering from LEVANTER's LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
-      .slice(0, 3)
-      .join(", ")
-      .toLowerCase()}. Spot, time charter and COA.`,
+    // " · OBM Shipping" follows: drop the long name when the title would pass ~65 characters.
+    title:
+      `${c.name} Chartering — ${c.longName}`.length > 50
+        ? `${c.name} Carrier Chartering`
+        : `${c.name} Chartering — ${c.longName}`,
+    description: fitDescription(
+      `${c.name} chartering from ${siteConfig.name}'s LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
+        .slice(0, 3)
+        .join(", ")
+        .toLowerCase()}. Spot, time charter and COA.`,
+      DESK_EXTRAS
+    ),
   };
 }
 
@@ -77,8 +83,6 @@ export default function LpgClassPage({ params }: Params) {
   const i = LPG_CLASSES.findIndex((o) => o.slug === c.slug);
   const next = LPG_CLASSES[(i + 1) % LPG_CLASSES.length];
   const others = LPG_CLASSES.filter((o) => o.slug !== c.slug);
-  // Pressurised coasters carry cylindrical deck tanks, not a refrigerated trunk deck.
-  const Art = c.slug === "pressurised" ? PressurisedGasArt : GasCarrierArt;
   // Inquiries from this page arrive with the ship size preselected, and the
   // cargo too where the class mainly trades LPG (MGC/Handysize: visitor picks).
   const inquiry = lpgClassInquiryHref(c.slug);
@@ -149,7 +153,6 @@ export default function LpgClassPage({ params }: Params) {
           { k: "Typical cargo", v: c.typicalCargo },
           { k: "Cargoes", v: c.cargoes.join(", ") },
         ]}
-        art={<Art />}
         routesTitle={`Key ${c.name} trades.`}
         routes={c.routes}
         chipsTitle="Main trades"

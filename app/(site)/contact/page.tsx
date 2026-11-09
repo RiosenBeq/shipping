@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
-import {
-  ArrowDown,
-  ArrowRight,
-  Clock,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-  Ship,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { OfficesIcon, TankerIcon } from "@/components/site/drawings/icons";
 import { JsonLd } from "@/components/site/JsonLd";
 import { Crumbs } from "@/components/site/PageHeader";
 import { Eyebrow } from "@/components/site/Section";
@@ -24,7 +16,7 @@ import { DutyRibbon } from "@/components/site/DutyRibbon";
 
 const TITLE = "Contact — Send a Tanker or LPG Charter Inquiry";
 const DESCRIPTION =
-  "Send a tanker or LPG charter inquiry to LEVANTER in Istanbul: cargo, ports and laycan. A broker replies within 60 minutes. Email, phone or WhatsApp.";
+  "Send a tanker or LPG charter inquiry to OBM Shipping in Istanbul: cargo, ports and laycan. A broker replies within 60 minutes. Email, phone or WhatsApp.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -122,8 +114,8 @@ export default function ContactPage() {
               <ul className="ip-letter__facts" aria-label="How we work">
                 {[
                   { Icon: Clock, text: "First reply within 60 minutes" },
-                  { Icon: MapPin, text: "Istanbul, London and Singapore" },
-                  { Icon: Ship, text: "Tankers, LPG and ammonia" },
+                  { Icon: OfficesIcon, text: "Istanbul, London and Singapore" },
+                  { Icon: TankerIcon, text: "Tankers, LPG and ammonia" },
                 ].map(({ Icon, text }) => (
                   <li key={text}>
                     <Icon aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
@@ -133,8 +125,8 @@ export default function ContactPage() {
               </ul>
               <div className="ip-letter__sign">
                 <p className="ip-letter__mark">
-                  <b>LEVANTER</b>
-                  <span>Beşiktaş, Istanbul</span>
+                  <b>{siteConfig.wordmark}</b>
+                  <span>{siteConfig.place}</span>
                 </p>
                 <Stamp />
               </div>
