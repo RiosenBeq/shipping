@@ -18,6 +18,7 @@ import type { Crumb } from "@/lib/seo";
 import { Toc, TocMobile } from "./Toc";
 import { BtnLabel, Glows, LinkArrow, StillFigure, Sub } from "./ui";
 import { ICON_STROKE } from "@/components/site/iconStroke";
+import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 type Route = { code: string; lane: string; note: string; hormuz?: boolean };
 
@@ -295,6 +296,7 @@ export function ClassGuide(p: ClassGuideProps) {
               </span>
             </Link>
           </nav>
+          <RelatedGuides />
         </div>
       </Card>
 

@@ -359,10 +359,10 @@ export function Nav({
         data-ground={ground}
         data-hidden={hidden && !open ? "true" : undefined}
       >
-        <Link href="/" className="hdr__brand" aria-label="LEVANTER home" onClick={close}>
+        <Link href="/" className="hdr__brand" aria-label={`${siteConfig.name} home`} onClick={close}>
           <BrandMark light={ground === "dark"} />
           <span className="t-word" aria-hidden="true">
-            LEVANTER
+            {siteConfig.wordmark}
           </span>
         </Link>
 
@@ -422,10 +422,10 @@ export function Nav({
         <div className="menu__bathy" aria-hidden="true" style={{ backgroundImage: bathyBg }} />
         <span className="lv-glow lv-glow--brass" aria-hidden="true" />
         <div className="menu__top">
-          <Link href="/" className="hdr__brand" aria-label="LEVANTER home" onClick={close}>
+          <Link href="/" className="hdr__brand" aria-label={`${siteConfig.name} home`} onClick={close}>
             <BrandMark light />
             <span className="t-word" aria-hidden="true">
-              LEVANTER
+              {siteConfig.wordmark}
             </span>
           </Link>
           <button
@@ -497,20 +497,27 @@ export function Nav({
                 </li>
               ))}
             </ul>
-            <ul className="lv-social" aria-label="Social media">
-              <li>
-                <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
-                  <Linkedin aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
-                  <span className="sr-only">LinkedIn (opens in a new tab)</span>
-                </a>
-              </li>
-              <li>
-                <a href={siteConfig.socials.twitter} target="_blank" rel="noopener">
-                  <XGlyph />
-                  <span className="sr-only">X, formerly Twitter (opens in a new tab)</span>
-                </a>
-              </li>
-            </ul>
+            {/* Only the profiles filled in under Site settings; none until they exist. */}
+            {(siteConfig.socials.linkedin || siteConfig.socials.twitter) && (
+              <ul className="lv-social" aria-label="Social media">
+                {siteConfig.socials.linkedin && (
+                  <li>
+                    <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
+                      <Linkedin aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
+                      <span className="sr-only">LinkedIn (opens in a new tab)</span>
+                    </a>
+                  </li>
+                )}
+                {siteConfig.socials.twitter && (
+                  <li>
+                    <a href={siteConfig.socials.twitter} target="_blank" rel="noopener">
+                      <XGlyph />
+                      <span className="sr-only">X, formerly Twitter (opens in a new tab)</span>
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
           <p className="sr-only">{LANGUAGE_HINT}</p>
         </div>

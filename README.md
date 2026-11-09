@@ -1,4 +1,4 @@
-# LEVANTER — Tanker & LPG Shipbrokers
+# OBM Shipping — Tanker & LPG Shipbrokers
 
 Marketing site and free tools for an Istanbul-based tanker and LPG chartering broker. Next.js 14 (App Router), TypeScript, Tailwind CSS. Static pages, no database; the only server code is the content admin's API (`/api/keystatic`).
 

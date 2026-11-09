@@ -24,7 +24,7 @@ type PageMetaInput = {
    * leaves images out.
    */
   ogImage?: string | null;
-  /** When true, the title is used verbatim instead of the `%s — LEVANTER` template. */
+  /** When true, the title is used verbatim instead of the `%s · OBM Shipping` template. */
   absoluteTitle?: boolean;
   /** hreflang alternates, e.g. { en: "/", "zh-Hans": "/zh" }. */
   languages?: Record<string, string>;
@@ -88,8 +88,7 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       card: "summary_large_image",
       title: input.title,
       description: input.description,
-      site: siteConfig.twitter,
-      creator: siteConfig.twitter,
+      ...(siteConfig.twitter ? { site: siteConfig.twitter, creator: siteConfig.twitter } : {}),
       ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
     },
   };
@@ -98,6 +97,9 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
 /* ====================== JSON-LD helpers ====================== */
 
 const ORG_ID = `${siteConfig.url}#organization`;
+
+/** Real profiles only (Site settings → Social profiles); empty → no sameAs. */
+const SAME_AS = Object.values(siteConfig.socials).filter(Boolean);
 
 /** Languages spoken across the desks (from the team list), English first. */
 const ORG_LANGUAGES = Array.from(
@@ -109,8 +111,9 @@ export function organizationLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": ORG_ID,
-    name: siteConfig.legalEntity,
-    alternateName: siteConfig.name,
+    name: siteConfig.name,
+    // The registered name only when it differs from the brand (never invented).
+    ...(siteConfig.legalEntity !== siteConfig.name ? { legalName: siteConfig.legalEntity } : {}),
     url: siteConfig.url,
     // Google asks for a logo of at least 112 × 112 px: the 180 px apple-icon.
     logo: {
@@ -152,6 +155,22 @@ export function organizationLd() {
         telephone: siteConfig.phone,
         availableLanguage: ["English", "Turkish"],
       },
+      {
+        "@type": "ContactPoint",
+        contactType: "research",
+        name: siteConfig.desks.research.label,
+        email: siteConfig.desks.research.email,
+        availableLanguage: ["English"],
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "customer service",
+        name: "After-hours duty broker (WhatsApp)",
+        description: siteConfig.duty.hours,
+        telephone: siteConfig.duty.display,
+        url: `https://wa.me/${siteConfig.duty.whatsapp.replace(/\+/g, "")}`,
+        availableLanguage: ["English", "Turkish"],
+      },
     ],
     knowsAbout: [
       "Shipbroking",
@@ -183,7 +202,7 @@ export function organizationLd() {
       name: `${siteConfig.name} ${o.city}`,
       address: { "@type": "PostalAddress", addressLocality: o.city, addressCountry: o.country },
     })),
-    sameAs: Object.values(siteConfig.socials),
+    ...(SAME_AS.length ? { sameAs: SAME_AS } : {}),
   };
 }
 
@@ -222,7 +241,7 @@ export function localBusinessLd() {
     areaServed: ["Worldwide", "Mediterranean", "Black Sea", "Middle East", "Türkiye"],
     hasMap: `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.latitude},${siteConfig.geo.longitude}`,
     knowsLanguage: ORG_LANGUAGES,
-    sameAs: Object.values(siteConfig.socials),
+    ...(SAME_AS.length ? { sameAs: SAME_AS } : {}),
   };
 }
 

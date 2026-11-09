@@ -13,7 +13,7 @@ import { ICON_STROKE } from "@/components/site/iconStroke";
 
 export const notFoundMetadata: Metadata = {
   title: "Page not found",
-  description: "The page you're looking for doesn't exist on the LEVANTER site.",
+  description: "The page you're looking for doesn't exist on the OBM Shipping site.",
   robots: { index: false, follow: false },
 };
 

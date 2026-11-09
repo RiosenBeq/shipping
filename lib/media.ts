@@ -573,7 +573,7 @@ export const shippedVideos: Record<VideoSlot, VideoLoop> = {
     alt: "A harbour at dusk, the Istanbul waterfront, a tanker at anchor and ships at sea",
     credit: {
       source: "Mixkit and Wikimedia Commons (U.S. Coast Guard)",
-      title: "LEVANTER reel (edit of the sea, port, bosphorus and gas loops)",
+      title: "OBM Shipping reel (edit of the sea, port, bosphorus and gas loops)",
       url: "https://mixkit.co/free-stock-video/boat-sailing-in-the-sea-seen-from-high-above-50176/",
       author: "Mixkit; Aidan Cooney, U.S. Coast Guard (public domain)",
       license: "Mixkit Stock Video Free License; public domain (17 U.S.C. § 105)",

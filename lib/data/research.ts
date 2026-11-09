@@ -59,7 +59,7 @@ const toReport = (p: Post): Report => ({
   iss: p.issue ?? "",
   date: isoToReportDate(p.date),
   ...(p.updated ? { updated: isoToReportDate(p.updated) } : {}),
-  author: p.author?.name ?? "LEVANTER",
+  author: p.author?.name ?? "OBM Shipping",
   read: p.readingTime,
   gated: p.gated,
   title: p.title,

@@ -36,7 +36,7 @@ function copy(t: TankerClassData) {
     title: `${t.shortName} Chartering — ${t.longName}`,
     description: `${t.shortName} ${family} chartering (${t.dwtRange}). Key routes ${t.routes
       .map((r) => r.code)
-      .join(", ")}. Spot, time charter and COA from LEVANTER's tanker desk.`,
+      .join(", ")}. Spot, time charter and COA from OBM Shipping's tanker desk.`,
   };
 }
 

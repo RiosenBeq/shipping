@@ -55,7 +55,7 @@ const definedTermSetLd = {
   "@context": "https://schema.org",
   "@type": "DefinedTermSet",
   "@id": TERMSET_ID,
-  name: "LEVANTER tanker & LPG chartering glossary",
+  name: "OBM Shipping tanker & LPG chartering glossary",
   url: PAGE_URL,
   hasDefinedTerm: GLOSSARY_TERMS.map((t) => ({
     "@type": "DefinedTerm",

@@ -1,12 +1,12 @@
 {
-  "name": "LEVANTER",
+  "name": "OBM Shipping",
   "tagline": "Tanker & LPG Chartering Brokers",
-  "description": "LEVANTER is an Istanbul-based tanker and LPG shipbroker. Crude, clean and LPG/ammonia chartering — spot, time charter and COA — with direct broker access and a 60-minute first reply.",
-  "url": "https://levanter.example",
-  "legalEntity": "LEVANTER Shipbrokers A.Ş.",
+  "description": "OBM Shipping is an Istanbul tanker and LPG shipbroker: crude, clean products, LPG and ammonia chartering (spot, time charter, COA) with direct broker access.",
+  "url": "https://obmshipping.example",
+  "legalEntity": "OBM Shipping",
   "founded": "2024",
   "contentUpdated": "2026-10-19",
-  "email": "desk@levanter.example",
+  "email": "desk@obmshipping.example",
   "phone": "+90 212 000 0000",
   "whatsapp": "+905330000000",
   "whatsappDisplay": "+90 533 000 0000",
@@ -20,15 +20,15 @@
   "desks": {
     "tankers": {
       "label": "Tanker desk",
-      "email": "tankers@levanter.example"
+      "email": "tankers@obmshipping.example"
     },
     "lpg": {
       "label": "LPG & ammonia desk",
-      "email": "lpg@levanter.example"
+      "email": "lpg@obmshipping.example"
     },
     "research": {
       "label": "Research",
-      "email": "research@levanter.example"
+      "email": "research@obmshipping.example"
     }
   },
   "address": {
@@ -61,9 +61,9 @@
       "timeZone": "Asia/Singapore"
     }
   ],
-  "twitter": "@levanter",
+  "twitter": "",
   "socials": {
-    "linkedin": "https://www.linkedin.com/company/levanter",
-    "twitter": "https://twitter.com/levanter"
+    "linkedin": "",
+    "twitter": ""
   }
 }

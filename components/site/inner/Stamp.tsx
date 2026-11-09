@@ -16,7 +16,7 @@ export function Stamp({ className = "ip-stamp" }: { className?: string }) {
       >
         <textPath href="#ip-stamp-ring">FIRST REPLY · 60 MIN · ISTANBUL ·</textPath>
       </text>
-      {/* the LEVANTER mark: a crescent swell inside the ring */}
+      {/* the OBM Shipping mark: a crescent swell inside the ring */}
       <path
         d="M36 52c5-6 10-7 14-4s9 2 14-4"
         fill="none"

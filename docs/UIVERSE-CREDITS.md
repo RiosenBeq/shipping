@@ -3,7 +3,7 @@
 The `uv-*` components in [`app/uiverse.css`](../app/uiverse.css) are adapted from
 open-source elements published on [Uiverse.io](https://uiverse.io) and mirrored in
 its official archive, [uiverse-io/galaxy](https://github.com/uiverse-io/galaxy)
-(snapshot `adbd2ad`, 2 Sep 2024). We re-coloured each one to the LEVANTER navy + brass
+(snapshot `adbd2ad`, 2 Sep 2024). We re-coloured each one to the OBM Shipping navy + brass
 palette, adjusted it for accessibility (WCAG AA contrast, visible `:focus-visible`
 states, motion gated behind `prefers-reduced-motion`) and simplified the markup.
 Each block in the stylesheet also carries a one-line credit comment.

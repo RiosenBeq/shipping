@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/site";
 
 const TITLE = "Terms of Use";
 const DESCRIPTION =
-  "The terms for using the LEVANTER website, research and LPG cargo converter. All figures are indicative.";
+  "The terms for using the OBM Shipping website, research and LPG cargo converter. All figures are indicative.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -46,7 +46,7 @@ export default function TermsPage() {
     <div className="ip-page ip-page--flat">
       <JsonLd
         data={webPageLd({
-          title: `${TITLE} — ${siteConfig.name}`,
+          title: `${TITLE} · ${siteConfig.name}`,
           description: DESCRIPTION,
           path: "/terms",
         })}
@@ -82,7 +82,7 @@ export default function TermsPage() {
               <div className="ip-prose">
                 <h2 id="about">About us</h2>
                 <p>
-                  This website is run by {legalEntity} (&ldquo;LEVANTER&rdquo;, &ldquo;we&rdquo;),{" "}
+                  This website is run by {legalEntity} ({legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}&ldquo;we&rdquo;),{" "}
                   {address.street}, {address.postalCode} {address.locality}, Türkiye. We are a
                   chartering broker for crude and product tankers and for LPG and ammonia carriers.
                   On this site we describe those services and publish market research and a free LPG
@@ -132,7 +132,7 @@ export default function TermsPage() {
                 <h2 id="using">Using this site</h2>
                 <ul>
                   <li>
-                    The text, research, design and logo on this site belong to LEVANTER. You may
+                    The text, research, design and logo on this site belong to OBM Shipping. You may
                     quote short extracts with a clear credit and a link to the source page.
                   </li>
                   <li>

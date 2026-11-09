@@ -237,13 +237,26 @@ const site = singleton({
         itemLabel: (props) => `${props.fields.city.value} — ${props.fields.role.value}`,
       }
     ),
-    twitter: line("X / Twitter handle", "With the @, e.g. @levanter."),
+    twitter: optionalLine(
+      "X / Twitter handle",
+      "With the @. Leave empty until the company has an account."
+    ),
     socials: fields.object(
       {
-        linkedin: fields.url({ label: "LinkedIn", validation: required }),
-        twitter: fields.url({ label: "X / Twitter", validation: required }),
+        linkedin: fields.url({
+          label: "LinkedIn",
+          description: "Company page URL. Leave empty until the profile exists.",
+        }),
+        twitter: fields.url({
+          label: "X / Twitter",
+          description: "Profile URL. Leave empty until the profile exists.",
+        }),
       },
-      { label: "Social profiles", layout: [6, 6] }
+      {
+        label: "Social profiles",
+        description: "Shown in the menu and listed as sameAs in structured data only when filled in.",
+        layout: [6, 6],
+      }
     ),
   },
 });
@@ -722,7 +735,7 @@ export function keystaticConfig(mode: StorageMode) {
   return config({
     storage: mode === "local" ? { kind: "local" } : { kind: "github", repo: GITHUB_REPO },
     ui: {
-      brand: { name: "LEVANTER" },
+      brand: { name: "OBM Shipping" },
       navigation: {
         ...homeNavigation,
         Company: ["site", "brokers"],

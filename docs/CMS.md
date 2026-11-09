@@ -1,4 +1,4 @@
-# LEVANTER: İçerik yönetim paneli (Keystatic)
+# OBM Shipping: İçerik yönetim paneli (Keystatic)
 
 Sitedeki bütün liste ve metin verileri (**ana sayfa — bölümlerin sırası dahil**, **medya kütüphanesi — videolar, posterler, fotoğraflar**, şirket ve iletişim bilgileri, brokerlar, **blog yazıları**, SSS'ler, sözlük, tanker ve LPG sınıfları, LPG dönüştürücü yoğunlukları, uyum ve Türk Boğazları sayfaları) artık **`/keystatic`** adresindeki yönetim panelinden eklenip düzenlenebilir.
 
@@ -37,8 +37,8 @@ KEYSTATIC_STORAGE=github npm run dev
 ```
 
 1. **http://localhost:3000/keystatic** adresini açın (Keystatic bu modda adresi `http://127.0.0.1:3000` yapar) ve **Log in with GitHub**'a tıklayın. Uygulama henüz olmadığı için **Keystatic Setup** ekranı açılır.
-2. **Deployed App URL** alanına canlı sitenin adresini yazın (ör. `https://www.levanter.com.tr`). Böylece canlı sitenin giriş dönüş adresi (`/api/keystatic/github/oauth/callback`) uygulamaya eklenir. Uygulama bir GitHub organizasyonunda olacaksa organizasyon adını da girin.
-3. **Create GitHub App** → GitHub'da uygulamaya bir ad verin (ör. `levanter-cms`) ve oluşturun.
+2. **Deployed App URL** alanına canlı sitenin adresini yazın (ör. `https://obmshipping.example`). Böylece canlı sitenin giriş dönüş adresi (`/api/keystatic/github/oauth/callback`) uygulamaya eklenir. Uygulama bir GitHub organizasyonunda olacaksa organizasyon adını da girin.
+3. **Create GitHub App** → GitHub'da uygulamaya bir ad verin (ör. `obmshipping-cms`) ve oluşturun.
 4. GitHub, uygulamayı bir depoya kurmanızı ister: **Only select repositories → `RiosenBeq/shipping`**.
 5. Keystatic dört değeri projenin kökündeki **`.env`** dosyasına yazar. Bu dosya Git'e girmez (`.gitignore`), içindekiler gizlidir; kimseyle paylaşmayın.
 
@@ -53,7 +53,7 @@ Vercel'de projeyi açın: **Settings → Environment Variables**. `.env` dosyas�
 | `KEYSTATIC_GITHUB_CLIENT_ID` | GitHub App'in istemci kimliği |
 | `KEYSTATIC_GITHUB_CLIENT_SECRET` | GitHub App'in gizli anahtarı (gizli) |
 | `KEYSTATIC_SECRET` | Oturum çerezlerini imzalayan rastgele anahtar (gizli) |
-| `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` | Uygulamanın GitHub'daki kısa adı (ör. `levanter-cms`) |
+| `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` | Uygulamanın GitHub'daki kısa adı (ör. `obmshipping-cms`) |
 
 Ardından **Deployments → son yayın → Redeploy**. `NEXT_PUBLIC_…` değişkeni derleme sırasında koda gömüldüğü için yeniden yayın şart.
 
@@ -212,7 +212,7 @@ Not: ileride siteye bir Content-Security-Policy eklenirse (§7, PR #3) başka si
 | **Passages** | Boğazlar ve kanallar: Aframax boyu yüklü ve balast maliyet ($), beklenen bekleme/gecikme (gün) ve isteğe bağlı **Waiting, ships under 200 m** (200 m altı gemiler için bekleme; Türk Boğazları'nda gelen değerler 0,25 / 0,15 / 0,1 gün; boyun fark etmediği geçişlerde boş bırakın); not geçişin altında görünür. Bab el-Mandeb ve Hormuz 0 maliyetle gelir: savaş riski ek primini (AWRP) maliyet olarak girebilirsiniz. |
 | **Distances** | Liman çiftleri arası deniz mesafesi (nm). Her çift bir kez yazılır; hesaplayıcı iki yönde de okur. Aynı çift için iki rota (ör. Süveyş ve Ümit Burnu) farklı **Via** ile iki satırdır: hesaplayıcı geminin kullanabildiği en kısa rotayla açar (yüklü VLCC Süveyş'ten, hiçbir VLCC Panama'dan geçemez; bu kural kodda), diğerini seçtirir. **Passages**: rotadaki geçiş id'leri, From limanından başlayarak sırayla ve virgülle (ör. `turkish-straits, gibraltar`). **ECA share**: rotanın SOx Emisyon Kontrol Alanları içindeki yüzdesi (bu kısımda MGO yakılır; Akdeniz 1 Mayıs 2025'ten beri ECA). |
 
-**Gelen değerler örnektir.** Fiyatlar 6 Kasım 2026 tarihli örnek değerlerdir; mesafeler LEVANTER'ın standart deniz yolu noktaları (trafik ayırım şemaları, burunlar, boğazlar, kanal girişleri) arasındaki büyük daire bacaklarından hesaplanmıştır ve yaygın tablolarla yaklaşık ±%2 uyuşur; liman ve geçiş masrafları da örnektir. Canlıya almadan önce fiyatları ve tarihlerini, notu ve masrafları güncelleyin. Worldscale düz fiyatları (flat rate) Worldscale Association lisansıyla yayımlandığı için sitede yoktur; ziyaretçi kendi tablosundan girer.
+**Gelen değerler örnektir.** Fiyatlar 6 Kasım 2026 tarihli örnek değerlerdir; mesafeler OBM Shipping'in standart deniz yolu noktaları (trafik ayırım şemaları, burunlar, boğazlar, kanal girişleri) arasındaki büyük daire bacaklarından hesaplanmıştır ve yaygın tablolarla yaklaşık ±%2 uyuşur; liman ve geçiş masrafları da örnektir. Canlıya almadan önce fiyatları ve tarihlerini, notu ve masrafları güncelleyin. Worldscale düz fiyatları (flat rate) Worldscale Association lisansıyla yayımlandığı için sitede yoktur; ziyaretçi kendi tablosundan girer.
 
 **Bir fiyatı güncellemek:** **Tools → Freight calculator data → Bunker prices → VLSFO 0.50% S** altında **Price** ve **As of**'u değiştirin, **Save**. `/freight-calculator` yenilendiğinde yeni fiyat, tarihi ve "x days ago" görünür. "Copy link" ile paylaşılmış hesaplar kendi fiyatlarını taşıdığından değişmez; adres çubuğundaki bağlantıda ziyaretçinin değiştirmediği fiyatlar güncel referansla açılır.
 

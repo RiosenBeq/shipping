@@ -1,5 +1,5 @@
-# LEVANTER lens grade "day" (components/site/stage/grades.ts), sRGB in/out
-TITLE "LEVANTER day"
+# OBM Shipping lens grade "day" (components/site/stage/grades.ts), sRGB in/out
+TITLE "OBM Shipping day"
 LUT_3D_SIZE 17
 DOMAIN_MIN 0.0 0.0 0.0
 DOMAIN_MAX 1.0 1.0 1.0

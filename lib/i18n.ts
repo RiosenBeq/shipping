@@ -170,7 +170,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Mandarin",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — 伊斯坦布尔油轮与液化石油气（LPG）船舶经纪",
+      metaTitle: "OBM Shipping — 伊斯坦布尔油轮与液化石油气（LPG）船舶经纪",
       metaDescription:
         "总部位于伊斯坦布尔的油轮与LPG船舶经纪公司。原油、成品油、液化石油气和氨的航次租船、期租及包运合同（COA）。直接对接经纪人，60分钟内首次回复。",
       keywords: ["油轮经纪", "LPG船舶经纪", "VLGC租船", "油轮租船", "伊斯坦布尔船舶经纪"],
@@ -192,7 +192,7 @@ export const LOCALES: Locale[] = [
         text: "按波罗的海指数报价的VLGC、运输氨的MGC，以及地中海的小型压力式LPG船。",
       },
       explore: "查看部门详情（英文）",
-      whyEyebrow: "为什么选择LEVANTER",
+      whyEyebrow: "为什么选择OBM Shipping",
       whyTitle: "具有本地深度的精品经纪团队。",
       why: [
         {
@@ -233,7 +233,7 @@ export const LOCALES: Locale[] = [
       ctaText: "发送货物、港口和受载期。工作时间内经纪人60分钟内回复。我们使用英文工作。",
       ctaEmail: "电子邮件",
       speaker: "可用中文与 {name} 沟通。",
-      whatsappGreeting: "您好，LEVANTER，我想咨询一笔租船业务。",
+      whatsappGreeting: "您好，OBM Shipping，我想咨询一笔租船业务。",
       deskLinesTitle: "业务部门直线联系",
       deskNote: "工作时间内，经纪人60分钟内回复。",
       stepsEyebrow: "工作方式",
@@ -275,7 +275,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "只做液货，别无其他。我们在博斯普鲁斯海峡旁经纪油轮和气体运输船，因此每位经纪人都深入了解船舶、码头和海峡。",
-        about: "关于LEVANTER（英文）",
+        about: "关于OBM Shipping（英文）",
         pin: "伊斯坦布尔业务部",
         factLinks: ["土耳其海峡指南", "压力式LPG船指南", "认识团队", "Worldscale与TCE详解"],
         desksLines: ["两个业务部门，", "同一个标准。"],
@@ -339,7 +339,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Japanese",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — イスタンブールのタンカー・LPG船シップブローカー",
+      metaTitle: "OBM Shipping — イスタンブールのタンカー・LPG船シップブローカー",
       metaDescription:
         "イスタンブールを拠点とするタンカーおよびLPG船のシップブローカー。原油、石油製品、LPG、アンモニアの航海傭船・定期傭船・COA。担当ブローカーに直接つながり、60分以内に初回返信。",
       keywords: [
@@ -367,7 +367,7 @@ export const LOCALES: Locale[] = [
         text: "バルチック指標のVLGC、アンモニア輸送のMGC、地中海の小型加圧式LPG船。",
       },
       explore: "デスク詳細（英語）",
-      whyEyebrow: "LEVANTERが選ばれる理由",
+      whyEyebrow: "OBM Shippingが選ばれる理由",
       whyTitle: "地域に根ざしたブティック型デスク。",
       why: [
         {
@@ -418,7 +418,7 @@ export const LOCALES: Locale[] = [
         "貨物、港、レイキャンをお送りください。営業時間内に60分以内で返信します。業務は英語で行います。",
       ctaEmail: "メール",
       speaker: "{name} とは日本語でご相談いただけます。",
-      whatsappGreeting: "LEVANTER御中、傭船の件でご相談したいです。",
+      whatsappGreeting: "OBM Shipping御中、傭船の件でご相談したいです。",
       deskLinesTitle: "デスク直通窓口",
       deskNote: "営業時間内は60分以内にブローカーが返信します。",
       stepsEyebrow: "進め方",
@@ -460,7 +460,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "扱うのは液体貨物だけ。ボスポラス海峡のデスクからタンカーとガス船を仲介するため、どのブローカーも船、ターミナル、海峡を深く理解しています。",
-        about: "LEVANTERについて（英語）",
+        about: "OBM Shippingについて（英語）",
         pin: "イスタンブール・デスク",
         factLinks: [
           "トルコ海峡ガイド",
@@ -540,7 +540,7 @@ export const LOCALES: Locale[] = [
     label: "한국어",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — 이스탄불 유조선·LPG선 선박 중개",
+      metaTitle: "OBM Shipping — 이스탄불 유조선·LPG선 선박 중개",
       metaDescription:
         "이스탄불 기반의 유조선 및 LPG선 선박 중개 회사. 원유, 석유제품, LPG, 암모니아의 항해용선, 정기용선, COA. 담당 브로커와 직접 소통하며 60분 이내 첫 회신.",
       keywords: ["유조선 브로커", "LPG선 용선", "VLGC 용선", "선박 중개 이스탄불"],
@@ -563,7 +563,7 @@ export const LOCALES: Locale[] = [
         text: "발틱 지수 기준의 VLGC, 암모니아 운송 MGC, 지중해의 소형 가압식 LPG선.",
       },
       explore: "데스크 상세 정보 (영문)",
-      whyEyebrow: "LEVANTER를 선택하는 이유",
+      whyEyebrow: "OBM Shipping을 선택하는 이유",
       whyTitle: "현지 전문성을 갖춘 부티크 데스크.",
       why: [
         {
@@ -614,7 +614,7 @@ export const LOCALES: Locale[] = [
         "화물, 항구, 레이캔을 보내주세요. 영업시간 중 60분 이내에 회신합니다. 업무는 영어로 진행합니다.",
       ctaEmail: "이메일",
       speaker: "{name}와 한국어로 상담하실 수 있습니다.",
-      whatsappGreeting: "안녕하세요 LEVANTER, 용선 건으로 문의드립니다.",
+      whatsappGreeting: "안녕하세요 OBM Shipping, 용선 건으로 문의드립니다.",
       deskLinesTitle: "데스크 직통 연락처",
       deskNote: "영업시간 중에는 60분 이내에 브로커가 회신합니다.",
       stepsEyebrow: "진행 방식",
@@ -656,7 +656,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "액체 화물만, 그 외에는 없습니다. 보스포루스의 데스크에서 유조선과 가스선을 중개하기에 모든 브로커가 선박, 터미널, 해협을 깊이 압니다.",
-        about: "LEVANTER 소개 (영문)",
+        about: "OBM Shipping 소개 (영문)",
         pin: "이스탄불 데스크",
         factLinks: ["터키 해협 가이드", "가압식 LPG선 가이드", "팀 소개", "Worldscale과 TCE 설명"],
         desksLines: ["두 개의 데스크,", "하나의 기준."],
@@ -732,7 +732,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Greek",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων LPG",
+      metaTitle: "OBM Shipping — Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων LPG",
       metaDescription:
         "Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων με έδρα την Κωνσταντινούπολη. Αργό, προϊόντα, LPG και αμμωνία — ναυλώσεις ταξιδιού, χρονοναυλώσεις και COA. Απευθείας επαφή με τον μεσίτη, πρώτη απάντηση σε 60 λεπτά.",
       keywords: ["ναυλομεσίτης δεξαμενόπλοια", "ναυλώσεις LPG", "ναύλωση VLGC", "ναυλομεσίτες"],
@@ -755,7 +755,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC στους δείκτες Baltic, MGC για αμμωνία και μικρά υγραεριοφόρα υπό πίεση στη Μεσόγειο.",
       },
       explore: "Λεπτομέρειες τμήματος (στα αγγλικά)",
-      whyEyebrow: "Γιατί LEVANTER",
+      whyEyebrow: "Γιατί OBM Shipping",
       whyTitle: "Ένα boutique γραφείο με τοπική εμβάθυνση.",
       why: [
         {
@@ -815,7 +815,7 @@ export const LOCALES: Locale[] = [
         "Στείλτε φορτίο, λιμάνια και laycan. Ένας μεσίτης απαντά μέσα σε 60 λεπτά τις εργάσιμες ώρες.",
       ctaEmail: "Email",
       speaker: "Μιλήστε ελληνικά με τον {name}.",
-      whatsappGreeting: "Καλημέρα LEVANTER, θα ήθελα να συζητήσουμε μια ναύλωση.",
+      whatsappGreeting: "Καλημέρα OBM Shipping, θα ήθελα να συζητήσουμε μια ναύλωση.",
       deskLinesTitle: "Απευθείας γραμμές τμημάτων",
       deskNote: "Ένας μεσίτης απαντά μέσα σε 60 λεπτά τις εργάσιμες ώρες.",
       stepsEyebrow: "Πώς δουλεύουμε",
@@ -857,7 +857,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Υγρά φορτία, τίποτε άλλο. Ναυλώνουμε δεξαμενόπλοια και υγραεριοφόρα από ένα γραφείο στον Βόσπορο, ώστε κάθε μεσίτης να γνωρίζει σε βάθος τα πλοία, τους τερματικούς σταθμούς και τα Στενά.",
-        about: "Σχετικά με τη LEVANTER (αγγλικά)",
+        about: "Σχετικά με την OBM Shipping (αγγλικά)",
         pin: "Γραφείο Κωνσταντινούπολης",
         factLinks: [
           "Οδηγός Τουρκικών Στενών",
@@ -939,7 +939,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Danish",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Skipsmeglere for tankskip og LPG i Istanbul",
+      metaTitle: "OBM Shipping — Skipsmeglere for tankskip og LPG i Istanbul",
       metaDescription:
         "Skipsmeglere for tankskip og LPG-skip med base i Istanbul. Råolje, produkter, LPG og ammoniakk — reisebefraktning, tidsbefraktning og COA. Direkte kontakt med megleren og første svar innen 60 minutter.",
       keywords: ["skipsmegler tankskip", "LPG skipsmegler", "VLGC befraktning", "befraktning"],
@@ -962,7 +962,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC på Baltic-referansene, MGC for ammoniakk og små trykksatte LPG-skip i Middelhavet.",
       },
       explore: "Om desken (engelsk)",
-      whyEyebrow: "Hvorfor LEVANTER",
+      whyEyebrow: "Hvorfor OBM Shipping",
       whyTitle: "En boutique-desk med lokal dybde.",
       why: [
         {
@@ -1022,7 +1022,7 @@ export const LOCALES: Locale[] = [
         "Send last, havner og laycan. En megler svarer innen 60 minutter i arbeidstiden. Vi jobber på engelsk.",
       ctaEmail: "E-post",
       speaker: "Snakk skandinavisk med {name}.",
-      whatsappGreeting: "Hei LEVANTER, jeg vil gjerne diskutere en befraktning.",
+      whatsappGreeting: "Hei OBM Shipping, jeg vil gjerne diskutere en befraktning.",
       deskLinesTitle: "Direktelinjer til deskene",
       deskNote: "En megler svarer innen 60 minutter i arbeidstiden.",
       stepsEyebrow: "Slik jobber vi",
@@ -1064,7 +1064,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Flytende last, ikke noe annet. Vi megler tankskip og gasskip fra en desk ved Bosporos, så hver megler kjenner skipene, terminalene og stredene i dybden.",
-        about: "Om LEVANTER (engelsk)",
+        about: "Om OBM Shipping (engelsk)",
         pin: "Istanbul-desken",
         factLinks: [
           "Guide til De tyrkiske stredene",
@@ -1145,7 +1145,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Danish",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Skibsmæglere for tankskibe og LPG i Istanbul",
+      metaTitle: "OBM Shipping — Skibsmæglere for tankskibe og LPG i Istanbul",
       metaDescription:
         "Skibsmæglere for tankskibe og LPG-skibe med base i Istanbul. Råolie, produkter, LPG og ammoniak — rejsebefragtning, tidsbefragtning og COA. Direkte kontakt med mægleren og første svar inden for 60 minutter.",
       keywords: ["skibsmægler tankskibe", "LPG skibsmægler", "VLGC befragtning", "befragtning"],
@@ -1168,7 +1168,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC på Baltic-benchmarks, MGC til ammoniak og små trykskibe til LPG i Middelhavet.",
       },
       explore: "Om desken (engelsk)",
-      whyEyebrow: "Hvorfor LEVANTER",
+      whyEyebrow: "Hvorfor OBM Shipping",
       whyTitle: "En boutique-desk med lokal dybde.",
       why: [
         {
@@ -1219,7 +1219,7 @@ export const LOCALES: Locale[] = [
         "Send last, havne og laycan. En mægler svarer inden for 60 minutter i arbejdstiden. Vi arbejder på engelsk.",
       ctaEmail: "E-mail",
       speaker: "Tal dansk med {name}.",
-      whatsappGreeting: "Hej LEVANTER, jeg vil gerne drøfte en befragtning.",
+      whatsappGreeting: "Hej OBM Shipping, jeg vil gerne drøfte en befragtning.",
       deskLinesTitle: "Direkte linjer til deskene",
       deskNote: "En mægler svarer inden for 60 minutter i arbejdstiden.",
       stepsEyebrow: "Sådan arbejder vi",
@@ -1261,7 +1261,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Flydende last, intet andet. Vi mægler tankskibe og gastankskibe fra en desk ved Bosporus, så hver mægler kender skibene, terminalerne og strædet i dybden.",
-        about: "Om LEVANTER (engelsk)",
+        about: "Om OBM Shipping (engelsk)",
         pin: "Istanbul-desken",
         factLinks: [
           "Guide til De Tyrkiske Stræder",
@@ -1342,7 +1342,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Danish",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Skeppsmäklare för tankfartyg och LPG i Istanbul",
+      metaTitle: "OBM Shipping — Skeppsmäklare för tankfartyg och LPG i Istanbul",
       metaDescription:
         "Skeppsmäklare för tankfartyg och LPG-fartyg med bas i Istanbul. Råolja, produkter, LPG och ammoniak — resebefraktning, tidsbefraktning och COA. Direkt kontakt med mäklaren och första svar inom 60 minuter.",
       keywords: [
@@ -1370,7 +1370,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC på Baltic-referenserna, MGC för ammoniak och små trycksatta LPG-fartyg i Medelhavet.",
       },
       explore: "Om desken (engelska)",
-      whyEyebrow: "Varför LEVANTER",
+      whyEyebrow: "Varför OBM Shipping",
       whyTitle: "En boutique-desk med lokalt djup.",
       why: [
         {
@@ -1427,7 +1427,7 @@ export const LOCALES: Locale[] = [
         "Skicka last, hamnar och laycan. En mäklare svarar inom 60 minuter under arbetstid. Vi arbetar på engelska.",
       ctaEmail: "E-post",
       speaker: "Prata skandinaviska med {name}.",
-      whatsappGreeting: "Hej LEVANTER, jag vill gärna diskutera en befraktning.",
+      whatsappGreeting: "Hej OBM Shipping, jag vill gärna diskutera en befraktning.",
       deskLinesTitle: "Direktlinjer till deskarna",
       deskNote: "En mäklare svarar inom 60 minuter under arbetstid.",
       stepsEyebrow: "Så arbetar vi",
@@ -1469,7 +1469,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Flytande last, inget annat. Vi mäklar tankfartyg och gastankfartyg från en desk vid Bosporen, så varje mäklare känner fartygen, terminalerna och sunden på djupet.",
-        about: "Om LEVANTER (engelska)",
+        about: "Om OBM Shipping (engelska)",
         pin: "Istanbul-desken",
         factLinks: [
           "Guide till Turkiska sunden",
@@ -1549,7 +1549,7 @@ export const LOCALES: Locale[] = [
     label: "Deutsch",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Schiffsmakler für Tanker und LPG in Istanbul",
+      metaTitle: "OBM Shipping — Schiffsmakler für Tanker und LPG in Istanbul",
       metaDescription:
         "Schiffsmakler für Tanker und LPG-Gastanker mit Sitz in Istanbul. Rohöl, Produkte, LPG und Ammoniak — Reisecharter, Zeitcharter und COA. Direkter Kontakt zum Makler, erste Antwort innerhalb von 60 Minuten.",
       keywords: [
@@ -1577,7 +1577,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC auf Basis der Baltic-Benchmarks, MGC für Ammoniak und kleine Druckgastanker im Mittelmeer.",
       },
       explore: "Zum Desk (Englisch)",
-      whyEyebrow: "Warum LEVANTER",
+      whyEyebrow: "Warum OBM Shipping",
       whyTitle: "Ein Boutique-Desk mit lokaler Tiefe.",
       why: [
         {
@@ -1637,7 +1637,7 @@ export const LOCALES: Locale[] = [
         "Senden Sie Ladung, Häfen und Laycan. Ein Makler antwortet innerhalb von 60 Minuten während der Geschäftszeiten. Wir arbeiten auf Englisch.",
       ctaEmail: "E-Mail",
       speaker: "Sprechen Sie mit {name}.",
-      whatsappGreeting: "Hallo LEVANTER, ich möchte über eine Befrachtung sprechen.",
+      whatsappGreeting: "Hallo OBM Shipping, ich möchte über eine Befrachtung sprechen.",
       deskLinesTitle: "Direkte Leitungen zu den Desks",
       deskNote: "Ein Makler antwortet innerhalb von 60 Minuten während der Geschäftszeiten.",
       stepsEyebrow: "So arbeiten wir",
@@ -1679,7 +1679,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Flüssige Ladung, nichts anderes. Wir vermitteln Tanker und Gastanker von einem Desk am Bosporus aus – so kennt jeder Makler die Schiffe, die Terminals und die Meerengen im Detail.",
-        about: "Über LEVANTER (Englisch)",
+        about: "Über OBM Shipping (Englisch)",
         pin: "Desk Istanbul",
         factLinks: [
           "Leitfaden Türkische Meerengen",
@@ -1760,7 +1760,7 @@ export const LOCALES: Locale[] = [
     label: "Español",
     dir: "ltr",
     dict: {
-      metaTitle: "LEVANTER — Corredores de fletamento de petroleros y GLP en Estambul",
+      metaTitle: "OBM Shipping — Corredores de fletamento de petroleros y GLP en Estambul",
       metaDescription:
         "Corredores marítimos de petroleros y buques de GLP con sede en Estambul. Crudo, productos, GLP y amoníaco: fletamento por viaje, por tiempo y COA. Contacto directo con el corredor y primera respuesta en 60 minutos.",
       keywords: [
@@ -1788,7 +1788,7 @@ export const LOCALES: Locale[] = [
         text: "VLGC sobre las referencias del Baltic, MGC para amoníaco y pequeños buques presurizados de GLP en el Mediterráneo.",
       },
       explore: "Ver la mesa (en inglés)",
-      whyEyebrow: "Por qué LEVANTER",
+      whyEyebrow: "Por qué OBM Shipping",
       whyTitle: "Una mesa boutique con conocimiento local.",
       why: [
         {
@@ -1845,7 +1845,7 @@ export const LOCALES: Locale[] = [
         "Envíe la carga, los puertos y el laycan. Un corredor responde en 60 minutos en horario laboral. Trabajamos en inglés.",
       ctaEmail: "Correo",
       speaker: "Hable con {name}.",
-      whatsappGreeting: "Hola LEVANTER, me gustaría hablar de un fletamento.",
+      whatsappGreeting: "Hola OBM Shipping, me gustaría hablar de un fletamento.",
       deskLinesTitle: "Líneas directas de las mesas",
       deskNote: "Un corredor responde en 60 minutos en horario laboral.",
       stepsEyebrow: "Cómo trabajamos",
@@ -1887,7 +1887,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "Cargas líquidas, nada más. Fletamos petroleros y gaseros desde una mesa en el Bósforo, así que cada corredor conoce a fondo los buques, las terminales y los Estrechos.",
-        about: "Sobre LEVANTER (en inglés)",
+        about: "Sobre OBM Shipping (en inglés)",
         pin: "Mesa de Estambul",
         factLinks: [
           "Guía de los Estrechos turcos",
@@ -1969,7 +1969,7 @@ export const LOCALES: Locale[] = [
     brokerLanguage: "Arabic",
     dir: "rtl",
     dict: {
-      metaTitle: "LEVANTER — وساطة تأجير ناقلات النفط وناقلات الغاز المسال في إسطنبول",
+      metaTitle: "OBM Shipping — وساطة تأجير ناقلات النفط وناقلات الغاز المسال في إسطنبول",
       metaDescription:
         "وسطاء بحريون لناقلات النفط وناقلات غاز البترول المسال مقرهم إسطنبول. النفط الخام والمنتجات والغاز المسال والأمونيا — تأجير بالرحلة وتأجير زمني وعقود نقل طويلة الأجل. تواصل مباشر مع الوسيط ورد أول خلال 60 دقيقة.",
       keywords: [
@@ -1997,7 +1997,7 @@ export const LOCALES: Locale[] = [
         text: "ناقلات VLGC وفق مؤشرات البلطيق، وMGC للأمونيا، وناقلات صغيرة مضغوطة للغاز المسال في المتوسط.",
       },
       explore: "تفاصيل القسم (بالإنجليزية)",
-      whyEyebrow: "لماذا LEVANTER",
+      whyEyebrow: "لماذا OBM Shipping",
       whyTitle: "مكتب متخصص بخبرة محلية عميقة.",
       why: [
         {
@@ -2047,7 +2047,7 @@ export const LOCALES: Locale[] = [
       ctaText: "أرسل الشحنة والموانئ ونافذة التحميل. يرد وسيط خلال 60 دقيقة أثناء ساعات العمل.",
       ctaEmail: "البريد الإلكتروني",
       speaker: "تحدث بالعربية مع {name}.",
-      whatsappGreeting: "مرحبًا LEVANTER، أود مناقشة عملية تأجير.",
+      whatsappGreeting: "مرحبًا OBM Shipping، أود مناقشة عملية تأجير.",
       deskLinesTitle: "خطوط مباشرة إلى الأقسام",
       deskNote: "يرد وسيط خلال 60 دقيقة أثناء ساعات العمل.",
       stepsEyebrow: "طريقة عملنا",
@@ -2089,7 +2089,7 @@ export const LOCALES: Locale[] = [
         },
         statement:
           "الشحنات السائلة فقط، ولا شيء غيرها. نتوسط في تأجير ناقلات النفط والغاز من مكتب على البوسفور، لذا يعرف كل وسيط السفن والمحطات والمضائق معرفةً عميقة.",
-        about: "عن LEVANTER (بالإنجليزية)",
+        about: "عن OBM Shipping (بالإنجليزية)",
         pin: "مكتب إسطنبول",
         factLinks: [
           "دليل المضائق التركية",

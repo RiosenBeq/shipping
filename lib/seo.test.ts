@@ -22,6 +22,7 @@ import {
   organizationLd,
 } from "@/lib/seo";
 import { rootMetadata } from "@/lib/root-metadata";
+import { companyFacts } from "@/lib/facts";
 
 const abs = (path: string) => new URL(path, siteConfig.url).toString();
 const POSTS = getPosts();
@@ -178,7 +179,7 @@ describe("structured data", () => {
   it("describes the blog as a Blog listing its posts", () => {
     const ld = blogLd({
       path: "/blog",
-      name: "LEVANTER Blog",
+      name: "OBM Shipping Blog",
       description: "x",
       posts: POSTS.slice(0, 2).map((p) => ({ title: p.title, path: p.href, date: p.date })),
     });
@@ -242,5 +243,69 @@ describe("llms-full.txt", () => {
 
   it("has no unrendered placeholders", () => {
     expect(txt).not.toMatch(/undefined|\[object Object\]/);
+  });
+});
+
+describe("brand and GEO facts", () => {
+  const org = organizationLd() as Record<string, unknown>;
+
+  it("names the company OBM Shipping everywhere crawlers and AI engines look", () => {
+    expect(siteConfig.name).toBe("OBM Shipping");
+    expect(siteConfig.wordmark).toBe("OBM SHIPPING");
+    expect(org.name).toBe("OBM Shipping");
+    expect(rootMetadata.title).toMatchObject({ template: "%s · OBM Shipping" });
+    for (const text of [llmsTxt(), llmsFullTxt(), JSON.stringify(org)]) {
+      expect(text).not.toMatch(/levanter/i);
+    }
+  });
+
+  it("takes every absolute URL from the one site origin", () => {
+    expect(siteConfig.url).not.toMatch(/\/$/);
+    expect(org.url).toBe(siteConfig.url);
+    expect(robots().sitemap).toBe(`${siteConfig.url}/sitemap.xml`);
+  });
+
+  it("lists sameAs only for social profiles that exist (no invented profiles)", () => {
+    const filled = Object.values(siteConfig.socials).filter(Boolean);
+    if (filled.length) expect(org.sameAs).toEqual(filled);
+    else expect(org).not.toHaveProperty("sameAs");
+    expect(org).not.toHaveProperty("aggregateRating");
+    expect(org).not.toHaveProperty("review");
+  });
+
+  it("has a contact point per desk and the offices as locations", () => {
+    const emails = (org.contactPoint as { email?: string }[]).map((c) => c.email);
+    for (const desk of Object.values(siteConfig.desks)) expect(emails).toContain(desk.email);
+    const places = org.location as { address: { addressLocality: string } }[];
+    expect(places.map((p) => p.address.addressLocality)).toEqual(
+      siteConfig.offices.map((o) => o.city)
+    );
+  });
+
+  it("keeps lab and admin routes out of crawls and welcomes the AI crawlers", () => {
+    const rules = [robots().rules].flat();
+    for (const rule of rules) {
+      expect([rule.disallow ?? []].flat()).toEqual(
+        expect.arrayContaining(["/api/", "/keystatic", "/stage-lab"])
+      );
+    }
+    for (const bot of [
+      "ChatGPT-User",
+      "Claude-SearchBot",
+      "Applebot-Extended",
+      "CCBot",
+    ]) {
+      expect(AI_AGENTS).toContain(bot);
+    }
+  });
+
+  it("repeats the /about fact sheet word for word in llms.txt and llms-full.txt", () => {
+    const facts = companyFacts();
+    expect(facts.length).toBeGreaterThanOrEqual(5);
+    for (const f of facts) {
+      expect(llmsTxt()).toContain(f.a);
+      expect(llmsFullTxt()).toContain(f.a);
+    }
+    expect(facts.map((f) => f.a).join(" ")).toContain(siteConfig.address.street);
   });
 });

@@ -78,7 +78,7 @@ export function shareImage({
               color: "#F1ECDC",
             }}
           >
-            LEVANTER
+            {siteConfig.wordmark}
           </div>
         </div>
 

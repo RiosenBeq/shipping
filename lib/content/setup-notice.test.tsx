@@ -38,7 +38,7 @@ describe("/keystatic in production without the GitHub App", () => {
 
   it("answers the API with 503 instead of crashing, and is noindex", async () => {
     production();
-    const res = await GET(new Request("https://levanter.example/api/keystatic/github/login"));
+    const res = await GET(new Request("https://obmshipping.example/api/keystatic/github/login"));
     expect(res.status).toBe(503);
     expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
   });
@@ -50,7 +50,7 @@ describe("/keystatic in production with the GitHub App", () => {
       KEYSTATIC_GITHUB_CLIENT_ID: "id",
       KEYSTATIC_GITHUB_CLIENT_SECRET: "secret",
       KEYSTATIC_SECRET: "x".repeat(40),
-      NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG: "levanter-cms",
+      NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG: "obmshipping-cms",
     });
     let digest = "";
     try {

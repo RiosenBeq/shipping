@@ -6,7 +6,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Tanker & LPG Blog: Notes from the Desk",
   description:
-    "Chartering guides, route guides, risk briefs and market notes from LEVANTER's tanker and LPG brokers: Hormuz, laytime, Worldscale, VLGC routing, EU ETS.",
+    "Chartering guides, route guides, risk briefs and market notes from OBM Shipping's tanker and LPG brokers: Hormuz, laytime, Worldscale, VLGC routing, EU ETS.",
   path: BLOG_PATH,
   languages: { en: BLOG_PATH },
   ogImage: BLOG_SHARE_IMAGE,

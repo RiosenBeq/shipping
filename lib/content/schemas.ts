@@ -97,8 +97,14 @@ export const siteFileSchema = z
     offices: z
       .array(z.object({ city: text, country: text, role: text, timeZone }).strict())
       .min(1),
-    twitter: z.string().regex(/^@\w+$/, "Handle with the @"),
-    socials: z.object({ linkedin: z.string().url(), twitter: z.string().url() }).strict(),
+    /** Optional: leave empty until the company has an account (no invented profiles). */
+    twitter: z.union([z.literal(""), z.string().regex(/^@\w+$/, "Handle with the @")]),
+    socials: z
+      .object({
+        linkedin: z.union([z.literal(""), z.string().url()]).nullable(),
+        twitter: z.union([z.literal(""), z.string().url()]).nullable(),
+      })
+      .strict(),
   })
   .strict();
 

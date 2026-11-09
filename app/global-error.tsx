@@ -39,7 +39,7 @@ export default function GlobalError({
   return (
     <html lang="en" style={FONT_FALLBACKS}>
       <head>
-        <title>Something went wrong — LEVANTER</title>
+        <title>{`Something went wrong · ${siteConfig.name}`}</title>
         <meta name="robots" content="noindex" />
         <meta name="theme-color" content="#0A1F33" />
       </head>
@@ -47,7 +47,9 @@ export default function GlobalError({
         <main className="relative isolate flex min-h-screen items-center overflow-hidden">
           <div className="uv-hero-pattern" aria-hidden="true" />
           <div className="container relative z-[1] py-20">
-            <p className="font-display text-sm tracking-[0.32em] text-brass-light">LEVANTER</p>
+            <p className="font-display text-sm tracking-[0.32em] text-brass-light">
+              {siteConfig.wordmark}
+            </p>
             <h1 className="mt-10 max-w-2xl font-display text-[38px] leading-[1.08] tracking-tight sm:text-5xl lg:text-[56px]">
               Something went wrong
             </h1>

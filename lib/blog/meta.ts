@@ -19,7 +19,7 @@ export type { BlogCategory, BlogDesk };
 export const BLOG_PATH = "/blog";
 export const BLOG_FEED_PATH = "/blog/feed.xml";
 export const BLOG_TITLE = "Notes from the desk.";
-export const BLOG_NAME = "LEVANTER Blog";
+export const BLOG_NAME = "OBM Shipping Blog";
 export const BLOG_DESCRIPTION =
   "Route guides, chartering how-tos and risk briefs, written by the brokers who fix the cargoes. No rate tables — the reasoning behind them.";
 
@@ -86,7 +86,7 @@ export const CATEGORY_INFO: Record<BlogCategory, CategoryInfo> = {
     slug: "news",
     label: BLOG_CATEGORY_LABELS.news,
     singular: "News",
-    description: "News from LEVANTER: people, offices and the desks.",
+    description: "News from OBM Shipping: people, offices and the desks.",
     legacy: "weekly",
   },
 };

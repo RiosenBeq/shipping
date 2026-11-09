@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   LEVANTER — design tokens and site chrome (DESIGN-V2 §4, §5, §8, §9, §12)
+   OBM Shipping — design tokens and site chrome (DESIGN-V2 §4, §5, §8, §9, §12)
 
    CONTRACT FOR PAGE BUILDERS (stable names; inner pages, blog and stage
    consume them):
@@ -534,7 +534,7 @@ main:not(:has([data-header-overlay])) {
   transform: scale(0.98);
 }
 
-/* Text link with a brass rule and an arrow ("About LEVANTER →"). */
+/* Text link with a brass rule and an arrow ("About OBM Shipping →"). */
 .lv-link {
   display: inline-flex;
   align-items: center;

@@ -18,6 +18,7 @@ import { fmtDate, fmtNum, fmtUsd } from "@/lib/freight/format";
 import { decodeState } from "@/lib/freight/url";
 import { buildPageMetadata, webPageLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 const TITLE = "Freight Calculator — Voyage Estimate, TCE & Breakeven";
 const DESCRIPTION =
@@ -215,6 +216,7 @@ export default function FreightCalculatorPage({ searchParams }: Props) {
               <Faq items={FAQ} />
             </div>
           </section>
+          <RelatedGuides current={FREIGHT_PATH} />
         </div>
       </Card>
 

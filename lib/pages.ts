@@ -96,7 +96,7 @@ export const PAGES: PageEntry[] = [
   },
   {
     path: "/about",
-    title: "About LEVANTER",
+    title: "About OBM Shipping",
     summary:
       "Company facts: founded in Istanbul in 2024, offices in Istanbul, London and Singapore, two desks, working principles and how brokers are paid.",
     group: "primary",

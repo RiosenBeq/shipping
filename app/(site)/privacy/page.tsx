@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/site";
 
 const TITLE = "Privacy Policy";
 const DESCRIPTION =
-  "How LEVANTER handles personal data on this website and in tanker and LPG chartering work. Cookieless analytics, no tracking cookies, no stored form submissions.";
+  "How OBM Shipping handles personal data on this website and in tanker and LPG chartering work. Cookieless analytics, no tracking cookies, no stored form submissions.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
     <div className="ip-page ip-page--flat">
       <JsonLd
         data={webPageLd({
-          title: `${TITLE} — ${siteConfig.name}`,
+          title: `${TITLE} · ${siteConfig.name}`,
           description: DESCRIPTION,
           path: "/privacy",
         })}
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
               <div className="ip-prose">
                 <h2 id="who">Who we are</h2>
                 <p>
-                  {legalEntity} (&ldquo;LEVANTER&rdquo;, &ldquo;we&rdquo;) is a tanker and LPG
+                  {legalEntity} ({legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}&ldquo;we&rdquo;) is a tanker and LPG
                   chartering broker. We are headquartered in {address.locality}, Türkiye, with desks
                   in {branchCities}. We are the data controller (<em>veri sorumlusu</em>) for the
                   personal data described here, under Türkiye&rsquo;s Personal Data Protection Law

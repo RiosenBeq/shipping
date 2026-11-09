@@ -24,7 +24,7 @@ import { DutyRibbon } from "@/components/site/DutyRibbon";
 
 const TITLE = "Contact — Send a Tanker or LPG Charter Inquiry";
 const DESCRIPTION =
-  "Send a tanker or LPG charter inquiry to LEVANTER in Istanbul: cargo, ports and laycan. A broker replies within 60 minutes. Email, phone or WhatsApp.";
+  "Send a tanker or LPG charter inquiry to OBM Shipping in Istanbul: cargo, ports and laycan. A broker replies within 60 minutes. Email, phone or WhatsApp.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -133,7 +133,7 @@ export default function ContactPage() {
               </ul>
               <div className="ip-letter__sign">
                 <p className="ip-letter__mark">
-                  <b>LEVANTER</b>
+                  <b>{siteConfig.wordmark}</b>
                   <span>Beşiktaş, Istanbul</span>
                 </p>
                 <Stamp />

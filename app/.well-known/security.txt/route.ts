@@ -16,7 +16,7 @@ export function GET() {
   expires.setUTCFullYear(expires.getUTCFullYear() + 1);
   expires.setUTCHours(0, 0, 0, 0);
 
-  const body = `# LEVANTER security disclosure
+  const body = `# OBM Shipping security disclosure
 # Per RFC 9116 — https://www.rfc-editor.org/rfc/rfc9116
 
 Contact: mailto:security@${siteConfig.email.split("@")[1]}

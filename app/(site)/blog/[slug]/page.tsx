@@ -41,8 +41,8 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     ...buildPageMetadata({
       title,
-      // Drop the " — LEVANTER" suffix when it would push the title past ~60 characters.
-      absoluteTitle: title.length > 48,
+      // Drop the " · OBM Shipping" suffix (15 characters) when it would push the title past ~60.
+      absoluteTitle: title.length > 45,
       description: post.description,
       path: post.href,
       languages: { en: post.href },
@@ -300,7 +300,7 @@ export default function BlogPostPage({ params }: Props) {
                   </span>
                 </a>
                 <a
-                  href={whatsappUrl(`Hi LEVANTER desk — about "${post.title}".`)}
+                  href={whatsappUrl(`Hi OBM Shipping desk — about "${post.title}".`)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

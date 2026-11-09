@@ -20,6 +20,7 @@ import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { TANKERS_FAQ } from "@/lib/data/faqs";
 import { ICON_STROKE } from "@/components/site/iconStroke";
+import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 const TITLE = "Tanker Broker — Crude & Product Tanker Chartering";
 const DESCRIPTION =
@@ -286,6 +287,7 @@ export default function TankersPage() {
               <Faq items={TANKERS_FAQ} />
             </div>
           </section>
+          <RelatedGuides current="/tankers" />
         </div>
       </Card>
 

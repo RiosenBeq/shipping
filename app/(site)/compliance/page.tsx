@@ -24,7 +24,7 @@ import { ICON_STROKE } from "@/components/site/iconStroke";
 const PATH = "/compliance";
 const TITLE = "Sanctions & Compliance Screening for Charters";
 const DESCRIPTION =
-  "How LEVANTER screens every tanker and LPG fixture: counterparties, ships, cargo origin, oil price-cap attestations and war-risk areas, before an offer is made.";
+  "How OBM Shipping screens every tanker and LPG fixture: counterparties, ships, cargo origin, oil price-cap attestations and war-risk areas, before an offer is made.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,

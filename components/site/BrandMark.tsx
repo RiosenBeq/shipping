@@ -1,5 +1,5 @@
 /**
- * LEVANTER mark: a circle with the Bosphorus channel line in brass.
+ * OBM Shipping mark: a circle with the Bosphorus channel line in brass.
  * Geometry matches app/icon.tsx and app/apple-icon.tsx — keep them in sync.
  * Decorative by default (the wordmark next to it carries the name); pass
  * `title` when the mark stands alone.

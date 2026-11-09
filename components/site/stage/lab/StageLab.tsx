@@ -313,7 +313,7 @@ export function StageLab({ bake }: { bake: "bathy" | "hero" | null }) {
             aria-hidden="true"
             className="font-display text-[12.4vw] font-semibold leading-none tracking-[0.3em] text-[#F3EFE4]/[0.085]"
           >
-            LEVANTER
+            OBM SHIPPING
           </p>
         </div>
       </StageWindow>

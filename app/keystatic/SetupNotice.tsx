@@ -26,7 +26,7 @@ export function SetupNotice({ missing }: { missing: string[] }) {
           color: "#8A6420",
         }}
       >
-        LEVANTER · Content admin
+        OBM Shipping · Content admin
       </p>
       <h1 style={{ fontSize: 28, lineHeight: 1.2, margin: "8px 0 16px" }}>
         Editing is not connected yet

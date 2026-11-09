@@ -30,7 +30,7 @@ function copy(slug: string) {
   const c = getLpgClassBySlug(slug)!;
   return {
     title: `${c.name} Chartering — ${c.longName}`,
-    description: `${c.name} chartering from LEVANTER's LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
+    description: `${c.name} chartering from OBM Shipping's LPG desk: ${c.capacity.split(" — ")[0].toLowerCase()}; ${c.cargoes
       .slice(0, 3)
       .join(", ")
       .toLowerCase()}. Spot, time charter and COA.`,

@@ -81,7 +81,7 @@ function offices() {
  * the Bosphorus (./footer) on the left, the huge menu on the right with the
  * brand, one line and the three offices under it; on phones the menu, the chart,
  * then the brand and offices. Ship classes, reading, languages and the legal row
- * (with Pause motion) below; the stern nameplate — LEVANTER over ISTANBUL, as a
+ * (with Pause motion) below; the stern nameplate — OBM SHIPPING over ISTANBUL, as a
  * ship's name and port are painted on her transom — at the foot.
  *
  * On pages without the stage (or whose stage does not list V-ocean) the
@@ -145,10 +145,10 @@ export function Footer() {
           <StraitChart />
           {/* A calm zone: the brand line and the offices' small type over the ocean's crests. */}
           <div className="ftr__brand-col" {...calm(0.5)}>
-            <Link href="/" className="ftr__brand" aria-label="LEVANTER home">
+            <Link href="/" className="ftr__brand" aria-label={`${siteConfig.name} home`}>
               <BrandMark light />
               <span className="t-word" aria-hidden="true">
-                LEVANTER
+                {siteConfig.wordmark}
               </span>
             </Link>
             <p className="ftr__tag">
@@ -251,7 +251,7 @@ export function Footer() {
         </div>
 
         <p className="ftr__plate" aria-hidden="true">
-          <b>LEVANTER</b>
+          <b>{siteConfig.wordmark}</b>
           <span>ISTANBUL</span>
         </p>
       </div>

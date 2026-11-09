@@ -18,7 +18,7 @@ The full licence texts ship inside each package (`node_modules/<package>/LICENSE
 
 ## Patterns re-implemented (ideas only, no code copied)
 
-Visual ideas seen in free collections, rebuilt from scratch on LEVANTER's tokens in plain CSS
+Visual ideas seen in free collections, rebuilt from scratch on OBM Shipping's tokens in plain CSS
 and a few lines of TypeScript (no `motion`, no Tailwind 4 classes). Credited as a courtesy:
 no third-party code is included, so no licence notice is required.
 
