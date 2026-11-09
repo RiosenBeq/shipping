@@ -73,6 +73,20 @@ function ReachMap({ view }: { view: HomeView }) {
           })}
         </g>
       </svg>
+      {/* P5: the lane pulses in a layer of their own (will-change), so their per-frame repaint
+          never reaches the dot map or the paper under it. */}
+      <svg
+        className="h-map__fx"
+        viewBox={`0 0 ${MAP_COLS} ${MAP_ROWS}`}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g className="h-map__pulses" data-reveal="draw">
+          {LANES.map(([lon, lat], i) => (
+            <path key={i} d={arc(ist, pt(lon, lat))} pathLength={1} style={{ "--i": i } as Style} />
+          ))}
+        </g>
+      </svg>
       {/* Phones: the same dots cropped to the Med, the Black Sea and the Gulf. */}
       <svg
         className="h-map__svg h-map__svg--phone"
@@ -84,6 +98,11 @@ function ReachMap({ view }: { view: HomeView }) {
         <g className="h-map__lanes">
           {LANES.slice(0, 4).map(([lon, lat], i) => (
             <path key={i} d={arc(ist, pt(lon, lat))} />
+          ))}
+        </g>
+        <g className="h-map__pulses">
+          {LANES.slice(0, 4).map(([lon, lat], i) => (
+            <path key={i} d={arc(ist, pt(lon, lat))} pathLength={1} style={{ "--i": i } as Style} />
           ))}
         </g>
         <circle className="h-map__ist" cx={ist[0]} cy={ist[1]} r=".7" />
@@ -116,6 +135,46 @@ function ReachMap({ view }: { view: HomeView }) {
 }
 
 /**
+ * P6 · the tide ticker (idea: Magic UI's marquee, turned upright to stay in the tide family):
+ * the benchmark routes rising slowly through a window under the heading. The first list is the
+ * real one; the copy that follows it round is `aria-hidden`. Hover pauses it, Pause motion
+ * stops it, reduced motion shows a still list. Codes and lanes are English on every locale.
+ */
+function TideTicker({
+  label,
+  routes,
+}: {
+  label: string;
+  routes: { code: string; lane: string }[];
+}) {
+  const items = (hidden?: boolean) => (
+    <ul
+      className="h-ticker__list"
+      aria-label={hidden ? undefined : label}
+      aria-hidden={hidden || undefined}
+    >
+      {routes.map((r) => (
+        <li key={r.code}>
+          <b>{r.code}</b>
+          <span>{r.lane}</span>
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <div className="h-ticker" lang="en" dir="ltr" style={{ "--n": routes.length } as Style}>
+      <p className="t-label h-ticker__label" aria-hidden="true">
+        {label}
+      </p>
+      <div className="h-ticker__win">
+        {items()}
+        {items(true)}
+      </div>
+    </div>
+  );
+}
+
+/**
  * 6 · Reach (DESIGN-V2 §7.6): a paper card — "— Where we work" and the h2 next
  * to the halftone map with live office clocks; four brass counters in a
  * hairline grid (evergreen facts only, rolling from 0 on enter); the lanes
@@ -139,6 +198,9 @@ export function Reach({ view, id, stackOver }: { view: HomeView; id: string; sta
             <h2 id="reach-title" className="t-display" data-reveal="lines">
               <Lines lines={reach.lines} />
             </h2>
+            {reach.routes.length > 3 && (
+              <TideTicker label={reach.routesLabel} routes={reach.routes} />
+            )}
           </header>
           <ReachMap view={view} />
         </div>

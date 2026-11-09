@@ -5,6 +5,7 @@ import { AlertCircle, RotateCcw } from "lucide-react";
 import { parseLocaleNumber } from "@/lib/number";
 import { fmtInput } from "@/lib/freight/format";
 import { cn } from "@/lib/utils";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /* ====================== Number field ====================== */
 
@@ -128,7 +129,7 @@ export function NumField({
             aria-label={`${label}: back to ${fmtInput(def, digits)}${unit ? ` ${unit}` : ""}`}
             title={`Back to ${fmtInput(def, digits)}${unit ? ` ${unit}` : ""}`}
           >
-            <RotateCcw aria-hidden="true" />
+            <RotateCcw aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
           </button>
         )}
       </div>
@@ -172,7 +173,7 @@ export function NumField({
       </div>
       {msg && (
         <p id={msgId} className="fc-field__msg">
-          {error && <AlertCircle aria-hidden="true" />}
+          {error && <AlertCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />}
           <span>{msg}</span>
         </p>
       )}

@@ -5,6 +5,7 @@ import { ArrowRight, RotateCcw } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 import "./uiverse.css";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /*
  * The root layout (and its next/font variables) is gone when this renders, so
@@ -64,14 +65,14 @@ export default function GlobalError({
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button type="button" onClick={() => reset()} className="uv-btn uv-btn--lg">
-                <RotateCcw aria-hidden="true" />
+                <RotateCcw aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                 <span>Try again</span>
               </button>
               {/* Plain link: a full reload is the safest way back after a fatal error. */}
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/" className="uv-btn-ghost-light uv-btn--lg">
                 Back to home
-                <ArrowRight aria-hidden="true" />
+                <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
               </a>
             </div>
 

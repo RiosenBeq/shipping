@@ -39,6 +39,25 @@ export const TEAM = [...BROKERS].sort(
 /** The physical size band before the dash: "70,000 cbm and above". */
 const band = (s: string) => s.split(" — ")[0].trim();
 
+/**
+ * The tide ticker's routes (P6): the Baltic benchmark routes in the class guides (TD…, TC…,
+ * BLPG…), taken round-robin across the classes so tankers and gas alternate — route
+ * references only, never rates (§16).
+ */
+const ROUTES: { code: string; lane: string }[] = (() => {
+  const per = [...TANKER_CLASSES, ...LPG_CLASSES].map((c) =>
+    c.routes.filter((r) => /^(TD|TC|BLPG)\d+[A-Z]?$/.test(r.code))
+  );
+  const out: { code: string; lane: string }[] = [];
+  for (let k = 0; k < 3; k++) {
+    for (const routes of per) {
+      const r = routes[k];
+      if (r && !out.some((o) => o.code === r.code)) out.push({ code: r.code, lane: r.lane });
+    }
+  }
+  return out.slice(0, 10);
+})();
+
 /** The nine class cards of "Ships we fix": tankers then gas carriers (§7.4). */
 export const SHIP_CARDS: ShipCard[] = [
   ...TANKER_CLASSES.map((c) => ({
@@ -223,6 +242,8 @@ export function englishHome(file: HomeFile = HOME): HomeView {
         "Map of our trading area from Europe to Singapore, with lanes from Istanbul and our three offices",
       lanesLabel: "Lanes we work",
       lanes: reach.lanes,
+      routesLabel: "Routes we fix on",
+      routes: ROUTES,
     },
     team: team && {
       sub: team.sub,

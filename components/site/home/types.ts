@@ -143,6 +143,9 @@ export type HomeView = {
     mapLabel: string;
     lanesLabel: string;
     lanes: { code: string; lane: string; href: string; still: StillKey }[];
+    /** The tide ticker (P6): benchmark routes the desks fix on, codes and lanes (English). */
+    routesLabel: string;
+    routes: { code: string; lane: string }[];
   };
   team?: {
     sub: string;

@@ -18,6 +18,7 @@ import {
 } from "@/lib/schemas";
 import { siteConfig, whatsappUrl } from "@/lib/site";
 import { cn, FORCED_FOCUS, FORCED_SEGMENTED } from "@/lib/utils";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Field = keyof Inquiry;
 type Form = Record<Field, string>;
@@ -487,7 +488,13 @@ export function InquiryForm() {
     if (!err && !hint) return null;
     return (
       <p id={msgId(k)} className="uv-field__msg flex items-start gap-1.5">
-        {err && <AlertCircle className="mt-[3px] h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+        {err && (
+          <AlertCircle
+            className="mt-[3px] h-3.5 w-3.5 shrink-0"
+            aria-hidden="true"
+            strokeWidth={ICON_STROKE.inline}
+          />
+        )}
         <span>{err ?? hint}</span>
       </p>
     );
@@ -579,7 +586,11 @@ export function InquiryForm() {
         </div>
         {err && (
           <p id={msgId(k)} className="uv-field__msg flex items-start gap-1.5 !text-state-negative">
-            <AlertCircle className="mt-[3px] h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <AlertCircle
+              className="mt-[3px] h-3.5 w-3.5 shrink-0"
+              aria-hidden="true"
+              strokeWidth={ICON_STROKE.inline}
+            />
             <span>{err}</span>
           </p>
         )}
@@ -777,14 +788,18 @@ export function InquiryForm() {
                 aria-hidden="true"
               />
             ) : (
-              <MessageCircle aria-hidden="true" />
+              <MessageCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
             )}
             <span>{busy === "whatsapp" ? "Opening WhatsApp…" : "Send via WhatsApp"}</span>
           </button>
           {/* Own row, flush with the field errors above; a way back to the first one. */}
           {attempted && errorCount > 0 && (
             <p className="flex items-start gap-1.5 text-sm font-medium text-state-negative sm:basis-full">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 shrink-0"
+                aria-hidden="true"
+                strokeWidth={ICON_STROKE.inline}
+              />
               <button type="button" onClick={focusFirstError} className="uv-link text-start">
                 {errorCount === 1
                   ? "1 field needs attention — go to it"
@@ -906,7 +921,11 @@ function CopyInquiryButton({ text, primary = false }: { text: string; primary?: 
       onClick={copy}
       className={cn(primary ? "uv-btn" : "uv-btn-outline", "uv-btn--sm mt-3")}
     >
-      {state === "copied" ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      {state === "copied" ? (
+        <Check aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
+      ) : (
+        <Copy aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
+      )}
       <span>
         {state === "copied"
           ? "Inquiry copied"
@@ -1030,9 +1049,9 @@ export function CopyButton({
         )}
       >
         {state === "copied" ? (
-          <Check className="h-4 w-4" aria-hidden="true" />
+          <Check className="h-4 w-4" aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
         ) : (
-          <Copy className="h-4 w-4" aria-hidden="true" />
+          <Copy className="h-4 w-4" aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
         )}
       </button>
       <span className="sr-only" role="status">

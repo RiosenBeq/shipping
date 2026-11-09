@@ -21,6 +21,7 @@ import {
 import { articleLd, buildPageMetadata, webPageLd } from "@/lib/seo";
 import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const PATH = "/turkish-straits";
 const TITLE = "Turkish Straits Transit Guide for Tankers & LPG";
@@ -130,7 +131,7 @@ export default function TurkishStraitsPage() {
               href={`mailto:${siteConfig.desks.tankers.email}?subject=${encodeURIComponent("Turkish Straits question")}`}
               className="lv-btn lv-btn--ghost"
             >
-              <Mail aria-hidden="true" />
+              <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>Ask the Istanbul desk</span>
             </a>
           </>

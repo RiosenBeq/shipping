@@ -50,6 +50,7 @@ import { NumField, SelectField, Segmented, Switch, TextField, type NumFieldProps
 import { PriceDate } from "./PriceDate";
 import { PhoneBar, Summary } from "./Summary";
 import "./freight.css";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const near = (a: number | undefined, b: number | undefined) =>
   a !== undefined && b !== undefined && Math.abs(a - b) < 1e-9;
@@ -277,7 +278,7 @@ export function FreightCalculator({
           hint={
             p.port?.note ? (
               <>
-                <Info aria-hidden="true" />
+                <Info aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                 <span>{p.port.note}</span>
               </>
             ) : undefined
@@ -510,14 +511,14 @@ export function FreightCalculator({
             calculation for sharing.
           </p>
           <button type="button" className="lv-btn lv-btn--ghost lv-btn--sm" onClick={onReset}>
-            <RotateCcw aria-hidden="true" />
+            <RotateCcw aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
             <span>Reset to the preset</span>
           </button>
         </div>
       </div>
       {notice && (
         <p className="fc-notice" role="note">
-          <Info aria-hidden="true" />
+          <Info aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
           {notice}
         </p>
       )}
@@ -788,7 +789,7 @@ export function FreightCalculator({
               <span className="t-data">05</span>Bunkers, EU ETS and other costs
             </h3>
             <p className="fc-sec__note">
-              <Info aria-hidden="true" />
+              <Info aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>
                 Reference prices: <b>{data.notice}</b> Type your own for a live estimate.
               </span>

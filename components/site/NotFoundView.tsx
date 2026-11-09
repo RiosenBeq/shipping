@@ -9,6 +9,7 @@ import {
   calm,
 } from "@/components/site/stage";
 import { BtnLabel, Sub } from "./inner/ui";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 export const notFoundMetadata: Metadata = {
   title: "Page not found",
@@ -79,7 +80,7 @@ export function NotFoundView() {
                   <Link href={l.href} className="ip-glass">
                     <b>
                       {l.title}
-                      <ArrowUpRight aria-hidden="true" />
+                      <ArrowUpRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
                     </b>
                     <span>{l.text}</span>
                     <span className="t-data" aria-hidden="true">

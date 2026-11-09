@@ -16,10 +16,13 @@
   "dependencies": {
     "@keystatic/core": "0.6.9",
     "@keystatic/next": "5.0.5",
+    "@number-flow/react": "0.6.2",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
     "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
+    "embla-carousel": "8.6.0",
+    "embla-carousel-wheel-gestures": "8.1.0",
     "lucide-react": "^0.454.0",
     "next": "14.2.35",
     "postcss": "^8.4.47",

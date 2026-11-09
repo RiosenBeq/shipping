@@ -7,6 +7,8 @@ import { LPG_CARGO_DENSITY, type LpgCargoKey } from "@/lib/data/lpg-classes";
 import { inquiryHref } from "@/lib/inquiry";
 import { parseLocaleNumber } from "@/lib/number";
 import { cn, FORCED_FOCUS, FORCED_SEGMENTED } from "@/lib/utils";
+import { FlowNumber, useSettled } from "@/components/site/inner/FlowNumber";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Mode = "cbm" | "mt";
 
@@ -72,6 +74,10 @@ export function LpgConverter() {
       : value / density / fillPct
     : NaN;
   const hasResult = Number.isFinite(result);
+  // The large figure rolls (NumberFlow) once typing pauses; an empty or invalid field blanks it
+  // at once. The phone echo under the fields stays instant.
+  const settled = useSettled(hasResult ? result : NaN);
+  const figure = hasResult && Number.isFinite(settled) ? settled : NaN;
 
   const inUnit = mode === "cbm" ? "cbm" : "mt";
   const outUnit = mode === "cbm" ? "mt" : "cbm";
@@ -148,7 +154,13 @@ export function LpgConverter() {
         <Suffix>{unit}</Suffix>
         {msg && (
           <p id={msgId} className="uv-field__msg flex items-start gap-1.5">
-            {err && <AlertCircle className="mt-[3px] h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+            {err && (
+              <AlertCircle
+                className="mt-[3px] h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+                strokeWidth={ICON_STROKE.inline}
+              />
+            )}
             <span>{msg}</span>
           </p>
         )}
@@ -188,6 +200,7 @@ export function LpgConverter() {
                     <ArrowRight
                       aria-hidden="true"
                       className="h-3.5 w-3.5 text-brass-ink rtl:rotate-180"
+                      strokeWidth={ICON_STROKE.cta}
                     />
                     <b className="sr-only font-normal"> to </b>
                     {m.to}
@@ -279,15 +292,18 @@ export function LpgConverter() {
         <div className="ip-tool__result">
           <div className="flex flex-1 flex-col">
             <p className="t-label acc">{heading}</p>
-            {/* Visible figure updates instantly; the debounced sr-only line below is the announcement. */}
+            {/* The figure rolls to each settled value; the debounced sr-only line below is the
+                announcement (aria-live off here). */}
             <output
               htmlFor={`${id}-amount ${id}-fill`}
               aria-live="off"
               className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1"
             >
-              <span className={cn("ip-tool__figure tnum", !hasResult && "text-slate")}>
-                {hasResult ? fmt(result) : "—"}
-              </span>
+              {Number.isFinite(figure) ? (
+                <FlowNumber value={figure} className="ip-tool__figure tnum" />
+              ) : (
+                <span className="ip-tool__figure tnum text-slate">—</span>
+              )}
               <span className="font-mono text-lg text-brass-ink">{outUnit}</span>
             </output>
             <p className="sr-only" role="status">
@@ -321,7 +337,7 @@ export function LpgConverter() {
             <p className="mt-auto pt-6">
               <Link href={findShipHref} className="lv-link">
                 <span>Find a ship for this parcel</span>
-                <ArrowRight aria-hidden="true" />
+                <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
               </Link>
             </p>
           </div>

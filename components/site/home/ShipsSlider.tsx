@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { EmblaCarouselType } from "embla-carousel";
 import { ShipLines } from "@/components/site/stage/ShipLines";
 import { GasCarrierArt, PressurisedGasArt, TankerArt } from "@/components/site/VesselArt";
-import { Arrow } from "./icons";
+import { Arrow, ICON_STROKE } from "./icons";
 import type { HomeView } from "./types";
+import { useDesktopRail } from "./useDesktopRail";
 
 type Ships = NonNullable<HomeView["ships"]>;
 
@@ -30,7 +32,13 @@ function CardArt({ slug }: { slug: string }) {
 /** A small route glyph for the calculator link: two ports and a passage between them. */
 function CalcGlyph() {
   return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={ICON_STROKE.inline}
+      aria-hidden="true"
+    >
       <circle cx="4" cy="14" r="2" />
       <circle cx="16" cy="6" r="2" />
       <path d="M6 13.2C9 12 11 8.6 14 7" strokeDasharray="2 2.2" strokeLinecap="round" />
@@ -47,6 +55,13 @@ function CalcGlyph() {
  * hairline. Pointing at or focusing a card makes it the active class; arrow
  * keys move between cards. Phones: a swipe carousel of full-width cards, each
  * with its own line drawing and ribbon (no WebGL).
+ *
+ * The rail is a native scroll-snap scroller in the server markup (phones, touch,
+ * reduced motion, no-JS). On fine-pointer desktops Embla takes it over after idle
+ * (`useDesktopRail`): drag with inertia, trackpad swipes, and the snapped card
+ * becomes the active class. Both modes drive the same progress hairline (`--p`,
+ * written straight to the element: no re-render per scroll frame) and the edge
+ * fades (`data-more-start` / `data-more-end`).
  */
 export function ShipsSlider({
   ships,
@@ -59,9 +74,11 @@ export function ShipsSlider({
 }) {
   const cards = ships.cards;
   const [active, setActive] = useState(0);
-  const [progress, setProgress] = useState(0);
   const [edges, setEdges] = useState({ start: true, end: false });
+  const rootRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
+  const emblaRef = useRef<EmblaCarouselType | null>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const card = cards[active] ?? cards[0];
   const firstGas = cards.findIndex((c) => c.family === "gas");
@@ -82,23 +99,45 @@ export function ShipsSlider({
     if (focus) li.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
   }, []);
 
+  /** Progress hairline (0..1) and which ends still have cards beyond them. */
+  const onScrolled = useCallback((p: number, start: boolean, end: boolean) => {
+    rootRef.current?.style.setProperty("--p", p.toFixed(4));
+    setEdges((e) => (e.start === start && e.end === end ? e : { start, end }));
+  }, []);
+
+  useDesktopRail(viewportRef, {
+    select: setActive,
+    scroll: onScrolled,
+    api: (api) => {
+      emblaRef.current = api;
+      if (!api) trackRef.current?.dispatchEvent(new Event("scroll"));
+    },
+  });
+
   const go = (i: number, focus = false) => {
     const n = Math.max(0, Math.min(cards.length - 1, i));
     setActive(n);
-    reveal(n, focus);
+    const api = emblaRef.current;
+    if (api) {
+      api.scrollTo(n);
+      if (focus) {
+        const li = trackRef.current?.children[n] as HTMLElement | undefined;
+        li?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
+      }
+    } else reveal(n, focus);
   };
 
-  // Progress hairline, button ends, and (phones) the card in view is the active one.
+  // Native mode: progress hairline, button ends, and (phones) the card in view is the active one.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     let frame = 0;
     const read = () => {
       frame = 0;
+      if (emblaRef.current) return;
       const max = track.scrollWidth - track.clientWidth;
       const x = Math.abs(track.scrollLeft);
-      setProgress(max > 0 ? x / max : 0);
-      setEdges({ start: x <= 2, end: x >= max - 2 });
+      onScrolled(max > 0 ? x / max : 0, x <= 2, x >= max - 2);
       if (window.matchMedia("(max-width: 767px)").matches) {
         const w = (track.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
         setActive(Math.min(cards.length - 1, Math.round(x / (w + 12))));
@@ -116,11 +155,11 @@ export function ShipsSlider({
       track.removeEventListener("scroll", onScroll);
       ro.disconnect();
     };
-  }, [cards.length]);
+  }, [cards.length, onScrolled]);
 
-  // Drag to scroll with a mouse (touch and trackpads scroll natively).
+  // Native mode: drag to scroll with a mouse (touch and trackpads scroll natively).
   const onPointerDown = (e: React.PointerEvent<HTMLUListElement>) => {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    if (emblaRef.current || e.pointerType !== "mouse" || e.button !== 0) return;
     drag.current = { x: e.clientX, left: trackRef.current?.scrollLeft ?? 0, moved: false };
   };
   const onPointerMove = (e: React.PointerEvent<HTMLUListElement>) => {
@@ -159,8 +198,13 @@ export function ShipsSlider({
     e.preventDefault();
   };
 
+  // While a drag is under way, cards sliding under the pointer do not take over the hull.
+  const point = (i: number) => {
+    if (viewportRef.current?.dataset.dragging === undefined) setActive(i);
+  };
+
   return (
-    <div className="ships" style={{ "--p": progress } as React.CSSProperties}>
+    <div className="ships" ref={rootRef}>
       <div className="ships__top">
         {header}
         <div className="ships__tabs" role="group" aria-label={ships.tabsLabel}>
@@ -191,62 +235,69 @@ export function ShipsSlider({
       </div>
 
       <div className="ships__rail">
-        <ul
-          ref={trackRef}
-          className="ships__track"
-          aria-label={ships.title}
-          onKeyDown={onKeyDown}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
-          onClickCapture={onClickCapture}
+        <div
+          ref={viewportRef}
+          className="ships__viewport"
+          data-more-start={edges.start ? undefined : ""}
+          data-more-end={edges.end ? undefined : ""}
         >
-          {cards.map((c, i) => (
-            <li key={c.slug} data-active={i === active ? "" : undefined}>
-              {/* The class guide is the card's main link (stretched over the card); the
+          <ul
+            ref={trackRef}
+            className="ships__track"
+            aria-label={ships.title}
+            onKeyDown={onKeyDown}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerLeave={endDrag}
+            onClickCapture={onClickCapture}
+          >
+            {cards.map((c, i) => (
+              <li key={c.slug} data-active={i === active ? "" : undefined}>
+                {/* The class guide is the card's main link (stretched over the card); the
                   calculator link sits above it, so the two never nest. */}
-              <div className="ship-card" onMouseEnter={() => setActive(i)}>
-                <CardArt slug={c.slug} />
-                <Link
-                  href={c.href}
-                  hrefLang={linkLang}
-                  className="ship-card__link"
-                  draggable={false}
-                  onFocus={() => setActive(i)}
-                >
-                  <span className="t-card ship-card__name">{c.name}</span>
-                  <span className="t-data ship-card__band" dir="ltr">
-                    {c.band}
-                  </span>
-                  <span className="ship-card__routes" aria-hidden="true">
-                    {c.routes.map((r) => (
-                      <span key={r} className="lv-pill">
-                        {r}
-                      </span>
-                    ))}
-                  </span>
-                  <span className="ship-card__more">
-                    {ships.classGuide} <Arrow />
-                  </span>
-                </Link>
-                <Link
-                  href={c.estimateHref}
-                  hrefLang={linkLang}
-                  className="ship-card__calc"
-                  draggable={false}
-                  onFocus={() => setActive(i)}
-                >
-                  <CalcGlyph />
-                  <span>
-                    {ships.estimate}
-                    <span className="sr-only"> — {c.name}</span>
-                  </span>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className="ship-card" onMouseEnter={() => point(i)}>
+                  <CardArt slug={c.slug} />
+                  <Link
+                    href={c.href}
+                    hrefLang={linkLang}
+                    className="ship-card__link"
+                    draggable={false}
+                    onFocus={() => setActive(i)}
+                  >
+                    <span className="t-card ship-card__name">{c.name}</span>
+                    <span className="t-data ship-card__band" dir="ltr">
+                      {c.band}
+                    </span>
+                    <span className="ship-card__routes" aria-hidden="true">
+                      {c.routes.map((r) => (
+                        <span key={r} className="lv-pill">
+                          {r}
+                        </span>
+                      ))}
+                    </span>
+                    <span className="ship-card__more">
+                      {ships.classGuide} <Arrow />
+                    </span>
+                  </Link>
+                  <Link
+                    href={c.estimateHref}
+                    hrefLang={linkLang}
+                    className="ship-card__calc"
+                    draggable={false}
+                    onFocus={() => setActive(i)}
+                  >
+                    <CalcGlyph />
+                    <span>
+                      {ships.estimate}
+                      <span className="sr-only"> — {c.name}</span>
+                    </span>
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="ships__nav">
           <button
             type="button"
@@ -255,7 +306,7 @@ export function ShipsSlider({
             disabled={active === 0 && edges.start}
             onClick={() => go(active - 1)}
           >
-            <ChevronLeft aria-hidden="true" strokeWidth={1.6} />
+            <ChevronLeft aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
           </button>
           <button
             type="button"
@@ -264,7 +315,7 @@ export function ShipsSlider({
             disabled={active === cards.length - 1 && edges.end}
             onClick={() => go(active + 1)}
           >
-            <ChevronRight aria-hidden="true" strokeWidth={1.6} />
+            <ChevronRight aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
           </button>
           <span className="ships__progress" aria-hidden="true">
             <i />

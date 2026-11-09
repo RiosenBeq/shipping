@@ -166,6 +166,20 @@ describe("homepage view", () => {
     expect(calculatorHref("a b")).toBe(`${FREIGHT_CALCULATOR_PATH}?class=a%20b`);
   });
 
+  it("feeds the tide ticker benchmark routes only: unique codes, tankers and gas, no rates", () => {
+    const routes = en.reach!.routes;
+    expect(routes.length).toBeGreaterThanOrEqual(6);
+    expect(routes.length).toBeLessThanOrEqual(10);
+    expect(new Set(routes.map((r) => r.code)).size).toBe(routes.length);
+    for (const r of routes) {
+      expect(r.code).toMatch(/^(TD|TC|BLPG)\d+[A-Z]?$/);
+      expect(`${r.code} ${r.lane}`).not.toMatch(CURRENCY_PATTERN);
+    }
+    expect(routes.some((r) => r.code.startsWith("BLPG"))).toBe(true);
+    // Localized homepages carry the same (English) list.
+    expect(localizedHome(LOCALES.find((l) => l.code === "de")!).reach!.routes).toEqual(routes);
+  });
+
   it("splits the hero by letter, CJK character or Arabic word", () => {
     expect(splitFor("en")).toBe("chars");
     expect(splitFor("zh-Hans")).toBe("cjk");

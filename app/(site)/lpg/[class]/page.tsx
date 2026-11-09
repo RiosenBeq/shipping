@@ -16,6 +16,7 @@ import type { StillKey } from "@/lib/media";
 import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
 import { lpgClassInquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Params = { params: { class: string } };
 
@@ -123,7 +124,7 @@ export default function LpgClassPage({ params }: Params) {
               href={`mailto:${siteConfig.desks.lpg.email}?subject=${encodeURIComponent(`${c.name} inquiry`)}`}
               className="lv-btn lv-btn--ghost"
             >
-              <Mail aria-hidden="true" />
+              <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>Email the LPG desk</span>
             </a>
             <Link href={`${FREIGHT_PATH}?class=${c.slug}`} className="lv-link">

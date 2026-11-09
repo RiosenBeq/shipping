@@ -64,8 +64,19 @@ html[data-home-motion="on"] [data-reveal="rise"] .ch {
   transition-delay: calc(140ms + var(--i, 0) * 22ms);
 }
 html[data-home-motion="on"] [data-reveal="lines"] .rise-in {
-  transition: transform var(--dur-sheet) var(--ease-tide);
+  transition:
+    transform var(--dur-sheet) var(--ease-tide),
+    filter var(--dur-sheet) var(--ease-tide);
   transition-delay: calc(var(--i, 0) * 90ms);
+}
+/* P4 · blur-rise (idea: Magic UI "blur fade"): the opener's lines also come into focus as
+   they rise through the waterline — a 6px blur that clears. Lines only: the hero's letters
+   stay transform-only (forty separately blurred spans is a lot of paint). Desktops with a fine
+   pointer only: a blur repaints on the main thread, which weaker phone GPUs feel. */
+@media (hover: hover) and (pointer: fine) {
+  html[data-home-motion="on"] [data-reveal="lines"]:not([data-in]) .rise-in {
+    filter: blur(6px);
+  }
 }
 html[data-home-motion="on"] [data-reveal="up"]:not([data-in]),
 html[data-home-motion="on"] [data-reveal="up"][data-in]:is(.h-hero *) {
@@ -215,6 +226,34 @@ html[data-home-motion="on"] [data-reveal="type"][data-in] .type > span {
 }
 .h-hero__title .acc {
   color: var(--brass-light);
+}
+/* P9 · one brass sheen across the accent word, once, after the letters have risen (idea:
+   Motion Primitives' text shimmer, re-done in CSS). The word keeps its brass-light (9.1:1 on
+   navy-deep) at both ends of the gradient; the letters go transparent only while it runs.
+   Runs once, so no pause control is needed; none with reduced motion. */
+html[data-home-motion="on"] .h-hero__title[data-in] .acc {
+  background: linear-gradient(100deg, var(--brass-light) 38%, #f6e3b4 50%, var(--brass-light) 62%)
+    100% 0 / 250% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: h-sheen var(--dur-intro) var(--ease-swell) 2s 1 both;
+}
+html[data-home-motion="on"] .h-hero__title[data-in] .acc .ch {
+  animation: h-sheen-ink var(--dur-intro) linear 2s 1;
+}
+@keyframes h-sheen {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@keyframes h-sheen-ink {
+  from,
+  to {
+    color: transparent;
+  }
 }
 .h-hero__sub {
   margin-top: 30px;
@@ -800,8 +839,16 @@ html[data-home-motion="on"] .h-who .fill {
 .h-ships__title {
   max-width: 14em;
 }
+/* The segmented control (Tankers | Gas): one pill slides under the pressed half (CSS only,
+   :has(); idea: Motion Primitives' animated background, re-done without JS). Two equal
+   halves, so the pill is exactly one half wide. Browsers without :has() keep the pressed
+   button's own fill. */
 .ships__tabs {
-  display: inline-flex;
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   padding: 4px;
   border-radius: 999px;
   background: rgba(5, 22, 36, 0.34);
@@ -811,7 +858,7 @@ html[data-home-motion="on"] .h-who .fill {
 }
 .ships__tabs button {
   min-height: 38px;
-  padding: 0 18px;
+  padding: 0 20px;
   border: 0;
   border-radius: 999px;
   font:
@@ -820,10 +867,37 @@ html[data-home-motion="on"] .h-who .fill {
   color: var(--sand);
   background: transparent;
   cursor: pointer;
+  transition: color var(--dur-reveal) var(--ease-tide);
+}
+.ships__tabs button:not([aria-pressed="true"]):hover {
+  color: var(--brass-light);
 }
 .ships__tabs button[aria-pressed="true"] {
   color: var(--navy-deep);
   background: var(--sand);
+}
+@supports selector(:has(*)) {
+  .ships__tabs::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-block: 4px;
+    inset-inline-start: 4px;
+    width: calc(50% - 4px);
+    border-radius: 999px;
+    background: var(--sand);
+    box-shadow: 0 6px 18px -8px rgba(5, 22, 36, 0.7);
+    transition: translate var(--dur-reveal) var(--ease-tide);
+  }
+  .ships__tabs:has(button:nth-child(2)[aria-pressed="true"])::before {
+    translate: 100%;
+  }
+  [dir="rtl"] .ships__tabs:has(button:nth-child(2)[aria-pressed="true"])::before {
+    translate: -100%;
+  }
+  .ships__tabs button[aria-pressed="true"] {
+    background: transparent;
+  }
 }
 .ships__tabs button:focus-visible {
   outline: 2px solid var(--brass-light);
@@ -882,6 +956,92 @@ html[data-home-motion="on"] .h-who .fill {
 .ships__track > li {
   flex: none;
   scroll-snap-align: start;
+}
+/* The rail's viewport: a plain wrapper round the native scroller, or Embla's root on
+   fine-pointer desktops (useDesktopRail → data-rail="embla"): then the track stops scrolling
+   and Embla moves it. Either way the rail bleeds into the gutters (--g, the chart frame's
+   margin), so cards pass beyond the frame line and sink into the ground there instead of
+   being cut at it. `clip`, not `hidden`: no scroll container (focus can never scroll it
+   behind Embla's back) and the block axis stays open for focus rings. */
+.ships__viewport {
+  --g: calc(var(--edge) - var(--stage-inset));
+  position: relative;
+  /* a grid item: without this, a track that no longer scrolls would size it to all nine cards */
+  min-width: 0;
+}
+@media (min-width: 768px) {
+  .ships__track {
+    margin-inline: calc(-1 * var(--g));
+    padding-inline: var(--g);
+    scroll-padding-inline: var(--g);
+  }
+}
+.ships__viewport[data-rail="embla"] {
+  margin-inline: calc(-1 * var(--g));
+  padding-inline: var(--g);
+  overflow-x: clip;
+}
+.ships__viewport[data-rail="embla"] > .ships__track {
+  margin-inline: 0;
+  padding-inline: 0;
+  overflow: visible;
+  scroll-snap-type: none;
+}
+.ships__viewport[data-rail="embla"][data-dragging] > .ships__track {
+  cursor: grabbing;
+}
+/* Edges (P7, idea: Magic UI's progressive blur): beyond the frame line, cards sink into the
+   night ground under a shade, blurred progressively on the high tier only (a backdrop blur
+   over the live canvas is recomputed every frame). Overlays in the gutters, not a mask: a mask
+   would make the rail a backdrop root and take the glass blur off every card. */
+@media (min-width: 768px) {
+  .ships__viewport::before,
+  .ships__viewport::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset-block: -2px 4px;
+    width: var(--g);
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      var(--to, 90deg),
+      rgba(5, 22, 36, 0),
+      rgba(5, 22, 36, 0.74) 48%,
+      rgba(5, 22, 36, 0.97) 86%
+    );
+    transition: opacity var(--dur-reveal) var(--ease-tide);
+  }
+  .ships__viewport::before {
+    --to: 270deg;
+    inset-inline-start: calc(-1 * var(--g));
+  }
+  .ships__viewport::after {
+    inset-inline-end: calc(-1 * var(--g));
+  }
+  .ships__viewport[data-rail="embla"]::before {
+    inset-inline-start: 0;
+  }
+  .ships__viewport[data-rail="embla"]::after {
+    inset-inline-end: 0;
+  }
+  [dir="rtl"] .ships__viewport::before {
+    --to: 90deg;
+  }
+  [dir="rtl"] .ships__viewport::after {
+    --to: 270deg;
+  }
+  .ships__viewport[data-more-start]::before,
+  .ships__viewport[data-more-end]::after {
+    opacity: 1;
+  }
+  html[data-stage-tier="high"] .ships__viewport::before,
+  html[data-stage-tier="high"] .ships__viewport::after {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    -webkit-mask-image: linear-gradient(var(--to, 90deg), transparent, #000 70%);
+    mask-image: linear-gradient(var(--to, 90deg), transparent, #000 70%);
+  }
 }
 .ship-card {
   position: relative;
@@ -1110,6 +1270,9 @@ html[data-motion="paused"] .ship-card__ribbon path {
   border-width: var(--ap-t) var(--ap-x) var(--ap-b);
   border-radius: calc(var(--ap-x) + var(--r)) / calc(var(--ap-t) + var(--r))
     calc(var(--ap-t) + var(--r)) calc(var(--ap-b) + var(--r)) calc(var(--ap-b) + var(--r));
+  /* The seam-hiding outline is only needed while there is a rounded border: at full bleed it
+     would draw a 2px sand rim round the reel. */
+  outline-width: calc(4px * (1 - var(--k)));
 }
 .h-process__band {
   position: absolute;
@@ -1178,6 +1341,110 @@ html[data-motion="paused"] .ship-card__ribbon path {
 .h-reach__top .t-sub {
   margin-bottom: 18px;
 }
+/* P6 · the tide ticker under the heading: benchmark routes rising through a three-row window
+   (paper, so no glow; masks fade the rows in and out at the waterlines). Desktop and tablets
+   only — on phones the heading sits right on the map. */
+.h-ticker {
+  margin-top: clamp(32px, 4vw, 52px);
+  max-width: 21rem;
+}
+.h-ticker__label {
+  margin: 0 0 12px;
+  color: var(--ink-accent);
+}
+.h-ticker__win {
+  --row: 46px;
+  position: relative;
+  height: calc(var(--row) * 3);
+  overflow: clip;
+  border-block: 1px solid var(--hair);
+}
+/* The waterlines: the paper itself fades the rows in and out (overlays, not a mask: a masked
+   layer under a moving list costs a repaint of the card on every frame). */
+.h-ticker__win::before,
+.h-ticker__win::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  height: 30%;
+  pointer-events: none;
+}
+.h-ticker__win::before {
+  top: 0;
+  background: linear-gradient(var(--sand), rgba(243, 239, 228, 0));
+}
+.h-ticker__win::after {
+  bottom: 0;
+  background: linear-gradient(rgba(243, 239, 228, 0), var(--sand));
+}
+.h-ticker__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h-ticker__list li {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  height: var(--row);
+  padding-top: 11px;
+  white-space: nowrap;
+}
+.h-ticker__list b {
+  min-width: 3.4em;
+  font:
+    600 24px/1 var(--font-display),
+    sans-serif;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.h-ticker__list span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font:
+    400 12.5px/1.2 var(--font-mono),
+    monospace;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .h-ticker__list {
+    animation: h-tide-rise calc(var(--n, 10) * 2.8s) linear infinite;
+    will-change: transform;
+  }
+  .h-ticker:hover .h-ticker__list {
+    animation-play-state: paused;
+  }
+}
+html[data-motion="paused"] .h-ticker__list {
+  animation-play-state: paused;
+}
+@keyframes h-tide-rise {
+  to {
+    transform: translateY(-100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .h-ticker__win {
+    height: auto;
+  }
+  .h-ticker__win::before,
+  .h-ticker__win::after {
+    display: none;
+  }
+  .h-ticker__list[aria-hidden] {
+    display: none;
+  }
+  .h-ticker__list li:nth-child(n + 5) {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .h-ticker {
+    display: none;
+  }
+}
 .h-map {
   position: relative;
   margin: 0;
@@ -1208,6 +1475,53 @@ html[data-home-motion="on"] .h-map__lanes:not([data-in]) path {
 }
 html[data-home-motion="on"] .h-map__lanes path {
   transition: stroke-dashoffset 1.6s var(--ease-tide) calc(var(--i, 0) * 140ms);
+}
+/* P5 · lane pulses (idea: Magic UI "animated beam"): once the map is in view, a short brass
+   dash travels out from Istanbul along each lane, staggered — on paper, so no glow. Desktop:
+   in an overlay SVG on its own compositor layer (the dash repaints every frame; the dot map
+   and the grained paper do not). The arcs stay drawn when motion is paused or reduced; the
+   pulses are hidden then. */
+.h-map__fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  will-change: transform;
+}
+.h-map__pulses path {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 0.62;
+  stroke-linecap: round;
+  stroke-dasharray: 0.07 0.93;
+  stroke-dashoffset: 0.07;
+  opacity: 0;
+}
+/* Three passes per lane once the map is in view, then the lanes rest: alive on arrival, calm
+   to read (and nothing repainting while the visitor stays). */
+@media (prefers-reduced-motion: no-preference) {
+  .h-map__pulses[data-in] path {
+    animation: h-lane-pulse 3.4s var(--ease-tide) calc(1.2s + var(--i, 0) * 0.55s) 3 both;
+  }
+}
+html[data-motion="paused"] .h-map__pulses {
+  display: none;
+}
+@keyframes h-lane-pulse {
+  0% {
+    stroke-dashoffset: 0.07;
+    opacity: 0;
+  }
+  12%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
 }
 .h-map__pins circle,
 .h-map__ist {
@@ -1288,6 +1602,28 @@ html[data-home-motion="on"] .h-map__lanes path {
 }
 .h-counter .t-counter {
   color: var(--brass-ink);
+}
+/* P3 · the odometer (HomeMotion): each digit a 0–9 strip rising behind a waterline mask,
+   1100ms on the tide, 70ms apart; plain text again once landed. */
+.odo {
+  display: inline-flex;
+}
+.odo__d {
+  display: inline-block;
+  height: 0.85em;
+  overflow: clip;
+  -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
+}
+.odo__s {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--v, 0) * -0.85em));
+  transition: transform 1100ms var(--ease-tide) calc(var(--i, 0) * 70ms);
+}
+.odo__s > span {
+  display: block;
+  height: 0.85em;
 }
 .h-counter__cap {
   max-width: 16em;
@@ -1427,6 +1763,40 @@ html[data-home-motion="on"] .h-map__lanes path {
 }
 [dir="rtl"] .team__viewport[data-driven] .team__track {
   transform: translateX(calc(var(--team-q) * var(--team-max, 0px)));
+}
+/* P7 · the strip's edges: portraits sliding past the content edge sink into the night card
+   (its own navy-deep) instead of being cut at the card's rim. The shades sit in the margin
+   outside the content edge, so a card at rest is never under one. */
+.team__viewport[data-driven] {
+  position: relative;
+}
+.team__viewport[data-driven]::before,
+.team__viewport[data-driven]::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  width: calc(var(--edge) - var(--inset));
+  pointer-events: none;
+  background: linear-gradient(
+    var(--to, 90deg),
+    rgba(5, 22, 36, 0),
+    rgba(5, 22, 36, 0.7) 45%,
+    var(--navy-deep) 92%
+  );
+}
+.team__viewport[data-driven]::before {
+  --to: 270deg;
+  inset-inline-start: 0;
+}
+.team__viewport[data-driven]::after {
+  inset-inline-end: 0;
+}
+[dir="rtl"] .team__viewport[data-driven]::before {
+  --to: 90deg;
+}
+[dir="rtl"] .team__viewport[data-driven]::after {
+  --to: 270deg;
 }
 .member {
   display: flex;
@@ -1726,6 +2096,7 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   text-underline-offset: 4px;
 }
 .h-duty {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -1965,9 +2336,13 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
     min-height: 0;
   }
 
-  /* ships: a swipe carousel of full-width cards with their own drawings */
+  /* ships: a swipe carousel of full-width cards with their own drawings, centred in the
+     window (the hull plan is hidden here, so nothing else fills the screen below it) */
   .h-ships__inner {
     padding-top: calc(var(--hdr-h) + 16px);
+  }
+  .ships {
+    justify-content: center;
   }
   .ships__stage {
     display: none;
@@ -2085,7 +2460,8 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   .h-map {
     aspect-ratio: auto;
   }
-  .h-map__svg {
+  .h-map__svg,
+  .h-map__fx {
     display: none;
   }
   .h-map__svg--phone {
@@ -2333,5 +2709,23 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   .letter {
     transform: none;
     box-shadow: none;
+  }
+  /* nothing moves on paper: the ticker prints as its list, the rail as its cards */
+  .h-ticker__win {
+    height: auto;
+  }
+  .h-ticker__win::before,
+  .h-ticker__win::after {
+    display: none;
+  }
+  .h-ticker__list {
+    animation: none;
+  }
+  .h-ticker__list[aria-hidden],
+  .ships__viewport::before,
+  .ships__viewport::after,
+  .team__viewport::before,
+  .team__viewport::after {
+    display: none;
   }
 }

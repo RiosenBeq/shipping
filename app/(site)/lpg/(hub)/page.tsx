@@ -20,6 +20,7 @@ import { inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { LpgConverter } from "./LpgConverter";
 import { LPG_FAQ } from "@/lib/data/faqs";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 const TITLE = "LPG Shipbroker — VLGC, MGC & Ammonia Chartering";
 const DESCRIPTION =
@@ -124,7 +125,7 @@ export default function LpgPage() {
             </Link>
             {/* labelled like the class pages; the address is printed in the letter and footer */}
             <a href={`mailto:${siteConfig.desks.lpg.email}`} className="lv-btn lv-btn--ghost">
-              <Mail aria-hidden="true" />
+              <Mail aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
               <span>
                 Email the LPG desk
                 <span className="sr-only"> ({siteConfig.desks.lpg.email})</span>
@@ -185,7 +186,7 @@ export default function LpgPage() {
                 <li key={title} className="ip-glass ip-service">
                   <div className="ip-service__top">
                     <span className="ip-icon">
-                      <Icon aria-hidden="true" />
+                      <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
                     </span>
                     <span className="t-data" aria-hidden="true">
                       {String(i + 1).padStart(2, "0")}

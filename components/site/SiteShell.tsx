@@ -15,6 +15,7 @@ import { FloatingContact, type FabLocale } from "./FloatingContact";
 import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav, type NavLanguage } from "./Nav";
+import { Spotlight } from "./Spotlight";
 
 /*
  * One type system (DESIGN-V2 §4.2): Inter Tight (display) + Inter (text, UI)
@@ -129,6 +130,7 @@ export function SiteShell({
         <main id="content">{children}</main>
         <Footer />
         <FloatingContact locales={FAB_LOCALES} />
+        <Spotlight />
         <Analytics />
         <SpeedInsights />
       </body>

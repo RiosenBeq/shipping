@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 type Item = { id: string; label: string; count: number };
 
@@ -113,7 +114,11 @@ export function GlossaryNav({ items }: { items: Item[] }) {
                 <span className="sr-only"> terms</span>
               </b>
               {/* in-page jump: the arrow says it's a link */}
-              <ArrowDown className="h-3 w-3 text-brass-ink" aria-hidden="true" />
+              <ArrowDown
+                className="h-3 w-3 text-brass-ink"
+                aria-hidden="true"
+                strokeWidth={ICON_STROKE.cta}
+              />
             </a>
           </li>
         ))}

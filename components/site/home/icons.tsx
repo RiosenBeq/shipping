@@ -12,6 +12,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { FactIcon } from "@/lib/content/options";
+import { ICON_STROKE } from "@/components/site/iconStroke";
+
+export { ICON_STROKE };
 
 const FACT_ICON: Record<FactIcon, LucideIcon> = {
   anchor: Anchor,
@@ -24,37 +27,37 @@ const FACT_ICON: Record<FactIcon, LucideIcon> = {
   route: Route,
 };
 
-/** A fact's line icon (1.6px stroke) for the 46px outlined circle (§4.3). */
+/** A fact's line icon for the 46px outlined circle (§4.3). */
 export function FactGlyph({ icon }: { icon: FactIcon }) {
   const Icon = FACT_ICON[icon] ?? Anchor;
-  return <Icon aria-hidden="true" strokeWidth={1.6} />;
+  return <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />;
 }
 
 /** The navy arrow badge of a brass CTA (`.lv-btn__arrow`). */
 export function BtnArrow() {
   return (
     <span className="lv-btn__arrow" aria-hidden="true">
-      <ArrowRight strokeWidth={1.8} />
+      <ArrowRight strokeWidth={ICON_STROKE.cta} />
     </span>
   );
 }
 
 export function Arrow() {
-  return <ArrowRight aria-hidden="true" strokeWidth={1.8} />;
+  return <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />;
 }
 
 export function ArrowOut() {
-  return <ArrowUpRight aria-hidden="true" strokeWidth={1.6} />;
+  return <ArrowUpRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />;
 }
 
 /** Chat bubble with a handset: reads as WhatsApp without the brand mark. */
-export function WhatsAppGlyph() {
+export function WhatsAppGlyph({ weight = "inline" }: { weight?: keyof typeof ICON_STROKE }) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth={ICON_STROKE[weight]}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

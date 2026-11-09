@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { ageInDays, fmtAge, fmtDate } from "@/lib/freight/format";
 import { cn } from "@/lib/utils";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /**
  * "as of 6 Nov 2026 · 2 days ago" next to a reference price. The server renders the age
@@ -30,7 +31,7 @@ export function PriceDate({
   const stale = age !== null && age > staleAfter;
   return (
     <span className={cn("fc-asof", stale && "is-stale", className)}>
-      {stale && <AlertTriangle aria-hidden="true" />}
+      {stale && <AlertTriangle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />}
       <span>
         as of <time dateTime={asOf}>{fmtDate(asOf)}</time>
         {age !== null && (stale ? ` · ${fmtAge(age)}, check it` : ` · ${fmtAge(age)}`)}

@@ -8,6 +8,7 @@ import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { inquiryHrefFor } from "@/lib/inquiry";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** Main links (§8): the pill on desktop, the full-screen menu below 1024px. */
 const LINKS = [
@@ -39,7 +40,13 @@ const OFFICES = siteConfig.offices.map((o) =>
 /** X (formerly Twitter): two crossing strokes (lucide only has the bird). */
 function XGlyph() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={ICON_STROKE.ring}
+      aria-hidden="true"
+    >
       <path d="M4 4l16 16M20 4L4 20" strokeLinecap="round" />
     </svg>
   );
@@ -94,7 +101,7 @@ function LanguageMenu({
   return (
     <details ref={ref} className="hdr__lang">
       <summary className="hdr__glass">
-        <Globe aria-hidden="true" strokeWidth={1.6} />
+        <Globe aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
         <span className="sr-only">Language, current: </span>
         <span>{active?.code}</span>
       </summary>
@@ -114,7 +121,13 @@ function LanguageMenu({
                   onClick={() => close()}
                 >
                   <span>{l.label}</span>
-                  {isCurrent && <Check className="h-4 w-4 text-brass-ink" aria-hidden="true" />}
+                  {isCurrent && (
+                    <Check
+                      className="h-4 w-4 text-brass-ink"
+                      aria-hidden="true"
+                      strokeWidth={ICON_STROKE.inline}
+                    />
+                  )}
                   <code>{l.code}</code>
                 </Link>
               </li>
@@ -370,12 +383,12 @@ export function Nav({
         <Link {...inquiryLink} className="lv-btn lv-btn--cta hdr__cta">
           <span>Send inquiry</span>
           <span className="lv-btn__arrow" aria-hidden="true">
-            <ArrowRight strokeWidth={1.8} />
+            <ArrowRight strokeWidth={ICON_STROKE.cta} />
           </span>
         </Link>
 
         <Link {...inquiryLink} className="hdr__icon hdr__icon--cta" aria-label="Send inquiry">
-          <ArrowRight aria-hidden="true" strokeWidth={1.8} />
+          <ArrowRight aria-hidden="true" strokeWidth={ICON_STROKE.cta} />
         </Link>
         <button
           ref={toggleRef}
@@ -421,7 +434,7 @@ export function Nav({
             aria-label="Close menu"
             onClick={closeAndRestore}
           >
-            <X aria-hidden="true" strokeWidth={1.6} />
+            <X aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
           </button>
         </div>
 
@@ -487,7 +500,7 @@ export function Nav({
             <ul className="lv-social" aria-label="Social media">
               <li>
                 <a href={siteConfig.socials.linkedin} target="_blank" rel="noopener">
-                  <Linkedin aria-hidden="true" strokeWidth={1.6} />
+                  <Linkedin aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
                   <span className="sr-only">LinkedIn (opens in a new tab)</span>
                 </a>
               </li>

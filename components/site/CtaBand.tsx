@@ -5,6 +5,8 @@ import { dutyWhatsappUrl, siteConfig, whatsappUrl } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { Stamp } from "./inner/Stamp";
 import { BtnLabel, Glows, Sub } from "./inner/ui";
+import { ICON_STROKE } from "@/components/site/iconStroke";
+import { DutyRibbon } from "@/components/site/DutyRibbon";
 
 type Props = {
   title?: string;
@@ -91,13 +93,14 @@ export function CtaBand({
                 rel="noopener"
                 className="lv-btn lv-btn--ghost"
               >
-                <MessageCircle aria-hidden="true" />
+                <MessageCircle aria-hidden="true" strokeWidth={ICON_STROKE.inline} />
                 {labels?.whatsapp ?? "WhatsApp the desk"}
                 <span className="sr-only"> {labels?.newTab ?? "(opens in a new tab)"}</span>
               </a>
             </div>
             {note && <p className="ip-contact__note">{note}</p>}
             <div className="ip-duty ip-glass">
+              <DutyRibbon />
               <span className="ip-duty__dot" aria-hidden="true" />
               <p>
                 <b>{siteConfig.duty.label}</b>
