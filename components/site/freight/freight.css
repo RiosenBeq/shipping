@@ -715,6 +715,11 @@
   letter-spacing: -0.045em;
   white-space: nowrap;
 }
+/* NumberFlow's host sets line-height 1: the headline figure keeps its own 0.95 (uiverse.css
+   trims the rolling mask's padding). */
+.fc-sum__figure .flow-num number-flow-react {
+  line-height: inherit;
+}
 .fc-sum__figure small {
   margin-left: 6px;
   color: var(--mist);
@@ -1093,6 +1098,8 @@
 
 /* tables */
 .fc-table-wrap {
+  /* the containing block of the cells' sr-only spans, so the scroller clips them (320px reflow) */
+  position: relative;
   margin-top: 14px;
   overflow-x: auto;
 }

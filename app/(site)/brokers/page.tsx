@@ -4,6 +4,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { PageHeader } from "@/components/site/PageHeader";
 import { BrokerCard, initialsColor } from "@/components/site/BrokerCard";
 import { CtaBand } from "@/components/site/CtaBand";
+import { FocusStrip } from "@/components/site/inner/FocusStrip";
 import { Glows, Sub } from "@/components/site/inner/ui";
 import { Card } from "@/components/site/stage";
 import { BROKERS, TEAM_LABEL, TEAM_ORDER, brokersByTeam } from "@/lib/data/brokers";
@@ -97,7 +98,7 @@ export default function BrokersPage() {
         </nav>
         {/* The team strip (GNB): every broker, a jump to their card below. */}
         <div className="ip-strip-wrap">
-          <ul className="ip-strip" aria-label="The team">
+          <FocusStrip className="ip-strip" aria-label="The team">
             {TEAM_ORDER.flatMap((team) => brokersByTeam(team)).map((b) => (
               <li key={b.name}>
                 <a href={`#${SLUG.get(b.name) ?? ""}`} className="ip-strip__item ip-glass">
@@ -115,7 +116,7 @@ export default function BrokersPage() {
                 </a>
               </li>
             ))}
-          </ul>
+          </FocusStrip>
         </div>
       </PageHeader>
 

@@ -3,7 +3,9 @@
  * lib/media.ts and the procedural plates through one lens. Loaded with a dynamic import after
  * the LCP and an idle callback (runtime.ts), so none of this is in the page's first-load JS.
  *
- * Passes per frame (≤ 6 draw calls): bathy target · lines target · flowmap · lens.
+ * Passes per frame (≤ 6 draw calls): bathy target · lines target · flowmap · lens. P-hero
+ * ("Lines to light", gl/hero/) is its own lazy chunk, imported the first time a P-hero window
+ * is on screen: ~10 passes into its target while it is visible (its poster until then).
  */
 import {
   BufferAttribute,
@@ -30,6 +32,8 @@ import { createBathyMaterial } from "./bathy";
 import type { Compositor, CompositorOptions, FrameState, LayerState } from "./contract";
 import { Flowmap } from "./flowmap";
 import { createLensMaterial, type LayerUniform } from "./lens";
+import type { HeroPlate, HeroTier } from "./hero/scene";
+import { settled, smoothDamp, type SpringState } from "./hero/spring";
 import { LinesPlate, raw } from "./lines";
 
 const RANK: Record<PreloadLevel, number> = { none: 0, metadata: 1, auto: 2 };
@@ -192,6 +196,17 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
   const rtOpts = { depthBuffer: false, minFilter: LinearFilter, magFilter: LinearFilter };
   const bathyRT = new WebGLRenderTarget(1, 1, rtOpts);
   const linesRT = new WebGLRenderTarget(1, 1, rtOpts);
+  // P-hero: the scene chunk loads on first use; the plate is rebuilt when the tier or the
+  // layout family (portrait phone track, same media query as its poster) changes.
+  const heroRT = new WebGLRenderTarget(1, 1, rtOpts);
+  let heroMod: typeof import("./hero/scene") | null = null;
+  let heroLoad: "idle" | "loading" | "failed" = "idle";
+  let hero: HeroPlate | null = null;
+  let heroKey: HeroTier | null = null;
+  let heroDrawn = false;
+  let heroSpring: SpringState | null = null;
+  const heroPhone = window.matchMedia("(max-aspect-ratio: 4/5)");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const host = document.createElement("div");
   host.className = "stage__decoders";
@@ -277,6 +292,38 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
     const bh = Math.round(h * dpr);
     bathyRT.setSize(bw, bh);
     linesRT.setSize(bw, bh);
+    heroRT.setSize(bw, bh);
+    hero?.resize(bw, bh, dpr);
+  }
+
+  /** The P-hero plate for this tier, or null while its chunk loads (the poster shows). */
+  function heroPlate(): HeroPlate | null {
+    if (!heroMod) {
+      if (heroLoad === "idle") {
+        heroLoad = "loading";
+        import("./hero/scene").then(
+          (m) => {
+            if (disposed) return;
+            heroMod = m;
+            requestRender();
+          },
+          () => {
+            // Offline or a stale deploy: the plate keeps its poster.
+            heroLoad = "failed";
+            requestRender();
+          }
+        );
+      }
+      return null;
+    }
+    const key: HeroTier = heroPhone.matches ? "phone" : tier === "high" ? "high" : "medium";
+    if (!hero || heroKey !== key) {
+      hero?.dispose();
+      hero = heroMod.createHeroPlate(renderer, { tier: key, phone: key === "phone" });
+      heroKey = key;
+      hero.resize(Math.round(size.w * size.dpr), Math.round(size.h * size.dpr), size.dpr);
+    }
+    return hero;
   }
 
   /** CSS rect (top-left origin) → buffer px, bottom-left origin. */
@@ -353,6 +400,20 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
     } else if (s.plate === "P-lines") {
       tex = linesRT.texture;
       u.screen = 1;
+    } else if (s.plate === "P-hero") {
+      // Mirrored on right-to-left pages so the hull stays in the column free of copy.
+      u.flipX = s.rtl ? 1 : 0;
+      if (heroDrawn) {
+        tex = heroRT.texture;
+        u.screen = 1;
+      } else {
+        const p = poster(s.plate);
+        if (p) {
+          tex = p.tex;
+          aspect = p.aspect;
+          if (p.portrait) focal = def.focalPhone;
+        }
+      }
     }
     if (tex) {
       u.kind = 1;
@@ -369,6 +430,7 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
 
   function layerReady(s: LayerState) {
     if (isVideoPlate(s.plate)) return source(s.plate).ready;
+    if (s.plate === "P-hero") return heroDrawn || heroLoad === "failed";
     return true;
   }
 
@@ -451,8 +513,28 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
       }
     }
 
-    // Flowmap: high tier, fine pointer, moving footage only.
-    const flowOn = !!flow && feats.flowmap && finePointer && animate;
+    // P-hero: camera on the hero's scroll progress through a critically damped spring (seeded
+    // on its first frame, snapped for still screenshots); clock frozen with Pause motion; a
+    // still at p 0 with reduced motion (normally the low tier's poster instead).
+    const heroL = layers.find((l) => l.plate === "P-hero");
+    let heroMoving = false;
+    if (heroL) {
+      const hp = heroPlate();
+      if (hp) {
+        const still = reducedMotion.matches;
+        const target = still ? 0 : heroL.scrolled;
+        heroSpring =
+          !heroSpring || still || clockOverride != null
+            ? { x: target, v: 0 }
+            : smoothDamp(heroSpring, target, dt);
+        hp.render({ progress: heroSpring.x, time: still ? 0 : clock, draw: 1.2 }, heroRT);
+        heroDrawn = true;
+        heroMoving = !settled(heroSpring, target);
+      }
+    }
+
+    // Flowmap: high tier, fine pointer, moving footage only (never over the lines plan).
+    const flowOn = !!flow && feats.flowmap && finePointer && animate && !heroL;
     if (flow && flowOn) {
       if (!surfaced && state.a.plate === "V-hero" && window.scrollY < 40) {
         surfaced = true;
@@ -498,6 +580,8 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
       readySent = true;
       o.onReady();
     }
+    // Without the loop (paused, or rendering on scroll only) the spring still glides to rest.
+    if (heroMoving && !running) requestRender();
   }
 
   function loop(now: number) {
@@ -611,6 +695,8 @@ export const createCompositor = (o: CompositorOptions): Compositor => {
       host.remove();
       flow?.dispose();
       lines.dispose();
+      hero?.dispose();
+      heroRT.dispose();
       lens.dispose();
       bathyMat.dispose();
       bathyRT.dispose();

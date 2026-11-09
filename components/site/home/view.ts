@@ -4,6 +4,7 @@
  * data (classes, brokers, posts, offices) comes from the same loaders for all.
  */
 import { SHIP_CLASSES, isPlateId, type PlateId, type ShipClassSlug } from "@/components/site/stage";
+import { homeHeroPlate } from "@/components/site/stage/plates";
 import { categoryCounts, getPosts, latestPostCards } from "@/lib/blog/posts";
 import { BROKERS, TEAM_LABEL, TEAM_ORDER } from "@/lib/data/brokers";
 import { HOME_FAQ } from "@/lib/data/faqs";
@@ -157,7 +158,7 @@ export function englishHome(file: HomeFile = HOME): HomeView {
     pause: { pause: "Pause motion", play: "Play motion" },
     newTab: "(opens in a new tab)",
     hero: {
-      plate: plate(h.plate, "V-hero"),
+      plate: homeHeroPlate(plate(h.plate, "V-hero")),
       lines: lines(h.headline),
       accent: h.accent,
       sub: h.sub,
@@ -432,6 +433,7 @@ export function localizedHome(locale: Locale, file: HomeFile = HOME): HomeView {
       localTime: h.localTime,
       mapLabel: h.mapLabel,
       lanesLabel: h.lanesLabel,
+      routesLabel: h.routesLabel,
     },
     team: en.team && {
       ...en.team,

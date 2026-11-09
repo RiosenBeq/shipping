@@ -41,15 +41,30 @@
     margin-block: 16px 8px;
   }
 }
+/* Tablets: the menu across the top, then the chart beside the brand block (no empty ocean). */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :global(.ftr) .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 40px;
+  }
+  :global(.ftr) .grid > :global(.ftr__menu-wrap) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  :global(.ftr) .grid > .chart {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+  }
+  :global(.ftr) .grid > :global(.ftr__brand-col) {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+}
 
 .status {
   margin: 0 0 16px;
-  font:
-    400 12px/1.6 var(--font-mono),
-    ui-monospace,
-    monospace;
-  letter-spacing: 0.01em;
-  color: var(--fog);
 }
 .key {
   display: block;
@@ -64,6 +79,25 @@
 }
 .rule {
   display: block;
+  font:
+    400 14px/1.5 var(--font-body),
+    system-ui,
+    sans-serif;
+  color: var(--mist);
+}
+/* The times: a data row in Plex Mono, each "· value" group kept whole. */
+.today {
+  display: block;
+  margin-top: 6px;
+  font:
+    400 12px/1.6 var(--font-mono),
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.01em;
+  color: var(--fog);
+}
+.today > span {
+  white-space: nowrap;
 }
 .today time {
   color: var(--sand);
@@ -180,13 +214,13 @@
   font-weight: 500;
   font-size: 11px;
   letter-spacing: 0.9em;
-  color: rgba(243, 239, 228, 0.26);
+  color: rgba(243, 239, 228, 0.5);
 }
 .place {
   color: rgba(183, 194, 202, 0.85);
 }
 .bridge {
-  font-size: 8.5px;
+  font-size: 9px;
   letter-spacing: 0.1em;
   color: rgba(169, 182, 191, 0.72);
 }
@@ -195,9 +229,9 @@
   color: var(--brass-light);
 }
 .tick {
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 0.04em;
-  color: rgba(169, 182, 191, 0.5);
+  color: rgba(169, 182, 191, 0.75);
 }
 .north {
   font-weight: 500;
@@ -208,7 +242,7 @@
 .note a {
   color: inherit;
   text-decoration: underline;
-  text-decoration-color: rgba(169, 182, 191, 0.4);
+  text-decoration-color: rgba(169, 182, 191, 0.6);
   text-underline-offset: 2px;
 }
 .note a:hover {
@@ -217,11 +251,20 @@
 .note {
   margin: 10px 0 0;
   font:
-    400 10px/1.45 var(--font-mono),
+    400 11px/1.45 var(--font-mono),
     ui-monospace,
     monospace;
   letter-spacing: 0.01em;
-  color: rgba(169, 182, 191, 0.62);
+  color: rgba(169, 182, 191, 0.8);
+}
+/* The narrowest phones: tighter tracking keeps EUROPE and BLACK SEA inside the plate. */
+@media (max-width: 360px) {
+  .land.lbl {
+    letter-spacing: 0.5em;
+  }
+  .sea {
+    letter-spacing: 0.3em;
+  }
 }
 
 /* ---------- Still states: reduced motion, Pause motion, print ---------- */

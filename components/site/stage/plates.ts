@@ -111,6 +111,7 @@ function videoPlate(id: PlateId, slot: VideoSlot, label: string): PlateDef {
 }
 
 const bathy = proceduralStatics.bathy;
+const heroLines = proceduralStatics.hero;
 
 export const PLATES: Record<PlateId, PlateDef> = {
   "V-hero": videoPlate("V-hero", PLATE_SLOTS["V-hero"], "Dawn · tankers at anchor"),
@@ -150,6 +151,31 @@ export const PLATES: Record<PlateId, PlateDef> = {
     horizon: null,
     aspect: 16 / 9,
   },
+  // "Lines to light" (gl/hero/): the homepage hero. Its poster is the p = 0 still baked from
+  // the live plate (/stage-lab?bake=hero), shown in poster mode, on the low tier, without
+  // WebGL and with reduced motion.
+  "P-hero": {
+    id: "P-hero",
+    kind: "procedural",
+    label: "Lines to light · VLCC lines plan",
+    ground: "dark",
+    poster: {
+      avif: heroLines.avif,
+      webp: heroLines.webp,
+      width: heroLines.width,
+      height: heroLines.height,
+      avifSmall: heroLines.avifSmall,
+      webpSmall: heroLines.webpSmall,
+      smallWidth: heroLines.smallWidth,
+      avifPortrait: heroLines.avifPortrait,
+      webpPortrait: heroLines.webpPortrait,
+    },
+    focal: CENTRE,
+    focalPhone: CENTRE,
+    flipX: false,
+    horizon: null,
+    aspect: heroLines.width / heroLines.height,
+  },
   none: {
     id: "none",
     kind: "none",
@@ -165,6 +191,16 @@ export const PLATES: Record<PlateId, PlateDef> = {
 };
 
 export const PLATE_IDS = Object.keys(PLATES) as PlateId[];
+
+/**
+ * The homepage hero's plate: the procedural "Lines to light" (`P-hero`) where the content asks
+ * for the default `V-hero` clip — unless an editor has put their own hero footage in the Media
+ * library (content/media.json → V-hero), which then plays exactly as before. Any other plate
+ * an editor picks for the hero stays as picked.
+ */
+export function homeHeroPlate(picked: PlateId): PlateId {
+  return picked === "V-hero" && !videos[PLATE_SLOTS["V-hero"]].source ? "P-hero" : picked;
+}
 
 /** The framing the DOM runtime needs for a plate (serialisable). */
 export function plateFrame(id: PlateId): PlateFrame {

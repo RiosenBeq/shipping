@@ -5,7 +5,6 @@
 
    P1  spotlight glass on night cards       (Spotlight.tsx writes --mx / --my)
    P2  the light ribbon round the duty line (DutyRibbon.tsx)
-   P10 paper grain on paper cards
 
    Rules: glass and glow on night grounds only, never on paper (§16); every loop stops
    under prefers-reduced-motion and under html[data-motion="paused"] (Pause motion,
@@ -95,31 +94,22 @@
   height: calc(100% - 1.5px);
   rx: calc(var(--r-duty, 14px) - 0.75px);
   fill: none;
-  stroke: #f6e3b4;
+  /* calm: a soft sand dash, no glow, slow (the brass CTA beside it stays the one accent) */
+  stroke: rgba(246, 227, 180, 0.75);
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-dasharray: 10 90;
-  filter: drop-shadow(0 0 2.5px rgba(217, 176, 113, 0.9));
+  filter: none;
   opacity: 0;
 }
 @media (prefers-reduced-motion: no-preference) {
   .duty-ribbon rect {
     opacity: 1;
-    animation: stage-ribbon 7s linear infinite;
+    animation: stage-ribbon 12s linear infinite;
   }
 }
 html[data-motion="paused"] .duty-ribbon rect {
   animation-play-state: paused;
-}
-
-/* ---- P10 · paper grain (idea: Magic UI "noise texture") -------------------
-   A still, seamless 128px grain baked onto the sand (public/media/stage/paper-grain.webp,
-   4.6 KB, WebP lossless): mean colour = flat sand (243,239,228), σ ≈ 1.1 levels. A bitmap,
-   not an SVG turbulence filter: any repaint inside a card (a ribbon, a ticker) then costs a
-   tile copy instead of re-running the noise. Brass-ink on it stays ≥ 4.6:1 (flat: 4.66:1). */
-.stage-card--paper {
-  background-image: url("/media/stage/paper-grain.webp");
-  background-size: 128px 128px;
 }
 
 @media print {

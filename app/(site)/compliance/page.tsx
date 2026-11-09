@@ -99,6 +99,7 @@ export default function CompliancePage() {
       >
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="What we check"
             id="screening-title"
             title="Four layers of screening."
@@ -140,6 +141,7 @@ export default function CompliancePage() {
         <Glows />
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="How it runs"
             id="process-title"
             title="Screening is part of the fixture, not after it."
@@ -165,7 +167,7 @@ export default function CompliancePage() {
               <div className="ip-faq-block__head">
                 <div>
                   <Sub>FAQ</Sub>
-                  <h2 id="faq-title" className="t-display">
+                  <h2 id="faq-title" className="ip-h2">
                     Compliance questions.
                   </h2>
                 </div>

@@ -43,6 +43,7 @@ import {
 } from "./types";
 import { isShipClass, type ShipClassSlug } from "./lines/classes";
 import type { Compositor, CreateCompositor, FrameState, LayerState } from "./gl/contract";
+import { heroProgress } from "./gl/hero/spring";
 
 const WINDOW = "[data-stage-window]";
 const FALLBACK_FRAME: PlateFrame = {
@@ -561,6 +562,8 @@ export class StageRuntime {
             ? { x: lr.left, y: lr.top, w: lr.width, h: lr.height, slug: slug as ShipClassSlug }
             : null,
         pin: pr ? { x: pr.left + pr.width / 2, y: pr.top + pr.height / 2 } : null,
+        scrolled: heroProgress(r.top, r.bottom - r.top, vh),
+        rtl,
       };
     };
 
@@ -721,18 +724,29 @@ export class StageRuntime {
  * empty plate beside its lines, and a zone round the whole box would darken it for nothing.
  */
 function inkRect(el: HTMLElement, box: DOMRect): { x: number; y: number; w: number; h: number } {
+  // Text only: a Range over the whole element also returns the border boxes of the elements
+  // inside it, and a heading split into block-level line spans (the homepage's rising letters)
+  // would then shade the full width of its max-width, plate beside the lines included.
   const range = document.createRange();
-  range.selectNodeContents(el);
+  const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
   let l = Infinity;
   let t = Infinity;
   let r = -Infinity;
   let b = -Infinity;
-  for (const q of range.getClientRects()) {
-    if (q.width < 2 || q.height < 2) continue; // collapsed and visually hidden (sr-only) boxes
-    l = Math.min(l, q.left);
-    t = Math.min(t, q.top);
-    r = Math.max(r, q.right);
-    b = Math.max(b, q.bottom);
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    if (!n.nodeValue?.trim()) continue;
+    const parent = n.parentElement;
+    if (!parent) continue;
+    const pr = parent.getBoundingClientRect();
+    if (pr.width < 2 || pr.height < 2) continue; // visually hidden (sr-only) text
+    range.selectNodeContents(n);
+    for (const q of range.getClientRects()) {
+      if (q.width < 1 || q.height < 2) continue;
+      l = Math.min(l, q.left);
+      t = Math.min(t, q.top);
+      r = Math.max(r, q.right);
+      b = Math.max(b, q.bottom);
+    }
   }
   l = Math.max(l, box.left);
   t = Math.max(t, box.top);

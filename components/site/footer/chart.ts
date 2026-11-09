@@ -505,7 +505,7 @@ export function buildChart(view: ChartView = FOOTER_VIEW): Chart {
 
   const end = route[route.length - 1];
   const ship: Pose = { at: end, heading: headingOf(route[route.length - 2], end) };
-  const ambient = [0.2, 0.52, 0.8].map((t) => along(traffic, t));
+  const ambient = [0.24, 0.52, 0.8].map((t) => along(traffic, t));
   const arrows = [0.3, 0.62].flatMap((t) => [along(route, t), along(traffic, 1 - t)]);
   const current = [0.16, 0.47, 0.78].map((t) => {
     const a = along(sep, t);
@@ -583,14 +583,14 @@ export function buildChart(view: ChartView = FOOTER_VIEW): Chart {
     L("yenikoy", ["YENİKÖY"], PLACES.yenikoy, "end", "place", -8, 0),
     {
       id: "b1",
-      lines: ["15 JULY MARTYRS"],
+      lines: ["15 TEMMUZ ŞEHİTLER"],
       at: round1([b1.b[0] + 5, b1.b[1] + 5]),
       anchor: "start",
       kind: "bridge",
     },
     {
       id: "b2",
-      lines: ["FATIH SULTAN MEHMET"],
+      lines: ["FATİH SULTAN MEHMET"],
       at: round1([b2.b[0] + 5, b2.b[1]]),
       anchor: "start",
       kind: "bridge",

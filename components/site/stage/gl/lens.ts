@@ -61,6 +61,8 @@ vec3 sampleLayer(Layer L, sampler2D tex, vec2 px, vec2 disp) {
   vec2 st;
   if (L.screen > 0.5) {
     st = px / uRes + disp;
+    // P-hero mirrors for right-to-left pages (the hull stays in the free column).
+    if (L.flipX > 0.5) st.x = 1.0 - st.x;
   } else {
     vec2 ruv = (px - L.rect.xy) / L.rect.zw;
     ruv.y = 1.0 - ruv.y;

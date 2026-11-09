@@ -176,7 +176,8 @@ section has scrolled past half the viewport. Right side in RTL. Hidden in print.
 
 `{...calm()}` or `data-calm=""` on a copy block inside a window makes it a **calm zone**: the
 lens pulls the plate toward navy-deep by `k` (0.35–0.55, default 0.45) over what the element
-draws — the union of its lines and inline boxes, within its box — feathered 96px
+draws — the union of its text's line boxes (text nodes only: element boxes such as block-level
+line spans do not count), within its box — feathered 96px
 (`CALM_FEATHER`: wide enough to read as shade, never as a box, on a bright day plate), and
 switches the flowmap off there. Up to 6 zones are active at once (the
 largest visible ones). Put them on the blocks that hold text — headline, lead, CTA row, fact
@@ -230,7 +231,27 @@ Durations (§5): 180 · 420 · 640 · 900 · 1200 ms; in JS `DURATION` from `sta
 | `V-ocean` | `ocean` — dark sea surface | deep | footer, 404 |
 | `P-bathy` | procedural contours (static: `/media/stage/bathy-*.avif`) | brand | Who, `/about`, mastheads |
 | `P-lines` | procedural 3D lines plan | brand | Ships, class pages |
+| `P-hero` | "Lines to light" (static: `/media/stage/hero-lines-*`) | brand | home hero (all 11 homepages) |
 | `none` | no plate: the window's ground colour | — | flat paper or night window |
+
+**`P-hero` ("Lines to light", `gl/hero/`).** The VLCC of `lines/` as a lines plan in brass
+hairlines with light trails, a glass hull with a brass rim that fills from the bow aft, a
+breathing contour sea, bloom (own passes, then the lens as for any plate). The camera follows
+the hero window's scroll progress p (`heroProgress`: 0 top at the viewport top → 1 once the
+next window has risen `HERO_TAIL` = 0.6 of the viewport over it, clamped 0..1.3; read-only,
+no pinning). The homepage hero is a viewport of copy plus a 75svh scene-only tail
+(`.h-hero--scene` in home.css; not under reduced motion or print), so the whole orbit plays in
+view — about 1.15 viewports of scroll — after the copy has scrolled away through a critically damped spring
+(`smoothDamp`, 0.15 s): bow three-quarter → profile (p .55) → stern quarter (p .8) → rising
+toward a top-down chart (1–1.3, under the next window's tide). Keyframes: `gl/hero/choreo.ts`
+(desktop and portrait-phone tracks; the phone track and the portrait poster share
+`(max-aspect-ratio: 4/5)`). Pause motion freezes the clock (trails, contour breathing) while
+the scroll still turns the camera; reduced motion is the low tier's poster (and a still at
+p 0 if live is forced). The lines are fully drawn when the canvas fades in (the prototype's
+draw-in would erase the poster's lines first). Mirrored on RTL pages, poster included.
+Homepages ask for `V-hero`; `homeHeroPlate` (plates.ts) swaps it for `P-hero` unless the Media
+library holds hero footage of its own — then that video plays as before (other plates an
+editor picks for the hero stay as picked; `/tankers` and the calculator keep `V-hero`).
 
 **The grade belongs to the plate**, not to the section: a clip is always shown through its
 `look.grade` in `lib/media.ts`, so its graded poster and the live frame are identical and two
@@ -286,7 +307,17 @@ cropped away, or with `horizon={false}` on the window.
   (`debug()`: tier, mode, composition, renderer info, `setClock(s)` for still screenshots).
 - **Measured** (esbuild, minified + gzip): client first-load part ≈ 7.8 KB gz (runtime,
   composition maths); compositor chunk ≈ 150 KB gz (three.js ≈ 140), loaded lazily; GPU 1–3
-  draw calls per frame (lens, bathy target, lines target, flowmap). Hero video 2.1 MB
+  draw calls per frame (lens, bathy target, lines target, flowmap).
+- **P-hero** is a lazy chunk of its own (≈ 34.6 KB min / 13.2 KB gz: scene, hull, shaders,
+  choreography; three.js and `lines/` come from the compositor chunk), imported the first time
+  a P-hero window is on screen; its poster shows (and the canvas waits) until its first frame.
+  Per tier: high 5 fbm octaves, 1,400 dust motes, bloom ¼ + ⅛, hull 128 columns; medium 4
+  octaves, 800 motes, bloom ¼ + ⅛, 112 columns; portrait phones 4 octaves, 500 motes, bloom ¼
+  only, 96 columns, lines sampled at 70 % (≈ 1.9k instead of 2.6k segments). DPR caps and the
+  pixel budget are the stage's; auto-downgrade rebuilds the plate for the new tier; no
+  flowmap over it. ~11–13 draw calls, ~10 passes, 30–40k triangles; render targets ≈ 28 MB at
+  1440×900 DPR 1 (half-float when available). Measure on a real GPU before tuning: SwiftShader
+  timings mean nothing. Hero video 2.1 MB
   desktop / 0.9 MB portrait; hero poster AVIF 15 KB (1600w) / 6 KB (800w).
 
 ## 7. Media pipeline
@@ -303,6 +334,11 @@ cropped away, or with `horizon={false}` on the window.
 - `public/media/stage/bathy-*.{avif,webp}`: P-bathy statics (1920×1200, 900×1600), baked
   from the live shader.
 
+- `public/media/stage/hero-lines-{1600,800,portrait}.{avif,webp}`: the P-hero poster (p 0,
+  clock 0; 1600×1000, 800×500, 720×1560), baked from the live plate: open
+  `/stage-lab?bake=hero&stage=1&stagetier=high` at 1440×900 @1.111x and 480×1040 @1.5x, call
+  `__stage.debug().setClock(0)`, screenshot, encode as below (AVIF 4:4:4 crf 28, WebP q75).
+
 Rebuild after changing a `look` or a grade:
 
 ```sh
@@ -315,8 +351,8 @@ Then copy the printed byte sizes into `lib/media.ts`.
 
 ## 8. Reduced motion, print, no JavaScript
 
-- **Reduced motion:** low tier — graded posters, static contours, SVG hull without its
-  ribbon animation, no card settle, rail ship jumps. Wipes and apertures still follow the
+- **Reduced motion:** low tier — graded posters, static contours, the P-hero still at p 0,
+  SVG hull without its ribbon animation, no card settle, rail ship jumps. Wipes and apertures still follow the
   scroll position (they are scroll-linked, not animated). Pinned sections should become
   normal flow in page CSS.
 - **Print:** stage, frame, rail, pause buttons and apertures hidden; cards and windows flat
@@ -349,7 +385,10 @@ and a live debug readout. `?stage=0` / `?stage=1&stagetier=high` switch modes;
 `npx vitest run components/site/stage`: grades as numbers and the LUT writer, calm-rect
 selection and falloff, tier picking and DPR caps and the fps governor, composition and
 cover-fit maths, preload scheduling and video file choice (with the hero weight budgets),
-rail progress, easings, class parameters and the 700 ms morph, and the lines-plan geometry.
+rail progress, easings, class parameters and the 700 ms morph, and the lines-plan geometry;
+`gl/hero/hero.test.ts`: P-hero keyframes (through every key, monotone, flat ends, continuous,
+the orbit order), scroll progress and the spring (no overshoot, settles, frame-rate
+independent), the hull data and the homepage plate swap.
 
 ## 12. The Media library (content/media.json) and footage from other sites
 

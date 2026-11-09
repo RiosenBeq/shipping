@@ -126,7 +126,11 @@ const footage = (values: readonly VideoPlate[], def: VideoPlate, description: st
 const hero = fields.object(
   {
     rail: rail(),
-    plate: footage(HOME_HERO_PLATES, "V-hero", "The video behind the headline."),
+    plate: footage(
+      HOME_HERO_PLATES,
+      "V-hero",
+      "Behind the headline. V-hero shows the animated 3D lines plan (“Lines to light”), or your own hero video if the Media library has one; any other clip plays as picked."
+    ),
     headline: limited(
       "Headline (h1)",
       HOME_LIMITS.heroHeadline,

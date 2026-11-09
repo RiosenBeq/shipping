@@ -1113,6 +1113,22 @@ export const proceduralStatics = {
     bytes: { avif: 27982, webp: 66998, avifPortrait: 12647 },
     alt: "Bathymetric contour lines of a winding channel, in brass on deep navy",
   },
+  /** P-hero ("Lines to light") at p = 0, baked from /stage-lab?bake=hero (docs/STAGE.md §7). */
+  hero: {
+    avif: "/media/stage/hero-lines-1600.avif",
+    webp: "/media/stage/hero-lines-1600.webp",
+    width: 1600,
+    height: 1000,
+    avifSmall: "/media/stage/hero-lines-800.avif",
+    webpSmall: "/media/stage/hero-lines-800.webp",
+    smallWidth: 800,
+    avifPortrait: "/media/stage/hero-lines-portrait.avif",
+    webpPortrait: "/media/stage/hero-lines-portrait.webp",
+    portraitWidth: 720,
+    portraitHeight: 1560,
+    bytes: { avif: 14020, webp: 26836, avifSmall: 6932, avifPortrait: 14978 },
+    alt: "A tanker's lines plan in brass hairlines over bathymetric contours, on deep navy",
+  },
 } as const;
 
 /** The lens grades as 17³ `.cube` LUTs (ffmpeg `lut3d`), written from components/site/stage/grades.ts. */

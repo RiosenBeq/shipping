@@ -147,7 +147,7 @@ export default function AboutPage() {
           <div className="ip-story">
             <div>
               <Sub>Our story</Sub>
-              <h2 id="story-title" className="t-display">
+              <h2 id="story-title" className="ip-h2">
                 Why a broker on the Straits.
               </h2>
             </div>
@@ -183,6 +183,7 @@ export default function AboutPage() {
         <Glows />
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="How we work"
             id="principles-title"
             title="Four principles on every fixture."
@@ -215,6 +216,7 @@ export default function AboutPage() {
       <Card ground="paper" id="offices" aria-labelledby="offices-title" className="ip-card">
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="Offices"
             id="offices-title"
             title="Three time zones, one team."
@@ -239,7 +241,7 @@ export default function AboutPage() {
               <div className="ip-faq-block__head">
                 <div>
                   <Sub>FAQ</Sub>
-                  <h2 id="faq-title" className="t-display">
+                  <h2 id="faq-title" className="ip-h2">
                     About LEVANTER.
                   </h2>
                 </div>

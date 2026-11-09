@@ -25,6 +25,9 @@ export function mountRail(
       // Attraction physics, not ms (docs: 20–60): tuned by eye against the 640ms tide.
       duration: 32,
       skipSnaps: true,
+      // ShipsSlider brings a focused card into view itself, for any kind of focus (Embla's
+      // own handler follows the Tab key only).
+      watchFocus: false,
     },
     [WheelGesturesPlugin()]
   );

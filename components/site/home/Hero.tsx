@@ -33,7 +33,7 @@ export function Hero({ view, id, total }: { view: HomeView; id: string; total: n
     <StageWindow
       id={id}
       plate={hero.plate}
-      className="h-hero"
+      className={hero.plate === "P-hero" ? "h-hero h-hero--scene" : "h-hero"}
       aria-labelledby="hero-title"
       data-header-overlay=""
       data-snap=""

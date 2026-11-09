@@ -18,7 +18,8 @@ export default async function StageLabPage({
 }) {
   if (process.env.NODE_ENV !== "production") {
     const { StageLab } = await import("@/components/site/stage/lab/StageLab");
-    return <StageLab bake={searchParams.bake === "bathy" ? "bathy" : null} />;
+    const bake = searchParams.bake;
+    return <StageLab bake={bake === "bathy" || bake === "hero" ? bake : null} />;
   }
   notFound();
 }

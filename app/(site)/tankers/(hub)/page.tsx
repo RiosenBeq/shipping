@@ -146,6 +146,7 @@ export default function TankersPage() {
       <Card ground="paper" id="fleet" aria-labelledby="fleet-title" className="ip-card">
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="Fleet we cover"
             id="fleet-title"
             title="Five tanker sizes, two markets."
@@ -194,6 +195,7 @@ export default function TankersPage() {
         <Glows />
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="What we fix"
             id="services-title"
             title="Full-cycle tanker broking."
@@ -219,6 +221,7 @@ export default function TankersPage() {
           <hr className="ip-rule" />
 
           <SectionHead
+            size="sm"
             sub="The tanker desk"
             id="team-title"
             title="Brokers by market."
@@ -271,7 +274,7 @@ export default function TankersPage() {
               <div className="ip-faq-block__head">
                 <div>
                   <Sub>FAQ</Sub>
-                  <h2 id="faq-title" className="t-display">
+                  <h2 id="faq-title" className="ip-h2">
                     Tanker chartering questions.
                   </h2>
                 </div>
