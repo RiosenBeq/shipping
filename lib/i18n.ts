@@ -122,6 +122,8 @@ export type Dictionary = {
     localTime: string;
     mapLabel: string;
     lanesLabel: string;
+    /** Label of the benchmark route list under the Reach heading ("Routes we fix on"). */
+    routesLabel: string;
     teamLines: string[];
     teamLead: string;
     /** Button to the (English) team page. */
@@ -307,6 +309,7 @@ export const LOCALES: Locale[] = [
         localTime: "当地时间",
         mapLabel: "从欧洲到新加坡的业务地图，标出从伊斯坦布尔出发的航线和我们的三个办公室",
         lanesLabel: "我们的航线",
+        routesLabel: "我们成交的航线",
         teamLines: ["直接对话经纪人，", "而不是总机。"],
         teamLead: "两个业务部门的九位经纪人，每一位都可以通过电子邮件或WhatsApp直接联系。",
         teamCta: "认识团队（英文）",
@@ -508,6 +511,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "ヨーロッパからシンガポールまでの活動エリアの地図。イスタンブールからの航路と3つの拠点を示しています",
         lanesLabel: "主な航路",
+        routesLabel: "成約する航路",
         teamLines: ["交換台ではなく、", "ブローカーと直接。"],
         teamLead: "2つのデスクの9人のブローカー。全員にメールやWhatsAppで直接連絡できます。",
         teamCta: "チームを見る（英語）",
@@ -697,6 +701,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "유럽에서 싱가포르까지의 활동 지역 지도. 이스탄불에서 출발하는 항로와 세 사무소를 표시합니다",
         lanesLabel: "주요 항로",
+        routesLabel: "성약하는 항로",
         teamLines: ["교환대가 아닌", "브로커와 직접."],
         teamLead:
           "두 데스크의 브로커 아홉 명, 모두 이메일이나 WhatsApp으로 직접 연락할 수 있습니다.",
@@ -903,6 +908,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Χάρτης της περιοχής μας από την Ευρώπη έως τη Σιγκαπούρη, με τα δρομολόγια από την Κωνσταντινούπολη και τα τρία γραφεία μας",
         lanesLabel: "Δρομολόγια που δουλεύουμε",
+        routesLabel: "Διαδρομές που κλείνουμε",
         teamLines: ["Μιλήστε με τον μεσίτη,", "όχι με τηλεφωνικό κέντρο."],
         teamLead:
           "Εννέα μεσίτες σε δύο τμήματα, ο καθένας προσβάσιμος απευθείας με email ή WhatsApp.",
@@ -1109,6 +1115,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Kart over området vårt fra Europa til Singapore, med ruter fra Istanbul og våre tre kontorer",
         lanesLabel: "Ruter vi jobber med",
+        routesLabel: "Ruter vi slutter på",
         teamLines: ["Snakk med megleren,", "ikke et sentralbord."],
         teamLead: "Ni meglere på to desker, alle direkte tilgjengelige på e-post eller WhatsApp.",
         teamCta: "Møt teamet (engelsk)",
@@ -1305,6 +1312,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Kort over vores område fra Europa til Singapore, med ruter fra Istanbul og vores tre kontorer",
         lanesLabel: "Ruter vi arbejder med",
+        routesLabel: "Ruter vi slutter på",
         teamLines: ["Tal med mægleren,", "ikke et omstillingsbord."],
         teamLead: "Ni mæglere på to desks, alle direkte tilgængelige på e-mail eller WhatsApp.",
         teamCta: "Mød teamet (engelsk)",
@@ -1512,6 +1520,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Karta över vårt område från Europa till Singapore, med rutter från Istanbul och våra tre kontor",
         lanesLabel: "Rutter vi arbetar med",
+        routesLabel: "Rutter vi sluter på",
         teamLines: ["Tala med mäklaren,", "inte en växel."],
         teamLead: "Nio mäklare på två desker, alla nåbara direkt via e-post eller WhatsApp.",
         teamCta: "Möt teamet (engelska)",
@@ -1721,6 +1730,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Karte unseres Fahrtgebiets von Europa bis Singapur, mit Routen ab Istanbul und unseren drei Büros",
         lanesLabel: "Routen, die wir bedienen",
+        routesLabel: "Routen, auf denen wir abschließen",
         teamLines: ["Sprechen Sie mit dem Makler,", "nicht mit der Zentrale."],
         teamLead: "Neun Makler an zwei Desks, jeder direkt per E-Mail oder WhatsApp erreichbar.",
         teamCta: "Das Team (Englisch)",
@@ -1928,6 +1938,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "Mapa de nuestra zona de Europa a Singapur, con rutas desde Estambul y nuestras tres oficinas",
         lanesLabel: "Rutas que trabajamos",
+        routesLabel: "Rutas en las que cerramos",
         teamLines: ["Hable con el corredor,", "no con una centralita."],
         teamLead:
           "Nueve corredores en dos mesas, todos localizables directamente por correo o WhatsApp.",
@@ -2129,6 +2140,7 @@ export const LOCALES: Locale[] = [
         mapLabel:
           "خريطة منطقة عملنا من أوروبا إلى سنغافورة، مع المسارات من إسطنبول ومكاتبنا الثلاثة",
         lanesLabel: "المسارات التي نعمل عليها",
+        routesLabel: "المسارات التي نبرم عليها الصفقات",
         teamLines: ["تحدث إلى الوسيط،", "لا إلى مقسم هاتف."],
         teamLead:
           "تسعة وسطاء في قسمين، يمكن التواصل مع كل منهم مباشرة عبر البريد الإلكتروني أو واتساب.",

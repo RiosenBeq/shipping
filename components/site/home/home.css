@@ -28,6 +28,11 @@
   overflow: hidden;
   pointer-events: none;
 }
+/* In a pinned scene the glows outgrow the 100vh frame: only the section's own rounded edge cuts
+   them (the sections clip), never a straight line where the frame ends. */
+.h-pinned .h-sticky > .h-glows {
+  overflow: visible;
+}
 .h-scene {
   color: color-mix(in srgb, var(--ink) 66%, transparent);
 }
@@ -330,6 +335,8 @@ html[data-home-motion="on"] .h-hero__title[data-in] .acc .ch {
 /* ===== 2 · Who we are ====================================================== */
 .h-who {
   position: relative;
+  /* `clip` (unlike `hidden`) keeps the pinned frame sticky. */
+  overflow: clip;
 }
 .h-who__pin {
   position: relative;
@@ -903,6 +910,20 @@ html[data-home-motion="on"] .h-who .fill {
   outline: 2px solid var(--brass-light);
   outline-offset: 2px;
 }
+/* Forced colours flatten the pill and the pressed fill alike: outline the pressed half, as the
+   site's other segmented controls do. */
+@media (forced-colors: active) {
+  .ships__tabs {
+    border: 1px solid CanvasText;
+  }
+  .ships__tabs::before {
+    display: none;
+  }
+  .ships__tabs button[aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -4px;
+  }
+}
 .ships__stage {
   position: relative;
   display: grid;
@@ -1180,11 +1201,13 @@ html[data-home-motion="on"] .h-who .fill {
   box-shadow: inset 0 0 0 1px rgba(243, 239, 228, 0.3);
   cursor: pointer;
 }
-.ships__btn:hover:not(:disabled) {
+.ships__btn:hover:not(:disabled, [aria-disabled="true"]) {
   color: var(--navy-deep);
   background: var(--sand);
 }
-.ships__btn:disabled {
+/* aria-disabled at the ends: the button keeps its focus (and its ring). */
+.ships__btn:disabled,
+.ships__btn[aria-disabled="true"] {
   opacity: 0.35;
   cursor: default;
 }
@@ -1233,6 +1256,24 @@ html[data-motion="paused"] .ship-card__ribbon path {
   position: relative;
   min-height: 100vh;
   --k: clamp(0, calc(var(--stage-pin, 1) / 0.45), 1);
+  /* How far the sand ground has opened from a card to full bleed (the reel's own progress). */
+  --kq: var(--k);
+}
+/* The sand ground arrives as a card, like every other paper surface: inset with rounded top
+   corners under the dark window above, opening to full bleed with the reel. A navy-deep mask
+   outside the rounded shape, over the aperture's ground and under the content; no box moves
+   (CLS 0), and the live stage and the poster are covered alike. */
+.h-process__pin::after {
+  --q: calc(1 - var(--kq));
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: -400vh;
+  inset-inline: calc(var(--stage-inset) * var(--q));
+  border-radius: calc(var(--stage-radius) * var(--q)) calc(var(--stage-radius) * var(--q)) 0 0;
+  box-shadow: 0 0 0 200vmax var(--stage-navy-deep);
+  pointer-events: none;
 }
 .h-process__head {
   position: relative;
@@ -1341,9 +1382,8 @@ html[data-motion="paused"] .ship-card__ribbon path {
 .h-reach__top .t-sub {
   margin-bottom: 18px;
 }
-/* P6 · the tide ticker under the heading: benchmark routes rising through a three-row window
-   (paper, so no glow; masks fade the rows in and out at the waterlines). Desktop and tablets
-   only — on phones the heading sits right on the map. */
+/* P6 · the route list under the heading: four benchmark routes, still, in hairline rows
+   (paper, so no glow). Desktop and tablets only — on phones the heading sits right on the map. */
 .h-ticker {
   margin-top: clamp(32px, 4vw, 52px);
   max-width: 21rem;
@@ -1352,44 +1392,22 @@ html[data-motion="paused"] .ship-card__ribbon path {
   margin: 0 0 12px;
   color: var(--ink-accent);
 }
-.h-ticker__win {
-  --row: 46px;
-  position: relative;
-  height: calc(var(--row) * 3);
-  overflow: clip;
-  border-block: 1px solid var(--hair);
-}
-/* The waterlines: the paper itself fades the rows in and out (overlays, not a mask: a masked
-   layer under a moving list costs a repaint of the card on every frame). */
-.h-ticker__win::before,
-.h-ticker__win::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  inset-inline: 0;
-  height: 30%;
-  pointer-events: none;
-}
-.h-ticker__win::before {
-  top: 0;
-  background: linear-gradient(var(--sand), rgba(243, 239, 228, 0));
-}
-.h-ticker__win::after {
-  bottom: 0;
-  background: linear-gradient(rgba(243, 239, 228, 0), var(--sand));
-}
 .h-ticker__list {
   margin: 0;
   padding: 0;
   list-style: none;
+  border-block: 1px solid var(--hair);
 }
 .h-ticker__list li {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  height: var(--row);
+  height: 46px;
   padding-top: 11px;
   white-space: nowrap;
+}
+.h-ticker__list li + li {
+  border-top: 1px solid var(--hair);
 }
 .h-ticker__list b {
   min-width: 3.4em;
@@ -1407,38 +1425,6 @@ html[data-motion="paused"] .ship-card__ribbon path {
     monospace;
   letter-spacing: 0.02em;
   color: var(--ink-2);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .h-ticker__list {
-    animation: h-tide-rise calc(var(--n, 10) * 2.8s) linear infinite;
-    will-change: transform;
-  }
-  .h-ticker:hover .h-ticker__list {
-    animation-play-state: paused;
-  }
-}
-html[data-motion="paused"] .h-ticker__list {
-  animation-play-state: paused;
-}
-@keyframes h-tide-rise {
-  to {
-    transform: translateY(-100%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .h-ticker__win {
-    height: auto;
-  }
-  .h-ticker__win::before,
-  .h-ticker__win::after {
-    display: none;
-  }
-  .h-ticker__list[aria-hidden] {
-    display: none;
-  }
-  .h-ticker__list li:nth-child(n + 5) {
-    display: none;
-  }
 }
 @media (max-width: 767px) {
   .h-ticker {
@@ -2377,6 +2363,7 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
   /* how we work: no pin; the card widens from 88% to full width */
   .h-process__pin {
     --k: 0;
+    --kq: clamp(0, calc(var(--stage-in, 1) * 1.6 - 0.3), 1);
     min-height: 0;
     padding-bottom: var(--stage-inset);
   }
@@ -2710,18 +2697,7 @@ html[data-home-motion="on"] .letter[data-reveal="settle"][data-in] .letter__stam
     transform: none;
     box-shadow: none;
   }
-  /* nothing moves on paper: the ticker prints as its list, the rail as its cards */
-  .h-ticker__win {
-    height: auto;
-  }
-  .h-ticker__win::before,
-  .h-ticker__win::after {
-    display: none;
-  }
-  .h-ticker__list {
-    animation: none;
-  }
-  .h-ticker__list[aria-hidden],
+  /* nothing moves on paper: the rail prints as its cards */
   .ships__viewport::before,
   .ships__viewport::after,
   .team__viewport::before,

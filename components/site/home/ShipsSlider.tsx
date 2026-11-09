@@ -63,6 +63,16 @@ function CalcGlyph() {
  * written straight to the element: no re-render per scroll frame) and the edge
  * fades (`data-more-start` / `data-more-end`).
  */
+/** An element's box inside its inline padding, viewport px. */
+function clearArea(el: HTMLElement) {
+  const r = el.getBoundingClientRect();
+  const cs = getComputedStyle(el);
+  return {
+    left: r.left + (parseFloat(cs.paddingLeft) || 0),
+    right: r.right - (parseFloat(cs.paddingRight) || 0),
+  };
+}
+
 export function ShipsSlider({
   ships,
   header,
@@ -82,22 +92,54 @@ export function ShipsSlider({
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const card = cards[active] ?? cards[0];
   const firstGas = cards.findIndex((c) => c.family === "gas");
+  const atStart = active === 0 && edges.start;
+  const atEnd = active === cards.length - 1 && edges.end;
 
   const rtl = () => trackRef.current && getComputedStyle(trackRef.current).direction === "rtl";
 
+  /** Native mode: scroll card i into the clear area (inside the track's bleed padding, out
+   * from under the edge shades). */
   const reveal = useCallback((i: number, focus = false) => {
     const track = trackRef.current;
     const li = track?.children[i] as HTMLElement | undefined;
     if (!track || !li) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const t = track.getBoundingClientRect();
+    const t = clearArea(track);
     const r = li.getBoundingClientRect();
-    if (r.left < t.left || r.right > t.right) {
+    if (r.left < t.left - 1 || r.right > t.right + 1) {
       const delta = r.left < t.left ? r.left - t.left - 2 : r.right - t.right + 2;
       track.scrollBy({ left: delta, behavior: reduce ? "auto" : "smooth" });
     }
     if (focus) li.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
   }, []);
+
+  /** A press on a card focuses its link: that focus must not scroll the rail under the pointer. */
+  const pressed = useRef(false);
+  const onPress = () => {
+    pressed.current = true;
+    const up = () => {
+      pressed.current = false;
+    };
+    window.addEventListener("pointerup", up, { once: true });
+    window.addEventListener("pointercancel", up, { once: true });
+  };
+
+  /** Any focus that is not a press (Tab, a screen reader's cursor, voice control, a script)
+   * brings the card into the clear area, in both modes. */
+  const onCardFocus = (i: number) => {
+    setActive(i);
+    if (pressed.current) return;
+    const api = emblaRef.current;
+    const viewport = viewportRef.current;
+    const li = trackRef.current?.children[i] as HTMLElement | undefined;
+    if (api && viewport && li) {
+      // Already the snap Embla is heading for (the buttons and arrow keys): let it glide.
+      if (api.selectedScrollSnap() === i) return;
+      const v = clearArea(viewport);
+      const r = li.getBoundingClientRect();
+      if (r.left < v.left - 1 || r.right > v.right + 1) api.scrollTo(i, true);
+    } else if (!api) reveal(i);
+  };
 
   /** Progress hairline (0..1) and which ends still have cards beyond them. */
   const onScrolled = useCallback((p: number, start: boolean, end: boolean) => {
@@ -238,6 +280,7 @@ export function ShipsSlider({
         <div
           ref={viewportRef}
           className="ships__viewport"
+          onPointerDownCapture={onPress}
           data-more-start={edges.start ? undefined : ""}
           data-more-end={edges.end ? undefined : ""}
         >
@@ -263,7 +306,7 @@ export function ShipsSlider({
                     hrefLang={linkLang}
                     className="ship-card__link"
                     draggable={false}
-                    onFocus={() => setActive(i)}
+                    onFocus={() => onCardFocus(i)}
                   >
                     <span className="t-card ship-card__name">{c.name}</span>
                     <span className="t-data ship-card__band" dir="ltr">
@@ -285,7 +328,7 @@ export function ShipsSlider({
                     hrefLang={linkLang}
                     className="ship-card__calc"
                     draggable={false}
-                    onFocus={() => setActive(i)}
+                    onFocus={() => onCardFocus(i)}
                   >
                     <CalcGlyph />
                     <span>
@@ -303,8 +346,11 @@ export function ShipsSlider({
             type="button"
             className="ships__btn"
             aria-label={ships.prev}
-            disabled={active === 0 && edges.start}
-            onClick={() => go(active - 1)}
+            // aria-disabled, not disabled: a button that disables under focus drops it to <body>.
+            aria-disabled={atStart || undefined}
+            onClick={() => {
+              if (!atStart) go(active - 1);
+            }}
           >
             <ChevronLeft aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
           </button>
@@ -312,8 +358,10 @@ export function ShipsSlider({
             type="button"
             className="ships__btn"
             aria-label={ships.next}
-            disabled={active === cards.length - 1 && edges.end}
-            onClick={() => go(active + 1)}
+            aria-disabled={atEnd || undefined}
+            onClick={() => {
+              if (!atEnd) go(active + 1);
+            }}
           >
             <ChevronRight aria-hidden="true" strokeWidth={ICON_STROKE.ring} />
           </button>

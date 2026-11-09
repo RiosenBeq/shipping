@@ -29,11 +29,11 @@ no third-party code is included, so no licence notice is required.
 | P3 | Odometer counters: digit strips rising from a waterline | NumberFlow; Motion Primitives "Sliding Number" (idea) | `components/site/home/HomeMotion.tsx`, `home.css` (`.odo`) |
 | P4 | Blur-rise: opener lines come into focus as they rise (fine-pointer desktops; phones keep the plain rise) | Magic UI "Blur Fade" (MIT) | `home.css` (`[data-reveal="lines"]`) |
 | P5 | Lane pulses travelling out from Istanbul on the Reach map (three passes when the map comes into view, then the lanes rest) | Magic UI "Animated Beam" (MIT) | `home.css` (`.h-map__pulses`), `Reach.tsx` |
-| P6 | Tide ticker: an upright, rising list of benchmark routes | Magic UI "Marquee" (MIT), turned vertical | `home.css` (`.h-ticker`), `Reach.tsx` |
+| P6 | Route list: four benchmark routes in still hairline rows under the Reach heading (first built as a rising marquee; now at rest on every device, outside the tide motion) | Magic UI "Marquee" (MIT), idea only | `home.css` (`.h-ticker`), `Reach.tsx` |
 | P7 | Soft rail edges (shade, plus a progressive blur on the high tier) | Magic UI "Progressive Blur" (MIT) | `home.css` (`.ships__viewport`, `.team__viewport`) |
 | P8 | Segmented control with a sliding pill (CSS `:has()`) | Motion Primitives "Animated Background" (idea) | `home.css` (`.ships__tabs`) |
 | P9 | One brass sheen across the hero's accent word, once | Motion Primitives "Text Shimmer" (idea) | `home.css` (`h-sheen`) |
-| P10 | Paper grain on paper cards (a baked 128px WebP tile, 4.6 KB, rather than an SVG noise filter: repaints stay cheap) | Magic UI "Noise Texture" (MIT) | `app/patterns.css` (`.stage-card--paper`), `public/media/stage/paper-grain.webp` |
+| ~~P10~~ | Paper grain on paper cards: removed after review (at σ ≈ 1.1 levels it could not be seen, yet cost a request and a background layer on every paper card) | — | — |
 
 Rules they all follow (DESIGN-V2 §5, §16): glass and glow on night grounds only; one motion
 family (the tide); every loop stops under `prefers-reduced-motion` and under the site's Pause

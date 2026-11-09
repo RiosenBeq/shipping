@@ -432,6 +432,7 @@ export function localizedHome(locale: Locale, file: HomeFile = HOME): HomeView {
       localTime: h.localTime,
       mapLabel: h.mapLabel,
       lanesLabel: h.lanesLabel,
+      routesLabel: h.routesLabel,
     },
     team: en.team && {
       ...en.team,

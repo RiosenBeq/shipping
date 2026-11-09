@@ -135,10 +135,10 @@ function ReachMap({ view }: { view: HomeView }) {
 }
 
 /**
- * P6 · the tide ticker (idea: Magic UI's marquee, turned upright to stay in the tide family):
- * the benchmark routes rising slowly through a window under the heading. The first list is the
- * real one; the copy that follows it round is `aria-hidden`. Hover pauses it, Pause motion
- * stops it, reduced motion shows a still list. Codes and lanes are English on every locale.
+ * P6 · the route list (first a Magic UI-style marquee, now still): four benchmark routes in
+ * hairline rows under the heading. It rests on every device, so it never competes with the
+ * tide motion around it. The label follows the locale; the codes and lanes are English
+ * everywhere (each isolated, so an Arabic page reads the row from the right).
  */
 function TideTicker({
   label,
@@ -147,29 +147,19 @@ function TideTicker({
   label: string;
   routes: { code: string; lane: string }[];
 }) {
-  const items = (hidden?: boolean) => (
-    <ul
-      className="h-ticker__list"
-      aria-label={hidden ? undefined : label}
-      aria-hidden={hidden || undefined}
-    >
-      {routes.map((r) => (
-        <li key={r.code}>
-          <b>{r.code}</b>
-          <span>{r.lane}</span>
-        </li>
-      ))}
-    </ul>
-  );
   return (
-    <div className="h-ticker" lang="en" dir="ltr" style={{ "--n": routes.length } as Style}>
+    <div className="h-ticker">
       <p className="t-label h-ticker__label" aria-hidden="true">
         {label}
       </p>
-      <div className="h-ticker__win">
-        {items()}
-        {items(true)}
-      </div>
+      <ul className="h-ticker__list" aria-label={label} lang="en">
+        {routes.slice(0, 4).map((r) => (
+          <li key={r.code}>
+            <b dir="ltr">{r.code}</b>
+            <span dir="ltr">{r.lane}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

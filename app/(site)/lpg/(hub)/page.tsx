@@ -140,6 +140,7 @@ export default function LpgPage() {
       <Card ground="paper" id="fleet" aria-labelledby="fleet-title" className="ip-card">
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="Fleet we cover"
             id="fleet-title"
             title="Every size of gas carrier."
@@ -176,6 +177,7 @@ export default function LpgPage() {
         <Glows />
         <div className="ip-wrap">
           <SectionHead
+            size="sm"
             sub="What we fix"
             id="services-title"
             title="From first idea to final demurrage."
@@ -226,6 +228,7 @@ export default function LpgPage() {
           <hr className="ip-rule" />
 
           <SectionHead
+            size="sm"
             sub="The LPG desk"
             id="team-title"
             title="Gas brokers by segment."
@@ -275,7 +278,7 @@ export default function LpgPage() {
               <div className="ip-faq-block__head">
                 <div>
                   <Sub>FAQ</Sub>
-                  <h2 id="faq-title" className="t-display">
+                  <h2 id="faq-title" className="ip-h2">
                     LPG chartering questions.
                   </h2>
                 </div>
