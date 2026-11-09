@@ -103,9 +103,9 @@ export default function AboutPage() {
                 A tanker and LPG broker, <span className="ip-quiet">built on the Bosphorus.</span>
               </h1>
               <p className="t-lead ip-rise ip-rise--3 !mt-7">
-                We started OBM Shipping in Istanbul in 2024 because the Black Sea, the Mediterranean and
-                the Turkish Straits deserve a desk that lives with them every day. Today two desks
-                fix tankers and gas carriers worldwide from Istanbul, London and Singapore.
+                We started OBM Shipping in Istanbul in 2024 because the Black Sea, the Mediterranean
+                and the Turkish Straits deserve a desk that lives with them every day. Today two
+                desks fix tankers and gas carriers worldwide from Istanbul, London and Singapore.
               </p>
               <div className="ip-actions ip-actions--stack ip-rise ip-rise--4 !mt-8">
                 <Link href="/brokers" className="lv-btn lv-btn--cta">
@@ -163,8 +163,9 @@ export default function AboutPage() {
               <p>
                 Those trades reward local knowledge. Transit queues, terminal limits and regional
                 charterers decide whether a voyage earns money, and they change by the day. We built
-                OBM Shipping around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul, with
-                brokers in London for the Atlantic basin and in Singapore for business East of Suez.
+                OBM Shipping around that: a tanker desk and an LPG &amp; ammonia desk in Istanbul,
+                with brokers in London for the Atlantic basin and in Singapore for business East of
+                Suez.
               </p>
               <p>
                 We stay small and specialised. Clients talk to senior brokers, see the assumptions
@@ -174,7 +175,7 @@ export default function AboutPage() {
           </div>
           {/* The fact sheet: plain question-and-answer lines that people and AI answer engines
               can quote. Same text as llms.txt (lib/facts.ts). */}
-          <section id="at-a-glance" aria-labelledby="glance-title" className="ip-glance">
+          <section id="at-a-glance" aria-labelledby="glance-title" className="ip-factsheet">
             <h2 id="glance-title" className="ip-h2">
               {siteConfig.name} at a glance
             </h2>
@@ -187,7 +188,7 @@ export default function AboutPage() {
                     {f.href ? (
                       <>
                         {" "}
-                        <Link href={f.href} className="ip-glance__more">
+                        <Link href={f.href} className="ip-factsheet__more">
                           More
                           <span className="sr-only">: {f.q}</span>
                         </Link>

@@ -359,7 +359,12 @@ export function Nav({
         data-ground={ground}
         data-hidden={hidden && !open ? "true" : undefined}
       >
-        <Link href="/" className="hdr__brand" aria-label={`${siteConfig.name} home`} onClick={close}>
+        <Link
+          href="/"
+          className="hdr__brand"
+          aria-label={`${siteConfig.name} home`}
+          onClick={close}
+        >
           <BrandMark light={ground === "dark"} />
           <span className="t-word" aria-hidden="true">
             {siteConfig.wordmark}
@@ -422,7 +427,12 @@ export function Nav({
         <div className="menu__bathy" aria-hidden="true" style={{ backgroundImage: bathyBg }} />
         <span className="lv-glow lv-glow--brass" aria-hidden="true" />
         <div className="menu__top">
-          <Link href="/" className="hdr__brand" aria-label={`${siteConfig.name} home`} onClick={close}>
+          <Link
+            href="/"
+            className="hdr__brand"
+            aria-label={`${siteConfig.name} home`}
+            onClick={close}
+          >
             <BrandMark light />
             <span className="t-word" aria-hidden="true">
               {siteConfig.wordmark}

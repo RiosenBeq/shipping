@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { PauseMotion, StageAperture, StageWindow, calm } from "@/components/site/stage";
@@ -251,7 +252,10 @@ export function Footer() {
         </div>
 
         <p className="ftr__plate" aria-hidden="true">
-          <b>{siteConfig.wordmark}</b>
+          {/* The plate scales to the name's length so it always spans the window, never clips. */}
+          <b style={{ "--plate-len": siteConfig.wordmark.length } as CSSProperties}>
+            {siteConfig.wordmark}
+          </b>
           <span>ISTANBUL</span>
         </p>
       </div>

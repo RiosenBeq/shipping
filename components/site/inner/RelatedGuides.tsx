@@ -18,7 +18,10 @@ const RELATED = [
 
 export function RelatedGuides({ current, className }: { current?: string; className?: string }) {
   return (
-    <nav aria-label="Related pages" className={className ? `ip-related ${className}` : "ip-related"}>
+    <nav
+      aria-label="Related pages"
+      className={className ? `ip-related ${className}` : "ip-related"}
+    >
       <Sub>Related</Sub>
       <ul>
         {RELATED.filter((l) => l.href !== current).map((l) => (

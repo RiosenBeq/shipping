@@ -17,7 +17,7 @@ import {
   type TankerClassData,
 } from "@/lib/data/tanker-classes";
 import type { StillKey } from "@/lib/media";
-import { buildPageMetadata, serviceLd, webPageLd } from "@/lib/seo";
+import { DESK_EXTRAS, buildPageMetadata, fitDescription, serviceLd, webPageLd } from "@/lib/seo";
 import { VESSEL_BY_CLASS, inquiryHref } from "@/lib/inquiry";
 import { siteConfig } from "@/lib/site";
 import { ICON_STROKE } from "@/components/site/iconStroke";
@@ -34,9 +34,12 @@ function copy(t: TankerClassData) {
   const family = t.family === "crude" ? "crude tanker" : "product tanker";
   return {
     title: `${t.shortName} Chartering — ${t.longName}`,
-    description: `${t.shortName} ${family} chartering (${t.dwtRange}). Key routes ${t.routes
-      .map((r) => r.code)
-      .join(", ")}. Spot, time charter and COA from OBM Shipping's tanker desk.`,
+    description: fitDescription(
+      `${t.shortName} ${family} chartering (${t.dwtRange}). Key routes ${t.routes
+        .map((r) => r.code)
+        .join(", ")}. Spot, time charter and COA from ${siteConfig.name}'s tanker desk.`,
+      DESK_EXTRAS
+    ),
   };
 }
 

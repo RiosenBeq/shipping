@@ -302,6 +302,6 @@ Hero artık bir ekran metin + yalnızca sahneden oluşan 75svh'lik bir kuyruktan
 ## 12. Yayından önce yapılması gerekenler
 
 1. **Alan adı:** Vercel'de `NEXT_PUBLIC_SITE_URL` ortam değişkenine gerçek alan adını girin. Şu an `https://obmshipping.example`. Canonical, sitemap, robots, llms.txt ve JSON-LD bu değeri kullanır.
-2. **İletişim bilgileri:** Telefon, WhatsApp, nöbetçi hattı, masa e-postaları, adres, koordinatlar, ofisler (saat dilimleriyle) ve sosyal hesaplar `/keystatic` → Site settings'te (`content/site.json`). Şu an yer tutucu değerler var.
+2. **İletişim bilgileri:** Telefon, WhatsApp, nöbetçi hattı, masa e-postaları, adres, koordinatlar, ofisler (saat dilimleriyle) ve sosyal hesaplar `/keystatic` → Site settings'te (`content/site.json`). Şu an yer tutucu değerler var (`@obmshipping.example` adresleri dahil). Marka adı **OBM Shipping**; yasal unvan (ör. A.Ş./Ltd.) bilinmediği için "Legal entity" alanında da şimdilik "OBM Shipping" yazıyor, gerçek unvanı oraya girin. LinkedIn/X hesapları boş bırakıldı: hesap açılınca girildiğinde menüde ve yapılandırılmış verideki `sameAs` alanında görünür.
 3. **Ekip:** İsim, unvan, dil ve iletişim satırları `lib/data/brokers.ts`'te. Şu an örnek kişiler var; gerçek ekiple değiştirin.
 4. **Çeviriler:** `lib/i18n.ts`'teki 10 dilin metnini ana dili o dil olan birer kişiye kontrol ettirin (özellikle denizcilik terimleri).

@@ -109,6 +109,7 @@ describe("blog posts", () => {
     for (const p of POSTS) {
       expect((p.seoTitle ?? p.title).length, p.slug).toBeLessThanOrEqual(60);
       expect(p.description.length, p.slug).toBeLessThanOrEqual(160);
+      expect(p.description.length, p.slug).toBeGreaterThanOrEqual(140);
     }
   });
 
@@ -289,12 +290,7 @@ describe("brand and GEO facts", () => {
         expect.arrayContaining(["/api/", "/keystatic", "/stage-lab"])
       );
     }
-    for (const bot of [
-      "ChatGPT-User",
-      "Claude-SearchBot",
-      "Applebot-Extended",
-      "CCBot",
-    ]) {
+    for (const bot of ["ChatGPT-User", "Claude-SearchBot", "Applebot-Extended", "CCBot"]) {
       expect(AI_AGENTS).toContain(bot);
     }
   });

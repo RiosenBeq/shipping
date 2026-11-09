@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/site";
 
 const TITLE = "Privacy Policy";
 const DESCRIPTION =
-  "How OBM Shipping handles personal data on this website and in tanker and LPG chartering work. Cookieless analytics, no tracking cookies, no stored form submissions.";
+  "How OBM Shipping handles personal data on this website and in tanker and LPG chartering. Cookieless analytics, no tracking cookies, no stored form submissions.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -84,11 +84,13 @@ export default function PrivacyPage() {
               <div className="ip-prose">
                 <h2 id="who">Who we are</h2>
                 <p>
-                  {legalEntity} ({legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}&ldquo;we&rdquo;) is a tanker and LPG
-                  chartering broker. We are headquartered in {address.locality}, Türkiye, with desks
-                  in {branchCities}. We are the data controller (<em>veri sorumlusu</em>) for the
-                  personal data described here, under Türkiye&rsquo;s Personal Data Protection Law
-                  No. 6698 (KVKK) and, where it applies, the EU and UK GDPR.
+                  {legalEntity} (
+                  {legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}
+                  &ldquo;we&rdquo;) is a tanker and LPG chartering broker. We are headquartered in{" "}
+                  {address.locality}, Türkiye, with desks in {branchCities}. We are the data
+                  controller (<em>veri sorumlusu</em>) for the personal data described here, under
+                  Türkiye&rsquo;s Personal Data Protection Law No. 6698 (KVKK) and, where it
+                  applies, the EU and UK GDPR.
                 </p>
                 <p>
                   This policy covers this website and the personal data you share with us when you

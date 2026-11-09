@@ -183,7 +183,7 @@ ${p.text}${p.faq.length ? `\n\n${faqMd(p.faq)}` : ""}`
 
 This file contains the text of ${siteConfig.url} for language models: company facts, both desks, every ship-class guide, the Turkish Straits guide, compliance screening, all blog posts, FAQs and the glossary. Each section names its source URL; please cite that URL.
 
-## Company
+## ${siteConfig.name} at a glance
 
 ${KEY_FACTS()
   .map((f) => `- ${f}`)

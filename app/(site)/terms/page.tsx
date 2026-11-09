@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/site";
 
 const TITLE = "Terms of Use";
 const DESCRIPTION =
-  "The terms for using the OBM Shipping website, research and LPG cargo converter. All figures are indicative.";
+  "The terms for using the OBM Shipping website: its research and blog, the freight calculator and the LPG cargo converter. All figures shown are indicative.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,
@@ -82,11 +82,12 @@ export default function TermsPage() {
               <div className="ip-prose">
                 <h2 id="about">About us</h2>
                 <p>
-                  This website is run by {legalEntity} ({legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}&ldquo;we&rdquo;),{" "}
-                  {address.street}, {address.postalCode} {address.locality}, Türkiye. We are a
-                  chartering broker for crude and product tankers and for LPG and ammonia carriers.
-                  On this site we describe those services and publish market research and a free LPG
-                  cargo converter.
+                  This website is run by {legalEntity} (
+                  {legalEntity !== siteConfig.name && <>&ldquo;{siteConfig.name}&rdquo;, </>}
+                  &ldquo;we&rdquo;), {address.street}, {address.postalCode} {address.locality},
+                  Türkiye. We are a chartering broker for crude and product tankers and for LPG and
+                  ammonia carriers. On this site we describe those services and publish market
+                  research and a free LPG cargo converter.
                 </p>
 
                 <h2 id="not-an-offer">Information, not an offer</h2>

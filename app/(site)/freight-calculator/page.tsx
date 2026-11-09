@@ -22,7 +22,7 @@ import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
 
 const TITLE = "Freight Calculator — Voyage Estimate, TCE & Breakeven";
 const DESCRIPTION =
-  "Tanker and LPG freight calculator: ballast and laden legs, Turkish Straits and canals, VLSFO and MGO, EU ETS and commissions — to TCE, breakeven and sensitivity.";
+  "Tanker and LPG freight calculator: ballast and laden legs, Turkish Straits and canals, VLSFO and MGO, EU ETS and commissions, to TCE, breakeven and sensitivity.";
 
 export const metadata: Metadata = buildPageMetadata({
   title: TITLE,

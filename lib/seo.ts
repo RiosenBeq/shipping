@@ -41,6 +41,32 @@ type PageMetaInput = {
 
 const abs = (path: string) => new URL(path, siteConfig.url).toString();
 
+/** Meta descriptions aim for 140–160 characters: long enough to inform, short enough not to be cut. */
+export const DESCRIPTION_RANGE = { min: 140, max: 160 } as const;
+
+/**
+ * Pads a generated meta description (class pages, blog categories) into the
+ * 140–160 character range with factual extras, in order, skipping any that
+ * would push it past 160. A text already in range is returned unchanged.
+ */
+export function fitDescription(text: string, extras: string[]): string {
+  let out = text.trim();
+  for (const extra of extras) {
+    if (out.length >= DESCRIPTION_RANGE.min) break;
+    const next = `${out} ${extra.trim()}`;
+    if (next.length <= DESCRIPTION_RANGE.max) out = next;
+  }
+  return out;
+}
+
+/** Factual extras for fitDescription(), from Site settings. */
+export const DESK_EXTRAS = [
+  "A broker replies within 60 minutes.",
+  `Brokers in ${siteConfig.offices.map((o) => o.city).join(", ")}.`,
+  "Direct broker access.",
+  `From ${siteConfig.name}.`,
+];
+
 /**
  * Build a fully-loaded `Metadata` object for a route.
  * Handles canonical URL, hreflang, Open Graph, Twitter cards, and keywords.

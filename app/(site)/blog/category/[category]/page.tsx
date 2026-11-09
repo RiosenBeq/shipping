@@ -9,7 +9,8 @@ import {
   isBlogCategory,
 } from "@/lib/blog/meta";
 import { postsInCategory } from "@/lib/blog/posts";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildPageMetadata, fitDescription } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 type Props = { params: { category: string } };
 
@@ -24,7 +25,12 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     ...buildPageMetadata({
       title: `${info.label}: Tanker & LPG Blog`,
-      description: info.description,
+      description: fitDescription(info.description, [
+        `Written by ${siteConfig.name}'s tanker and LPG brokers.`,
+        `By ${siteConfig.name}'s tanker and LPG brokers.`,
+        `From ${siteConfig.name}'s brokers.`,
+        `From ${siteConfig.name}.`,
+      ]),
       path,
       languages: { en: path },
       ogImage: BLOG_SHARE_IMAGE,

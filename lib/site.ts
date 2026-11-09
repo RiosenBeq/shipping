@@ -45,6 +45,8 @@ export const siteConfig = {
   /** Per-desk inboxes. Shown on desk pages and the contact page. */
   desks: data.desks,
   address: data.address,
+  /** District and city as signed on letters ("Beşiktaş, Istanbul"), from the address. */
+  place: `${data.address.street.split(",").pop()?.trim()}, ${data.address.locality}`,
   geo: data.geo,
   offices: data.offices,
   hours: data.hours,

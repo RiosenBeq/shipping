@@ -1030,6 +1030,8 @@ a.lv-chip:hover {
 }
 .menu__offices a {
   color: var(--sand);
+  /* Long addresses (desk@…) break instead of running past a phone's edge. */
+  overflow-wrap: anywhere;
 }
 .menu__row {
   display: flex;
@@ -1333,6 +1335,8 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   font:
     600 12.4vw/0.9 var(--font-display),
     sans-serif;
+  /* ~0.87em per tracked capital: 90% of the window for the whole name (Footer sets the length). */
+  font-size: min(12.4vw, calc(90vw / (var(--plate-len, 8) * 0.87)));
   letter-spacing: 0.3em;
 }
 .ftr__plate span {
@@ -1377,7 +1381,7 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .ftr__plate b {
-    font-size: 11.4vw;
+    font-size: min(11.4vw, calc((100vw - 60px) / (var(--plate-len, 8) * 0.87)));
   }
   .ftr__plate span {
     font-size: 3vw;

@@ -341,7 +341,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — イスタンブールのタンカー・LPG船シップブローカー",
       metaDescription:
-        "イスタンブールを拠点とするタンカーおよびLPG船のシップブローカー。原油、石油製品、LPG、アンモニアの航海傭船・定期傭船・COA。担当ブローカーに直接つながり、60分以内に初回返信。",
+        "イスタンブール拠点のタンカー・LPG船のシップブローカー。原油、石油製品、LPG、アンモニアの航海傭船・定期傭船・COA。ブローカーに直接つながり、60分以内に初回返信。",
       keywords: [
         "タンカー ブローカー",
         "LPG船 傭船",
@@ -734,7 +734,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων LPG",
       metaDescription:
-        "Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων με έδρα την Κωνσταντινούπολη. Αργό, προϊόντα, LPG και αμμωνία — ναυλώσεις ταξιδιού, χρονοναυλώσεις και COA. Απευθείας επαφή με τον μεσίτη, πρώτη απάντηση σε 60 λεπτά.",
+        "Ναυλομεσίτες δεξαμενόπλοιων και υγραεριοφόρων LPG στην Κωνσταντινούπολη. Αργό, προϊόντα, LPG και αμμωνία: ναυλώσεις ταξιδιού, χρονοναυλώσεις, COA.",
       keywords: ["ναυλομεσίτης δεξαμενόπλοια", "ναυλώσεις LPG", "ναύλωση VLGC", "ναυλομεσίτες"],
       eyebrow: "Κωνσταντινούπολη · Ναυλομεσίτες δεξαμενόπλοιων & LPG",
       h1: "Ναυλώσεις δεξαμενόπλοιων και LPG, από τον Βόσπορο.",
@@ -941,7 +941,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Skipsmeglere for tankskip og LPG i Istanbul",
       metaDescription:
-        "Skipsmeglere for tankskip og LPG-skip med base i Istanbul. Råolje, produkter, LPG og ammoniakk — reisebefraktning, tidsbefraktning og COA. Direkte kontakt med megleren og første svar innen 60 minutter.",
+        "Skipsmeglere for tankskip og LPG-skip i Istanbul. Råolje, produkter, LPG og ammoniakk: reise- og tidsbefraktning og COA. Første svar innen 60 minutter.",
       keywords: ["skipsmegler tankskip", "LPG skipsmegler", "VLGC befraktning", "befraktning"],
       eyebrow: "Istanbul · Skipsmeglere for tank og LPG",
       h1: "Befraktning av tankskip og LPG, meglet fra Bosporos.",
@@ -1147,7 +1147,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Skibsmæglere for tankskibe og LPG i Istanbul",
       metaDescription:
-        "Skibsmæglere for tankskibe og LPG-skibe med base i Istanbul. Råolie, produkter, LPG og ammoniak — rejsebefragtning, tidsbefragtning og COA. Direkte kontakt med mægleren og første svar inden for 60 minutter.",
+        "Skibsmæglere for tankskibe og LPG-skibe i Istanbul. Råolie, produkter, LPG og ammoniak: rejse- og tidsbefragtning og COA. Første svar inden for 60 minutter.",
       keywords: ["skibsmægler tankskibe", "LPG skibsmægler", "VLGC befragtning", "befragtning"],
       eyebrow: "Istanbul · Skibsmæglere for tank og LPG",
       h1: "Befragtning af tankskibe og LPG, mæglet fra Bosporus.",
@@ -1344,7 +1344,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Skeppsmäklare för tankfartyg och LPG i Istanbul",
       metaDescription:
-        "Skeppsmäklare för tankfartyg och LPG-fartyg med bas i Istanbul. Råolja, produkter, LPG och ammoniak — resebefraktning, tidsbefraktning och COA. Direkt kontakt med mäklaren och första svar inom 60 minuter.",
+        "Skeppsmäklare för tankfartyg och LPG-fartyg i Istanbul. Råolja, produkter, LPG och ammoniak: rese- och tidsbefraktning samt COA. Första svar inom 60 minuter.",
       keywords: [
         "skeppsmäklare tankfartyg",
         "LPG skeppsmäklare",
@@ -1551,7 +1551,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Schiffsmakler für Tanker und LPG in Istanbul",
       metaDescription:
-        "Schiffsmakler für Tanker und LPG-Gastanker mit Sitz in Istanbul. Rohöl, Produkte, LPG und Ammoniak — Reisecharter, Zeitcharter und COA. Direkter Kontakt zum Makler, erste Antwort innerhalb von 60 Minuten.",
+        "Schiffsmakler für Tanker und LPG-Gastanker in Istanbul. Rohöl, Produkte, LPG und Ammoniak: Reise- und Zeitcharter sowie COA. Erste Antwort binnen 60 Minuten.",
       keywords: [
         "Schiffsmakler Tanker",
         "LPG Schiffsmakler",
@@ -1762,7 +1762,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — Corredores de fletamento de petroleros y GLP en Estambul",
       metaDescription:
-        "Corredores marítimos de petroleros y buques de GLP con sede en Estambul. Crudo, productos, GLP y amoníaco: fletamento por viaje, por tiempo y COA. Contacto directo con el corredor y primera respuesta en 60 minutos.",
+        "Corredores de petroleros y buques de GLP en Estambul. Crudo, productos, GLP y amoníaco: fletamento por viaje, por tiempo y COA. Primera respuesta en 60 minutos.",
       keywords: [
         "corredor de fletamentos",
         "broker GLP",
@@ -1971,7 +1971,7 @@ export const LOCALES: Locale[] = [
     dict: {
       metaTitle: "OBM Shipping — وساطة تأجير ناقلات النفط وناقلات الغاز المسال في إسطنبول",
       metaDescription:
-        "وسطاء بحريون لناقلات النفط وناقلات غاز البترول المسال مقرهم إسطنبول. النفط الخام والمنتجات والغاز المسال والأمونيا — تأجير بالرحلة وتأجير زمني وعقود نقل طويلة الأجل. تواصل مباشر مع الوسيط ورد أول خلال 60 دقيقة.",
+        "وسطاء بحريون لناقلات النفط وناقلات الغاز المسال في إسطنبول. النفط الخام والمنتجات والغاز المسال والأمونيا: تأجير بالرحلة وتأجير زمني وعقود نقل طويلة الأجل.",
       keywords: [
         "وسيط ناقلات النفط",
         "وسيط غاز البترول المسال",

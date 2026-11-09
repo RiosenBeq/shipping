@@ -254,7 +254,8 @@ const site = singleton({
       },
       {
         label: "Social profiles",
-        description: "Shown in the menu and listed as sameAs in structured data only when filled in.",
+        description:
+          "Shown in the menu and listed as sameAs in structured data only when filled in.",
         layout: [6, 6],
       }
     ),
