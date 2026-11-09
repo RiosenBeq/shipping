@@ -14,6 +14,24 @@ const securityHeaders = [
 const nextConfig = {
   // Lets two dev servers run side by side (NEXT_DIST_DIR=.next-alt next dev -p 3001).
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  experimental: {
+    // Server code reads content with paths built from imported constants
+    // (path.join(process.cwd(), POSTS_DIR)), which the file tracer cannot resolve, so it
+    // used to pack the whole project into every function (~160 MB: .git, public/media,
+    // docs). Functions only ever read content/**; public/ is served by the CDN.
+    outputFileTracingIncludes: { "*": ["./content/**/*"] },
+    outputFileTracingExcludes: {
+      "*": [
+        ".git/**",
+        "docs/**",
+        "public/**",
+        "scripts/**",
+        ".next-*/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+      ],
+    },
+  },
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
