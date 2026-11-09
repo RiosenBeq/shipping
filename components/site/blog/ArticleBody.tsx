@@ -40,7 +40,7 @@ function render(node: RenderableTreeNode): ReactNode {
   return createElement(name, props, ...kids);
 }
 
-/** A post's Markdoc body in the serif reading column. */
-export function ArticleBody({ ast }: { ast: Node }) {
-  return <div className="bl-prose">{render(transformBody(ast))}</div>;
+/** A post's (or a guide's) Markdoc body in the serif reading column. */
+export function ArticleBody({ ast, className = "bl-prose" }: { ast: Node; className?: string }) {
+  return <div className={className}>{render(transformBody(ast))}</div>;
 }

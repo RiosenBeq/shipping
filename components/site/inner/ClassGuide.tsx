@@ -13,7 +13,7 @@ import type { Crumb } from "@/lib/seo";
 import { Toc, TocMobile } from "./Toc";
 import { BtnLabel, Glows, LinkArrow, StillFigure, Sub } from "./ui";
 import { ICON_STROKE } from "@/components/site/iconStroke";
-import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
+import { RelatedGuides, type RelatedLink } from "@/components/site/inner/RelatedGuides";
 import { GaPlate, ShipSection } from "@/components/site/drawings/GaPlate";
 
 type Route = { code: string; lane: string; note: string; hormuz?: boolean };
@@ -53,6 +53,8 @@ export type ClassGuideProps = {
   next: { href: string; name: string };
   inquiry: string;
   letter: { title: string; text: string; email: string };
+  /** Guides that link from this class page (lib/guides → guideLinksFor). */
+  guides?: RelatedLink[];
 };
 
 const TOC = [
@@ -292,7 +294,7 @@ export function ClassGuide(p: ClassGuideProps) {
               </span>
             </Link>
           </nav>
-          <RelatedGuides />
+          <RelatedGuides guides={p.guides} />
         </div>
       </Card>
 

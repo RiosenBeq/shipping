@@ -1,5 +1,6 @@
 import { TANKER_CLASSES } from "@/lib/data/tanker-classes";
 import { LPG_CLASSES } from "@/lib/data/lpg-classes";
+import { getGuides } from "@/lib/guides/guides";
 
 /** Text of one share card (rendered by lib/og.tsx). */
 export type ShareCard = { eyebrow: string; title: string; footer?: string };
@@ -73,6 +74,28 @@ export function shareCards(): Record<string, ShareCard> {
       eyebrow: `LPG & ammonia desk · ${c.longName}`,
       title: `${c.name} chartering: sizes, cargoes and key routes.`,
       footer: c.capacity.split(" — ")[0],
+    };
+  }
+  // Guides (content/guides): the hub and one card per page, in the page's language.
+  cards["/guides"] = {
+    eyebrow: "Guides · Tankers, LPG & ammonia",
+    title: "Chartering guides for tankers, LPG and ammonia.",
+    footer: "Charter types · Fixtures · Forms · Turkish ports",
+  };
+  for (const g of getGuides()) {
+    const tr = g.lang === "tr";
+    const desk =
+      g.desk === "lpg"
+        ? tr
+          ? "LPG ve amonyak masası"
+          : "LPG & ammonia desk"
+        : tr
+          ? "Tanker masası"
+          : "Tanker desk";
+    cards[g.href] = {
+      eyebrow: g.kind === "landing" ? desk : `${tr ? "Rehber" : "Guide"} · ${desk}`,
+      title: g.title,
+      footer: tr ? "İstanbul · Londra · Singapur" : "Istanbul · London · Singapore",
     };
   }
   // The blog (formerly /research) draws its own cards: /blog/og.png and /blog/<slug>/og.png.

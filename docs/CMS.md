@@ -79,6 +79,7 @@ Bu değişkenler yokken `/keystatic` hata vermez; eksik değişkenlerin **adlar�
 | **Site settings** | `content/site.json` | Şirket adı, slogan, açıklama, site adresi, tüzel kişilik, kuruluş yılı, "içerik güncellendi" tarihi; ana e-posta, telefon, WhatsApp (wa.me bağlantısı için `+905…` biçiminde) ve görünen hali; çalışma saatleri; masa e-postaları (tanker, LPG, araştırma); adres ve harita konumu; ofisler; X/Twitter ve LinkedIn. Üst menü, alt bilgi, iletişim sayfası, yüzen iletişim düğmesi, hata sayfaları, JSON-LD, `llms.txt`, `humans.txt`, `ai.txt`, `security.txt`. |
 | **Brokers** | `content/brokers.json` | Her broker: ad, unvan, masa, ofis, uzmanlık etiketleri, diller, baş harfler, avatar rengi (masa şefi: pirinç, broker: lacivert) ve **isteğe bağlı fotoğraf**. Sıra, `/brokers` ve ana sayfalardaki sıradır. Altta masa adları. |
 | **Blog posts** | `content/blog/<slug>.mdoc` (yazı başına bir dosya) | `/blog` (ana sayfa, kategori sayfaları, sayfalama), yazı sayfası `/blog/<slug>`, ana sayfadaki "Notes from the desk" şeridi, masa ve sınıf sayfalarındaki not kartları, tam metinli RSS (`/blog/feed.xml`), `llms.txt` / `llms-full.txt`, sitemap, JSON-LD (Blog, BlogPosting, BreadcrumbList). Ayrıntılar §3.1. |
+| **Guides** | `content/guides/<slug>.mdoc` (sayfa başına bir dosya) | `/guides` (rehber ana sayfası) ve `/guides/<slug>`: İngilizce ve Türkçe rehberler ve masa (hizmet) sayfaları; sitemap, `llms.txt` / `llms-full.txt`, paylaşım görselleri (`/og/guides/<slug>`), masa ve sınıf sayfalarındaki "Related" bağlantıları. Ayrıntılar §3.5. |
 | **Tanker classes** | `content/tanker-classes.json` | `/tankers` ve `/tankers/<sınıf>`: teknik değerler, rotalar (Hormuz işaretiyle), pazarlar, eğilimler, kiralama şekli, sorumlu masa. |
 | **LPG classes** | `content/lpg-classes.json` | `/lpg` ve `/lpg/<sınıf>`: kapasite, yük, rotalar, ticaretler, dikkat noktaları, sınıfa özel SSS. |
 | **LPG converter cargoes** | `content/lpg-cargoes.json` | `/lpg`'deki cbm ↔ ton dönüştürücüsünün yük listesi ve yoğunlukları (t/m³): kaynama noktasında (soğutmalı taşıma) ve isteğe bağlı 15 °C'de (tam basınçlı taşıma; navlun hesaplayıcının pressurised sınıfı bunu kullanır). |
@@ -217,6 +218,30 @@ Not: ileride siteye bir Content-Security-Policy eklenirse (§7, PR #3) başka si
 **Bir fiyatı güncellemek:** **Tools → Freight calculator data → Bunker prices → VLSFO 0.50% S** altında **Price** ve **As of**'u değiştirin, **Save**. `/freight-calculator` yenilendiğinde yeni fiyat, tarihi ve "x days ago" görünür. "Copy link" ile paylaşılmış hesaplar kendi fiyatlarını taşıdığından değişmez; adres çubuğundaki bağlantıda ziyaretçinin değiştirmediği fiyatlar güncel referansla açılır.
 
 **Kurallar** (kayıttan sonra `npm test` ve derleme sırasında denetlenir, §5): id'ler tekil; preset'lerin ve mesafelerin andığı her liman ve geçiş listede olmalı; bir mesafe iki limanın enlem/boylamından hesaplanan büyük daire mesafesinden kısa olamaz (yanlış yazılmış bir rakamı yakalar); aynı çift aynı **Via** ile iki kez yazılamaz; gaz yükü **LPG converter cargoes** listesinde olmalı. Bir limanı silmeden önce onu kullanan mesafe ve preset satırlarını silin veya değiştirin. Kodda kalanlar: yakıtların emisyon katsayıları (VLSFO 3.151, MGO 3.206, HSFO 3.114 t CO₂/t), kanal sınırları ve hesap yöntemi (`lib/freight/`).
+
+### 3.5 Rehberler (Guides)
+
+Google'da aranan sorulara cevap veren kalıcı sayfalar: rehberler (ör. *How to charter a tanker*) ve bir pazar ya da yük için masa sayfaları (ör. *Tanker kiralama*). **Guides → Add** ile yeni sayfa açılır; gövde editörü blogdakiyle aynıdır (Callout, Table with caption, Figure, Pull quote).
+
+| Alan | Açıklama |
+| --- | --- |
+| **Title** / **URL slug** | Sayfanın h1'i; aranan soruyu arayanın kelimeleriyle söyleyin. Adres `/guides/<slug>`; Türkçe sayfalarda slug'da ç, ğ, ı, ö, ş, ü kullanmayın (`tanker-kiralama`). Yayından sonra değiştirmeyin. |
+| **Search title** / **Search summary** | Google başlığı (en çok 60 karakter; 45 karakteri geçmezse sonuna "· OBM Shipping" eklenir) ve 140–160 karakterlik açıklama. Her sayfada farklı olmalı. |
+| **Lead** | Başlığın altındaki bir-iki cümle. |
+| **Target search query** / **More keywords** | Sayfanın hedeflediği arama (ör. `tanker kiralama`); görünmez, anahtar kelime olarak kullanılır. |
+| **Page type** | *Guide* (rehber, TechArticle) veya *Service page* (masa sayfası; ayrıca Service JSON-LD). |
+| **Language** | English veya Türkçe. Türkçe sayfalar `lang="tr"` ve Türkçe arayüz metinleriyle (içindekiler, SSS, düğmeler, kapanış mektubu) yayımlanır. |
+| **Same page in the other language** | Yalnızca gerçek karşılığı varsa (aynı konu, aynı cevaplar). İki sayfa birbirine hreflang ile bağlanır; birinde seçmek yeterli. |
+| **Desk** / **Cargo on the inquiry form** | Düğmelerin yazdığı masa e-postası ve talep formunda önceden seçilen yük. |
+| **Author** / **Published** / **Last reviewed** | İmza (broker listesinden) ve tarihler. Sayfayı her kontrol ettiğinizde **Last reviewed**'u güncelleyin; sitemap `lastmod` buradan gelir. |
+| **Link to this page from** | Sayfaya bağlantı verecek mevcut sayfalar (masa sayfaları, Turkish Straits, sınıf sayfaları): bağlantı onların "Related" listesinde en başta çıkar. |
+| **Related guides** | Sayfanın sonundaki "Related guides" kartları (boşlukları aynı masa ve dildeki rehberler doldurur). |
+| **FAQ** | 4–6 soru-cevap; sayfada açılır liste ve FAQPage JSON-LD. |
+| **Closing letter** | İsteğe bağlı kapanış başlığı ve metni; boşsa dile göre varsayılan metin. |
+
+**Yazım kuralları** (testler kontrol eder, §5): gövde, sorunun cevabıyla (2–3 cümle) açılır; ara başlıkların (H2) çoğu soru biçimindedir; rehberler 900–1.600, masa sayfaları 600–900 kelime; uydurma navlun, liman ölçüsü, istatistik veya mevzuat yazılmaz; bir rakam önemliyse nasıl belirlendiği anlatılır ya da resmi kaynak adıyla anılır. Gövdedeki site içi bağlantılar var olan bir sayfaya gitmelidir; yoksa derleme hata verir.
+
+**Önizleme:** `npm run dev` açıkken `http://localhost:3000/guides/<slug>`. **Draft** işaretli sayfalar yalnızca geliştirme sunucusunda görünür.
 
 ### Broker fotoğrafı
 

@@ -146,14 +146,29 @@ export class FpsGovernor {
   }
 }
 
+/**
+ * Renderer strings of software rasterisers. Chrome's ANGLE-on-Vulkan SwiftShader (headless
+ * Chrome, Lighthouse and PageSpeed Insights, VMs, GPU-blocklisted machines) does not set the
+ * "major performance caveat", so the renderer name is checked as well.
+ */
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+
+/** Whether a renderer string (UNMASKED_RENDERER_WEBGL) names a software rasteriser. */
+export function isSoftwareRenderer(renderer: string | null | undefined): boolean {
+  return !!renderer && SOFTWARE_RENDERER.test(renderer);
+}
+
 /** Probe WebGL2 once: available, and whether it is a software rasteriser. */
 export function probeWebGL(): { webgl: boolean; softwareGL: boolean } {
   try {
     const canvas = document.createElement("canvas");
     const fast = canvas.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
     if (fast) {
+      const info = fast.getExtension("WEBGL_debug_renderer_info");
+      const renderer = info ? fast.getParameter(info.UNMASKED_RENDERER_WEBGL) : null;
       fast.getExtension("WEBGL_lose_context")?.loseContext();
-      return { webgl: true, softwareGL: false };
+      const software = isSoftwareRenderer(typeof renderer === "string" ? renderer : null);
+      return { webgl: true, softwareGL: software };
     }
     const any = document.createElement("canvas").getContext("webgl2");
     any?.getExtension("WEBGL_lose_context")?.loseContext();

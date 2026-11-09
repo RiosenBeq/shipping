@@ -289,7 +289,7 @@ cropped away, or with `horizon={false}` on the window.
 | --- | --- | --- |
 | high | desktop, > 4 cores / > 4 GB (or unknown), ≥ 1024px wide | 1080/1600w video, DPR ≤ 1.5, flowmap (fine pointer), 3D hull |
 | medium | laptops with fewer cores or less memory, narrow windows, phones | 720p or portrait video, DPR ≤ 1.25, no flowmap, SVG hull on phones |
-| low | save-data, 2G/3G, ≤ 2 GB memory, reduced motion, no WebGL2, software WebGL | posters, static procedural images, SVG hull — no canvas, no video, no three.js download |
+| low | save-data, 2G/3G, ≤ 2 GB memory, reduced motion, no WebGL2, software WebGL (performance caveat, or a SwiftShader / llvmpipe renderer) | posters, static procedural images, SVG hull — no canvas, no video, no three.js download |
 
 - **Poster mode first.** The server renders every listed plate's graded poster (`<picture>`:
   portrait source on portrait screens, AVIF then WebP, 800w/1600w), CSS vignette and grain.

@@ -5,8 +5,6 @@ import {
   Inter_Tight,
   Source_Serif_4,
 } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LOCALES } from "@/lib/i18n";
 import { needsCssGrade, proceduralStatics } from "@/lib/media";
 import { organizationLd, websiteLd } from "@/lib/seo";
@@ -16,6 +14,7 @@ import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav, type NavLanguage } from "./Nav";
 import { Spotlight } from "./Spotlight";
+import { Telemetry } from "./Telemetry";
 import { BrandMotion } from "./brand/BrandMotion";
 import { INTRO_SCRIPT } from "./brand/intro";
 
@@ -23,20 +22,26 @@ import { INTRO_SCRIPT } from "./brand/intro";
  * One type system (DESIGN-V2 §4.2): Inter Tight (display) + Inter (text, UI)
  * + Source Serif 4 (editorial voice) + IBM Plex Mono (data). No other
  * families, except IBM Plex Sans Arabic for the Arabic display (§12), which
- * only downloads on pages that set Arabic text in it. Subsets: latin,
- * latin-ext and greek (for /el) where the family has them.
+ * only downloads on pages that set Arabic text in it.
+ *
+ * Subsets: next/font declares every range Google serves (latin-ext, greek,
+ * cyrillic, …) as its own @font-face with a unicode-range, so a browser only
+ * fetches a range when the page has text in it. `subsets` picks what is
+ * PRELOADED: latin alone, the only range every page's first screen sets
+ * (latin-ext and greek were ~240 KB of preloads on every page, needed by
+ * none of their first screens; /el and Turkish names still get them, on use).
  */
 
 /** Display (`--font-display`): hero, display, statement, h3, cards, menu. Variable 500–700. */
 const interTight = Inter_Tight({
-  subsets: ["latin", "latin-ext", "greek"],
+  subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
 });
 
 /** Text and UI (`--font-body`): body, lead, labels, buttons. Variable 400–600. */
 const inter = Inter({
-  subsets: ["latin", "latin-ext", "greek"],
+  subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
 });
@@ -47,7 +52,7 @@ const inter = Inter({
  * the italic for pull quotes. Not preloaded: only pages that use it fetch it.
  */
 const sourceSerif = Source_Serif_4({
-  subsets: ["latin", "latin-ext", "greek"],
+  subsets: ["latin"],
   style: ["normal", "italic"],
   axes: ["opsz"],
   variable: "--font-serif",
@@ -57,7 +62,7 @@ const sourceSerif = Source_Serif_4({
 
 /** Data (`--font-mono`): coordinates, dates, numbers, scene labels. */
 const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
@@ -139,8 +144,7 @@ export function SiteShell({
         <FloatingContact locales={FAB_LOCALES} />
         <Spotlight />
         <BrandMotion />
-        <Analytics />
-        <SpeedInsights />
+        <Telemetry />
       </body>
     </html>
   );

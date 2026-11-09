@@ -1,3 +1,4 @@
+import { ClassArt, ShipProfile } from "@/components/site/drawings/Ship";
 import { StageWindow } from "@/components/site/stage";
 import { ShipsSlider } from "./ShipsSlider";
 import type { HomeView } from "./types";
@@ -27,6 +28,21 @@ export function Ships({ view, id }: { view: HomeView; id: string }) {
         <ShipsSlider
           ships={ships}
           linkLang={view.linkLang}
+          // The drawings render here, on the server: the GA drawing model stays out of the
+          // homepage's JavaScript (the rail loads it only to draw another class's lines).
+          arts={ships.cards.map((c) => (
+            <ClassArt key={c.slug} slug={c.slug} ribbon="ship-card__ribbon" />
+          ))}
+          firstLines={
+            ships.cards[0] && (
+              <ShipProfile
+                ship={ships.cards[0].slug}
+                detail="stage"
+                className="stage-lines__art"
+                ribbon="stage-lines__ribbon"
+              />
+            )
+          }
           header={
             <div>
               <p className="t-sub">{ships.sub}</p>

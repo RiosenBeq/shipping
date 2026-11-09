@@ -9,7 +9,16 @@ export type TocItem = { id: string; label: string };
  * fills as you read, the current section marked. Without JS it is a plain list of anchors.
  * Hidden below 1180px, where `TocMobile` (a <details>) takes over above the column.
  */
-export function Toc({ items, articleId }: { items: TocItem[]; articleId: string }) {
+export function Toc({
+  items,
+  articleId,
+  label = "On this page",
+}: {
+  items: TocItem[];
+  articleId: string;
+  /** The heading, in the page's language. */
+  label?: string;
+}) {
   const ref = useRef<HTMLOListElement>(null);
   const [active, setActive] = useState<string | null>(null);
 
@@ -45,8 +54,8 @@ export function Toc({ items, articleId }: { items: TocItem[]; articleId: string 
   }, [items, articleId]);
 
   return (
-    <nav className="ip-toc" aria-label="On this page">
-      <p className="t-label">On this page</p>
+    <nav className="ip-toc" aria-label={label}>
+      <p className="t-label">{label}</p>
       <ol ref={ref}>
         {items.map((it) => (
           <li key={it.id}>
@@ -61,11 +70,11 @@ export function Toc({ items, articleId }: { items: TocItem[]; articleId: string 
 }
 
 /** The same contents, collapsed, for phones and tablets (no JS needed). */
-export function TocMobile({ items }: { items: TocItem[] }) {
+export function TocMobile({ items, label = "On this page" }: { items: TocItem[]; label?: string }) {
   return (
     <details className="ip-toc-mobile">
-      <summary>On this page</summary>
-      <nav aria-label="On this page (list)">
+      <summary>{label}</summary>
+      <nav aria-label={`${label} (list)`}>
         <ol>
           {items.map((it) => (
             <li key={it.id}>
