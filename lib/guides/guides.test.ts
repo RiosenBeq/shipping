@@ -97,7 +97,7 @@ describe("guides content", () => {
       expect(translationOf(other)?.slug).toBe(g.slug);
       expect(guideLanguages(g)).toEqual({ [g.lang]: g.href, [other.lang]: other.href });
     }
-    expect(getGuides().some((g) => g.lang === "tr")).toBe(true);
+    expect(getGuides().every((g) => g.lang === "en")).toBe(true);
   });
 
   it("link from existing pages only through the known targets", () => {

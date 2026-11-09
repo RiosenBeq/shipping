@@ -105,6 +105,8 @@ export function validateGuides(): string[] {
 
   for (const [slug, g] of parsed) {
     const file = `${GUIDES_DIR}/${slug}.mdoc`;
+    // Client decision (Nov 2026): every detailed page is in English.
+    if (g.lang !== "en") issues.push(`${file}: guides are published in English only (lang: en)`);
     if (g.translation) {
       const other = parsed.get(g.translation);
       if (!other) issues.push(`${file}: translation "${g.translation}" is not a guide`);

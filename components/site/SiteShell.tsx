@@ -13,6 +13,7 @@ import { FloatingContact, type FabLocale } from "./FloatingContact";
 import { Footer } from "./Footer";
 import { JsonLd } from "./JsonLd";
 import { Nav, type NavLanguage } from "./Nav";
+import { OffscreenPause } from "./OffscreenPause";
 import { Spotlight } from "./Spotlight";
 import { Telemetry } from "./Telemetry";
 import { BrandMotion } from "./brand/BrandMotion";
@@ -27,9 +28,11 @@ import { INTRO_SCRIPT } from "./brand/intro";
  * Subsets: next/font declares every range Google serves (latin-ext, greek,
  * cyrillic, …) as its own @font-face with a unicode-range, so a browser only
  * fetches a range when the page has text in it. `subsets` picks what is
- * PRELOADED: latin alone, the only range every page's first screen sets
- * (latin-ext and greek were ~240 KB of preloads on every page, needed by
- * none of their first screens; /el and Turkish names still get them, on use).
+ * PRELOADED: only the files every page lays out at once — Inter latin,
+ * latin-ext (the address, "Beşiktaş") and greek (the language list), Inter
+ * Tight latin, Plex Mono latin and latin-ext (the footer's strait chart).
+ * Inter Tight's latin-ext and greek (~112 KB) are no longer preloaded on
+ * every page; /el and Turkish headings still fetch them, on use.
  */
 
 /** Display (`--font-display`): hero, display, statement, h3, cards, menu. Variable 500–700. */
@@ -143,6 +146,7 @@ export function SiteShell({
         <Footer />
         <FloatingContact locales={FAB_LOCALES} />
         <Spotlight />
+        <OffscreenPause />
         <BrandMotion />
         <Telemetry />
       </body>

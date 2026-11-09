@@ -295,6 +295,6 @@ ${glossary}
 
 - The site does not publish live freight rates, bunker prices or port tariffs; the freight calculator's reference prices carry their date. Ask the desks for current numbers.
 - Blog posts are dated; market commentary reflects conditions at publication.
-- Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages and the inquiry form are in English, and selected guides are also published in Turkish (${url("/guides")}).
+- Overview pages exist in ${LOCALES.length} languages (${LOCALES.map((l) => l.code).join(", ")}); detailed pages, guides (${url("/guides")}) and the inquiry form are in English.
 `;
 }

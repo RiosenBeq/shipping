@@ -17,7 +17,6 @@ import {
   GUIDE_KIND_LABELS,
   GUIDE_KINDS,
   GUIDE_LANG_LABELS,
-  GUIDE_LANGS,
   GUIDE_LINK_TARGETS,
   GUIDE_SEGMENT_LABELS,
   GUIDE_SEGMENTS,
@@ -65,7 +64,7 @@ export function guidesCollection(components: Record<string, ContentComponent>) {
           validation: {
             pattern: {
               regex: SLUG_PATTERN,
-              message: "Lowercase letters, digits and single hyphens only (e.g. tanker-kiralama).",
+              message: "Lowercase letters, digits and single hyphens only (e.g. tanker-chartering-turkey).",
             },
           },
         },
@@ -103,19 +102,14 @@ export function guidesCollection(components: Record<string, ContentComponent>) {
         itemLabel: (props) => props.value || "(empty)",
       }),
       kind: choice("Page type", GUIDE_KINDS, "guide", GUIDE_KIND_LABELS),
+      // The site's detailed pages are English only (client decision, Nov 2026).
       lang: choice(
         "Language",
-        GUIDE_LANGS,
+        ["en"] as const,
         "en",
         GUIDE_LANG_LABELS,
-        "The language the page is written in (sets lang and hreflang)."
+        "Guides are published in English."
       ),
-      translation: fields.relationship({
-        label: "Same page in the other language",
-        description:
-          "Optional. Only for a true counterpart (same topic, same answers). Search engines then show each reader their language.",
-        collection: "guides",
-      }),
       desk: choice(
         "Desk",
         GUIDE_DESKS,
