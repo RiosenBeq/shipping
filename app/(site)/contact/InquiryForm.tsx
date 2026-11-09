@@ -826,14 +826,27 @@ export function InquiryForm() {
                 if (e.key === "Escape") dismiss();
               }}
             >
-              <span
-                className="uv-toast__icon"
-                aria-hidden="true"
-                // Nothing opened: a copy glyph instead of the kit's success check.
-                style={
-                  sent.opened ? undefined : ({ "--uv-check": COPY_ICON } as React.CSSProperties)
-                }
-              />
+              {sent.opened ? (
+                // Handed off: a small brass ship sails along a drawn line into the check mark,
+                // once (app/brand-motion.css, B5; reduced motion: the check mark alone).
+                <span className="uv-toast__icon bm-sail" aria-hidden="true">
+                  <svg viewBox="0 0 40 40" focusable="false">
+                    <path className="bm-sail__wake" d="M5 20.5H14" pathLength={1} />
+                    <path className="bm-sail__check" d="M14 20.5l4 4 8.5-9" pathLength={1} />
+                    <path
+                      className="bm-sail__ship"
+                      d="M-5-.6h10l-1.4 2.1h-7.4zM-4.2-.6v-2.2h2.8v2.2zM-3.6-2.8V-4h1.2v1.2zM3-.6v-1.8h.6v1.8z"
+                    />
+                  </svg>
+                </span>
+              ) : (
+                <span
+                  className="uv-toast__icon"
+                  aria-hidden="true"
+                  // Nothing opened: a copy glyph instead of the kit's success check.
+                  style={{ "--uv-check": COPY_ICON } as React.CSSProperties}
+                />
+              )}
               <div className="min-w-0">
                 <p className="uv-toast__title">
                   {sent.opened

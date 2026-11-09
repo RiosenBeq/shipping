@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { GasCarrierArt, PressurisedGasArt } from "@/components/site/VesselArt";
 import { ClassGuide } from "@/components/site/inner/ClassGuide";
 import { BtnLabel, LinkArrow } from "@/components/site/inner/ui";
 import { FREIGHT_PATH } from "@/lib/freight/constants";
@@ -84,8 +83,6 @@ export default function LpgClassPage({ params }: Params) {
   const i = LPG_CLASSES.findIndex((o) => o.slug === c.slug);
   const next = LPG_CLASSES[(i + 1) % LPG_CLASSES.length];
   const others = LPG_CLASSES.filter((o) => o.slug !== c.slug);
-  // Pressurised coasters carry cylindrical deck tanks, not a refrigerated trunk deck.
-  const Art = c.slug === "pressurised" ? PressurisedGasArt : GasCarrierArt;
   // Inquiries from this page arrive with the ship size preselected, and the
   // cargo too where the class mainly trades LPG (MGC/Handysize: visitor picks).
   const inquiry = lpgClassInquiryHref(c.slug);
@@ -156,7 +153,6 @@ export default function LpgClassPage({ params }: Params) {
           { k: "Typical cargo", v: c.typicalCargo },
           { k: "Cargoes", v: c.cargoes.join(", ") },
         ]}
-        art={<Art />}
         routesTitle={`Key ${c.name} trades.`}
         routes={c.routes}
         chipsTitle="Main trades"

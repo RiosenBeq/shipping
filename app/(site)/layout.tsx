@@ -3,6 +3,7 @@ import "../globals.css";
 import "../uiverse.css";
 import "../stage.css";
 import "../patterns.css";
+import "../brand-motion.css";
 import { SiteShell } from "@/components/site/SiteShell";
 import { rootMetadata, rootViewport } from "@/lib/root-metadata";
 

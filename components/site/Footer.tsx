@@ -10,6 +10,7 @@ import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { shippedVideos, videos } from "@/lib/media";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { Wordmark, letters } from "./brand/Wordmark";
 import { StraitChart } from "./footer/StraitChart";
 import strait from "./footer/strait.module.css";
 
@@ -147,10 +148,8 @@ export function Footer() {
           {/* A calm zone: the brand line and the offices' small type over the ocean's crests. */}
           <div className="ftr__brand-col" {...calm(0.5)}>
             <Link href="/" className="ftr__brand" aria-label={`${siteConfig.name} home`}>
-              <BrandMark light />
-              <span className="t-word" aria-hidden="true">
-                {siteConfig.wordmark}
-              </span>
+              <BrandMark light ripple />
+              <Wordmark />
             </Link>
             <p className="ftr__tag">
               Tanker and LPG chartering brokers on the Bosphorus. Crude, products, LPG and ammonia —
@@ -253,8 +252,9 @@ export function Footer() {
 
         <p className="ftr__plate" aria-hidden="true">
           {/* The plate scales to the name's length so it always spans the window, never clips. */}
+          {/* Letter by letter, so it can rise from its waterline once in view (brand-motion.css). */}
           <b style={{ "--plate-len": siteConfig.wordmark.length } as CSSProperties}>
-            {siteConfig.wordmark}
+            {letters(siteConfig.wordmark)}
           </b>
           <span>ISTANBUL</span>
         </p>

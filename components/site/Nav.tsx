@@ -8,6 +8,7 @@ import { FREIGHT_CALCULATOR_PATH } from "@/lib/content/options";
 import { inquiryHrefFor } from "@/lib/inquiry";
 import { siteConfig, telUrl } from "@/lib/site";
 import { BrandMark } from "./BrandMark";
+import { Wordmark } from "./brand/Wordmark";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 
 /** Main links (§8): the pill on desktop, the full-screen menu below 1024px. */
@@ -365,10 +366,8 @@ export function Nav({
           aria-label={`${siteConfig.name} home`}
           onClick={close}
         >
-          <BrandMark light={ground === "dark"} />
-          <span className="t-word" aria-hidden="true">
-            {siteConfig.wordmark}
-          </span>
+          <BrandMark light={ground === "dark"} ripple />
+          <Wordmark />
         </Link>
 
         <nav aria-label="Main" className="hdr__nav hdr__glass">
@@ -433,10 +432,8 @@ export function Nav({
             aria-label={`${siteConfig.name} home`}
             onClick={close}
           >
-            <BrandMark light />
-            <span className="t-word" aria-hidden="true">
-              {siteConfig.wordmark}
-            </span>
+            <BrandMark light ripple />
+            <Wordmark />
           </Link>
           <button
             type="button"

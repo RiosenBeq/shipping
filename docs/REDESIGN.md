@@ -299,6 +299,19 @@ Müşteri isteği: "three.js'i daha güzel kullan; hero'da aşağı kaydırdık�
 
 Hero artık bir ekran metin + yalnızca sahneden oluşan 75svh'lik bir kuyruktan oluşuyor (`.h-hero--scene`): metin yukarı kayıp gittikten sonra gemi tam kadrajda dönmeye devam eder ve tur, bir sonraki pencere gelgitle gövdeyi örtmeden (`HERO_TAIL` = 0,6 ekran) tamamlanır. Azaltılmış harekette ve baskıda hero yine tek ekrandır.
 
+### Marka hareketi: "gelgit" ailesinde logo, çizgi ve gemi (Kasım 2026)
+
+Müşteri isteği: "markaya özel animasyonlar ve benzeri yap, tasarım estetiğini geliştir". Tek yeni stil dosyası `app/brand-motion.css` (B1–B7) ve küçük istemci modülleri (`components/site/brand/`); hepsi mevcut `--ease-tide` / `--ease-swell` ve 180 · 420 · 640 · 900 ms sürelerini kullanır, yalnız transform, opaklık, kırpma ve çizgi kesikleri canlandırılır (yerleşim kaymaz). JS'siz sayfa eksiksizdir; azaltılmış harekette, "Pause motion" açıkken ve baskıda hiçbir şey hareket etmez (yalnız durgun son hal).
+
+- **B1 Logo kendini çizer:** oturumun ilk sayfa görüntülemesinde başlıktaki işaretin halkası batıdan kalemle çizilir, pirinç gelgit çizgisi onu izler, ardından "OBM SHIPPING" harfleri su çizgisinden 22 ms arayla yükselir (~1,1 sn). Bayrak, başlık boyanmadan önce `<body>` başındaki küçük satır içi betikle konur (`brand/intro.ts`, sessionStorage), böylece logo hiç "tam görünüp kaybolmaz"; sonraki görüntülemeler durgundur. LCP'yi geciktirmez.
+- **B2 Dalga:** başlık, menü ve altbilgideki marka bağlantısının üzerine gelince ya da klavyeyle odaklanınca işaretin çizgisi boyunca bir kez ışık geçer.
+- **B3 Gezinti gelgit çizgisi:** site içi bağlantı tıklamalarında en üstte pirinç bir kıl çizgi ilerler, uç kısmında minik bir tanker silueti; yeni sayfa yerleşince sona koşar ve söner. İlk yüklemede, geri/ileri, aynı sayfa çapası ve yeni sekmede çalışmaz (`leavesPage`, testli).
+- **B4 Kıç levhası:** altbilgideki dev "OBM SHIPPING" filigranı görünür olduğunda harf harf su çizgisinden yükselir, "ISTANBUL" en son gelir; yalnız bir kez.
+- **B5 Talep onayı:** e-posta/WhatsApp devri başarılı olunca bildirimdeki ikonda pirinç bir gemi çizilen bir hat boyunca yola çıkar, onay işaretinin iki kolunu dümen suyu olarak çizer ve uzaklaşır (~1,5 sn). Canlı bölge ve odak yönetimi aynen korunur; azaltılmış harekette yalnız onay işareti.
+- **B6 Butonlar:** pirinç ve lacivert CTA'larda ok kutusunun içinden sağa çıkıp soldan geri girer, hap 1 px yükselir, pirinç hafifçe parlar, basınca iner; çerçeveli (ghost) butonlarda aynı yükselme, daha parlak kıl çizgi ve hafif dolgu. Odak halkası değişmedi.
+- **B7 Kelime işareti:** isim değişikliğinden sonra başlıktaki "OBM SHIPPING" 320 px'de ve 1024 px civarında iki satıra kırılıyordu. Artık hiç kırılmaz: tam ad sığmayan genişliklerde (375 px altı ve 1024–1099 px) işaret + "OBM" gösterilir, tam ad bağlantının erişilebilir etiketinde kalır; başlıkta ve telefon menüsünde aynı kural. Kilit tipografi: "OBM" 700, "SHIPPING" 500 ağırlık (aynı 0,3em aralık); son harften sonraki boşluk kırpıldı, odak halkası iki yanda eşit.
+- **Ölçü:** ilk yük JS'ine eklenen ≈ 1,2 KB gz (BrandMotion ≈ 0,95 KB + Wordmark), satır içi betik ≈ 0,3 KB HTML. Kare şeritleri ve azaltılmış hareket kontrolü 1440×900 ve 390×844'te Playwright ile alındı.
+
 ## 12. Yayından önce yapılması gerekenler
 
 1. **Alan adı:** Vercel'de `NEXT_PUBLIC_SITE_URL` ortam değişkenine gerçek alan adını girin. Şu an `https://obmshipping.example`. Canonical, sitemap, robots, llms.txt ve JSON-LD bu değeri kullanır.

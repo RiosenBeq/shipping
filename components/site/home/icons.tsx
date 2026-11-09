@@ -1,35 +1,39 @@
 import {
-  Anchor,
   ArrowRight,
   ArrowUpRight,
   Clock,
-  Flame,
-  Globe,
   ListChecks,
-  Route,
   ShieldCheck,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
+import {
+  AnchorIcon,
+  LpgIcon,
+  OfficesIcon,
+  SpotIcon,
+  type DrawnIcon,
+} from "@/components/site/drawings/icons";
 import type { FactIcon } from "@/lib/content/options";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 
 export { ICON_STROKE };
 
-const FACT_ICON: Record<FactIcon, LucideIcon> = {
-  anchor: Anchor,
-  flame: Flame,
+/** The business marks are the drawings' own icons (anchor, gas, offices, lanes); the rest lucide. */
+const FACT_ICON: Record<FactIcon, LucideIcon | DrawnIcon> = {
+  anchor: AnchorIcon,
+  flame: LpgIcon,
   broker: UserRound,
   numbers: ListChecks,
   shield: ShieldCheck,
   clock: Clock,
-  globe: Globe,
-  route: Route,
+  globe: OfficesIcon,
+  route: SpotIcon,
 };
 
 /** A fact's line icon for the 46px outlined circle (§4.3). */
 export function FactGlyph({ icon }: { icon: FactIcon }) {
-  const Icon = FACT_ICON[icon] ?? Anchor;
+  const Icon = FACT_ICON[icon] ?? AnchorIcon;
   return <Icon aria-hidden="true" strokeWidth={ICON_STROKE.ring} />;
 }
 

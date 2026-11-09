@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail } from "lucide-react";
 import { JsonLd } from "@/components/site/JsonLd";
-import { TankerArt } from "@/components/site/VesselArt";
 import { ClassGuide } from "@/components/site/inner/ClassGuide";
 import { BtnLabel, LinkArrow } from "@/components/site/inner/ui";
 import { FREIGHT_PATH } from "@/lib/freight/constants";
@@ -181,7 +180,6 @@ export default function TankerClassPage({ params }: Params) {
           { k: "Speed", v: t.speed },
           { k: "Consumption", v: t.consumption },
         ]}
-        art={<TankerArt />}
         routesTitle={`Key ${t.shortName} lanes.`}
         routes={t.routes}
         chipsTitle="Typical charterers"

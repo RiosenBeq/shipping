@@ -5,26 +5,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { EmblaCarouselType } from "embla-carousel";
 import { ShipLines } from "@/components/site/stage/ShipLines";
-import { GasCarrierArt, PressurisedGasArt, TankerArt } from "@/components/site/VesselArt";
+import { DrawIn } from "@/components/site/drawings/DrawIn";
+import { ClassArt } from "@/components/site/drawings/Ship";
 import { Arrow, ICON_STROKE } from "./icons";
 import type { HomeView } from "./types";
 import { useDesktopRail } from "./useDesktopRail";
 
 type Ships = NonNullable<HomeView["ships"]>;
 
+/** The class's general-arrangement profile with a light ribbon along its waterline. */
 function CardArt({ slug }: { slug: string }) {
-  const Art =
-    slug === "pressurised"
-      ? PressurisedGasArt
-      : slug.match(/^(vlgc|mgc|handysize)$/)
-        ? GasCarrierArt
-        : TankerArt;
   return (
-    <span className="ship-card__art" aria-hidden="true">
-      <Art />
-      <svg className="ship-card__ribbon" viewBox="0 0 320 96" fill="none">
-        <path d="M22 74 H300" pathLength="100" />
-      </svg>
+    <span className="ship-card__art" aria-hidden="true" data-draw="">
+      <ClassArt slug={slug} ribbon="ship-card__ribbon" />
     </span>
   );
 }
@@ -247,6 +240,7 @@ export function ShipsSlider({
 
   return (
     <div className="ships" ref={rootRef}>
+      <DrawIn />
       <div className="ships__top">
         {header}
         <div className="ships__tabs" role="group" aria-label={ships.tabsLabel}>

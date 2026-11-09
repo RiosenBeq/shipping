@@ -648,18 +648,11 @@ a.lv-chip:hover {
   .lv-btn {
     transition:
       transform var(--dur-hover) var(--ease-quick),
+      translate var(--dur-hover) var(--ease-quick),
       box-shadow var(--dur-hover) var(--ease-quick),
       background-color var(--dur-hover) var(--ease-quick);
   }
-  .lv-btn__arrow svg {
-    transition: translate 0.42s var(--ease-tide);
-  }
-  .lv-btn:hover .lv-btn__arrow svg {
-    translate: 2px 0;
-  }
-  [dir="rtl"] .lv-btn:hover .lv-btn__arrow svg {
-    translate: -2px 0;
-  }
+  /* the arrow's slide through its badge, the lift and the press: app/brand-motion.css (B6) */
   .lv-link > span,
   .lv-link--accent > span {
     transition: background-size 0.42s var(--ease-tide);
@@ -701,7 +694,9 @@ a.lv-chip:hover {
   align-items: center;
   gap: 12px;
   margin-inline-end: auto;
-  padding: 4px;
+  /* the wordmark's trailing tracking is trimmed (brand-motion.css): the end padding gives
+     the focus ring the same air after the last letter as round the mark */
+  padding: 4px 12px 4px 4px;
   margin-inline-start: -4px;
   border-radius: 999px;
   color: inherit;
@@ -1339,7 +1334,7 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   font-size: min(12.4vw, calc(90vw / (var(--plate-len, 8) * 0.87)));
   letter-spacing: 0.3em;
 }
-.ftr__plate span {
+.ftr__plate > span {
   display: block;
   margin-top: 1.2vw;
   margin-inline-end: -0.9em;
@@ -1383,7 +1378,7 @@ body:has(.stage [data-stage-layer="V-ocean"]) .ftr__poster {
   .ftr__plate b {
     font-size: min(11.4vw, calc((100vw - 60px) / (var(--plate-len, 8) * 0.87)));
   }
-  .ftr__plate span {
+  .ftr__plate > span {
     font-size: 3vw;
   }
 }

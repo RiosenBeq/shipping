@@ -19,6 +19,7 @@ import { Toc, TocMobile } from "./Toc";
 import { BtnLabel, Glows, LinkArrow, StillFigure, Sub } from "./ui";
 import { ICON_STROKE } from "@/components/site/iconStroke";
 import { RelatedGuides } from "@/components/site/inner/RelatedGuides";
+import { GaPlate, ShipSection } from "@/components/site/drawings/GaPlate";
 
 type Route = { code: string; lane: string; note: string; hormuz?: boolean };
 
@@ -39,8 +40,6 @@ export type ClassGuideProps = {
   facts: { label: string; value: string; small?: string }[];
   /** "At a glance" specifications in the aside. */
   specs: { k: string; v: string }[];
-  /** VesselArt for the aside (decorative). */
-  art: React.ReactNode;
   routesTitle: string;
   routes: Route[];
   chipsTitle: string;
@@ -132,6 +131,8 @@ export function ClassGuide(p: ClassGuideProps) {
             ))}
           </dl>
 
+          <GaPlate ship={p.slug} />
+
           <div className="ip-article mt-[clamp(56px,7vw,96px)]">
             <Toc items={TOC} articleId="guide-body" />
 
@@ -219,7 +220,7 @@ export function ClassGuide(p: ClassGuideProps) {
               <div className="ip-panel">
                 <p className="t-label acc">At a glance</p>
                 <div className="ip-panel__art" aria-hidden="true">
-                  {p.art}
+                  <ShipSection ship={p.slug} />
                 </div>
                 <dl className="ip-specs">
                   {p.specs.map((s) => (

@@ -220,5 +220,9 @@ export function particulars(slug: ShipClassSlug): ShipParticulars {
   return PARTICULARS[slug];
 }
 
+export function isDrawnClass(v: string): v is ShipClassSlug {
+  return Object.prototype.hasOwnProperty.call(PARTICULARS, v);
+}
+
 /** "330.0 m" — one decimal, as a GA title block prints it. */
 export const metres = (v: number) => `${v.toFixed(1)} m`;

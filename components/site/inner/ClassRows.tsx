@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { DrawIn } from "@/components/site/drawings/DrawIn";
 import { LinkArrow } from "./ui";
 
 export type ClassRow = {
@@ -13,7 +14,7 @@ export type ClassRow = {
   chipsLabel: string;
   /** "VLCC guide". */
   go: string;
-  /** The class's VesselArt (decorative). */
+  /** The class's drawing, e.g. `<ShipProfile ship="vlcc" />` (decorative). */
   art: React.ReactNode;
   /** Silhouette width inside the thumbnail, a quiet size ladder (e.g. "100%", "70%"). */
   artWidth?: string;
@@ -21,8 +22,8 @@ export type ClassRow = {
 
 /**
  * Seacon service rows for ship classes (DESIGN-V2 §10 desk hubs): mono number, the class in
- * `t-h3`, its long name and size band, route chips and a VesselArt thumbnail on night. The
- * whole row is one link to the class guide.
+ * `t-h3`, its long name and size band, route chips and the class's profile on night (drawn in
+ * as the row comes into view). The whole row is one link to the class guide.
  */
 export function ClassRows({
   rows,
@@ -62,6 +63,7 @@ export function ClassRows({
             <div
               className="ip-row__art"
               aria-hidden="true"
+              data-draw=""
               style={{ "--art-w": r.artWidth ?? "100%" } as React.CSSProperties}
             >
               {r.art}
@@ -69,6 +71,7 @@ export function ClassRows({
           </Link>
         </li>
       ))}
+      <DrawIn />
     </ul>
   );
 }
